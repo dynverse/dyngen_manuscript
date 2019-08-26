@@ -1,0 +1,114 @@
+\documentclass[11pt,hidelinks,a4paper]{article}
+
+%%%%%%%%%%%%%%%%%%%%%%%
+%%% IMPORT PACKAGES %%%
+%%%%%%%%%%%%%%%%%%%%%%%
+
+% text packages
+\usepackage{csquotes}
+\usepackage[english]{babel}
+\usepackage{setspace}	
+
+% scripting packages
+\usepackage{blindtext}
+
+% style packages
+\usepackage{lmodern}
+\usepackage{fancyhdr}
+\usepackage{microtype} % Sublim­i­nal re­fine­ments to­wards ty­po­graph­i­cal per­fec­tion
+
+% used for defining abbreviations, see nomenclature.tex
+\usepackage{nomencl}
+
+% figure packages
+\usepackage{tikz}
+\usetikzlibrary{calc,shapes,arrows,intersections,shadows}
+\tikzset{>=latex}
+\usepackage{graphicx}
+\usepackage[indention=0.5cm,labelsep=colon,font={sf,small},labelfont={bf,sf}]{caption}
+\usepackage[indention=0.5cm,font={sf,small},labelfont={bf,sf}]{subcaption}
+\usepackage{float}
+\usepackage{multirow}
+\usepackage{import}
+\usepackage{xcolor}
+\usepackage{colortbl}
+
+% pseudocode packages
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+% symbols packages
+\usepackage{amssymb}
+\usepackage{amsmath}
+
+% table packages
+\usepackage{tabularx}
+\usepackage{tabulary}
+\usepackage{booktabs}
+
+% references packages
+\usepackage[sorting=none]{biblatex}
+\bibliography{library}
+\usepackage{bibentry}
+\nobibliography*
+
+% link packages
+\usepackage{url}
+\usepackage{doi}
+
+% add checkmark commands
+\usepackage{pifont}
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}}
+
+% fix named refs for starred sections
+\makeatletter
+\def\ttl@useclass#1#2{%
+	\@ifstar
+	{\ttl@labeltrue\@dblarg{#1{#2}}}% {\ttl@labelfalse#1{#2}[]}%
+	{\ttl@labeltrue\@dblarg{#1{#2}}}}
+\makeatother
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% DEFINE FIGURE HELPERS %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\hugefigure}{\textwidth}
+\newcommand{\LARGEfigure}{0.8\textwidth} % 1 per col
+\newcommand{\LARgefigure}{0.6\textwidth} % 1 per col
+\newcommand{\Largefigure}{0.5\textwidth} % 1 per col
+\newcommand{\largefigure}{0.37\textwidth} % 2 per col
+\newcommand{\normalfigure}{0.3\textwidth} % 3 per col
+\newcommand{\smallfigure}{0.24\textwidth} % 3 per col
+\newcommand{\Smallfigure}{0.19\textwidth} % 4 per col
+\newcommand{\SMALLfigure}{0.15\textwidth} % 5 per col
+
+%%%%%%%%%%%%%%%%%%%%%
+%%% DEFINE STYLES %%%
+%%%%%%%%%%%%%%%%%%%%%
+
+% use Sonny chapter style
+\usepackage[Sonny]{fncychap} %Sonny
+
+% set font after chapter sonny style
+\usepackage{fontspec}
+\setmainfont [Path = fonts/,
+UprightFont = *-300,
+ItalicFont = *-300-Italic,
+BoldFont = *-700,
+BoldItalicFont = *-700-Italic
+]{MuseoSans}
+
+%% hyperlinks
+% load hyperref after fncychap
+\usepackage{hyperref}
+
+\renewcommand{\appendixname}{}
+\renewcommand{\baselinestretch}{1.25}
+
+\begin{document}
+
+\include{content}
+
+\end{document}

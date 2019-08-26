@@ -1,8 +1,10 @@
-\documentclass[11pt,hidelinks,a4paper]{article}
+\documentclass[11pt,a4paper]{article}
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %%% IMPORT PACKAGES %%%
 %%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage[margin=2.5cm,a4paper]{geometry}
 
 % text packages
 \usepackage{csquotes}
@@ -16,9 +18,6 @@
 \usepackage{lmodern}
 \usepackage{fancyhdr}
 \usepackage{microtype} % Sublim­i­nal re­fine­ments to­wards ty­po­graph­i­cal per­fec­tion
-
-% used for defining abbreviations, see nomenclature.tex
-\usepackage{nomencl}
 
 % figure packages
 \usepackage{tikz}
@@ -50,7 +49,6 @@
 \usepackage[sorting=none]{biblatex}
 \bibliography{library}
 \usepackage{bibentry}
-\nobibliography*
 
 % link packages
 \usepackage{url}
@@ -60,14 +58,6 @@
 \usepackage{pifont}
 \newcommand{\cmark}{\ding{51}}
 \newcommand{\xmark}{\ding{55}}
-
-% fix named refs for starred sections
-\makeatletter
-\def\ttl@useclass#1#2{%
-	\@ifstar
-	{\ttl@labeltrue\@dblarg{#1{#2}}}% {\ttl@labelfalse#1{#2}[]}%
-	{\ttl@labeltrue\@dblarg{#1{#2}}}}
-\makeatother
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -88,10 +78,6 @@
 %%% DEFINE STYLES %%%
 %%%%%%%%%%%%%%%%%%%%%
 
-% use Sonny chapter style
-\usepackage[Sonny]{fncychap} %Sonny
-
-% set font after chapter sonny style
 \usepackage{fontspec}
 \setmainfont [Path = fonts/,
 UprightFont = *-300,
@@ -101,14 +87,17 @@ BoldItalicFont = *-700-Italic
 ]{MuseoSans}
 
 %% hyperlinks
-% load hyperref after fncychap
 \usepackage{hyperref}
 
-\renewcommand{\appendixname}{}
 \renewcommand{\baselinestretch}{1.25}
 
 \begin{document}
 
+
 \include{content}
+
+\appendix
+
+\printbibliography
 
 \end{document}

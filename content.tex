@@ -18,7 +18,7 @@ While this falls outside the reach of current experimental technologies, \textit
 of single cells would allow developing the next wave of computational techniques
 in anticipation of new experimental technologies.
 
-A few generators of scRNA-seq profiles have already been developed (e.g. splatter \cite{zappia_splattersimulationsinglecell_2017} and PROSSTT \cite{papadopoulos_prossttprobabilisticsimulation_2018}). % BoolODE and dyntoy are also examples.
+A few generators of scRNA-seq profiles have already been developed (e.g. splatter \cite{zappia_splattersimulationsinglecell_2017}, powsimR \cite{vieth_powsimrpoweranalysis_2017} and PROSSTT \cite{papadopoulos_prossttprobabilisticsimulation_2018}). % BoolODE and dyntoy are also examples.
 These can be used to evaluate the performance of computational tools, and to explore their strengths and weaknesses. A limitation of directly simulating a scRNA-seq profile (instead of a single cell) is that extending the simulation to other aspects of the cell -- such as tracking the full history of molecular states -- becomes difficult.
 
 We introduce dyngen, a multi-modality simulator of single cells (Figure \ref{fig:dyngen}).
@@ -52,44 +52,54 @@ Another advantage is that dyngen returns many modalities throughout the whole si
 The final main advantage is that by making alterations to the simulation pipeline, multiple types of experiments (sampling technique or profiling technique) can be simulated. By default, dyngen supports snapshot experiments (uniformly sampling from an asynchronous dynamic process) and time-series experiments (sampling cells from different intervals in the simulation). 
 It is possible to implement other experimental protocols (which perhaps do not exist in real life), such as sampling the same cell at regular intervals. 
 
+%% TODO: show that dyngen output resembles real data using e.g. countsimQC?
+
 \section{Discussion}
 As is, dyngen's single cell simulations can be used to evaluate common single-cell omics computational methods such as clustering, batch correction, trajectory inference and network inference.
-However, the combined effect of these advantages results in a framework that is flexible enough to adapt to a broad range of applications, some of which may still be needed in the future. This may include methods that integrate clustering, network inference and trajectory inference. In this respect, dyngen may promote the development of new tools in the single-cell field similarly as other simulators have done in the past \textbf{10.1093/bioinformatics/btx631} \textbf{10.1093/bioinformatics/btr373} \textbf{10.1038/nmeth.3407}.
+However, the combined effect of these advantages results in a framework that is flexible enough to adapt to a broad range of applications. This may include methods that integrate clustering, network inference and trajectory inference. In this respect, dyngen may promote the development of new tools in the single-cell field similarly as other simulators have done in the past \cite{schaffter_genenetweaversilicobenchmark_2011,ewing_combiningtumorgenome_2015}.
 
-Adding batch effects to snapshot simulations of linear (or even branching) trajectories allows to evaluate trajectory alignment methods -- which attempt to map two or more trajectories onto each other. Adding perturbations to the GRN allows to evaluate the performance of differential network inference methods -- which predict differential regulatory interactions between two or more groups of profiles.  Sampling a cell at a certain time point and once more at a later time point allows to evaluate the performance of RNA velocity approaches -- which predict the future state of a cell by looking at differences in pre-mRNA and mRNA abundance levels.
+Adding batch effects to snapshot simulations of linear (or even branching) trajectories allows evaluating trajectory alignment methods -- which attempt to map two or more trajectories onto each other. Adding perturbations to the GRN allows evaluating the performance of differential network inference methods -- which predict differential regulatory interactions between two or more groups of profiles.  Sampling a cell at a particular time point and once more at a later time point allows evaluating the performance of RNA velocity approaches -- which predict the future state of a cell by looking at differences in pre-mRNA and mRNA abundance levels.
 
 dyngen ultimately also allows anticipating technological developments in single-cell multi-omics. In this way, it is possible to design and evaluate the performance and robustness of new types of computational analyses before experimental data becomes available.
-Similarly, it could also be used to compare which experimental technique will likely produce the most accurate result. For example, is it possible to infer directionality of regulatory interactions from snapshot experiments only, or are time series or knock down experiments a necessity in order to infer high quality regulatory networks?
+Similarly, it could also be used to compare which experimental technique will likely produce the most accurate result. For example, is it possible to infer directionality of regulatory interactions from snapshot experiments only, or are time series or knockdown experiments a necessity in order to infer high-quality regulatory networks?
 
 Currently, dyngen focuses on simulating cells as standalone entities.
 Future developments include extending the framework to simulate multiple cells in a virtual environment. Allowing cells to receive and react to environmental and intercellular stimuli would enable simulating essential cellular processes such as cell division and migration. 
 %¡also adding more types of molecules, e.g. protein complex, small rnas, PPI
 \section{Methods}
 
-\subsection{Simulating a snapshot experiment with dyngen}
-\subsubsection{Define the module network and the state network}
-\subsubsection{Generate the transcription factor network}
-\subsubsection{Generate targets and housekeeping genes}
-\subsubsection{Convert gene regulatory network to a set of SSA reactions}
-\subsubsection{Simulate backbone}
-\subsubsection{Run SSA simulations}
-\subsubsection{Map SSA simulations to backbone}
-\subsubsection{Simulate snapshot experiment}
+dyngen's approach was inspired by GeneNetWeaver's \cite{schaffter_genenetweaversilicobenchmark_2011} workflow to generate \textit{in silico} bulk profiles for evaluating network inference methods \cite{marbach_wisdomcrowdsrobust_2012}. The workflow to generate \textit{in silico} single cell data consists of six main steps: 1. define the module network, 2. generate gene regulatory network, 3. convert regulatory interactions to biochemical reactions, 4. simulate the developmental backbone, 5. simulate single cells, and 6. simulate experiment. 
 
-\subsection{Extensions}
+\subsection{Defining the module network and backbone}
+One of the main processes involved in cellular dynamic processes is gene regulation, where regulatory cascades and feedback loops lead to progressive changes in expression and decision making. The exact way a cell chooses a certain path during its differentiation is still an active research field, although certain models have already emerged and been tested \textit{in vivo}. One driver of bifurcation seems to be mutual antagonism, where two genes \cite{xu_regulationbifurcatingcell_2015} strongly repress each other, forcing one of the two to become inactive \cite{graf_forcingcellschange_2009}. Such mutual antagonism can be modelled and simulated \cite{wang_quantifyingwaddingtonlandscape_2011, ferrell_bistabilitybifurcationswaddington_2012}. Although the two-gene model is simple and elegant, the reality is frequently more complex, with multiple genes (grouped into modules) repressing each other \cite{yosef_dynamicregulatorynetwork_2013}.
+
+To simulate certain trajectory topologies, we therefore designed module networks in which the cells follow a particular trajectory topology given certain parameters.
 \subsubsection{Predefined backbones}
 \subsubsection{Backbone lego}
+
+\subsection{Generate gene regulatory network}
+\subsubsection{Generate the transcription factor network}
+\subsubsection{Generate targets and housekeeping genes}
+
+\subsection{Convert gene regulatory network to a set of reactions}
+
+\subsection{Simulate developmental backbone}
+
+\subsection{Simulate single cells}
+\subsubsection{Map SSA simulations to backbone}
+
+\subsection{Simulate experiment}
+\subsubsection{Snapshot experiment}
 \subsubsection{Time series experiment}
 \subsubsection{Perturbation experiment}
-\subsubsection{Batch effects}
 
 \subsection{Example use cases}
 \subsubsection{Trajectory alignment}
-From discussion: Adding batch effects to snapshot simulations of linear (or even branching) trajectories allows to evaluate trajectory alignment methods -- which attempt to map two or more trajectories onto each other. 
+From discussion: Adding batch effects to snapshot simulations of linear (or even branching) trajectories allows evaluating trajectory alignment methods -- which attempt to map two or more trajectories onto each other. 
 \subsubsection{Differential network inference}
-From discussion: Adding perturbations to the GRN allows to evaluate the performance of differential network inference methods -- which predict differential regulatory interactions between two or more groups of profiles.
+From discussion: Adding perturbations to the GRN allows evaluating the performance of differential network inference methods -- which predict differential regulatory interactions between two or more groups of profiles.
 \subsubsection{RNA velocity}
-From discussion: Sampling a cell at a certain time point and once more at a later time point allows to evaluate the performance of RNA velocity approaches -- which predict the future state of a cell by looking at differences in pre-mRNA and mRNA abundance levels.
+From discussion: Sampling a cell at a certain time point and once more at a later time point allows evaluating the performance of RNA velocity approaches -- which predict the future state of a cell by looking at differences in pre-mRNA and mRNA abundance levels.
 
 
 

@@ -54,7 +54,7 @@ It is possible to implement other experimental protocols (which perhaps do not e
 
 \section{Discussion}
 As is, dyngen's single cell simulations can be used to evaluate common single-cell omics computational methods such as clustering, batch correction, trajectory inference and network inference.
-However, the combined effect of these advantages results in a framework that is flexible enough to adapt to a broad range of applications; several examples are given.
+However, the combined effect of these advantages results in a framework that is flexible enough to adapt to a broad range of applications, some of which may still be needed in the future. This may include methods that integrate clustering, network inference and trajectory inference. In this respect, dyngen may promote the development of new tools in the single-cell field similarly as other simulators have done in the past \textbf{10.1093/bioinformatics/btx631} \textbf{10.1093/bioinformatics/btr373} \textbf{10.1038/nmeth.3407}.
 
 Adding batch effects to snapshot simulations of linear (or even branching) trajectories allows to evaluate trajectory alignment methods -- which attempt to map two or more trajectories onto each other. Adding perturbations to the GRN allows to evaluate the performance of differential network inference methods -- which predict differential regulatory interactions between two or more groups of profiles.  Sampling a cell at a certain time point and once more at a later time point allows to evaluate the performance of RNA velocity approaches -- which predict the future state of a cell by looking at differences in pre-mRNA and mRNA abundance levels.
 

@@ -25,7 +25,7 @@ We introduce dyngen, a multi-modality simulator of single cells (Figure \ref{fig
 dyngen was initially developed as part of a comprehensive benchmark of TI methods \cite{saelens_comparisonsinglecelltrajectory_2019} but has since been extended to be applicable in a much broader context.
 We demonstrate its flexibility by simulating numerous different types of biological experiments, and using these simulations to develop new benchmarking techniques for computational tools.
 
-\begin{figure}[hb]
+\begin{figure}[htb!]
 	\centering
 	\includegraphics[width=\linewidth]{fig/showcase_3.png} 
 	\caption{Showcase of dyngen functionality. \textbf{TODO: change to pdf.} Remove B?} % TODO: update label
@@ -35,7 +35,7 @@ We demonstrate its flexibility by simulating numerous different types of biologi
 \section{Results}
 dyngen is a simulator for single cells that develop over time. Throughout this section, a simple simulation of a cell undergoing a cyclic process is used to illustrate key strengths of dyngen (Figure \ref{fig:simplecyclic}). This example only comprises of a single cell containing 5 genes, but dyngen can easily scale up to thousands of simulations containing thousands of genes.
 
-\begin{figure}[hb]
+\begin{figure}[htb!]
 	\centering
 	\includegraphics[width=\linewidth]{fig/simplecyclic_edited} 
 	\caption{Showcase of dyngen functionality. A time resolution of 0.1 was used, but this can be increased or decreased without effect on performance of the execution of the simulation. \textbf{TODO: perhaps it's better to replace Figure \ref{fig:simplecyclic} with one subfigure for each of the paragraphs in this text.}}
@@ -68,30 +68,73 @@ Future developments include extending the framework to simulate multiple cells i
 %¡also adding more types of molecules, e.g. protein complex, small rnas, PPI
 \section{Methods}
 
-dyngen's approach was inspired by GeneNetWeaver's \cite{schaffter_genenetweaversilicobenchmark_2011} workflow to generate \textit{in silico} bulk profiles for evaluating network inference methods \cite{marbach_wisdomcrowdsrobust_2012}. The workflow to generate \textit{in silico} single cell data consists of six main steps: 1. define the module network, 2. generate gene regulatory network, 3. convert regulatory interactions to biochemical reactions, 4. simulate the developmental backbone, 5. simulate single cells, and 6. simulate experiment. 
+dyngen's approach was inspired by GeneNetWeaver's \cite{schaffter_genenetweaversilicobenchmark_2011} workflow to generate \textit{in silico} bulk profiles for evaluating network inference methods \cite{marbach_wisdomcrowdsrobust_2012}. The workflow to generate \textit{in silico} single cell data consists of six main steps (Figure \ref{fig:explain_methods}). 
+
+\begin{figure}[htb!]
+	\centering
+	\includegraphics[width=\hugefigure]{fig/explain_methods} 
+	\caption{The workflow of dyngen.}
+	\label{fig:explain_methods}
+\end{figure}
 
 \subsection{Defining the module network and backbone}
 One of the main processes involved in cellular dynamic processes is gene regulation, where regulatory cascades and feedback loops lead to progressive changes in expression and decision making. The exact way a cell chooses a certain path during its differentiation is still an active research field, although certain models have already emerged and been tested \textit{in vivo}. One driver of bifurcation seems to be mutual antagonism, where two genes \cite{xu_regulationbifurcatingcell_2015} strongly repress each other, forcing one of the two to become inactive \cite{graf_forcingcellschange_2009}. Such mutual antagonism can be modelled and simulated \cite{wang_quantifyingwaddingtonlandscape_2011, ferrell_bistabilitybifurcationswaddington_2012}. Although the two-gene model is simple and elegant, the reality is frequently more complex, with multiple genes (grouped into modules) repressing each other \cite{yosef_dynamicregulatorynetwork_2013}.
 
-To simulate certain trajectory topologies, we therefore designed module networks in which the cells follow a particular trajectory topology given certain parameters.
-\subsubsection{Predefined backbones}
+
+
+
+In dyngen, the behaviour of the dynamic process is determined in the way that modules are regulating each other, where each module is a set of coregulated genes. By carefully designing the module network, the desired dynamic behaviour can be achieved. A module may have basal expression, which means that pre-mRNA of the genes in this module will be transcribed without the presence of transcription factor molecules. 
+Basal expression
+Burn phase
+
+Several examples of module networks are given (Figure \ref{fig:example_backbones}). A linear process can by achieved by simply chaining together several modules. A cyclic process is a chain of modules, where the last module represses the first module. A bifurcating process consists of two modules that repress each other, and some modules leading up to and resulting from the bifurcation. A converging 
+Note that these examples represent the bare minimum in terms of number of modules used. Using more modules is typically desired, since some transitions will otherwise occur too quickly.
+
+
+\begin{figure}[htb!]
+	\centering
+	\includegraphics[width=\LARgefigure]{fig/example_backbones} 
+	\caption{Example module networks}
+	\label{fig:example_backbones}
+\end{figure}
+
+
 \subsubsection{Backbone lego}
+\blindtext
+
+\subsubsection{Predefined backbones}
+\blindtext
 
 \subsection{Generate gene regulatory network}
+\blindtext
 \subsubsection{Generate the transcription factor network}
+\blindtext
 \subsubsection{Generate targets and housekeeping genes}
+\blindtext
 
 \subsection{Convert gene regulatory network to a set of reactions}
+\blindtext
 
 \subsection{Simulate developmental backbone}
+\blindtext
 
 \subsection{Simulate single cells}
+\blindtext
+
 \subsubsection{Map SSA simulations to backbone}
+\blindtext
 
 \subsection{Simulate experiment}
+\blindtext
+
 \subsubsection{Snapshot experiment}
+\blindtext
+
 \subsubsection{Time series experiment}
+\blindtext
+
 \subsubsection{Perturbation experiment}
+\blindtext
 
 \subsection{Example use cases}
 \subsubsection{Trajectory alignment}

@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="250.34978mm"
+   height="253.0677mm"
+   viewBox="0 0 250.34978 253.0677"
+   version="1.1"
+   id="svg4410"
+   inkscape:version="0.92.4 (unknown)"
+   sodipodi:docname="explain_methods.svg">
+  <defs
+     id="defs4404" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.979899"
+     inkscape:cx="452.37015"
+     inkscape:cy="629.83809"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="3840"
+     inkscape:window-height="2032"
+     inkscape:window-x="0"
+     inkscape:window-y="54"
+     inkscape:window-maximized="1"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0" />
+  <metadata
+     id="metadata4407">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-15.117996,-11.306144)">
+    <rect
+       style="opacity:1;vector-effect:none;fill:none;fill-opacity:1;stroke:#c0c0c0;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+       id="rect4955"
+       width="80"
+       height="60"
+       x="15.367997"
+       y="11.556144" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:'Museo Sans';-inkscape-font-specification:'Museo Sans Light';text-align:start;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="21.811119"
+       y="17.302439"
+       id="text4959"><tspan
+         sodipodi:role="line"
+         id="tspan4957"
+         x="21.811119"
+         y="17.302439"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';text-align:start;text-anchor:start;stroke-width:0.26458332">1. Define module network</tspan></text>
+    <rect
+       y="11.556144"
+       x="100.76061"
+       height="60"
+       width="80"
+       id="rect4961"
+       style="opacity:1;vector-effect:none;fill:none;fill-opacity:1;stroke:#c0c0c0;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal" />
+    <text
+       id="text4965"
+       y="17.302439"
+       x="104.96705"
+       style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:'Museo Sans';-inkscape-font-specification:'Museo Sans Light';text-align:start;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';text-align:start;text-anchor:start;stroke-width:0.26458332"
+         y="17.302439"
+         x="104.96705"
+         id="tspan4963"
+         sodipodi:role="line">2. Generate GRN</tspan></text>
+    <rect
+       style="opacity:1;vector-effect:none;fill:none;fill-opacity:1;stroke:#c0c0c0;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+       id="rect4967"
+       width="80"
+       height="60"
+       x="184.68324"
+       y="11.556144" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:'Museo Sans';-inkscape-font-specification:'Museo Sans Light';text-align:start;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="186.50311"
+       y="17.302439"
+       id="text4971"><tspan
+         sodipodi:role="line"
+         id="tspan4969"
+         x="186.50311"
+         y="17.302439"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';text-align:start;text-anchor:start;stroke-width:0.26458332">3. Convert GRN to biochemical reactions</tspan></text>
+    <rect
+       y="74.899025"
+       x="15.367996"
+       height="60"
+       width="249.84978"
+       id="rect4973"
+       style="opacity:1;vector-effect:none;fill:none;fill-opacity:1;stroke:#c0c0c0;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal" />
+    <text
+       id="text4977"
+       y="80.645317"
+       x="18.850325"
+       style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:'Museo Sans';-inkscape-font-specification:'Museo Sans Light';text-align:start;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';text-align:start;text-anchor:start;stroke-width:0.26458332"
+         y="80.645317"
+         x="18.850325"
+         id="tspan4975"
+         sodipodi:role="line">4. Simulate backbone</tspan></text>
+    <rect
+       style="opacity:1;vector-effect:none;fill:none;fill-opacity:1;stroke:#c0c0c0;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+       id="rect4979"
+       width="249.84978"
+       height="60"
+       x="15.367996"
+       y="139.31097" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:'Museo Sans';-inkscape-font-specification:'Museo Sans Light';text-align:start;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="19.181839"
+       y="145.05727"
+       id="text4983"><tspan
+         sodipodi:role="line"
+         id="tspan4981"
+         x="19.181839"
+         y="145.05727"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';text-align:start;text-anchor:start;stroke-width:0.26458332">5. simulate single cells and map to backbone</tspan></text>
+    <rect
+       y="204.12384"
+       x="15.367996"
+       height="60"
+       width="249.84978"
+       id="rect4985"
+       style="opacity:1;vector-effect:none;fill:none;fill-opacity:1;stroke:#c0c0c0;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal" />
+    <text
+       id="text4989"
+       y="209.87013"
+       x="17.809692"
+       style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:'Museo Sans';-inkscape-font-specification:'Museo Sans Light';text-align:start;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';text-align:start;text-anchor:start;stroke-width:0.26458332"
+         y="209.87013"
+         x="17.809692"
+         id="tspan4987"
+         sodipodi:role="line">6. perform experiment; sample cells and molecules</tspan></text>
+  </g>
+</svg>

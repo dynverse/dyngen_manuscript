@@ -73,37 +73,57 @@ dyngen's approach was inspired by GeneNetWeaver's \cite{schaffter_genenetweavers
 \begin{figure}[htb!]
 	\centering
 	\includegraphics[width=\hugefigure]{fig/explain_methods} 
-	\caption{The workflow of dyngen.}
+	\caption{\textbf{The workflow of dyngen is comprised of six main steps.} \textbf{A:} The user needs to specify the desired module network or use a predefined module network. \textbf{B:} Each gene in a module is is regulated by one or more transcription factors from the upstream module. Additional target genes are generated. \textbf{C:} Each gene regulatory interaction in the GRN is converted to a set of biochemical reactions. \textbf{D:} Along with the module network, the user also needs to specify the backbone structure of expected cell states. The average expression of each edge in the backbone is simulated by activating a restricted set of genes for each edge. \textbf{E:} Multiple Gillespie SSA simulations are run using the reactions defined in step C.  The counts of each of the mocules at each time step are extracted. Each time step is mapped to a point in the backbone. \textbf{F:} Multiple cells are sampled from each simulation. Molecules are sampled from each cell.}
 	\label{fig:explain_methods}
 \end{figure}
 
 \subsection{Defining the module network and backbone}
+
 One of the main processes involved in cellular dynamic processes is gene regulation, where regulatory cascades and feedback loops lead to progressive changes in expression and decision making. The exact way a cell chooses a certain path during its differentiation is still an active research field, although certain models have already emerged and been tested \textit{in vivo}. One driver of bifurcation seems to be mutual antagonism, where two genes \cite{xu_regulationbifurcatingcell_2015} strongly repress each other, forcing one of the two to become inactive \cite{graf_forcingcellschange_2009}. Such mutual antagonism can be modelled and simulated \cite{wang_quantifyingwaddingtonlandscape_2011, ferrell_bistabilitybifurcationswaddington_2012}. Although the two-gene model is simple and elegant, the reality is frequently more complex, with multiple genes (grouped into modules) repressing each other \cite{yosef_dynamicregulatorynetwork_2013}.
 
+In dyngen, the user defines the behaviour of the simulation by defining how sets of genes, called modules, are regulating eachother.
+A module may have basal expression, which means that pre-mRNA of the genes in this module will be transcribed without the presence of transcription factor molecules. A module marked as "active during the burn phase" means that this module will be allowed to generate expression of its genes during an initial warm-up phase (See section \ref{sec:dyngen_ssa}). At the end of the dyngen process, cells will not be sampled from the burn phase simulations.
 
+Several examples of module networks are given (Figure \ref{fig:example_backbones}). 
+A simple chain of modules (where one module upregulates the next) results in a \emph{linear} process. By having the last module repress the first module, the process becomes \emph{cyclic}. Two modules repressing eachother is the basis of a \emph{bifurcating} process, though several chains of modules have to be attached in order to achieve progression before and after the bifurcation process. Finally, a \emph{converging} process has a bifurcation occurring during the burn phase, after which any differences in module regulation is removed.
 
-
-In dyngen, the behaviour of the dynamic process is determined in the way that modules are regulating each other, where each module is a set of coregulated genes. By carefully designing the module network, the desired dynamic behaviour can be achieved. A module may have basal expression, which means that pre-mRNA of the genes in this module will be transcribed without the presence of transcription factor molecules. 
-Basal expression
-Burn phase
-
-Several examples of module networks are given (Figure \ref{fig:example_backbones}). A linear process can by achieved by simply chaining together several modules. A cyclic process is a chain of modules, where the last module represses the first module. A bifurcating process consists of two modules that repress each other, and some modules leading up to and resulting from the bifurcation. A converging 
-Note that these examples represent the bare minimum in terms of number of modules used. Using more modules is typically desired, since some transitions will otherwise occur too quickly.
-
+Note that these examples represent the bare minimum in terms of number of modules used. Using longer chains of modules is typically desired. In addition, the fate decisions made in this example of a bifurcation is reversible, meaning cells can be reprogrammed to go down a different differentiation path. If this effect is undesirable, more safeguards need to be put in place to prevent reprogramming from occurring (Section \ref{sec:dyngen_backbone_lego}).
 
 \begin{figure}[htb!]
 	\centering
-	\includegraphics[width=\LARgefigure]{fig/example_backbones} 
+	\includegraphics[width=\LARGEfigure]{fig/example_backbones} 
 	\caption{Example module networks}
 	\label{fig:example_backbones}
 \end{figure}
 
+In addition to the module network, the user also needs to define a network of cellular states called the "backbone". Before simulating any cells, each transition in the backbone is simulated separately to obtain the average changes in expression along that transition (Figure \ref{fig:explain_methods}D). As part of the backbone, the user needs to specify which modules are allowed to alter its expression from one state to another. For example, in order to transition from state S0 to S1 in the cyclic example, gene modules A, B and C are turned on and a simulation is allowed to run. To transition from S1 to S2, gene modules D and E are turned on, and expression of gene module C is kept constant. To transition from S2 to S3, C is turned on again and now A and B are fixed. Finally, to transition from S3 to S1 again, A and B are turned on again and D and E are fixed again. Demonstrations of the backbone will be explained in more detail in section \ref{sec:dyngen_sim_backbone}.
 
-\subsubsection{Backbone lego}
-\blindtext
+\subsubsection{Backbone lego} \label{sec:dyngen_backbone_lego}
+
+\paragraph{Simple linear}
+
+\paragraph{Linear flip flop}
+
+\paragraph{Linear double repressing}
+
+\paragraph{Linear quick double repressing}
+
+\paragraph{Bifurcation (reversible)}
+
+\paragraph{Bifurcation (irreversible)}
 
 \subsubsection{Predefined backbones}
-\blindtext
+
+\paragraph{Linear}
+\paragraph{Bifurcating}
+\paragraph{Cycle}
+\paragraph{Branching} (and binary tree, consecutive bifurcating, trifurcating)
+\paragraph{Converging}
+\paragraph{Bifurcating converging}
+\paragraph{Bifurcating cycle}
+\paragraph{Bifurcating loop}
+\paragraph{Disconnected}
+
 
 \subsection{Generate gene regulatory network}
 \blindtext
@@ -115,10 +135,10 @@ Note that these examples represent the bare minimum in terms of number of module
 \subsection{Convert gene regulatory network to a set of reactions}
 \blindtext
 
-\subsection{Simulate developmental backbone}
+\subsection{Simulate developmental backbone} \label{sec:dyngen_sim_backbone}
 \blindtext
 
-\subsection{Simulate single cells}
+\subsection{Simulate single cells} \label{sec:dyngen_ssa}
 \blindtext
 
 \subsubsection{Map SSA simulations to backbone}

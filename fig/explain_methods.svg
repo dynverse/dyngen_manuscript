@@ -2293,10 +2293,10 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="3.959798"
-     inkscape:cx="174.27479"
-     inkscape:cy="783.77022"
+     inkscape:cx="166.64035"
+     inkscape:cy="401.68002"
      inkscape:document-units="mm"
-     inkscape:current-layer="g24477"
+     inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="3840"
      inkscape:window-height="2032"
@@ -2321,7 +2321,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -2364,7 +2364,7 @@
            y="80.918793"
            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';text-align:start;text-anchor:start;stroke-width:0.26458332"><tspan
    style="font-weight:bold"
-   id="tspan6080">D:</tspan> Simulate backbone</tspan></text>
+   id="tspan6080">D </tspan> Simulate backbone</tspan></text>
       <g
          id="g23389"
          transform="translate(9.1456822,64.420565)">
@@ -3415,7 +3415,7 @@
            id="tspan4957"
            sodipodi:role="line"><tspan
    style="font-weight:bold"
-   id="tspan6086">A:</tspan> Define module network</tspan></text>
+   id="tspan6086">A </tspan> Define module network</tspan></text>
       <rect
          style="opacity:1;vector-effect:none;fill:none;fill-opacity:1;stroke:#c0c0c0;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
          id="rect4961"
@@ -3435,7 +3435,7 @@
            y="17.575911"
            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';text-align:start;text-anchor:start;stroke-width:0.26458332"><tspan
    style="font-weight:bold"
-   id="tspan6084">B:</tspan> Generate GRN</tspan></text>
+   id="tspan6084">B </tspan> Generate GRN</tspan></text>
       <rect
          y="11.556144"
          x="184.368"
@@ -3455,7 +3455,7 @@
            id="tspan4969"
            sodipodi:role="line"><tspan
    style="font-weight:bold"
-   id="tspan6082">C:</tspan> Convert GRN to set of reactions</tspan></text>
+   id="tspan6082">C </tspan> Convert GRN to set of reactions</tspan></text>
       <g
          transform="translate(2.9507149,2.337975)"
          id="g9726">
@@ -4346,7 +4346,7 @@
            id="tspan4981"
            sodipodi:role="line"><tspan
    style="font-weight:bold"
-   id="tspan6078">E:</tspan> Simulate single cells and map to backbone</tspan></text>
+   id="tspan6078">E </tspan> Simulate single cells and map to backbone</tspan></text>
       <g
          id="g28055"
          inkscape:label="simulation_expression"
@@ -5226,7 +5226,7 @@
            y="209.72662"
            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';text-align:start;text-anchor:start;stroke-width:0.26458332"><tspan
    style="font-weight:bold"
-   id="tspan6090">F:</tspan> Perform experiment; sample cells and molecules</tspan></text>
+   id="tspan6090">F </tspan> Perform experiment; sample cells and molecules</tspan></text>
       <g
          transform="translate(1.0583333)"
          id="g20178">

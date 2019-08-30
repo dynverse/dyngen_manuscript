@@ -1492,8 +1492,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.979899"
-     inkscape:cx="684.30317"
-     inkscape:cy="163.50102"
+     inkscape:cx="510.3044"
+     inkscape:cy="162.49087"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -1515,7 +1515,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -3616,9 +3616,9 @@
          id="text19335"
          y="95.607208"
          x="-722.44354"
-         style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:'Museo Sans';-inkscape-font-specification:'Museo Sans weight=255';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.31807831"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.31807831;"
          xml:space="preserve"><tspan
-           style="stroke-width:0.31807831"
+           style="stroke-width:0.31807831;-inkscape-font-specification:'Helvetica LT Std';font-family:'Helvetica LT Std';font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;"
            y="95.607208"
            x="-722.44354"
            id="tspan19333"
@@ -3627,16 +3627,16 @@
          id="text19339"
          y="130.89557"
          x="-722.58325"
-         style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:'Museo Sans';-inkscape-font-specification:'Museo Sans weight=255';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.31807831"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.31807831;"
          xml:space="preserve"><tspan
-           style="stroke-width:0.31807831"
+           style="stroke-width:0.31807831;-inkscape-font-specification:'Helvetica LT Std';font-family:'Helvetica LT Std';font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;"
            y="130.89557"
            x="-722.58325"
            id="tspan19337"
            sodipodi:role="line">Cell 2</tspan></text>
       <text
          xml:space="preserve"
-         style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:'Museo Sans';-inkscape-font-specification:'Museo Sans weight=255';text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.31807831"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.31807831;"
          x="-717.08264"
          y="164.66072"
          id="text19343"><tspan
@@ -3644,22 +3644,22 @@
            id="tspan19341"
            x="-717.08264"
            y="164.66072"
-           style="text-align:center;text-anchor:middle;stroke-width:0.31807831">Simulation time</tspan></text>
+           style="text-align:center;text-anchor:middle;stroke-width:0.31807831;-inkscape-font-specification:'Helvetica LT Std';font-family:'Helvetica LT Std';font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;">Simulation time</tspan></text>
       <text
          transform="rotate(-90)"
          id="text19339-5"
          y="-755.70428"
          x="-121.19765"
-         style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:'Museo Sans';-inkscape-font-specification:'Museo Sans weight=255';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.31807831"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.31807831;"
          xml:space="preserve"><tspan
-           style="stroke-width:0.31807831"
+           style="stroke-width:0.31807831;-inkscape-font-specification:'Helvetica LT Std';font-family:'Helvetica LT Std';font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;"
            y="-755.70428"
            x="-121.19765"
            id="tspan19337-0"
            sodipodi:role="line">Expression</tspan></text>
       <text
          xml:space="preserve"
-         style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:'Museo Sans';-inkscape-font-specification:'Museo Sans weight=255';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.31807831"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.31807831;"
          x="-156.48248"
          y="-755.70428"
          id="text19848"
@@ -3668,7 +3668,7 @@
            id="tspan19846"
            x="-156.48248"
            y="-755.70428"
-           style="stroke-width:0.31807831">Expression</tspan></text>
+           style="stroke-width:0.31807831;-inkscape-font-specification:'Helvetica LT Std';font-family:'Helvetica LT Std';font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;">Expression</tspan></text>
     </g>
     <g
        id="g38968"
@@ -43969,15 +43969,15 @@
            id="text64432"
            y="-299.89832"
            x="508.64029"
-           style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:26.91278458px;line-height:1.25;font-family:'Museo Sans';-inkscape-font-specification:'Museo Sans weight=255';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:3.77238512"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26.91278458px;line-height:1.25;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:3.77238512;"
            xml:space="preserve"><tspan
-             style="stroke-width:3.77238512"
+             style="stroke-width:3.77238512;-inkscape-font-specification:'Helvetica LT Std';font-family:'Helvetica LT Std';font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;"
              y="-299.89832"
              x="508.64029"
              id="tspan64430"
              sodipodi:role="line">Simulation</tspan><tspan
              id="tspan64434"
-             style="stroke-width:3.77238512"
+             style="stroke-width:3.77238512;-inkscape-font-specification:'Helvetica LT Std';font-family:'Helvetica LT Std';font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;"
              y="-266.25732"
              x="508.64029"
              sodipodi:role="line">time</tspan></text>
@@ -43986,15 +43986,15 @@
            id="text64438"
            y="-226.13054"
            x="544.73206"
-           style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:26.91278458px;line-height:1.25;font-family:'Museo Sans';-inkscape-font-specification:'Museo Sans weight=255';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:3.77238512"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26.91278458px;line-height:1.25;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:3.77238512;"
            xml:space="preserve"><tspan
-             style="stroke-width:3.77238512"
+             style="stroke-width:3.77238512;-inkscape-font-specification:'Helvetica LT Std';font-family:'Helvetica LT Std';font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;"
              y="-226.13054"
              x="544.73206"
              id="tspan64436"
              sodipodi:role="line">Start</tspan><tspan
              id="tspan64440"
-             style="stroke-width:3.77238512"
+             style="stroke-width:3.77238512;-inkscape-font-specification:'Helvetica LT Std';font-family:'Helvetica LT Std';font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;"
              y="-192.48956"
              x="544.73206"
              sodipodi:role="line" /></text>
@@ -44003,9 +44003,9 @@
            id="text64444"
            y="-90.867111"
            x="543.33258"
-           style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:26.91278458px;line-height:1.25;font-family:'Museo Sans';-inkscape-font-specification:'Museo Sans weight=255';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:3.77238512"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26.91278458px;line-height:1.25;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:3.77238512;"
            xml:space="preserve"><tspan
-             style="stroke-width:3.77238512"
+             style="stroke-width:3.77238512;-inkscape-font-specification:'Helvetica LT Std';font-family:'Helvetica LT Std';font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;"
              y="-90.867111"
              x="543.33258"
              id="tspan64442"
@@ -44028,100 +44028,100 @@
     </g>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:'Museo Sans';-inkscape-font-specification:'Museo Sans weight=255';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332;"
        x="-554.70648"
        y="149.11679"
        id="text64698"><tspan
          sodipodi:role="line"
          x="-554.70648"
          y="149.11679"
-         style="stroke-width:0.26458332"
+         style="stroke-width:0.26458332;-inkscape-font-specification:'Helvetica LT Std';font-family:'Helvetica LT Std';font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;"
          id="tspan64702">At any given time point, measure:</tspan><tspan
          sodipodi:role="line"
          x="-554.70648"
          y="154.40846"
-         style="stroke-width:0.26458332"
+         style="stroke-width:0.26458332;-inkscape-font-specification:'Helvetica LT Std';font-family:'Helvetica LT Std';font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;"
          id="tspan64752">• molecule abundance (pre-mRNA, mRNA, protein)</tspan><tspan
          sodipodi:role="line"
          x="-554.70648"
          y="159.70012"
-         style="stroke-width:0.26458332"
+         style="stroke-width:0.26458332;-inkscape-font-specification:'Helvetica LT Std';font-family:'Helvetica LT Std';font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;"
          id="tspan64754">• no. of reactions occurring </tspan><tspan
          sodipodi:role="line"
          x="-554.70648"
          y="164.99179"
-         style="stroke-width:0.26458332"
+         style="stroke-width:0.26458332;-inkscape-font-specification:'Helvetica LT Std';font-family:'Helvetica LT Std';font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;"
          id="tspan64756">   (transcription, splicing, translation, degradation)</tspan><tspan
          sodipodi:role="line"
          x="-554.70648"
          y="170.28346"
-         style="stroke-width:0.26458332"
+         style="stroke-width:0.26458332;-inkscape-font-specification:'Helvetica LT Std';font-family:'Helvetica LT Std';font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;"
          id="tspan64758">• which regulatory interactions are active</tspan></text>
     <text
        id="text64714"
        y="149.11679"
        x="-429.7775"
-       style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:'Museo Sans';-inkscape-font-specification:'Museo Sans weight=255';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332;"
        xml:space="preserve"><tspan
-         style="stroke-width:0.26458332"
+         style="stroke-width:0.26458332;-inkscape-font-specification:'Helvetica LT Std';font-family:'Helvetica LT Std';font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;"
          y="149.11679"
          x="-429.7775"
          id="tspan64706"
          sodipodi:role="line">Simulate experimental conditions:</tspan><tspan
          id="tspan64708"
-         style="stroke-width:0.26458332"
+         style="stroke-width:0.26458332;-inkscape-font-specification:'Helvetica LT Std';font-family:'Helvetica LT Std';font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;"
          y="154.40846"
          x="-429.7775"
          sodipodi:role="line">• snapshot experiment</tspan><tspan
-         style="stroke-width:0.26458332"
+         style="stroke-width:0.26458332;-inkscape-font-specification:'Helvetica LT Std';font-family:'Helvetica LT Std';font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;"
          y="159.70012"
          x="-429.7775"
          sodipodi:role="line"
          id="tspan9723">• time series experiment</tspan><tspan
          id="tspan64710"
-         style="stroke-width:0.26458332"
+         style="stroke-width:0.26458332;-inkscape-font-specification:'Helvetica LT Std';font-family:'Helvetica LT Std';font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;"
          y="164.99179"
          x="-429.7775"
          sodipodi:role="line">• batch effect</tspan><tspan
          id="tspan64712"
-         style="stroke-width:0.26458332"
+         style="stroke-width:0.26458332;-inkscape-font-specification:'Helvetica LT Std';font-family:'Helvetica LT Std';font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;"
          y="170.28346"
          x="-429.7775"
          sodipodi:role="line">• perturbation experiment</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:'Museo Sans';-inkscape-font-specification:'Museo Sans weight=255';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332;"
        x="-337.8667"
        y="149.11679"
        id="text64724"><tspan
          sodipodi:role="line"
          x="-337.8667"
          y="149.11679"
-         style="stroke-width:0.26458332"
+         style="stroke-width:0.26458332;-inkscape-font-specification:'Helvetica LT Std';font-family:'Helvetica LT Std';font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;"
          id="tspan64722">Evaluate computational tools:</tspan><tspan
          sodipodi:role="line"
          x="-337.8667"
          y="154.40846"
-         style="stroke-width:0.26458332"
+         style="stroke-width:0.26458332;-inkscape-font-specification:'Helvetica LT Std';font-family:'Helvetica LT Std';font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;"
          id="tspan64735">• dimensionality reduction</tspan><tspan
          sodipodi:role="line"
          x="-337.8667"
          y="159.70012"
-         style="stroke-width:0.26458332"
+         style="stroke-width:0.26458332;-inkscape-font-specification:'Helvetica LT Std';font-family:'Helvetica LT Std';font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;"
          id="tspan64737">• batch effect correction</tspan><tspan
          sodipodi:role="line"
          x="-337.8667"
          y="164.99179"
-         style="stroke-width:0.26458332"
+         style="stroke-width:0.26458332;-inkscape-font-specification:'Helvetica LT Std';font-family:'Helvetica LT Std';font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;"
          id="tspan64739">• trajectory inference / alignment</tspan><tspan
          sodipodi:role="line"
          x="-337.8667"
          y="170.28346"
-         style="stroke-width:0.26458332"
+         style="stroke-width:0.26458332;-inkscape-font-specification:'Helvetica LT Std';font-family:'Helvetica LT Std';font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;"
          id="tspan64741">• (differential) network inference</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:600;font-stretch:normal;font-size:5.64444447px;line-height:1.25;font-family:'Museo Sans';-inkscape-font-specification:'Museo Sans Semi-Bold';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:5.64444447px;line-height:1.25;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std Bold';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332;"
        x="-564.57465"
        y="73.191322"
        id="text64762"><tspan
@@ -44129,21 +44129,21 @@
          id="tspan64760"
          x="-564.57465"
          y="73.191322"
-         style="font-style:normal;font-variant:normal;font-weight:600;font-stretch:normal;font-size:5.64444447px;font-family:'Museo Sans';-inkscape-font-specification:'Museo Sans Semi-Bold';stroke-width:0.26458332">A</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:5.64444447px;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std Bold';stroke-width:0.26458332;">A</tspan></text>
     <text
        id="text64766"
        y="147.9227"
        x="-564.97552"
-       style="font-style:normal;font-variant:normal;font-weight:600;font-stretch:normal;font-size:5.64444447px;line-height:1.25;font-family:'Museo Sans';-inkscape-font-specification:'Museo Sans Semi-Bold';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:5.64444447px;line-height:1.25;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std Bold';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332;"
        xml:space="preserve"><tspan
-         style="font-style:normal;font-variant:normal;font-weight:600;font-stretch:normal;font-size:5.64444447px;font-family:'Museo Sans';-inkscape-font-specification:'Museo Sans Semi-Bold';stroke-width:0.26458332"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:5.64444447px;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std Bold';stroke-width:0.26458332;"
          y="147.9227"
          x="-564.97552"
          id="tspan64764"
          sodipodi:role="line">B</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:'Museo Sans';-inkscape-font-specification:'Museo Sans Light';text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332;"
        x="-534.78815"
        y="73.191322"
        id="text64789"><tspan
@@ -44151,10 +44151,10 @@
          id="tspan64787"
          x="-534.78815"
          y="73.191322"
-         style="stroke-width:0.26458332">Gene regulatory network</tspan></text>
+         style="stroke-width:0.26458332;-inkscape-font-specification:'Helvetica LT Std';font-family:'Helvetica LT Std';font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;">Gene regulatory network</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:'Museo Sans';-inkscape-font-specification:'Museo Sans Light';text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332;"
        x="-450.48651"
        y="73.191322"
        id="text64793"><tspan
@@ -44162,10 +44162,10 @@
          id="tspan64791"
          x="-450.48651"
          y="73.191322"
-         style="stroke-width:0.26458332">Simulate expression over time</tspan></text>
+         style="stroke-width:0.26458332;-inkscape-font-specification:'Helvetica LT Std';font-family:'Helvetica LT Std';font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;">Simulate expression over time</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:'Museo Sans';-inkscape-font-specification:'Museo Sans Light';text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332;"
        x="-369.97803"
        y="73.191322"
        id="text64797"><tspan
@@ -44173,7 +44173,7 @@
          id="tspan64795"
          x="-369.97803"
          y="73.191322"
-         style="stroke-width:0.26458332">Combine simulations</tspan></text>
+         style="stroke-width:0.26458332;-inkscape-font-specification:'Helvetica LT Std';font-family:'Helvetica LT Std';font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;">Combine simulations</tspan></text>
     <g
        id="surface16691"
        transform="matrix(0.1498679,0,0,0.14983204,-329.89108,73.701578)"
@@ -50507,9 +50507,9 @@
        id="text15480"
        y="73.191322"
        x="-286.75104"
-       style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:'Museo Sans';-inkscape-font-specification:'Museo Sans Light';text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332;"
        xml:space="preserve"><tspan
-         style="stroke-width:0.26458332"
+         style="stroke-width:0.26458332;-inkscape-font-specification:'Helvetica LT Std';font-family:'Helvetica LT Std';font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;"
          y="73.191322"
          x="-286.75104"
          id="tspan15478"

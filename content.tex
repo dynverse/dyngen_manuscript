@@ -54,6 +54,8 @@ It is possible to implement other experimental protocols (which perhaps do not e
 
 %% TODO: show that dyngen output resembles real data using e.g. countsimQC?
 
+%% TODO: add result figures pertaining use cases
+
 \section{Discussion}
 As is, dyngen's single cell simulations can be used to evaluate common single-cell omics computational methods such as clustering, batch correction, trajectory inference and network inference.
 However, the combined effect of these advantages results in a framework that is flexible enough to adapt to a broad range of applications. This may include methods that integrate clustering, network inference and trajectory inference. In this respect, dyngen may promote the development of new tools in the single-cell field similarly as other simulators have done in the past \cite{schaffter_genenetweaversilicobenchmark_2011,ewing_combiningtumorgenome_2015}.
@@ -99,41 +101,84 @@ Note that these examples represent the bare minimum in terms of number of module
 In addition to the module network, the user also needs to define a network of cellular states called the "backbone". Before simulating any cells, each transition in the backbone is simulated separately to obtain the average changes in expression along that transition (Figure \ref{fig:explain_methods}D). As part of the backbone, the user needs to specify which modules are allowed to alter its expression from one state to another. For example, in order to transition from state S0 to S1 in the cyclic example, gene modules A, B and C are turned on and a simulation is allowed to run. To transition from S1 to S2, gene modules D and E are turned on, and expression of gene module C is kept constant. To transition from S2 to S3, C is turned on again and now A and B are fixed. Finally, to transition from S3 to S1 again, A and B are turned on again and D and E are fixed again. Demonstrations of the backbone will be explained in more detail in section \ref{sec:dyngen_sim_backbone}.
 
 \subsubsection{Backbone lego} \label{sec:dyngen_backbone_lego}
+The backbone can make use of one or more "backbone lego" (BBL) pieces (Figure \ref{fig:backbone_lego}). A BBL consists of one or more modules which regulate each other such that the output modules present a specific behaviour, depending on the input module (Figure \ref{fig:backbone_lego}A). Parameters allow determining the number of modules involved in the process and the number of outputs. Multiple BBLs can be chained together in order to intuitively create milestone networks and corresponding state networks (Figure \ref{fig:backbone_lego}B). Note that not all dynamic processes can be represented by a combination of BBLs, but they can serve as common building blocks to aid the construction of the backbone.
 
-\paragraph{Simple linear}
+\begin{figure}[htb!]
+	\centering
+	\includegraphics[width=\LARGEfigure]{fig/backbone_lego} 
+	\caption{Backbone lego}
+	\label{fig:backbone_lego}
+\end{figure}
 
-\paragraph{Linear flip flop}
+When the input node of a \textbf{linear BBL} (Figure \ref{fig:backbone_lego}C) is upregulated, the module the BBL is connected to will be upregulated. A \emph{simple chain} is a set of modules where a module upregulates the next. A \emph{chain with double repression} has an uneven number of modules forming a chain where each module downregulates the next but all modules (except the input) have basal expression. A \emph{grid with double repression} is similar; except that modules do not have basal expression but instead get upregulated by an upstream module in the chain. Finally, a \emph{flip flop} consists of a simple chain where first the modules (except the last) are upregulated. Once the second to last module is upregulated, that module upregulates itself and the first module is strongly repressed, causing all other modules to lose expression and finally the last module to be upregulated. The \emph{flip flop} retains this output state, even when the input changes.
 
-\paragraph{Linear double repressing}
+When the input node of a \textbf{branching BBL} (Figure \ref{fig:backbone_lego}D) is upregulated, a subset of its output modules will eventually be upregulated. A \emph{simple branching} uses reciprocal inhibition to drive the upregulation of one of the output modules. Due to its simplicity, however, multiple output modules might be upregulated simultaneously, and over long periods of simulation time it might be possible that the choice of upregulated module changes. A \emph{robust branching} improves upon the simple branching by preventing upregulation of output modules until an internal branching decision has been made, and by repressing the decision mechanism to avoid other output modules being upregulated other than the one that has been chosen.
 
-\paragraph{Linear quick double repressing}
-
-\paragraph{Branching (reversible)}
-
-\paragraph{Branching (irreversible)}
-
-\subsubsection{Predefined backbones}
-
-\paragraph{Linear}
-\paragraph{Bifurcating}
-\paragraph{Cycle}
-\paragraph{Branching} (and binary tree, consecutive bifurcating, trifurcating)
-\paragraph{Converging}
-\paragraph{Bifurcating converging}
-\paragraph{Bifurcating cycle}
-\paragraph{Bifurcating loop}
-\paragraph{Disconnected}
+A \textbf{leaf BBL} (Figure \ref{fig:backbone_lego}E) is a linear BBL that has either no inputs or no outputs. A \emph{start} BBL is a linear BBL where the first module has basal expression, and all modules in this module will be active during the burn-in phase of the simulation (Section \ref{sec:dyngen_sim_backbone}). An \emph{end} BBL is also a linear BBL with its output regulating one final module. 
 
 
 \subsection{Generate gene regulatory network}
-\blindtext
+% TODO: write section in words instead of bullet point list
+
 \subsubsection{Generate the transcription factor network}
-\blindtext
-\subsubsection{Generate targets and housekeeping genes}
-\blindtext
+Parameters: 
+\begin{itemize}
+	\item Number of TFs to generate $num\_tfs$
+	\item Minimum TFs per module $min\_tfs$, default = 1
+	\item Number of regulatory interactions per module interaction $num\_tf\_ints$, default = 2
+\end{itemize}
+
+Procedure: 
+\begin{itemize}
+	\item Divide $num\_tfs$ TFs amongst modules in backbone such that each module has at least $min\_tfs$ TFs.
+	\item For every TF in a particular module $M$, connect that TF with $num\_tf\_ints$ TFs for each upstream module of $M$.
+\end{itemize}
+
+\subsubsection{Generate targets}
+Parameters: 
+\begin{itemize}
+	\item Number of target genes $num\_targets$
+	\item Name of a FANTOM5 GRN
+	\item Damping factor $damping$, default = 0.05
+	\item Target resampling $resamp$, default = $+\infty$
+	\item Maximum in-degree $max\_in\_degree$, default = 5
+\end{itemize}
+
+Procedure:
+\begin{itemize}
+	\item Download the FANTOM5 GRN if not already available
+	\item Randomly map TFs to the regulators in the GRN
+	\item Compute page rank from the selected regulators in the GRN with damping factor $damping$
+	\item Perform weighted sample of  $\min(num\_targets, resamp)$ targets weighted by the page rank
+	\item Select subgraph induced by the TFs and the sampled targets in the GRN, remove edges to the TFs
+	\item Add subgraph to current TF-target network
+	\item If less than $num\_targets$ have been sampled in this way, go back to step 2.
+	\item Remove regulatory interactions if a target has more than $max\_in\_degree$ edges.
+\end{itemize}
+
+\subsubsection{Generate housekeeping genes}
+Parameters: 
+\begin{itemize}
+	\item Number of housekeeping genes $num\_targets$
+	\item Name of a FANTOM5 GRN
+	\item Target resampling $resamp$, default = $+\infty$
+	\item Maximum in-degree $max\_in\_degree$, default = 5
+\end{itemize}
+
+Procedure:
+\begin{itemize}
+	\item Use same FANTOM5 GRN
+	\item Subsample GRN such that each gene has a maximum in-degree of $max\_in\_degree$
+	\item Perform breadth-first-search from a random gene in the GRN, select $\min(num\_targets, resamp)$ first genes encountered
+	\item Select subgraph induced by the sampled housekeeping genes in the GRN
+	\item Add subgraph to current TF-target network
+	\item If less than $num\_targets$ have been sampled in this way, go back to step 2.
+\end{itemize}
 
 \subsection{Convert gene regulatory network to a set of reactions}
-\blindtext
+% TODO: write section in words instead of bullet point list
+dyngen uses Gillespie's SSA to simulate dynamic processes. An SSA simulation is an iterative process where 
+For each gene $G$ a set of reactions is created.
 
 \subsection{Simulate developmental backbone} \label{sec:dyngen_sim_backbone}
 \blindtext
@@ -155,6 +200,19 @@ In addition to the module network, the user also needs to define a network of ce
 
 \subsubsection{Perturbation experiment}
 \blindtext
+
+
+\subsection{Example runs of predefined backbones}
+
+\subsubsection{Linear}
+\subsubsection{Bifurcating}
+\subsubsection{Cycle}
+\subsubsection{Branching} (and binary tree, consecutive bifurcating, trifurcating)
+\subsubsection{Converging}
+\subsubsection{Bifurcating converging}
+\subsubsection{Bifurcating cycle}
+\subsubsection{Bifurcating loop}
+\subsubsection{Disconnected}
 
 \subsection{Example use cases}
 \subsubsection{Trajectory alignment}

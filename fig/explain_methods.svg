@@ -2292,11 +2292,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.979899"
-     inkscape:cx="155.69883"
-     inkscape:cy="637.27223"
+     inkscape:zoom="3.959798"
+     inkscape:cx="174.27479"
+     inkscape:cy="783.77022"
      inkscape:document-units="mm"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="g24477"
      showgrid="false"
      inkscape:window-width="3840"
      inkscape:window-height="2032"
@@ -2321,7 +2321,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -3488,10 +3488,10 @@
                cy="66.818237"
                cx="89.705193"
                id="circle936"
-               style="opacity:1;vector-effect:none;fill:#984ea3;fill-opacity:1;stroke:none;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal" />
+               style="opacity:1;vector-effect:none;fill:#fdfdfd;fill-opacity:1;stroke:#984ea3;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal" />
             <text
                xml:space="preserve"
-               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#f6f6f6;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#1c1c1c;fill-opacity:1;stroke:none;stroke-width:0.26458332;"
                x="89.638817"
                y="68.331657"
                id="text912"><tspan
@@ -3499,7 +3499,7 @@
                  id="tspan910"
                  x="89.638817"
                  y="68.331657"
-                 style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';fill:#f6f6f6;fill-opacity:1;stroke-width:0.26458332">D</tspan></text>
+                 style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';fill:#1c1c1c;fill-opacity:1;stroke-width:0.26458332;">D</tspan></text>
           </g>
           <g
              transform="translate(-21.767599,11.225314)"
@@ -3509,14 +3509,14 @@
                cy="15.66152"
                cx="89.806168"
                id="circle938"
-               style="opacity:1;vector-effect:none;fill:#4daf4a;fill-opacity:1;stroke:none;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal" />
+               style="opacity:1;vector-effect:none;fill:#fdfdfd;fill-opacity:1;stroke:#4daf4a;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal" />
             <text
                id="text916"
                y="17.149536"
                x="89.818108"
-               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#f6f6f6;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#1c1c1c;fill-opacity:1;stroke:none;stroke-width:0.26458332;"
                xml:space="preserve"><tspan
-                 style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';fill:#f6f6f6;fill-opacity:1;stroke-width:0.26458332"
+                 style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';fill:#1c1c1c;fill-opacity:1;stroke-width:0.26458332;"
                  y="17.149536"
                  x="89.818108"
                  id="tspan914"
@@ -3533,14 +3533,14 @@
            id="g970"
            transform="translate(-17.479779,-7.1494676)">
           <circle
-             style="opacity:1;vector-effect:none;fill:#377eb8;fill-opacity:1;stroke:none;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+             style="opacity:1;vector-effect:none;fill:#fdfdfd;fill-opacity:1;stroke:#377eb8;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
              id="circle928"
              cx="69.566132"
              cy="50.005657"
              r="3.1404169" />
           <text
              xml:space="preserve"
-             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#f6f6f6;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#1c1c1c;fill-opacity:1;stroke:none;stroke-width:0.26458332;"
              x="69.480705"
              y="51.493675"
              id="text860"><tspan
@@ -3548,20 +3548,20 @@
                id="tspan858"
                x="69.480705"
                y="51.493675"
-               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';fill:#f6f6f6;fill-opacity:1;stroke-width:0.26458332">B</tspan></text>
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';fill:#1c1c1c;fill-opacity:1;stroke-width:0.26458332;">B</tspan></text>
         </g>
         <g
            id="g950"
            transform="translate(-3.6439607)">
           <circle
-             style="opacity:1;vector-effect:none;fill:#e41a1c;fill-opacity:1;stroke:none;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+             style="opacity:1;vector-effect:none;fill:#fdfdfd;fill-opacity:1;stroke:#e41a1c;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:0.5, 0.50000000000000000;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
              id="circle920"
              cx="34.722668"
              cy="42.85619"
              r="3.1404169" />
           <text
              xml:space="preserve"
-             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#1c1c1c;fill-opacity:1;stroke:none;stroke-width:0.26458332;"
              x="34.798107"
              y="44.369606"
              id="text844"><tspan
@@ -3569,7 +3569,7 @@
                id="tspan842"
                x="34.798107"
                y="44.369606"
-               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';fill:#ffffff;fill-opacity:1;stroke-width:0.26458332">A</tspan></text>
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';fill:#1c1c1c;fill-opacity:1;stroke-width:0.26458332;">A*</tspan></text>
         </g>
         <path
            style="opacity:1;vector-effect:none;fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker-end:url(#marker16487);paint-order:normal"
@@ -23591,5 +23591,27 @@
            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';stroke-width:0.26458332"
            id="tspan20188">molecules</tspan></text>
     </g>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="28.347837"
+       y="29.043015"
+       id="text6085"><tspan
+         sodipodi:role="line"
+         id="tspan6083"
+         x="28.347837"
+         y="29.043015"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';stroke-width:0.26458332">(Input)</tspan></text>
+    <text
+       id="text6089"
+       y="94.168312"
+       x="28.347837"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';stroke-width:0.26458332"
+         y="94.168312"
+         x="28.347837"
+         id="tspan6087"
+         sodipodi:role="line">(Input)</tspan></text>
   </g>
 </svg>

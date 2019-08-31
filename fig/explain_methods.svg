@@ -2294,7 +2294,7 @@
      inkscape:pageshadow="2"
      inkscape:zoom="3.959798"
      inkscape:cx="166.64035"
-     inkscape:cy="401.68002"
+     inkscape:cy="512.7968"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -2364,7 +2364,7 @@
            y="80.918793"
            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';text-align:start;text-anchor:start;stroke-width:0.26458332"><tspan
    style="font-weight:bold"
-   id="tspan6080">D </tspan> Simulate backbone</tspan></text>
+   id="tspan6080">D </tspan> Calculate average expression along backbone transitions</tspan></text>
       <g
          id="g23389"
          transform="translate(9.1456822,64.420565)">

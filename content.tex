@@ -23,7 +23,15 @@ These can be used to evaluate the performance of computational tools, and to exp
 
 We introduce dyngen, a multi-modality simulator of single cells (Figure \ref{fig:dyngen}).
 dyngen was initially developed as part of a comprehensive benchmark of TI methods \cite{saelens_comparisonsinglecelltrajectory_2019} but has since been extended to be applicable in a much broader context.
-We demonstrate its flexibility by simulating numerous different types of biological experiments, and using these simulations to develop new benchmarking techniques for computational tools.
+
+Inspiration was drawn from GeneNetWeaver's \cite{schaffter_genenetweaversilicobenchmark_2011} workflow to generate \textit{in silico} bulk profiles for evaluating network inference methods \cite{marbach_wisdomcrowdsrobust_2012}. GeneNetWeaver translates a known gene regulatory network (GRN) into sets of Ordinary Differential Equations (ODE) in order to simulate \ldots. % todo: describe GNW in this one sentance
+There are two significant differences in dyngen in comparison to GeneNetWeaver. 
+dyngen simulates a single-cell instead of a bulk profile. However, taking random walks through ODE systems in which key molecules occur with low abundance can result in inaccurate results. %rephrase and cite relevant work
+Gillespie's Stochastic Simulation Algorithm (SSA)  \cite{gillespie_exactstochasticsimulation_1977} allows to simulate low abundance systems.
+Running a simulation with SSA is an iterative process where at each iteration one reaction is allowed to take place. Each reaction consists of its propensity -- a formula to calculate the probability of occurring during an infinitesimal time interval -- and the effect -- how it will affect the current state if triggered.
+Secondly, the GRN is constructed such that it mimics a dynamic process of interest, such as cell differentiation into multiple cell types. 
+
+We demonstrate dyngen's flexibility by simulating numerous different types of biological experiments, and using these simulations to develop new benchmarking techniques for computational tools.
 
 \begin{figure}[htb!]
 	\centering
@@ -69,8 +77,9 @@ Currently, dyngen focuses on simulating cells as standalone entities.
 Future developments include extending the framework to simulate multiple cells in a virtual environment. Allowing cells to receive and react to environmental and intercellular stimuli would enable simulating essential cellular processes such as cell division and migration. 
 %¡also adding more types of molecules, e.g. protein complex, small rnas, PPI
 \section{Methods}
+NOTE: The method section is really rough at this stage.
 
-dyngen's approach was inspired by GeneNetWeaver's \cite{schaffter_genenetweaversilicobenchmark_2011} workflow to generate \textit{in silico} bulk profiles for evaluating network inference methods \cite{marbach_wisdomcrowdsrobust_2012}. The workflow to generate \textit{in silico} single cell data consists of six main steps (Figure \ref{fig:explain_methods}). 
+The workflow to generate \textit{in silico} single cell data consists of six main steps (Figure \ref{fig:explain_methods}). 
 
 \begin{figure}[htb!]
 	\centering
@@ -79,7 +88,7 @@ dyngen's approach was inspired by GeneNetWeaver's \cite{schaffter_genenetweavers
 	\label{fig:explain_methods}
 \end{figure}
 
-\subsection{Defining the module network and backbone}
+\subsection{Defining the backbone: modules and states} \label{sec:backbone}
 
 One of the main processes involved in cellular dynamic processes is gene regulation, where regulatory cascades and feedback loops lead to progressive changes in expression and decision making. The exact way a cell chooses a certain path during its differentiation is still an active research field, although certain models have already emerged and been tested \textit{in vivo}. One driver of bifurcation seems to be mutual antagonism, where two genes \cite{xu_regulationbifurcatingcell_2015} strongly repress each other, forcing one of the two to become inactive \cite{graf_forcingcellschange_2009}. Such mutual antagonism can be modelled and simulated \cite{wang_quantifyingwaddingtonlandscape_2011, ferrell_bistabilitybifurcationswaddington_2012}. Although the two-gene model is simple and elegant, the reality is frequently more complex, with multiple genes (grouped into modules) repressing each other \cite{yosef_dynamicregulatorynetwork_2013}.
 
@@ -90,6 +99,8 @@ Several examples of module networks are given (Figure \ref{fig:example_backbones
 A simple chain of modules (where one module upregulates the next) results in a \emph{linear} process. By having the last module repress the first module, the process becomes \emph{cyclic}. Two modules repressing eachother is the basis of a \emph{bifurcating} process, though several chains of modules have to be attached in order to achieve progression before and after the bifurcation process. Finally, a \emph{converging} process has a bifurcation occurring during the burn phase, after which any differences in module regulation is removed.
 
 Note that these examples represent the bare minimum in terms of number of modules used. Using longer chains of modules is typically desired. In addition, the fate decisions made in this example of a bifurcation is reversible, meaning cells can be reprogrammed to go down a different differentiation path. If this effect is undesirable, more safeguards need to be put in place to prevent reprogramming from occurring (Section \ref{sec:dyngen_backbone_lego}).
+
+TODO: mention strength and cooperativity.
 
 \begin{figure}[htb!]
 	\centering
@@ -132,6 +143,7 @@ Procedure:
 \begin{itemize}
 	\item Divide $num\_tfs$ TFs amongst modules in backbone such that each module has at least $min\_tfs$ TFs.
 	\item For every TF in a particular module $M$, connect that TF with $num\_tf\_ints$ TFs for each upstream module of $M$.
+	\item The strength and cooperativity of interactions created this way are defined by the module network.
 \end{itemize}
 
 \subsubsection{Generate targets}
@@ -175,32 +187,124 @@ Procedure:
 	\item If less than $num\_targets$ have been sampled in this way, go back to step 2.
 \end{itemize}
 
-\subsection{Convert gene regulatory network to a set of reactions}
+\subsection{Convert gene regulatory network to a set of reactions} \label{sec:reactions}
 % TODO: write section in words instead of bullet point list
-dyngen uses Gillespie's SSA to simulate dynamic processes. An SSA simulation is an iterative process where 
-For each gene $G$ a set of reactions is created.
 
-\subsection{Simulate developmental backbone} \label{sec:dyngen_sim_backbone}
-\blindtext
+Each reaction consists of its propensity -- a formula to calculate the probability of occurring during an infinitesimal time interval -- and the effect -- how it will affect the current state if triggered.
+
+We define the abundance levels of pre-mRNA, mRNA and protein of gene $G$ as $w_G$ $x_G$ and $y_G$ respectively. Five reactions affect the abundance levels of these molecules: transcription, splicing, mRNA degradation, translation, and protein degradation. The effects and propensity functions of these reactions are defined in Table \ref{tab:reaction_def}.
+
+% see https://en.wikipedia.org/wiki/Hill_equation_(biochemistry)#Regulation_of_gene_transcription
+\begin{table}[h]
+	\caption{\textbf{Reactions affecting the abundance levels of pre-mRNA $w_G$, mRNA $x_G$ and proteins $y_G$ of gene $G$.} Define the set of regulators of $G$ as $R_G$, the set of upregulating regulators of $G$ as $R^+_G$, and the set of downregulating regulators of $G$ as $R^-_G$. Parameters used in the propensity formulae are defined in Table \ref{tab:reaction_params}.} \label{tab:reaction_def}
+	\centering
+	\begin{tabular}{|lcc|}
+		\hline
+		Reaction & Effect & Propensity \\ \hline \hline
+		Transcription & $\emptyset \rightarrow w_G$ & $wpr_G \times \frac{ba_G - 1 + \prod\limits_{H \in R^+_G}(1 + reg_{G,H})}{ba_G - 1 + \prod\limits_{H \in R_G}(1 + reg_{G,H})}$, \\
+%		& & with $reg_{G,H} = \left(str_{G,H} \times \frac{y_H}{0.5 \times maxy_H}\right) ^ {co_{G,H}}$ \\
+%		& & and $maxy_H = \frac{wpr_H \times ypr_H}{xdr_H \times ydr_H}$ \\
+		Splicing & $w_G \rightarrow x_G$ & $wsr_G \times w_G$ \\
+		mRNA degradation & $x_G \rightarrow \emptyset$ & $xdr_G \times x_G$ \\
+		Translation & $x_G \rightarrow x_G + y_G$ & $ypr_G \times x_G$ \\
+		Protein degradation & $y_G \rightarrow \emptyset$ & $ydr_G \times y_G$ \\ \hline
+	\end{tabular}
+\end{table}
+
+% TODO: explain derivation of transcription formula? 
+% regG,H represents a 'probability' that H is bound to G (though does not yet scale between [0,1]). y_H / maxy_H is more likely to be a probability that H is bound to G, though this does not take into account that H can be bound to other genes as well. 
+% in any case, if it is, then it upregulates G by strG,H. It is assumed binding events
+% are independant and result in multiplicative effect.
+
+% defining P_H is the probability that H is bound to G, 
+% and the number of molecules produced C_H = ifelse(eff_G,H == 1, wpr_G × str_{G,H}, 0)
+% should the expented no. of reactions (propensity) not be defined as:
+% BA_G + Prod_H {C_H × P_H + (1 - P_H)} - Prod_H {1 - P_H} ?
+
+% according to https://en.wikipedia.org/wiki/Hill_equation_(biochemistry)#Proportion_of_ligand-bound_receptors:
+% P_H = (y_H ^ N) / (degradation_H / production_H + y_H ^ N)
+% ... 
+% ... 
+% might need to go back to things like:
+% https://kar.kent.ac.uk/24077/1/myzabetpaper.pdf
+
+% max protein doesn't work as expected (given any simulation in model2):
+%df <- data.frame(time = model2$simulations$meta$sim_time, as.matrix(model2$simulations$counts)) %>% 
+%  gather(mol, value, -time) %>% 
+%  filter(grepl("^y_", mol)) %>% 
+%  mutate(feature_id = gsub("^y_", "", mol)) %>% 
+%  left_join(model2$feature_info %>% transmute(feature_id, max_protein = wpr / xdr * ypr / ydr, module_id), by = "feature_id") %>% 
+%  mutate(tfname = gsub("^[^_]*_", "", feature_id))
+%ggplot(df) + geom_line(aes(time, value / max_protein, colour = tfname, group = feature_id)) + facet_wrap(~module_id)
+
+
+\begin{table}[h]
+	\caption{\textbf{Parameters defined for the calculation of reaction propensity functions.}} \label{tab:reaction_params}
+	\centering
+	\begin{tabular}{|lrl|}
+		\hline
+		Parameter & Symbol & Definition \\ \hline \hline
+		Transcription rate & $wpr_G$ & $\in \{. | . \in N(100, 20), . \geq 10\}$ \\
+		Splicing rate & $wsr_G$ & $\in \{. | . \in N(10, 2), . \geq 2\}$ \\
+		mRNA degradation rate & $xdr_G$ & $\in \{. | . \in N(5, 1), . \geq 2\}$ \\
+		Translation rate & $ypr_G$ & $\in \{. | . \in N(5, 1), . \geq 2\}$ \\
+		Protein degradation rate & $ydr_G$ & $\in \{. | . \in N(3, 0.5), . \geq 1\}$ \\
+		Interaction strength & $str_{G,H}$ & $\in \{10^. | . \in U(0, 2)\}$ * \\ 
+		Interaction cooperativity & $co_{G,H}$ & $\in U(0.5, 2)$ * \\\hline\hline
+		Max protein & $maxy_H$ & $= \frac{wpr_H \times ypr_H}{xdr_H \times ydr_H}$ \\ 
+		Regulation activity & $reg_{G,H}$ & $= \left(str_{G,H} \times \frac{y_H}{0.5 \times maxy_H}\right) ^ {co_{G,H}}$ \\
+		Basal expression & $ba_G$ & $= \begin{cases} 1 & \mbox{if } R^+_G = \emptyset \\ 0.0001 & \mbox{if } R^-_G = \emptyset \mbox{ and } R^+_G \neq \emptyset \\ 0.5 & \mbox{otherwise} \end{cases}$ * \\ \hline
+		\multicolumn{3}{l}{*: unless already defined when $G$ is a TF.}
+	\end{tabular}
+\end{table}
+
+% todo ask Wouter, why not simply the following?
+% ba_G = ifelse(R^+_G is not empty, 1, 0)
+
+\subsection{Compute average expression along backbone transitions} \label{sec:dyngen_sim_backbone}
+
+% → basically an ODE
+When simulating the developmental backbone, we go through the edges of the backbone state network defined in an earlier step (Section \ref{sec:backbone}), starting from the root state. It is assumed the root state has no modules active and has no expression of any molecules. To get to next state, we follow a transition starting from the root state, activate and deactivate the modules as indicated by the transition, and compute the average molecule abundance along the transition. To compute the average abundance, we perform small time steps $t = 0.001$ and let each reaction (Section \ref{sec:reactions}) occur $t$ times its propensity. 
 
 \subsection{Simulate single cells} \label{sec:dyngen_ssa}
-\blindtext
+%TODO: STOCKS \cite{kierzek_stocksstochastickinetic_2002} uses GSSA to simulate something.
+% maybe we could have a look at that! 
+% or https://nyaspubs.onlinelibrary.wiley.com/doi/full/10.1111/j.1749-6632.2008.03756.x
+
+% or even https://academic.oup.com/bioinformatics/article/24/10/1318/178687 ('AND' and 'OR')
+% and https://academic.oup.com/bioinformatics/article/25/9/1205/203870 (regulation motifs, kinetics)
+% https://nyaspubs.onlinelibrary.wiley.com/doi/full/10.1111/j.1749-6632.2008.03756.x (modules of genes)
+
+%TODO: improve this section a lot. Basically, explain SSA and GillespieSSA2.
+
+dyngen uses Gillespie's Stochastic Simulation Algorithm (SSA) to simulate dynamic processes. An SSA simulation is an iterative process where at each iteration one reaction is triggered. 
+
+Each reaction consists of its propensity -- a formula to calculate the probability of occurring during an infinitesimal time interval -- and the effect -- how it will affect the current state if triggered. Each time a reaction is triggered, the simulation time is incremented by $\tau = \frac{1}{\sum_j prop_j} \ln\left(\frac{1}{r}\right)$, with $r \in U(0, 1)$ and $prop_j$ the propensity value of the $j$th reaction for the current state of the simulation.
+
+SSA simulations are notoriously slow. We use GillespieSSA2 which contains many optimisations such as translating and compiling all the propensity functions to C++ and implementations of approximations of SSA which allows to trigger many reactions simultaneously at each iteration.
+
+The framework allows to store the abundance levels of molecules only after a specific interval has passed since the previous census. By setting the census interval to 0, the whole simulation's trajectory is retained but many of these time points will contain very similar information. In addition to the abundance levels, also the propensity values and the number of firings of each of the reactions at each of the time steps can be retained, as well as specific sub-calculations of the propensity values, such as the regulator activity level $reg_{G,H}$. 
 
 \subsubsection{Map SSA simulations to backbone}
-\blindtext
+The cellular state of each timepoint in the SSA simulation is mapped to the state network of the backbone by calculating the 1NN between a state vector in the simulation and the average expression levels along transitions.
 
 \subsection{Simulate experiment}
-\blindtext
+From the SSA simulation we obtain the abundance levels of all the molecules at the different time points. We need to replicate technical effects introduced by experimental protocols in order to obtain data that is similar to real data. For this, the cells are sampled from the simulations, and molecules are sampled for each of the cells. Real datasets are used in order to achieve similar data characteristics.
 
-\subsubsection{Snapshot experiment}
-\blindtext
+\subsubsection{Sample cells}
+Cells can be sampled from an unsynchronised population of single cells (snapshot) or at multiple time points in a synchronised population (time series).
 
-\subsubsection{Time series experiment}
-\blindtext
+\paragraph{Snapshot} Cells are just sampled randomly from the different time points in the simulation.
 
-\subsubsection{Perturbation experiment}
-\blindtext
+\paragraph{Time series} The timeline of the simulations is cut up into chunks. From several of these chunks, cells are sampled. For each cell it is known at which time point it was sampled.
 
+\subsubsection{Sample molecules} 
+
+\begin{itemize}
+	\item From real dataset, look at the number of transcripts that was captured per cell. Library size $ls_i$ of cell $i$ is samples from this distribution.
+	\item Capture rate of each molecule type $j$ is drawn from $cr_j \in N(1, 0.05)$
+	\item For each cell $i$, a multinomial distribution is used to draw $ls_i$ molecules from molecule type $j$ with probability $cr_j \times ab_{i,j}$ with $ab_{i,j}$ the molecule abundance level of molecule $j$ in cell $i$.
+\end{itemize} 
 
 \subsection{Example runs of predefined backbones}
 
@@ -221,6 +325,10 @@ From discussion: Adding batch effects to snapshot simulations of linear (or even
 From discussion: Adding perturbations to the GRN allows evaluating the performance of differential network inference methods -- which predict differential regulatory interactions between two or more groups of profiles.
 \subsubsection{RNA velocity}
 From discussion: Sampling a cell at a certain time point and once more at a later time point allows evaluating the performance of RNA velocity approaches -- which predict the future state of a cell by looking at differences in pre-mRNA and mRNA abundance levels.
+
+
+\subsubsection{Perturbation experiment}
+
 
 
 

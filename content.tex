@@ -250,14 +250,14 @@ We define the abundance levels of pre-mRNA, mRNA and protein of gene $G$ as $\w 
 	\begin{tabular}{|lrl|}
 		\hline
 		Parameter & Symbol & Definition \\ \hline \hline
-		Transcription rate & $\wpr{G}$ & $\in \{. | . \in N(100, 20), . \geq 10\}$ \\
-		Splicing rate & $\wsr G$ & $\in \{. | . \in N(10, 2), . \geq 2\}$ \\
-		mRNA degradation rate & $\xdr{G}$ & $\in \{. | . \in N(5, 1), . \geq 2\}$ \\
-		Translation rate & $\ypr{G}$ & $\in \{. | . \in N(5, 1), . \geq 2\}$ \\
-		Protein degradation rate & $\ydr G$ & $\in \{. | . \in N(3, 0.5), . \geq 1\}$ \\
-		Interaction strength & $\str{G,H}$ & $\in \{10^. | . \in U(0, 2)\}$ * \\ 
+		Transcription rate & $\wpr{G}$ & $\in N(100, 20),\ \geq 10$ \\
+		Splicing rate & $\wsr G$ & $\in N(10, 2),\ \geq 2$ \\
+		mRNA degradation rate & $\xdr{G}$ & $\in N(5, 1),\ \geq 2$ \\
+		Translation rate & $\ypr{G}$ & $\in N(5, 1),\ \geq 2$ \\
+		Protein degradation rate & $\ydr G$ & $\in N(3, 0.5),\ \geq 1$ \\
+		Interaction strength & $\str{G,H}$ & $\in 10^{U(0, 2)}$ * \\ 
 		Interaction cooperativity & $\co{G,H}$ & $\in U(0.5, 2)$ * \\
-    Independence factor & $\ind G$ & $\in [0, 1]$ \\ \hline\hline
+    Independence factor & $\ind G$ & $\in [0, 1]$ * \\ \hline\hline
 		TF concentration at half-maximal binding & $\hmy H$ & $= 0.5 \times \frac{\wpr H \times \ypr H}{\xdr H \times \ydr H}$ \\ 
 		Regulation activity & $\reg{G,H}$ & $= \left(\str{G,H} \times \frac{\y H}{\hmy H}\right) ^ {\co{G,H}}$ \\
 		Basal expression & $\ba G$ & $= \begin{cases} 1 & \mbox{if } \rp{G} = \emptyset \\ 0.0001 & \mbox{if } \rn{G} = \emptyset \mbox{ and } \rp{G} \neq \emptyset \\ 0.5 & \mbox{otherwise} \end{cases}$ * \\ \hline

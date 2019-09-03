@@ -192,34 +192,50 @@ Procedure:
 
 Each reaction consists of its propensity -- a formula to calculate the probability of occurring during an infinitesimal time interval -- and the effect -- how it will affect the current state if triggered.
 
-We define the abundance levels of pre-mRNA, mRNA and protein of gene $G$ as $w_G$ $x_G$ and $y_G$ respectively. Five reactions affect the abundance levels of these molecules: transcription, splicing, mRNA degradation, translation, and protein degradation. The effects and propensity functions of these reactions are defined in Table \ref{tab:reaction_def}.
+
+\newcommand{\w}[1]{\text{w}_{#1}}
+\newcommand{\x}[1]{\text{x}_{#1}}
+\newcommand{\y}[1]{\text{y}_{#1}}
+
+
+\newcommand{\rs}[1]{\text{R}_{#1}}
+\newcommand{\rp}[1]{\text{R}^+_{#1}}
+\newcommand{\rn}[1]{\text{R}^-_{#1}}
+
+\newcommand{\wpr}[1]{\text{wpr}_{#1}}
+\newcommand{\wsr}[1]{\text{wsr}_{#1}}
+\newcommand{\xdr}[1]{\text{xdr}_{#1}}
+\newcommand{\ypr}[1]{\text{ypr}_{#1}}
+\newcommand{\ydr}[1]{\text{ydr}_{#1}}
+
+\newcommand{\str}[1]{\text{str}_{#1}}
+\newcommand{\co}[1]{\text{co}_{#1}}
+\newcommand{\ind}[1]{\text{ind}_{#1}}
+\newcommand{\hmy}[1]{\text{hmy}_{#1}}
+\newcommand{\reg}[1]{\text{reg}_{#1}}
+\newcommand{\ba}[1]{\text{ba}_{#1}}
+
+We define the abundance levels of pre-mRNA, mRNA and protein of gene $G$ as $\w G$, $\x G$ and $\y G$ respectively. Five reactions affect the abundance levels of these molecules: transcription, splicing, mRNA degradation, translation, and protein degradation. The effects and propensity functions of these reactions are defined in Table \ref{tab:reaction_def}.
 
 % see https://en.wikipedia.org/wiki/Hill_equation_(biochemistry)#Regulation_of_gene_transcription
 \begin{table}[h]
-	\caption{\textbf{Reactions affecting the abundance levels of pre-mRNA $w_G$, mRNA $x_G$ and proteins $y_G$ of gene $G$.} Define the set of regulators of $G$ as $R_G$, the set of upregulating regulators of $G$ as $R^+_G$, and the set of downregulating regulators of $G$ as $R^-_G$. Parameters used in the propensity formulae are defined in Table \ref{tab:reaction_params}.} \label{tab:reaction_def}
+	\caption{\textbf{Reactions affecting the abundance levels of pre-mRNA $\w G$, mRNA $\x G$ and proteins $\y G$ of gene $G$.} Define the set of regulators of $G$ as $\rs{G}$, the set of upregulating regulators of $G$ as $\rp G$, and the set of downregulating regulators of $G$ as $\rn G$. Parameters used in the propensity formulae are defined in Table \ref{tab:reaction_params}.} \label{tab:reaction_def}
 	\centering
 	\begin{tabular}{|lcc|}
 		\hline
 		Reaction & Effect & Propensity \\ \hline \hline
-		Transcription & $\emptyset \rightarrow w_G$ & $wpr_G \times \frac{ba_G - 1 + \prod\limits_{H \in R^+_G}(1 + reg_{G,H})}{ba_G - 1 + \prod\limits_{H \in R_G}(1 + reg_{G,H})}$, \\
-%		& & with $reg_{G,H} = \left(str_{G,H} \times \frac{y_H}{0.5 \times maxy_H}\right) ^ {co_{G,H}}$ \\
-%		& & and $maxy_H = \frac{wpr_H \times ypr_H}{xdr_H \times ydr_H}$ \\
-		Splicing & $w_G \rightarrow x_G$ & $wsr_G \times w_G$ \\
-		mRNA degradation & $x_G \rightarrow \emptyset$ & $xdr_G \times x_G$ \\
-		Translation & $x_G \rightarrow x_G + y_G$ & $ypr_G \times x_G$ \\
-		Protein degradation & $y_G \rightarrow \emptyset$ & $ydr_G \times y_G$ \\ \hline
+		Transcription & $\emptyset \rightarrow \w G$ & $\wpr G \times \frac{\ba G - \ind{G}^{|\rp{G}|} + \prod\limits_{H \in \rp{G}}(\ind G + \reg{G,H})}{\prod\limits_{H \in \rp{G}}(1 + \reg{G,H})}$ \\
+		Splicing & $\w G \rightarrow \x G$ & $\wsr G \times \w G$ \\
+		mRNA degradation & $\x G \rightarrow \emptyset$ & $\xdr G \times \x G$ \\
+		Translation & $\x G \rightarrow \w G + \y G$ & $\ypr G \times \x G$ \\
+		Protein degradation & $\y G \rightarrow \emptyset$ & $\ydr G \times \y G$ \\ \hline
 	\end{tabular}
 \end{table}
 
 % TODO: explain derivation of transcription formula? 
 % regG,H represents a 'probability' that H is bound to G (though does not yet scale between [0,1]). y_H / maxy_H is more likely to be a probability that H is bound to G, though this does not take into account that H can be bound to other genes as well. 
 % in any case, if it is, then it upregulates G by strG,H. It is assumed binding events
-% are independant and result in multiplicative effect.
-
-% defining P_H is the probability that H is bound to G, 
-% and the number of molecules produced C_H = ifelse(eff_G,H == 1, wpr_G × str_{G,H}, 0)
-% should the expented no. of reactions (propensity) not be defined as:
-% BA_G + Prod_H {C_H × P_H + (1 - P_H)} - Prod_H {1 - P_H} ?
+% are independent and result in multiplicative effect.
 
 % according to https://en.wikipedia.org/wiki/Hill_equation_(biochemistry)#Proportion_of_ligand-bound_receptors:
 % P_H = (y_H ^ N) / (degradation_H / production_H + y_H ^ N)
@@ -228,32 +244,23 @@ We define the abundance levels of pre-mRNA, mRNA and protein of gene $G$ as $w_G
 % might need to go back to things like:
 % https://kar.kent.ac.uk/24077/1/myzabetpaper.pdf
 
-% max protein doesn't work as expected (given any simulation in model2):
-%df <- data.frame(time = model2$simulations$meta$sim_time, as.matrix(model2$simulations$counts)) %>% 
-%  gather(mol, value, -time) %>% 
-%  filter(grepl("^y_", mol)) %>% 
-%  mutate(feature_id = gsub("^y_", "", mol)) %>% 
-%  left_join(model2$feature_info %>% transmute(feature_id, max_protein = wpr / xdr * ypr / ydr, module_id), by = "feature_id") %>% 
-%  mutate(tfname = gsub("^[^_]*_", "", feature_id))
-%ggplot(df) + geom_line(aes(time, value / max_protein, colour = tfname, group = feature_id)) + facet_wrap(~module_id)
-
-
 \begin{table}[h]
 	\caption{\textbf{Parameters defined for the calculation of reaction propensity functions.}} \label{tab:reaction_params}
 	\centering
 	\begin{tabular}{|lrl|}
 		\hline
 		Parameter & Symbol & Definition \\ \hline \hline
-		Transcription rate & $wpr_G$ & $\in \{. | . \in N(100, 20), . \geq 10\}$ \\
-		Splicing rate & $wsr_G$ & $\in \{. | . \in N(10, 2), . \geq 2\}$ \\
-		mRNA degradation rate & $xdr_G$ & $\in \{. | . \in N(5, 1), . \geq 2\}$ \\
-		Translation rate & $ypr_G$ & $\in \{. | . \in N(5, 1), . \geq 2\}$ \\
-		Protein degradation rate & $ydr_G$ & $\in \{. | . \in N(3, 0.5), . \geq 1\}$ \\
-		Interaction strength & $str_{G,H}$ & $\in \{10^. | . \in U(0, 2)\}$ * \\ 
-		Interaction cooperativity & $co_{G,H}$ & $\in U(0.5, 2)$ * \\\hline\hline
-		Max protein & $maxy_H$ & $= \frac{wpr_H \times ypr_H}{xdr_H \times ydr_H}$ \\ 
-		Regulation activity & $reg_{G,H}$ & $= \left(str_{G,H} \times \frac{y_H}{0.5 \times maxy_H}\right) ^ {co_{G,H}}$ \\
-		Basal expression & $ba_G$ & $= \begin{cases} 1 & \mbox{if } R^+_G = \emptyset \\ 0.0001 & \mbox{if } R^-_G = \emptyset \mbox{ and } R^+_G \neq \emptyset \\ 0.5 & \mbox{otherwise} \end{cases}$ * \\ \hline
+		Transcription rate & $\wpr{G}$ & $\in \{. | . \in N(100, 20), . \geq 10\}$ \\
+		Splicing rate & $\wsr G$ & $\in \{. | . \in N(10, 2), . \geq 2\}$ \\
+		mRNA degradation rate & $\xdr{G}$ & $\in \{. | . \in N(5, 1), . \geq 2\}$ \\
+		Translation rate & $\ypr{G}$ & $\in \{. | . \in N(5, 1), . \geq 2\}$ \\
+		Protein degradation rate & $\ydr G$ & $\in \{. | . \in N(3, 0.5), . \geq 1\}$ \\
+		Interaction strength & $\str{G,H}$ & $\in \{10^. | . \in U(0, 2)\}$ * \\ 
+		Interaction cooperativity & $\co{G,H}$ & $\in U(0.5, 2)$ * \\
+    Independence factor & $\ind G$ & $\in [0, 1]$ \\ \hline\hline
+		TF concentration at half-maximal binding & $\hmy H$ & $= 0.5 \times \frac{\wpr H \times \ypr H}{\xdr H \times \ydr H}$ \\ 
+		Regulation activity & $\reg{G,H}$ & $= \left(\str{G,H} \times \frac{\y H}{\hmy H}\right) ^ {\co{G,H}}$ \\
+		Basal expression & $\ba G$ & $= \begin{cases} 1 & \mbox{if } \rp{G} = \emptyset \\ 0.0001 & \mbox{if } \rn{G} = \emptyset \mbox{ and } \rp{G} \neq \emptyset \\ 0.5 & \mbox{otherwise} \end{cases}$ * \\ \hline
 		\multicolumn{3}{l}{*: unless already defined when $G$ is a TF.}
 	\end{tabular}
 \end{table}

@@ -18,22 +18,22 @@ While this falls outside the reach of current experimental technologies, \textit
 of single cells would allow developing the next wave of computational techniques
 in anticipation of new experimental technologies.
 
-A few generators of scRNA-seq profiles have already been developed (e.g. splatter \cite{zappia_splattersimulationsinglecell_2017} and PROSSTT \cite{papadopoulos_prossttprobabilisticsimulation_2018}). % BoolODE and dyntoy are also examples.
+A few simulators of scRNA-seq profiles have already been developed (e.g. splatter \cite{zappia_splattersimulationsinglecell_2017}, PROSSTT \cite{papadopoulos_prossttprobabilisticsimulation_2018} and SymSim \cite{zhang_simulatingmultiplefaceted_2019}). % BoolODE and dyntoy are also examples.
 These can be used to evaluate the performance of computational tools, and to explore their strengths and weaknesses. A limitation of directly simulating a scRNA-seq profile (instead of a single cell) is that extending the simulation to other aspects of the cell -- such as tracking the full history of molecular states -- becomes difficult.
 
 We introduce dyngen, a multi-modality simulator of single cells (Figure \ref{fig:dyngen}).
 dyngen was initially developed as part of a comprehensive benchmark of TI methods \cite{saelens_comparisonsinglecelltrajectory_2019} but has since been extended to be applicable in a much broader context.
-We demonstrate its flexibility by simulating numerous different types of biological experiments, and using these simulations to develop new benchmarking techniques for computational tools.
+We demonstrate its flexibility by simulating three different types of biological experiments, and using these simulations to develop new benchmarking techniques for computational tools.
 
 \begin{figure}[hb]
 	\centering
 	\includegraphics[width=\linewidth]{fig/showcase_3.png} 
-	\caption{Showcase of dyngen functionality. \textbf{TODO: change to pdf.} Remove B?} % TODO: update label
+	\caption{Showcase of dyngen functionality. \textbf{TODO: change to pdf.} Remove B? \textit{Yes please}} % TODO: update label
 	\label{fig:dyngen}
 \end{figure}
 
 \section{Results}
-dyngen is a simulator for single cells that develop over time. Throughout this section, a simple simulation of a cell undergoing a cyclic process is used to illustrate key strengths of dyngen (Figure \ref{fig:simplecyclic}). This example only comprises of a single cell containing 5 genes, but dyngen can easily scale up to thousands of simulations containing thousands of genes.
+dyngen simulates the transcriptomic changes of a cell over time using a model of gene regulation. Throughout this section, a simple simulation of a cell undergoing a cyclic process is used to illustrate key strengths of dyngen (Figure \ref{fig:simplecyclic}). This example only comprises of a single cell containing 5 genes, but dyngen can easily scale up to thousands of simulations containing thousands of genes.
 
 \begin{figure}[hb]
 	\centering
@@ -44,13 +44,13 @@ dyngen is a simulator for single cells that develop over time. Throughout this s
 
 In dyngen, a cell consists of a set of molecules, the abundance of which are affected by a set of reactions: transcription, splicing, translation, and degradation (Figure \ref{fig:simplecyclic}A). These reactions are determined from a predefined set of gene regulatory interactions (Figure \ref{fig:simplecyclic}B), henceforth referred to as a gene regulatory network (GRN). The likelihood of a reaction occurring at any given point in time is defined by the GRN and by the abundance of molecules involved each reaction.
 
-One of dyngen's main advantages is that through careful engineering of the GRN, different cellular developmental processes can be obtained. Different GRNs can result in branching, converging, cyclic, or even disconnected developmental topologies. Multiple simulations with slightly different GRNs can emulate rewiring events in disease or perturbation experiments. % could use figure; one with GRNs of different topologies, another with rewiring events
-Multiple simulations with different initial molecule abundance levels can be used to replicate batch effects. 
+One of dyngen's main advantages is that through careful engineering of the GRN, different cellular developmental processes can be simulated. Different GRNs can result in branching, converging, cyclic, or even disconnected developmental topologies. Multiple simulations with slightly different GRNs can emulate rewiring events in disease or perturbation experiments. % could use figure; one with GRNs of different topologies, another with rewiring events
+Multiple simulations with some slight perturbations can be used to replicate batch effects. 
 
 Another advantage is that dyngen returns many modalities throughout the whole simulation: molecular abundance, cellular state, number of reaction firings, reaction likelihoods, and regulation activations (Figure \ref{fig:simplecyclic}C--F). These modalities can serve both as input data and ground truth for benchmarking many types of computational approaches. For example, a network inference method could use mRNA abundance and cellular states as inputs, and its output could be benchmarked against the gold standard GRN.
 
 The final main advantage is that by making alterations to the simulation pipeline, multiple types of experiments (sampling technique or profiling technique) can be simulated. By default, dyngen supports snapshot experiments (uniformly sampling from an asynchronous dynamic process) and time-series experiments (sampling cells from different intervals in the simulation). 
-It is possible to implement other experimental protocols (which perhaps do not exist in real life), such as sampling the same cell at regular intervals. 
+It is possible to implement other experimental protocols, such as sampling the same cell at regular intervals. 
 
 \section{Discussion}
 As is, dyngen's single cell simulations can be used to evaluate common single-cell omics computational methods such as clustering, batch correction, trajectory inference and network inference.

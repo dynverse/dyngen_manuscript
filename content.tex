@@ -18,30 +18,25 @@ While this falls outside the reach of current experimental technologies, \textit
 of single cells would allow developing the next wave of computational techniques
 in anticipation of new experimental technologies.
 
-A few generators of scRNA-seq profiles have already been developed (e.g. splatter \cite{zappia_splattersimulationsinglecell_2017}, powsimR \cite{vieth_powsimrpoweranalysis_2017} and PROSSTT \cite{papadopoulos_prossttprobabilisticsimulation_2018}). % BoolODE and dyntoy are also examples.
-These can be used to evaluate the performance of computational tools, and to explore their strengths and weaknesses. A limitation of directly simulating a scRNA-seq profile (instead of a single cell) is that extending the simulation to other aspects of the cell -- such as tracking the full history of molecular states -- becomes difficult.
+A few generators of scRNA-seq profiles have already been developed (e.g. splatter \cite{zappia_splattersimulationsinglecell_2017}, powsimR \cite{vieth_powsimrpoweranalysis_2017}, PROSSTT \cite{papadopoulos_prossttprobabilisticsimulation_2018} and SymSim \cite{zhang_simulatingmultiplefaceted_2019}). These can be used to evaluate the performance of computational tools, and to explore their strengths and weaknesses. A limitation of directly simulating a scRNA-seq profile (instead of a single cell) is that extending the simulation to other aspects of the cell -- such as tracking the full history of molecular states -- becomes difficult.
 
-We introduce dyngen, a multi-modality simulator of single cells (Figure \ref{fig:dyngen}).
+We introduce dyngen, a multi-modality simulator of single cells and their dynamics (Figure \ref{fig:dyngen}).
 dyngen was initially developed as part of a comprehensive benchmark of TI methods \cite{saelens_comparisonsinglecelltrajectory_2019} but has since been extended to be applicable in a much broader context.
+We demonstrate its flexibility by simulating three different types of biological experiments, and using these simulations to develop new benchmarking techniques for computational tools.
 
-Inspiration was drawn from GeneNetWeaver's \cite{schaffter_genenetweaversilicobenchmark_2011} workflow to generate \textit{in silico} bulk profiles for evaluating network inference methods \cite{marbach_wisdomcrowdsrobust_2012}. GeneNetWeaver translates a known gene regulatory network (GRN) into sets of Ordinary Differential Equations (ODE) in order to simulate \ldots. % todo: describe GNW in this one sentance
-There are two significant differences in dyngen in comparison to GeneNetWeaver. 
-dyngen simulates a single-cell instead of a bulk profile. However, taking random walks through ODE systems in which key molecules occur with low abundance can result in inaccurate results. %rephrase and cite relevant work
-Gillespie's Stochastic Simulation Algorithm (SSA)  \cite{gillespie_exactstochasticsimulation_1977} allows to simulate low abundance systems.
-Running a simulation with SSA is an iterative process where at each iteration one reaction is allowed to take place. Each reaction consists of its propensity -- a formula to calculate the probability of occurring during an infinitesimal time interval -- and the effect -- how it will affect the current state if triggered.
-Secondly, the GRN is constructed such that it mimics a dynamic process of interest, such as cell differentiation into multiple cell types. 
+Our simulator draws inspiration from a simulator for bulk transcriptomics data, GeneNetWeaver \cite{schaffter_genenetweaversilicobenchmark_2011,marbach_wisdomcrowdsrobust_2012}, but with two key improvements to make it work for single-cell data. First, instead of simulating continuous systems using stochastic differential equations (SDE), we simulate individual molecules and their reactions using derivatives of Gillespie's Stochastic Simulation Algorithm (SSA) \cite{gillespie_exactstochasticsimulation_1977}. Such a simulation better captures the stochasticity when low number of molecules are present  \cite{gillespie_exactstochasticsimulation_1977}, as is the case in single-cells \cite{zenklusen_singlernacountingreveals_2008a}. Processes such as transcriptional bursting may be difficult to represent in a continuous model, but develop naturally in single-molecule simulations \cite{schuh_genenetworkstranscriptional_2019}. A second improvement is that we include several ways to construct a GRN such that it mimics a dynamic process of interest, such as cell differentiation into multiple cell types. 
 
 We demonstrate dyngen's flexibility by simulating numerous different types of biological experiments, and using these simulations to develop new benchmarking techniques for computational tools.
 
 \begin{figure}[htb!]
 	\centering
 	\includegraphics[width=\linewidth]{fig/showcase_3.png} 
-	\caption{Showcase of dyngen functionality. \textbf{TODO: change to pdf.} Remove B?} % TODO: update label
+	\caption{Showcase of dyngen functionality. \textbf{TODO: change to pdf.} Remove B? \textit{Yes please}} % TODO: update label
 	\label{fig:dyngen}
 \end{figure}
 
 \section{Results}
-dyngen is a simulator for single cells that develop over time. Throughout this section, a simple simulation of a cell undergoing a cyclic process is used to illustrate key strengths of dyngen (Figure \ref{fig:simplecyclic}). This example only comprises of a single cell containing 5 genes, but dyngen can easily scale up to thousands of simulations containing thousands of genes.
+dyngen simulates the transcriptomic changes of a cell over time using a model of gene regulation. Throughout this section, a simple simulation of a cell undergoing a cyclic process is used to illustrate key strengths of dyngen (Figure \ref{fig:simplecyclic}). This example only comprises of a single cell containing 5 genes, but dyngen can easily scale up to thousands of simulations containing thousands of genes.
 
 \begin{figure}[htb!]
 	\centering
@@ -52,13 +47,13 @@ dyngen is a simulator for single cells that develop over time. Throughout this s
 
 In dyngen, a cell consists of a set of molecules, the abundance of which are affected by a set of reactions: transcription, splicing, translation, and degradation (Figure \ref{fig:simplecyclic}A). These reactions are determined from a predefined set of gene regulatory interactions (Figure \ref{fig:simplecyclic}B), henceforth referred to as a gene regulatory network (GRN). The likelihood of a reaction occurring at any given point in time is defined by the GRN and by the abundance of molecules involved each reaction.
 
-One of dyngen's main advantages is that through careful engineering of the GRN, different cellular developmental processes can be obtained. Different GRNs can result in branching, converging, cyclic, or even disconnected developmental topologies. Multiple simulations with slightly different GRNs can emulate rewiring events in disease or perturbation experiments. % could use figure; one with GRNs of different topologies, another with rewiring events
-Multiple simulations with different initial molecule abundance levels can be used to replicate batch effects. 
+One of dyngen's main advantages is that through careful engineering of the GRN, different cellular developmental processes can be simulated. Different GRNs can result in branching, converging, cyclic, or even disconnected developmental topologies. Multiple simulations with slightly different GRNs can emulate rewiring events in disease or perturbation experiments. % could use figure; one with GRNs of different topologies, another with rewiring events
+Multiple simulations with some slight perturbations can be used to replicate batch effects. 
 
 Another advantage is that dyngen returns many modalities throughout the whole simulation: molecular abundance, cellular state, number of reaction firings, reaction likelihoods, and regulation activations (Figure \ref{fig:simplecyclic}C--F). These modalities can serve both as input data and ground truth for benchmarking many types of computational approaches. For example, a network inference method could use mRNA abundance and cellular states as inputs, and its output could be benchmarked against the gold standard GRN.
 
 The final main advantage is that by making alterations to the simulation pipeline, multiple types of experiments (sampling technique or profiling technique) can be simulated. By default, dyngen supports snapshot experiments (uniformly sampling from an asynchronous dynamic process) and time-series experiments (sampling cells from different intervals in the simulation). 
-It is possible to implement other experimental protocols (which perhaps do not exist in real life), such as sampling the same cell at regular intervals. 
+It is possible to implement other experimental protocols, such as sampling the same cell at regular intervals. 
 
 %% TODO: show that dyngen output resembles real data using e.g. countsimQC?
 

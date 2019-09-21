@@ -272,7 +272,7 @@ We define the abundance levels of pre-mRNA, mRNA and protein of gene $G$ as $\w 
 
 \subsection{Compute average expression along backbone transitions} \label{sec:dyngen_sim_backbone}
 
-\mycomment{→ basically an ODE}
+\mycomment{this is basically an ODE, though we never reference ODEs anywhere. Maybe this is ok, this simplifies the section a bit?}
 When simulating the developmental backbone, we go through the edges of the backbone state network defined in an earlier step (Section \ref{sec:backbone}), starting from the root state. It is assumed the root state has no modules active and has no expression of any molecules. To get to next state, we follow a transition starting from the root state, activate and deactivate the modules as indicated by the transition, and compute the average molecule abundance along the transition. To compute the average abundance, we perform small time steps $t = 0.001$ and let each reaction (Section \ref{sec:reactions}) occur $t$ times its propensity. 
 
 \subsection{Simulate single cells} \label{sec:dyngen_ssa}

@@ -61,6 +61,9 @@
 \newcommand{\cmark}{\ding{51}}
 \newcommand{\xmark}{\ding{55}}
 
+% authors and affiliations
+\usepackage{authblk}
+
 % command for adding comments
 \newcommand{\mycomment}[1]{\noindent\fbox{\parbox{\textwidth}{\color{red}#1}}}
 
@@ -99,7 +102,21 @@ BoldItalicFont = *-700-Italic
 
 \title{dyngen: simulating developing single cells}
 
-\author{The \textit{dynverse} guys}
+\newcommand{\afdambi}{1}
+\newcommand{\afappmat}{2}
+\newcommand{\afcmgg}{3}
+\newcommand{\afcrig}{4}
+
+\author[\afdambi,\afappmat,\afcmgg,\afcrig]{Robrecht~Cannoodt}
+\author[\afdambi,\afappmat]{Wouter~Saelens}
+\author[\afdambi,\afappmat,*]{Yvan~Saeys}
+
+\affil[\afdambi]{{\footnotesize Data Mining and Modelling for Biomedicine group, VIB Center for Inflammation Research, Ghent, Belgium}}
+\affil[\afappmat]{{\footnotesize Department of Applied Mathematics, Computer Science and Statistics, Ghent University, Ghent, Belgium}}
+\affil[\afcmgg]{{\footnotesize Center of Medical Genetics, Ghent University Hospital, Ghent, Belgium}}
+\affil[\afcrig]{{\footnotesize Cancer Research Institute Ghent (CRIG), Ghent, Belgium}}
+\affil[*]{{\footnotesize Corresponding author, \href{mailto:yvan.saeys@ugent.be}{yvan.saeys@ugent.be}}}
+\date{}
 
 \maketitle
 

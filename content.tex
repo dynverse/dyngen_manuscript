@@ -340,33 +340,6 @@ From discussion: Sampling a cell at a certain time point and once more at a late
 
 
 
-
-
-
-
-
-%dyntoy and PROSSTT are specifically developed to generate datasets
-% containing single cells which develop along a certain trajectory.
-% These generators start a certain topology in mind, 
-% simulate changing gene expressions along each of the branches of the topology, and sample cells
-% from random points in the trajectory. splatter is focused on well replicating the specific noise characteristics of
-% scRNA-seq data, and simulates differentially expressed genes in order to replicate clusters of cells, batch effects
-% and even trajectories. dyngen 1.0 borrows a page from GeneNetWeaver in that it also converts a GRN into an ODE, but
-% the GRN is constructed in such a way that the repeated simulations resemble single cells following a regulatory program
-% (e.g. differentiation into one of two celltypes). BoolODE uses the dyngen 1.0 GRNs but uses boolean models to convert 
-% the network into an ODE, and is used to evaluate the performance of NI methods, not TI methods. 
-
-%\begin{table}
-%	\caption{\textbf{Comparison of existing single-cell omics simulators.} TI: trajectory inference, NI: network inference, Cl: clustering, DR: dimensionality reduction.} \label{tab:simulators}
-%	\centering\fontsize{9}{11}\selectfont
-%	\begin{tabularx}{\linewidth}{p{1.6cm}p{2.5cm}p{3cm}X}
-%		Generator & Used to evaluate & Data type(s) & Approach \\ \hline
-%		dyngen 1.0 & TI & mRNA \& protein & GRN, ODE, Euler--Maramuya \\
-%		dyntoy & TI & mRNA & Visualise tree in plane, generate expression in plane, sample cells from tree \\
-%		PROSSTT & TI & mRNA & Random walks along tree, sample cells from tree \\
-%		splatter & Cl \& TI & mRNA & Simulate DE genes, simulate scRNA-seq noise \\
-%		BoolODE & NI & mRNA \& protein & Use dyngen GRN's, ODE, Euler--Maramuya \\
-%		dyngen 2.0 & TI, NI, Cl, DR & pre-mRNA, mRNA, protein & Backbone, GRN, SSA \\
-%		dyngen 3? & TI, NI, Cl, DR & pre-mRNA, mRNA, miRNA, protein, protein complex & Backbone, GRN, SSA
-%	\end{tabularx}
-%\end{table}
+\clearpage
+\section{References}
+\printbibliography[heading=none]

@@ -3,9 +3,17 @@ library(dyngen)
 
 backs <- list_backbones()
 
+nb <- "bifurcating_converging"
+nb <- "linear"
+nb <- "disconnected"
+
 for (nb in names(backs)) {
   cat("=============== SIMULATING ", nb, " ===============\n", sep = "")
   set.seed(1)
+
+  out_dir <- paste0("fig/example/bb_", nb, "/")
+  if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
+
   back <- backs[[nb]]()
   model <-
     initialise_model(
@@ -20,9 +28,13 @@ for (nb in names(backs)) {
       simulation_params = simulation_default(ssa_algorithm = GillespieSSA2::ssa_exact(), num_simulations = 16, census_interval = .01)
     )
 
-  out <- generate_dataset(model, make_plots = FALSE)
+  out <- generate_dataset(model, output_dir = out_dir, make_plots = TRUE)
 
   # recalc dimred
+  out <- lst(
+    model = read_rds(paste0(out_dir, "model.rds")),
+    dataset = read_rds(paste0(out_dir, "dataset.rds"))
+  )
   gs_counts <- out$model$gold_standard$counts %>% as.matrix
   sim_counts <- out$model$simulations$counts[,colnames(gs_counts)] %>% as.matrix
   counts <- rbind(gs_counts, sim_counts)
@@ -34,8 +46,6 @@ for (nb in names(backs)) {
   # plot_gold_mappings(out$model, do_facet = FALSE)
 
   # save output
-  out_dir <- paste0("dyngen/bb_", nb, "/")
-  if (!dir.exists(out_dir)) dir.create(out_dir)
   write_rds(out, paste0(out_dir, "/out.rds"), compress = "gz")
 
   # plot model
@@ -71,7 +81,7 @@ for (nb in names(backs)) {
   dataset <- out$dataset
 
   library(dynplot)
-  g <- plot_dimred(dataset)
+  g <- plot_dimred(dataset, dimred = dyndimred::dimred_landmark_mds)
   ggsave(paste0(out_dir, "traj_dimred.pdf"), g, width = 8, height = 6)
   g <- plot_graph(dataset)
   ggsave(paste0(out_dir, "traj_graph.pdf"), g, width = 8, height = 6)

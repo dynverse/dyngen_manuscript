@@ -20,19 +20,19 @@ An ideal experiment would be able to observe all aspects of a cell, including a 
 molecular states, spatial positions and environmental interactions \cite{stuart_integrativesinglecellanalysis_2019}.
 While this falls outside the reach of current experimental technologies, generating synthetic data in anticipation of new experimental technologies would allow already developing the next wave of computational tools.
 
-We introduce \texttt{dyngen}, a multi-modality simulator of single cells and their dynamics (Figure \ref{fig:dyngen}A). A cell is simulated using Gillespie's Stochastic Simulation Algorithm (SSA) \cite{gillespie_exactstochasticsimulation_1977} where a cell consists of a set of molecules. Throughout a simulation, reactions (e.g. transcription, splicing) modify the abundance of these molecules, and the likelihood of a reaction occurring is again dependent on molecule abundance.
+We introduce \texttt{dyngen}, a multi-modality simulator of single cells and their dynamics (Figure \ref{fig:showcase}A). A cell is simulated using Gillespie's Stochastic Simulation Algorithm (SSA) \cite{gillespie_exactstochasticsimulation_1977} where a cell consists of a set of molecules. Throughout a simulation, reactions (e.g. transcription, splicing) modify the abundance of these molecules, and the likelihood of a reaction occurring is again dependent on molecule abundance.
 
-By simulating a cell over time in terms of its molecular state and the reactions that are allowed to occur, the simulator is more extendible to new modalities or experimental procedures (Figure~\ref{fig:dyngen}B). We demonstrate \texttt{dyngen}'s flexibility by simulating three different types of biological experiments, and using these simulations to develop benchmarking methodologies for recently developed computational tools.
+By simulating a cell over time in terms of its molecular state and the reactions that are allowed to occur, the simulator is more extendible to new modalities or experimental procedures (Figure~\ref{fig:showcase}B). We demonstrate \texttt{dyngen}'s flexibility by simulating three different types of biological experiments, and using these simulations to develop benchmarking methodologies for recently developed computational tools.
 
 \begin{figure}[htb!]
 	\centering
 	\includegraphics[width=\linewidth]{fig/showcase_4} 
 	\caption{
-		\textbf{Showcase of dyngen functionality.} 
+		\textbf{Showcase of \texttt{dyngen} functionality.} 
 		\textbf{A:} 
 		\textbf{B:} Evaluating different types of computational tools requires simulating different types of experiments and extracting different layers of information from the simulation.
 	}
-	\label{fig:dyngen}
+	\label{fig:showcase}
 \end{figure}
 
 \section{Results}
@@ -51,32 +51,58 @@ The likelihood of a reaction occurring is a function of the abundance of key mol
 	\label{fig:simplecyclic}
 \end{figure}
 
+\texttt{dyngen} returns many modalities throughout the whole simulation: molecular abundance, cellular state, number of reaction firings, reaction likelihoods, and regulation activations (Figure \ref{fig:simplecyclic}C--F). These modalities can serve both as input data and ground truth for benchmarking many types of computational approaches. For example, a network inference method could use mRNA abundance and cellular states as inputs, and its output could be benchmarked against the gold standard GRN.
 
-One of dyngen's main advantages is that depending on how the GRN is designed, different cellular developmental processes can be simulated. Different GRNs can result in branching, converging, cyclic, or even disconnected developmental topologies. Multiple simulations with slightly different GRNs can emulate rewiring events in disease or batch effects.
+Depending on how the GRN is designed, different cellular developmental processes can be simulated.
+\texttt{dyngen} includes generators of GRNs which result in many different developmental topologies (Figure~\ref{fig:example_runs}), including branching, converging, cyclic and even disconnected.
 
-\mycomment{could use figure; one with GRNs of different topologies, another with rewiring events}
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=\LARgefigure]{fig/example_runs_2} 
+	\caption{
+		\textbf{Multiple executions of \texttt{dyngen} with different predefined backbones.} From each simulation of about 200 genes, 1000 cells were sampled. 
+		\textbf{A:}~Linear. \textbf{B:}~Bifurcating. \textbf{C:}~Converging.
+		\textbf{D:}~Cyclic. \textbf{E:}~Bifurcating loop. \textbf{F:}~Bifurcating converging.
+		\textbf{G:}~Consecutive branching. \textbf{H:}~Binary tree. \textbf{I:}~Disconnected.
+	}
+	\label{fig:example_runs}
+\end{figure}
 
-Another advantage is that dyngen returns many modalities throughout the whole simulation: molecular abundance, cellular state, number of reaction firings, reaction likelihoods, and regulation activations (Figure \ref{fig:simplecyclic}C--F). These modalities can serve both as input data and ground truth for benchmarking many types of computational approaches. For example, a network inference method could use mRNA abundance and cellular states as inputs, and its output could be benchmarked against the gold standard GRN.
+Custom-defined GRNs offer more fine-grained control over the simulation.
+Aside from simulating topologies currently not supported by \texttt{dyngen}, this has several other important use-cases. Simulations of the same GRN with small perturbations allow to emulate batch effects or perturbation experiments (Figure~\ref{fig:usecases}). 
+Simulating perturbed GRNs allow evaluating trajectory alignment methods -- which attempt to map two or more trajectories onto each other -- or differential network inference methods -- which infer differential regulatory interactions between two or more groups of profiles.
 
 
-The final main advantage is that \texttt{dyngen} can be used to simulate different experimental conditions. By default, dyngen supports snapshot experiments (uniformly sampling from an asynchronous dynamic process) and time-series experiments (sampling cells from different intervals in the simulation). 
-It is possible to implement other experimental protocols, such as sampling the same cell at regular intervals or performing perturbation experiments. 
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=\LARgefigure]{fig/usecases} 
+	\caption{
+		\textbf{Examples of simulations with perturbed GRNs.}  
+		\textbf{A:} The cells in the top half were simulated with the same GRN as the cells on the bottom half, except that all parameters (e.g. strength of the interaction) were randomised.
+		\textbf{B:} Only 10 interactions in the GRN were randomised. In this example, the effect of the GRN perturbation is more subtle.
+	}
+	\label{fig:usecases}
+\end{figure}
 
-\mycomment{add result figures pertaining use cases}
+\texttt{dyngen} can be used to simulate different experimental conditions. By default, \texttt{dyngen} supports snapshot experiments (uniformly sampling from an asynchronous dynamic process) and time-series experiments (sampling cells from different intervals in the simulation). 
+However, it is possible to imagine and implement other sampling strategies, such as sampling a cell at a certain time point and once more at a later time point. This would allow evaluating the performance of RNA velocity approaches -- which predict the future state of a cell by looking at differences in pre-mRNA and mRNA abundance levels.
+
+%\subsection{Example use cases}
+%\subsubsection{Trajectory alignment}
+%\subsubsection{Differential network inference}
+%\subsubsection{RNA velocity}
+%\subsubsection{Perturbation experiment}
 
 \section{Discussion}
-As is, dyngen's single cell simulations can be used to evaluate common single-cell omics computational methods such as clustering, batch correction, trajectory inference and network inference.
-However, the combined effect of these advantages results in a framework that is flexible enough to adapt to a broad range of applications. This may include methods that integrate clustering, network inference and trajectory inference. In this respect, dyngen may promote the development of new tools in the single-cell field similarly as other simulators have done in the past \cite{schaffter_genenetweaversilicobenchmark_2011,ewing_combiningtumorgenome_2015}.
+As is, \texttt{dyngen}'s single cell simulations can be used to evaluate common single-cell omics computational methods such as clustering, batch correction, trajectory inference and network inference.
+However, the combined effect of these advantages results in a framework that is flexible enough to adapt to a broad range of applications. This may include methods that integrate clustering, network inference and trajectory inference. In this respect, \texttt{dyngen} may promote the development of new tools in the single-cell field similarly as other simulators have done in the past \cite{schaffter_genenetweaversilicobenchmark_2011,ewing_combiningtumorgenome_2015}.
 
-Adding batch effects to snapshot simulations of linear (or even branching) trajectories allows evaluating trajectory alignment methods -- which attempt to map two or more trajectories onto each other. Adding perturbations to the GRN allows evaluating the performance of differential network inference methods -- which predict differential regulatory interactions between two or more groups of profiles.  Sampling a cell at a particular time point and once more at a later time point allows evaluating the performance of RNA velocity approaches -- which predict the future state of a cell by looking at differences in pre-mRNA and mRNA abundance levels.
+\texttt{dyngen} ultimately allows anticipating technological developments in single-cell multi-omics. In this way, it is possible to design and evaluate the performance and robustness of new types of computational analyses before experimental data becomes available.
+In addition, it could also be used to compare which experimental protocol is the most cost-effective in producing the qualitative and robust results in downstream analysis.
 
-dyngen ultimately also allows anticipating technological developments in single-cell multi-omics. In this way, it is possible to design and evaluate the performance and robustness of new types of computational analyses before experimental data becomes available.
-Similarly, it could also be used to compare which experimental technique will likely produce the most accurate result. For example, is it possible to infer directionality of regulatory interactions from snapshot experiments only, or are time series or knockdown experiments a necessity in order to infer high-quality regulatory networks?
+Currently, \texttt{dyngen} focuses on simulating cells as standalone entities that are well mixed.
+Splitting up the simulation space into separate subvolumes could pave the way to better study key cellular processes such as cell division, intercellular communication and migration\cite{smith_spatialstochasticintracellular_2019}.
 
-Currently, dyngen focuses on simulating cells as standalone entities.
-Future developments include extending the framework to simulate multiple cells in a virtual environment. Allowing cells to receive and react to environmental and intercellular stimuli would enable simulating essential cellular processes such as cell division and migration. 
-
-%\mycomment{also adding more types of molecules, e.g. protein complex, small rnas, PPI}
 
 \section{Methods}
 The workflow to generate \textit{in silico} single cell data consists of six main steps (Figure \ref{fig:explain_methods}). 
@@ -84,7 +110,7 @@ The workflow to generate \textit{in silico} single cell data consists of six mai
 \begin{figure}[htb!]
 	\centering
 	\includegraphics[width=\hugefigure]{fig/explain_methods} 
-	\caption{\textbf{The workflow of dyngen is comprised of six main steps.} \textbf{A:} The user needs to specify the desired module network or use a predefined module network. \textbf{B:} Each gene in a module is is regulated by one or more transcription factors from the upstream module. Additional target genes are generated. \textbf{C:} Each gene regulatory interaction in the GRN is converted to a set of biochemical reactions. \textbf{D:} Along with the module network, the user also needs to specify the backbone structure of expected cell states. The average expression of each edge in the backbone is simulated by activating a restricted set of genes for each edge. \textbf{E:} Multiple Gillespie SSA simulations are run using the reactions defined in step C.  The counts of each of the mocules at each time step are extracted. Each time step is mapped to a point in the backbone. \textbf{F:} Multiple cells are sampled from each simulation. Molecules are sampled from each cell.}
+	\caption{\textbf{The workflow of \texttt{dyngen} is comprised of six main steps.} \textbf{A:} The user needs to specify the desired module network or use a predefined module network. \textbf{B:} Each gene in a module is is regulated by one or more transcription factors from the upstream module. Additional target genes are generated. \textbf{C:} Each gene regulatory interaction in the GRN is converted to a set of biochemical reactions. \textbf{D:} Along with the module network, the user also needs to specify the backbone structure of expected cell states. The average expression of each edge in the backbone is simulated by activating a restricted set of genes for each edge. \textbf{E:} Multiple Gillespie SSA simulations are run using the reactions defined in step C.  The counts of each of the mocules at each time step are extracted. Each time step is mapped to a point in the backbone. \textbf{F:} Multiple cells are sampled from each simulation. Molecules are sampled from each cell.}
 	\label{fig:explain_methods}
 \end{figure}
 
@@ -92,15 +118,13 @@ The workflow to generate \textit{in silico} single cell data consists of six mai
 
 One of the main processes involved in cellular dynamic processes is gene regulation, where regulatory cascades and feedback loops lead to progressive changes in expression and decision making. The exact way a cell chooses a certain path during its differentiation is still an active research field, although certain models have already emerged and been tested \textit{in vivo}. One driver of bifurcation seems to be mutual antagonism, where two genes \cite{xu_regulationbifurcatingcell_2015} strongly repress each other, forcing one of the two to become inactive \cite{graf_forcingcellschange_2009}. Such mutual antagonism can be modelled and simulated \cite{wang_quantifyingwaddingtonlandscape_2011, ferrell_bistabilitybifurcationswaddington_2012}. Although the two-gene model is simple and elegant, the reality is frequently more complex, with multiple genes (grouped into modules) repressing each other \cite{yosef_dynamicregulatorynetwork_2013}.
 
-In dyngen, the user defines the behaviour of the simulation by defining how sets of genes, called modules, are regulating eachother.
-A module may have basal expression, which means that pre-mRNA of the genes in this module will be transcribed without the presence of transcription factor molecules. A module marked as "active during the burn phase" means that this module will be allowed to generate expression of its genes during an initial warm-up phase (See section \ref{sec:dyngen_ssa}). At the end of the dyngen process, cells will not be sampled from the burn phase simulations.
+In \texttt{dyngen}, the user defines the behaviour of the simulation by defining how sets of genes, called modules, are regulating eachother.
+A module may have basal expression, which means that pre-mRNA of the genes in this module will be transcribed without the presence of transcription factor molecules. A module marked as "active during the burn phase" means that this module will be allowed to generate expression of its genes during an initial warm-up phase (See section \ref{sec:dyngen_ssa}). At the end of the \texttt{dyngen} process, cells will not be sampled from the burn phase simulations. Interactions between modules have a strength (which is a positive integer) and an effect (+1 for upregulating, -1 for downregulating).
 
 Several examples of module networks are given (Figure \ref{fig:example_backbones}). 
 A simple chain of modules (where one module upregulates the next) results in a \emph{linear} process. By having the last module repress the first module, the process becomes \emph{cyclic}. Two modules repressing eachother is the basis of a \emph{bifurcating} process, though several chains of modules have to be attached in order to achieve progression before and after the bifurcation process. Finally, a \emph{converging} process has a bifurcation occurring during the burn phase, after which any differences in module regulation is removed.
 
 Note that these examples represent the bare minimum in terms of number of modules used. Using longer chains of modules is typically desired. In addition, the fate decisions made in this example of a bifurcation is reversible, meaning cells can be reprogrammed to go down a different differentiation path. If this effect is undesirable, more safeguards need to be put in place to prevent reprogramming from occurring (Section \ref{sec:dyngen_backbone_lego}).
-
-\mycomment{mention strength, cooperativity, effect and independence factor.}
 
 \begin{figure}[htb!]
 	\centering
@@ -178,6 +202,13 @@ For every gene $G$ in the GRN, the simulation will keep track of the abundance l
 
 Throughout a simulation, the abundance levels of molecules are affected by five reactions, namely transcription, splicing, mRNA degradation, translation, and protein degradation. Each reaction consists of its propensity -- a formula to calculate the probability of the reaction occurring during an infinitesimal time interval -- and the effect -- how it will affect the current state if triggered. The effects and propensity functions of these reactions are defined in Table \ref{tab:reaction_def}.
 
+
+%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+% TODO: add step-by-step  derivation of transcription formula
+%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+% YSA: Graag wat meer uitleg in de tekst over al deze formules, definitie van notaties en zo.
+
 \begin{table}[ht]
 	\caption{\textbf{Reactions affecting the abundance levels of pre-mRNA $\w G$, mRNA $\x G$ and proteins $\y G$ of gene $G$.} Define the set of regulators of $G$ as $\rs{G}$, the set of upregulating regulators of $G$ as $\rp G$, and the set of downregulating regulators of $G$ as $\rn G$. Parameters used in the propensity formulae are defined in Table \ref{tab:reaction_params}.} \label{tab:reaction_def}
 	\centering
@@ -191,9 +222,6 @@ Throughout a simulation, the abundance levels of molecules are affected by five 
 		Protein degradation & $\y G \rightarrow \emptyset$ & $\ydr G \times \y G$ \\ \hline
 	\end{tabular}
 \end{table}
-%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-% TODO: add step-by-step  derivation of transcription formula
-%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 % regG,H represents a 'probability' that H is bound to G (though does not yet scale between [0,1]). y_H / maxy_H is more likely to be a probability that H is bound to G, though this does not take into account that H can be bound to other genes as well. 
 % in any case, if it is, then it upregulates G by strG,H. It is assumed binding events
@@ -207,7 +235,7 @@ Throughout a simulation, the abundance levels of molecules are affected by five 
 % https://kar.kent.ac.uk/24077/1/myzabetpaper.pdf
 
 \begin{table}[ht]
-	\caption{\textbf{Parameters defined for the calculation of reaction propensity functions.}} \label{tab:reaction_params}
+	\caption{\textbf{Default parameters defined for the calculation of reaction propensity functions.}} \label{tab:reaction_params}
 	\centering
 	\begin{tabular}{|lrl|}
 		\hline
@@ -228,7 +256,9 @@ Throughout a simulation, the abundance levels of molecules are affected by five 
 \end{table}
 
 \subsection{Compute average expression along backbone transitions} \label{sec:dyngen_sim_backbone}
-When simulating the developmental backbone, we go through the edges of the backbone state network defined in an earlier step (Section \ref{sec:backbone}), starting from the root state. It is assumed the root state has no modules active and has no expression of any molecules. To get to next state, we follow a transition starting from the root state, activate and deactivate the modules as indicated by the transition, and compute the average molecule abundance along the transition. To compute the average abundance, we perform small time steps $t = 0.001$ and let each reaction (Section \ref{sec:reactions}) occur $t$ times its propensity. 
+When simulating the developmental backbone, we go through the edges of the backbone state network defined in an earlier step (Section \ref{sec:backbone}), starting from the root state. It is assumed the root state has no modules active and has no expression of any molecules. To get to the next state, we follow a transition starting from the root state, activate and deactivate the modules as indicated by the transition, and compute the average molecule abundance along the transition. To compute the average abundance, we perform small time steps $t = 0.001$ and let each reaction (Section \ref{sec:reactions}) occur $t$ times its propensity. 
+
+% mention that this is basically an ode?
 
 \subsection{Simulate single cells} \label{sec:dyngen_ssa}
 %TODO: STOCKS \cite{kierzek_stocksstochastickinetic_2002} uses GSSA to simulate something.
@@ -241,14 +271,14 @@ When simulating the developmental backbone, we go through the edges of the backb
 
 %TODO: improve this section a lot. Basically, explain SSA and GillespieSSA2.
 
-\texttt{dyngen} uses Gillespie's Stochastic Simulation Algorithm (SSA) to simulate dynamic processes. An SSA simulation is an iterative process where at each iteration one reaction is triggered. 
+\texttt{dyngen} uses Gillespie's stochastic simulation algorithm (SSA)\cite{gillespie_exactstochasticsimulation_1977} to simulate dynamic processes. An SSA simulation is an iterative process where at each iteration one reaction is triggered. 
 
 Each reaction consists of its propensity -- a formula to calculate the probability of the reaction occurring during an infinitesimal time interval -- and the effect -- how it will affect the current state if triggered. Each time a reaction is triggered, the simulation time is incremented by $\tau = \frac{1}{\sum_j prop_j} \ln\left(\frac{1}{r}\right)$, with $r \in U(0, 1)$ and $prop_j$ the propensity value of the $j$th reaction for the current state of the simulation.
 
 \texttt{GillespieSSA2} is an optimised library for performing SSA simulations. The propensity functions are compiled to C++, and SSA approximations can be used which allow to trigger many reactions simultaneously at each iteration. The framework also allows to store the abundance levels of molecules only after a specific interval has passed since the previous census. By setting the census interval to 0, the whole simulation's trajectory is retained but many of these time points will contain very similar information. In addition to the abundance levels, also the propensity values and the number of firings of each of the reactions at each of the time steps can be retained, as well as specific sub-calculations of the propensity values, such as the regulator activity level $reg_{G,H}$. 
 
 \subsubsection{Map SSA simulations to backbone}
-The cellular state of each timepoint in the SSA simulation is mapped to the state network of the backbone by calculating the 1NN between a state vector in the simulation and the average expression levels along transitions.
+We compute the Pearson correlation between the state vectors in the simulation and the average expression levels along a transition in the backbone. Each timepoint in the SSA simulation is mapped to the point in the backbone that has the highest correlation value.
 
 \subsection{Simulate experiment}
 From the SSA simulation we obtain the abundance levels of all the molecules at the different time points. We need to replicate technical effects introduced by experimental protocols in order to obtain data that is similar to real data. For this, the cells are sampled from the simulations, and molecules are sampled for each of the cells. Real datasets are used in order to achieve similar data characteristics.
@@ -262,103 +292,6 @@ Cells can be sampled from an unsynchronised population of single cells (snapshot
 
 \subsubsection{Sample molecules} 
 Molecules are sampled from the simulation to replicate how molecules are experimentally sampled. A real dataset is downloaded from a repository of single-cell RNA-seq datasets\cite{cannoodt_singlecellomicsdatasets_2018}. For each \textit{in silico} cell $i$, draw its library size $ls_i$from the distribution of transcript counts per cell in the real dataset. The capture rate $cr_j$ of each \textit{in silico} molecule type $j$ is drawn from $N(1, 0.05)$. Finally, for each cell $i$, draw $ls_i$ molecules from the multinomial distribution with probabilities $cr_j \times ab_{i,j}$ with $ab_{i,j}$ the molecule abundance level of molecule $j$ in cell $i$.
-
-\subsection{Example runs of predefined backbones}
-
-\subsubsection{Linear}
-
-
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=\linewidth]{fig/example/bb_linear/plot} 
-	\caption{}
-	\label{fig:example_linear}
-\end{figure}
-
-\subsubsection{Bifurcating}
-
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=\linewidth]{fig/example/bb_bifurcating/plot} 
-	\caption{}
-	\label{fig:example_bifurcating}
-\end{figure}
-
-\subsubsection{Cycle}
-
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=\linewidth]{fig/example/bb_cycle/plot} 
-	\caption{}
-	\label{fig:example_cycle}
-\end{figure}
-
-%\subsubsection{Branching}
-%
-%\begin{figure}[H]
-%	\centering
-%	\includegraphics[width=\linewidth]{fig/example/bb_binary_tree/plot} 
-%	\caption{}
-%	\label{fig:example_branching}
-%\end{figure}
-
-\subsubsection{Converging}
-
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=\linewidth]{fig/example/bb_converging/plot} 
-	\caption{}
-	\label{fig:example_converging}
-\end{figure}
-
-\subsubsection{Bifurcating converging}
-
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=\linewidth]{fig/example/bb_bifurcating_converging/plot} 
-	\caption{}
-	\label{fig:example_bifurcating_converging}
-\end{figure}
-
-%\subsubsection{Bifurcating cycle}
-%
-%\begin{figure}[H]
-%	\centering
-%	\includegraphics[width=\linewidth]{fig/example/bb_bifurcating_cycle/plot} 
-%	\caption{}
-%	\label{fig:example_bifurcating_cycle}
-%\end{figure}
-
-
-\subsubsection{Bifurcating loop}
-
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=\linewidth]{fig/example/bb_bifurcating_loop/plot} 
-	\caption{}
-	\label{fig:example_bifurcating_loop}
-\end{figure}
-
-%\subsubsection{Disconnected}
-%
-%\begin{figure}[H]
-%	\centering
-%	\includegraphics[width=\linewidth]{fig/example/bb_disconnected/plot} 
-%	\caption{}
-%	\label{fig:example_disconnected}
-%\end{figure}
-
-\subsection{Example use cases}
-\subsubsection{Trajectory alignment}
-From discussion: Adding batch effects to snapshot simulations of linear (or even branching) trajectories allows evaluating trajectory alignment methods -- which attempt to map two or more trajectories onto each other. 
-\subsubsection{Differential network inference}
-From discussion: Adding perturbations to the GRN allows evaluating the performance of differential network inference methods -- which predict differential regulatory interactions between two or more groups of profiles.
-\subsubsection{RNA velocity}
-From discussion: Sampling a cell at a certain time point and once more at a later time point allows evaluating the performance of RNA velocity approaches -- which predict the future state of a cell by looking at differences in pre-mRNA and mRNA abundance levels.
-
-
-\subsubsection{Perturbation experiment}
-
 
 
 \clearpage

@@ -176,6 +176,9 @@ A user-defined number of target genes are added to the GRN. Target genes regulat
 Housekeeping genes are completely separate from any TFs or target genes. A user-defined set of housekeeping genes are also sampled from the FANTOM5 GRN. The interactions of the FANTOM5 GRN are first subsampled such that the maximum in-degree of each gene is $x$ (default $x=5$). A random gene is sampled, and a breadth-first-search is performed to sample the desired number of housekeeping genes.
 
 \subsection{Convert gene regulatory network to a set of reactions} \label{sec:reactions}
+% paper on transcriptional bursting
+% doi: 10.1039/C7MB00154A
+% interesting to try to replicate in dyngen! :)
 \newcommand{\w}[1]{\text{w}_{#1}}
 \newcommand{\x}[1]{\text{x}_{#1}}
 \newcommand{\y}[1]{\text{y}_{#1}}
@@ -270,6 +273,7 @@ When simulating the developmental backbone, we go through the edges of the backb
 % https://nyaspubs.onlinelibrary.wiley.com/doi/full/10.1111/j.1749-6632.2008.03756.x (modules of genes)
 
 %TODO: improve this section a lot. Basically, explain SSA and GillespieSSA2.
+
 
 \texttt{dyngen} uses Gillespie's stochastic simulation algorithm (SSA)\cite{gillespie_exactstochasticsimulation_1977} to simulate dynamic processes. An SSA simulation is an iterative process where at each iteration one reaction is triggered. 
 

@@ -87,6 +87,9 @@ Simulating perturbed GRNs allow evaluating trajectory alignment methods -- which
 \texttt{dyngen} can be used to simulate different experimental conditions. By default, \texttt{dyngen} supports snapshot experiments (uniformly sampling from an asynchronous dynamic process) and time-series experiments (sampling cells from different intervals in the simulation). 
 However, it is possible to imagine and implement other sampling strategies, such as sampling a cell at a certain time point and once more at a later time point. This would allow evaluating the performance of RNA velocity approaches -- which predict the future state of a cell by looking at differences in pre-mRNA and mRNA abundance levels.
 
+% YSA: RNA velocity: Onduidelijk hier, mensen kennen dit niet.
+
+
 %\subsection{Example use cases}
 %\subsubsection{Trajectory alignment}
 %\subsubsection{Differential network inference}
@@ -104,6 +107,13 @@ Currently, \texttt{dyngen} focuses on simulating cells as standalone entities th
 Splitting up the simulation space into separate subvolumes could pave the way to better study key cellular processes such as cell division, intercellular communication and migration\cite{smith_spatialstochasticintracellular_2019}.
 
 
+% We developed \texttt{dyngen}, a simulator of single cells to benchmark and stress-test computational tools for single-cell omics.
+%It supports a selection of existing experimental protocols, but can also simulate experiments for permitted by current technologies, such as generating omics profiles from the same cell at multiple timepoints.
+%This data can help kick-start emerging domains with low data availability more safely by allowing method developers to test their method before numerous datasets become publicly available.
+%\texttt{dyngen} has already been used successfully to evaluate trajectory inference\cite{saelens_comparisonsinglecelltrajectory_2019}, trajectory alignment\cite{vandenberge_trajectorybaseddifferentialexpression_2019}, and network inference\cite{pratapa_benchmarkingalgorithmsgene_2019} methods. Furthermore, we showed that it can also be used to evaluate differential network inference methods, and trajectory alignment methods. % TODO: And RNA velocity?
+
+
+
 \section{Methods}
 The workflow to generate \textit{in silico} single cell data consists of six main steps (Figure \ref{fig:explain_methods}). 
 
@@ -116,7 +126,7 @@ The workflow to generate \textit{in silico} single cell data consists of six mai
 
 \subsection{Defining the backbone: modules and states} \label{sec:backbone}
 
-One of the main processes involved in cellular dynamic processes is gene regulation, where regulatory cascades and feedback loops lead to progressive changes in expression and decision making. The exact way a cell chooses a certain path during its differentiation is still an active research field, although certain models have already emerged and been tested \textit{in vivo}. One driver of bifurcation seems to be mutual antagonism, where two genes \cite{xu_regulationbifurcatingcell_2015} strongly repress each other, forcing one of the two to become inactive \cite{graf_forcingcellschange_2009}. Such mutual antagonism can be modelled and simulated \cite{wang_quantifyingwaddingtonlandscape_2011, ferrell_bistabilitybifurcationswaddington_2012}. Although the two-gene model is simple and elegant, the reality is frequently more complex, with multiple genes (grouped into modules) repressing each other \cite{yosef_dynamicregulatorynetwork_2013}.
+One of the main processes involved in cellular dynamic processes is gene regulation, where regulatory cascades and feedback loops lead to progressive changes in expression and decision making. The exact way a cell chooses a certain path during its differentiation is still an active research field, although certain models have already emerged and been tested \textit{in vivo}. One driver of bifurcation seems to be mutual antagonism, where two genes strongly repress each other\cite{rekhtman_directinteractionhematopoietic_1999,xu_regulationbifurcatingcell_2015}, forcing one of the two to become inactive \cite{graf_forcingcellschange_2009}. Such mutual antagonism can be modelled and simulated \cite{wang_quantifyingwaddingtonlandscape_2011, ferrell_bistabilitybifurcationswaddington_2012}. Although the two-gene model is simple and elegant, the reality is frequently more complex, with multiple genes (grouped into modules) repressing each other \cite{yosef_dynamicregulatorynetwork_2013}.
 
 In \texttt{dyngen}, the user defines the behaviour of the simulation by defining how sets of genes, called modules, are regulating eachother.
 A module may have basal expression, which means that pre-mRNA of the genes in this module will be transcribed without the presence of transcription factor molecules. A module marked as "active during the burn phase" means that this module will be allowed to generate expression of its genes during an initial warm-up phase (See section \ref{sec:dyngen_ssa}). At the end of the \texttt{dyngen} process, cells will not be sampled from the burn phase simulations. Interactions between modules have a strength (which is a positive integer) and an effect (+1 for upregulating, -1 for downregulating).

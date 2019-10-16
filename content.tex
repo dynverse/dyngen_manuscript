@@ -22,7 +22,7 @@ While this falls outside the reach of current experimental technologies, generat
 
 We introduce \texttt{dyngen}, a multi-modality simulator of single cells and their dynamics (Figure \ref{fig:showcase}A). A cell is simulated using Gillespie's Stochastic Simulation Algorithm (SSA) \cite{gillespie_exactstochasticsimulation_1977} where a cell consists of a set of molecules. Throughout a simulation, reactions (e.g. transcription, splicing) modify the abundance of these molecules, and the likelihood of a reaction occurring is again dependent on molecule abundance.
 
-By simulating a cell over time in terms of its molecular state and the reactions that are allowed to occur, the simulator is more extendible to new modalities or experimental procedures (Figure~\ref{fig:showcase}B). We demonstrate \texttt{dyngen}'s flexibility by simulating three different types of biological experiments, and using these simulations to develop benchmarking methodologies for recently developed computational tools.
+By simulating a cell over time in terms of its molecular state and the reactions that are allowed to occur, the simulator is more extendible to new modalities or experimental procedures (Figure~\ref{fig:showcase}B). We demonstrate \texttt{dyngen}'s flexibility by simulating snapshot, time-series and pertubation experiments, allowing to benchmark a wide variety of computational tools such as trajectory alignment and differential network inference methods.
 
 \begin{figure}[htb!]
 	\centering

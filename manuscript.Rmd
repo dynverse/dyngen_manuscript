@@ -78,9 +78,7 @@ By simulating a cell over time in terms of its molecular state and the reactions
 # Results
 
 
-A cell consists of a set of molecules, the abundance of which are affected by a set of reactions: transcription, splicing, translation, and degradation (Figure \ref{fig:simplecyclic}A).
-A gene regulatory network (GRN) define the reactions that are allowed to occur (Figure \ref{fig:simplecyclic}B), and is constructed such that a cell will develop over time (Figure \ref{fig:simplecyclic}C--D).
-The likelihood of a reaction occurring is a function of the abundance of key molecules involved in each reaction (Figure \ref{fig:simplecyclic}E).
+A cell consists of a set of molecules, the abundance of which are affected by a set of reactions: transcription, splicing, translation, and degradation (Figure \ref{fig:simplecyclic}A). A gene regulatory network (GRN) define the reactions that are allowed to occur (Figure \ref{fig:simplecyclic}B), and is constructed such that a cell will develop over time (Figure \ref{fig:simplecyclic}C--D). The likelihood of a reaction occurring is a function of the abundance of key molecules involved in each reaction (Figure \ref{fig:simplecyclic}E).
 
 
 \begin{figure}[htb!]
@@ -200,7 +198,7 @@ A module may have basal expression, which means that pre-mRNA of the genes in th
 
 
 Several examples of module networks are given (Figure \ref{fig:example_backbones}).
-A simple chain of modules (where one module upregulates the next) results in a \emph{linear} process. By having the last module repress the first module, the process becomes \emph{cyclic}. Two modules repressing eachother is the basis of a \emph{bifurcating} process, though several chains of modules have to be attached in order to achieve progression before and after the bifurcation process. Finally, a \emph{converging} process has a bifurcation occurring during the burn phase, after which any differences in module regulation is removed.
+A simple chain of modules (where one module upregulates the next) results in a _linear_ process. By having the last module repress the first module, the process becomes _cyclic_. Two modules repressing eachother is the basis of a _bifurcating_ process, though several chains of modules have to be attached in order to achieve progression before and after the bifurcation process. Finally, a \emph{converging} process has a bifurcation occurring during the burn phase, after which any differences in module regulation is removed.
 
 
 Note that these examples represent the bare minimum in terms of number of modules used. Using longer chains of modules is typically desired. In addition, the fate decisions made in this example of a bifurcation is reversible, meaning cells can be reprogrammed to go down a different differentiation path. If this effect is undesirable, more safeguards need to be put in place to prevent reprogramming from occurring.
@@ -209,7 +207,7 @@ Note that these examples represent the bare minimum in terms of number of module
 \begin{figure}[htb!]
     \centering
     \includegraphics[width=0.8\textwidth]{fig/example_backbones}
-    \caption{Example module networks}
+    \caption{\textbf{Example module networks.}}
     \label{fig:example_backbones}
 \end{figure}
 
@@ -225,12 +223,12 @@ The backbone can make use of one or more "backbone lego" (BBL) pieces (Figure \r
 \begin{figure}[htb!]
     \centering
     \includegraphics[width=0.8\textwidth]{fig/backbone_lego}
-    \caption{Backbone lego}
+    \caption{\textbf{Backbone lego.}}
     \label{fig:backbone_lego}
 \end{figure}
 
 
-When the input node of a **linear BBL** (Figure \ref{fig:backbone_lego}C) is upregulated, the module the BBL is connected to will be upregulated. A \emph{simple chain} is a set of modules where a module upregulates the next. A \emph{chain with double repression} has an uneven number of modules forming a chain where each module downregulates the next but all modules (except the input) have basal expression. A \emph{grid with double repression} is similar; except that modules do not have basal expression but instead get upregulated by an upstream module in the chain. Finally, a \emph{flip flop} consists of a simple chain where first the modules (except the last) are upregulated. Once the second to last module is upregulated, that module upregulates itself and the first module is strongly repressed, causing all other modules to lose expression and finally the last module to be upregulated. The \emph{flip flop} retains this output state, even when the input changes.
+When the input node of a **linear BBL** (Figure \ref{fig:backbone_lego}C) is upregulated, the module the BBL is connected to will be upregulated. A _simple chain_ is a set of modules where a module upregulates the next. A _chain with double repression_ has an uneven number of modules forming a chain where each module downregulates the next but all modules (except the input) have basal expression. A _grid with double repression_ is similar; except that modules do not have basal expression but instead get upregulated by an upstream module in the chain. Finally, a _flip flop_} consists of a simple chain where first the modules (except the last) are upregulated. Once the second to last module is upregulated, that module upregulates itself and the first module is strongly repressed, causing all other modules to lose expression and finally the last module to be upregulated. The _flip flop_ retains this output state, even when the input changes.
 
 
 When the input node of a **branching BBL** (Figure \ref{fig:backbone_lego}D) is upregulated, a subset of its output modules will eventually be upregulated. A \emph{simple branching} uses reciprocal inhibition to drive the upregulation of one of the output modules. Due to its simplicity, however, multiple output modules might be upregulated simultaneously, and over long periods of simulation time it might be possible that the choice of upregulated module changes. A \emph{robust branching} improves upon the simple branching by preventing upregulation of output modules until an internal branching decision has been made, and by repressing the decision mechanism to avoid other output modules being upregulated other than the one that has been chosen.

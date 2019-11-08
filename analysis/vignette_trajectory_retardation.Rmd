@@ -1,0 +1,202 @@
+---
+title: "Alignment of slowed down trajectories"
+author: "Louise Deconinck"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Put the title of your vignette here}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Alignment of slowed trajectories
+
+```{r collapse=TRUE}
+library(gtools)
+library(tidyverse)
+library(dyngen)
+library(dynplot)
+```
+
+### Simulating data
+
+We can use dyngen to generate different kinds of trajectories and align these with a known trajectory alignment technique.
+
+First, we generate a normal linear trajectory. We construct a very simple linear backbone consisting of 20 modules and 3 milestones. We then specifiy the model will generate 5000 cells, use 30 transcription factors and generate 500 housekeeping genes and targets. We're also going to perform 50 different simulations from which we'll sample cells.
+
+```{r eval=FALSE}
+
+backbone <- bblego(
+  bblego_start("A", type = "simple", num_modules = 4),
+  bblego_linear("A", "B", type = "simple", num_modules = 5),
+  bblego_linear("B", "C", type = "simple", num_modules = 6),
+  bblego_end("C", type = "simple", num_modules = 5)
+)
+
+model <- initialise_model(
+  backbone = backbone,
+  num_cells = 5000,
+  num_tfs = 30,
+  num_targets = 500,
+  num_hks = 500,
+  simulation_params = simulation_default(num_simulations=50)
+)
+
+```
+
+We generate a single-cell dataset in the standard way.
+
+```{r eval=FALSE}
+model <- generate_tf_network(model)
+model <- generate_feature_network(model)
+model <- generate_kinetics(model)
+model <- generate_gold_standard(model)
+model <- generate_cells(model)
+model <- generate_experiment(model)
+dataset1 <- wrap_dataset(model)
+```
+
+Next, we generate a dataset using the same feature network, gene regulatory network and kinetics, but with the transcription rate and mrna degradation rate of a single transcription factor slowed down. The transcription rate of a cell is regulated by the "wpr" parameter, the mrna degradation by the "xdr" parameter. These are slowed in the following way:
+
+```{r eval=FALSE}
+# Target is the transcription factor targeted
+# Rate is the amount by which the transcription factor will be slowed
+change_speed <- function(model, target, rate) {
+  param_id <- which(target == model$feature_info$feature_id)[[1]]
+
+  model$feature_info$wpr[param_id] <- model$feature_info$wpr[param_id] * rate
+  model$feature_info$xdr[param_id] <- model$feature_info$xdr[param_id] * rate
+
+  param_wpr <- paste0("wpr_", target)
+  param_xdr <- paste0("xdr_", target)
+
+  model$simulation_system$parameters[param_wpr] <- model$simulation_system$parameters[param_wpr] * rate
+  model$simulation_system$parameters[param_xdr] <- model$simulation_system$parameters[param_xdr] * rate
+
+  model
+}
+```
+
+We can then apply this function and regenerate the gold standard, the cells and the actual single cell experiment to obtain a second, slowed dataset.
+
+```{r eval=FALSE}
+model2 <- model
+model2 <- change_speed(model1, "A5_TF1", 0.5)
+model2 <- generate_gold_standard(model2)
+model2 <- generate_cells(model2)
+model2 <- generate_experiment(model2)
+dataset2 <- wrap_dataset(model2)
+```
+
+These are pretty large models. Running will take significant time. We load the two accompanying datasets that were generated using the procedure above.
+
+```{r}
+model1 <- readRDS("data/8_orig_model")
+model2 <- readRDS("data/8_retardation_model_1")
+dataset1 <- wrap_dataset(model1)
+dataset2 <- wrap_dataset(model2)
+```
+
+### Smooth gene expression
+
+In order to align these two trajectories, we will first generate waypoints or pseudocells along the trajectory. We generate 100 waypoints, evenly spaced through the pseudotime.
+
+Waypoints consist of cell_ids, the id's of these waypoints, the milestone they originate from and are travelling to, and the pseudotime percentage between those two milestones.
+In order to distribute these waypoints evenly, we generate the amount of waypoints according to the length of the pseudotime trajectory part.
+```
+A -------> B --------------> EndB
+    0.5            1
+```
+    
+This means that if we have the above trajectory, with the segment between milestone A and B being half as long as the segment between B and EndB, there will be half as much waypoints between A and B compared to the number of waypoints between B and EndB.
+
+```{r}
+get_waypoint_progression <- function(dataset, nr){
+  cell_id <- character()
+  froms <- character()
+  tos <- character()
+  percentage <- numeric()
+
+  length_pieces <- dataset$milestone_network$length/sum(dataset$milestone_network$length)
+  idx <- 1
+  for(piece in length_pieces){
+    amount <- round(nr * piece)
+    wps <- modify(list(1:amount), function(x){x/amount})[[1]]
+    ids <- modify(list(1:amount), function(x){sprintf("w%d_%03d", idx, x)})[[1]]
+    from <- rep(dataset$milestone_network$from[idx], amount)
+    to <- rep(dataset$milestone_network$to[idx], amount)
+
+    cell_id <- c(cell_id, ids)
+    froms <- c(froms, from)
+    tos <- c(tos, to)
+    percentage <- c(percentage, wps)
+
+    idx <- idx + 1
+
+  }
+  waypoint_progressions <- tibble(cell_id=cell_id, from=froms, to=tos, percentage=percentage)
+  waypoint_progressions
+}
+
+wpp1 <- get_waypoint_progression(dataset1, 100)
+wpp2 <- get_waypoint_progression(dataset2, 100)
+```
+
+Next, we calculate the geodesic distance between these waypoints and all other cells. The geodesic distance is the distance along the trajectory.
+First, the progressions calculated in the previous step need to be converted to milestone percentages using the dynwrap function.
+Then, we calculate the geodesic distances.
+
+```{r}
+get_geodesic_distances_from_progressions <- function(dataset, waypoint_progressions){
+  waypoint_milestone_percentages <- dynwrap::convert_progressions_to_milestone_percentages(cell_id, dataset$milestone_ids, dataset$milestone_network, waypoint_progressions)
+  waypoint_milestone_percentages <- rename(waypoint_milestone_percentages, waypoint_id = cell_id)
+
+  geodesic_distances <- dynwrap::calculate_geodesic_distances(dataset, waypoint_milestone_percentages = waypoint_milestone_percentages, directed=FALSE)
+  geodesic_distances
+}
+
+gd1 <- get_geodesic_distances_from_progressions(dataset1, wpp1)
+gd2 <- get_geodesic_distances_from_progressions(dataset2, wpp2)
+```
+
+Now we smooth the expression of the genes over these waypoints using an Euclidean kernel. We interpolate the expression of the genes at the pseudotimes of the waypoints. The influence of a single cell is determined by the proximity (using the geodesic distances) to the waypoint.
+
+```{r}
+interpolate_expression <- function(dataset, wps, gds){
+  weighted_expressions <- do.call('cbind', lapply(seq_along(wps), function(idx){
+    # Get the geodesic distance of this waypoint to all other cells
+    dist <- gds[idx,]
+    # Apply Euclidean kernel
+    weighted <- exp(-(dist^2)/(0.1)^2)
+    # Normalize
+    weighted <- weighted/sum(weighted)
+    # Calculate expression
+    weighted_exp <- t(as.matrix(dataset$counts)) %*% weighted
+    weighted_exp
+  }))
+  weighted_expressions
+}
+
+wexpr1 <- interpolate_expression(dataset1, wpp1$percentage, gd1)
+wexpr2 <- interpolate_expression(dataset2, wpp2$percentage, gd2)
+```
+
+### Align using DTW
+
+Now that we have smoothed gene expression values for the waypoints, we can align the two trajectories using dynamic time warping.
+
+```{r collapse=TRUE}
+library(dtw)
+
+d <- dist(as.matrix(t(wexpr1)), as.matrix(t(wexpr2)), dist.method="Euclidean")
+d <- (d - min(d)) / (max(d) - min(d))
+
+alignment <- dtw(d, step.pattern = symmetric2, keep.internals = TRUE)
+dtwPlotDensity(alignment)
+abline(coef = c(0,1))
+
+```
+

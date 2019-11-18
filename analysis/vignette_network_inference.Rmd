@@ -104,87 +104,14 @@ knockouts <-
       )
     }
   ))
-max_prot <- model$feature_info %>% select(feature_id, max_protein) %>% deframe()
-wpr <- model$feature_info %>% select(feature_id, wpr) %>% deframe()
-xdr <- model$feature_info %>% select(feature_id, xdr) %>% deframe()
+fito <- model$feature_info %>% slice(match(knockouts$to, feature_id)) %>% 
+  mutate(label = ifelse(is.na(module_id), gsub("[0-9]*$", "", feature_id), gsub("[0-9]*$", "", module_id)))
 ggplot(knockouts) +
-  geom_point(aes(log10(buffer_val), reg_effect / (wpr[to] - xdr[to]), colour = feature_network$effect %>% as.character)) +
+  geom_point(aes(log10(buffer_val), reg_effect / fito$wpr, colour = fito$label)) +
   theme_bw()
 
-
-feature_network$derivative <- 
-  pbapply::pblapply(seq_len(nrow(feature_network)), function(i) {
-  from <- feature_network$from[[i]]
-  to <- feature_network$to[[i]]
-  
-  reaction <- reactions[[paste0("transcription_", to)]]
-  prop <- gsub("pow\\(([^,]*) *, *([^\\)]*)\\)", "(\\1)^(\\2)", reaction$propensity)
-  props <- prop %>% strsplit(" *; *") %>% first()
-  propone <- props %>% last()
-  subs <- tibble(
-    var = gsub(" *=.*", "", props[-length(props)]),
-    val = gsub(".*= *", "", props[-length(props)])
-  )
-  for (j in seq_len(nrow(subs))) {
-    propone <- gsub(subs$var[[j]], subs$val[[j]], propone, fixed = TRUE)
-  }
-  
-  deriv <- D(parse(text = propone), paste0("y_", from))
-})
-
-
-
-state <- c(
-  model$simulations$counts[traj$cell_info$step_ix[[1]],],
-  model$simulation_system$parameters
-)
-deriv <- feature_network$derivative[[1]]
-# list2env(as.list(state), .GlobalEnv)
-# eval(deriv)
-env <- new.env()
-list2env(as.list(state), env)
-
-derivs <- map_dbl(feature_network$derivative, ~ eval(., envir = env))
-reac_props <- model$simulations$reaction_propensities[traj$cell_info$step_ix[[1]], paste0("transcription_", model$feature_network$to)]
-
-qplot(
-  log10(traj$feature_network_sc[1,]),
-  derivs,
-  colour = reac_props
-  # colour = as.character(feature_network$effect)
-) + labs(
-  x = "log10 sc importance = log10((y/k)^c)",
-  y = "deriv. propensity function", 
-  colour = "effect"
-) +
+ggplot(knockouts) +
+  geom_point(aes((buffer_val), reg_effect / fito$wpr, colour = factor(fito$basal))) +
   theme_bw() +
-  viridis::scale_colour_viridis()
-ggsave("~/deriv.pdf", width = 10, height = 10)
-
-
-
-qplot(
-  log10(traj$feature_network_sc[1,]),
-  knockouts$reg_effect,
-  colour = as.character(feature_network$effect)
-) + labs(
-  x = "log10 sc importance = log10((y/k)^c)",
-  y = "KO", 
-  colour = "effect"
-) +
-  theme_bw()
-
-
-qplot(
-  reac_props,
-  derivs
-) +
-  theme_bw()
-
-
-qplot(
-  reac_props,
-  log10(traj$feature_network_sc[1,])
-) +
-  theme_bw()
+  scale_x_log10()
 ```

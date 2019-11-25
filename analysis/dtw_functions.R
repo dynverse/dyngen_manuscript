@@ -35,7 +35,7 @@ calculate_correct_pseudotime <- function(dataset){
 
 get_geodesic_distances_from_progressions <- function(dataset, waypoint_progressions){
   waypoint_milestone_percentages <- dynwrap::convert_progressions_to_milestone_percentages(cell_id, dataset$milestone_ids, dataset$milestone_network, waypoint_progressions)
-  waypoint_milestone_percentages <- rename(waypoint_milestone_percentages, waypoint_id = cell_id)
+  waypoint_milestone_percentages <- dplyr::rename(waypoint_milestone_percentages, waypoint_id = cell_id)
 
   geodesic_distances <- dynwrap::calculate_geodesic_distances(dataset, waypoint_milestone_percentages = waypoint_milestone_percentages, directed=FALSE)
   geodesic_distances

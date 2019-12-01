@@ -5,20 +5,20 @@ set.seed(1)
 
 backbone <- backbone(
   module_info = tribble(
-    ~module_id, ~a0, ~burn,
-    "A", 1, TRUE,
-    "B", 1, TRUE,
-    "C", 1, TRUE,
-    "D", 0, TRUE,
-    "E", 0, TRUE
+    ~module_id, ~basal, ~burn, ~independence,
+    "A", 1, TRUE, 1,
+    "B", 1, TRUE, 1,
+    "C", 1, TRUE, 1,
+    "D", 0, TRUE, 1,
+    "E", 0, TRUE, 1
   ),
   module_network = tribble(
     ~from, ~to, ~effect, ~strength, ~cooperativity,
-    "A", "B", -1, 4, 2,
-    "B", "C", -1, 4, 2,
-    "C", "D", 1, 1, 2,
-    "D", "E", 1, 1, 2,
-    "E", "A", -1, 4, 2
+    "A", "B", -1L, 4, 2,
+    "B", "C", -1L, 4, 2,
+    "C", "D", 1L, 1, 2,
+    "D", "E", 1L, 1, 2,
+    "E", "A", -1L, 4, 2
   ),
   expression_patterns = tribble(
     ~from, ~to, ~module_progression, ~start, ~burn, ~time,
@@ -28,8 +28,9 @@ backbone <- backbone(
     "S3", "S1", "+A,+B,-D,-E", FALSE, FALSE, 4
   )
 )
-census_interval <- .1
-total_time <- 10
+census_interval <- .2
+total_time <- 20
+time_breaks = c(0, 10, 20)
 model <-
   initialise_model(
     num_tfs = nrow(backbone$module_info) * 1,
@@ -41,20 +42,22 @@ model <-
     download_cache_dir = "~/.cache/dyngen",
     num_cores = 8,
     kinetics_params = kinetics_default(
-      sample_wpr = function(n) 100,
-      sample_spl = function(n) 10,
-      sample_xdr = function(n) 5,
-      sample_ypr = function(n) 5,
-      sample_ydr = function(n) 5
+      sample_wpr = function(n) 50,
+      sample_wsr = function(n) 5,
+      sample_ypr = function(n) 2.5,
+      sample_whl = function(n) .25,
+      sample_xhl = function(n) .25,
+      sample_yhl = function(n) .25
     ),
     simulation_params = simulation_default(
-      burn_time = 2,
+      burn_time = 8,
       total_time = total_time,
       ssa_algorithm = GillespieSSA2::ssa_exact(),
-      num_simulations = 1,
+      experiment_params = simulation_type_wild_type(num_simulations = 1),
       census_interval = census_interval,
       store_reaction_firings = TRUE,
-      store_reaction_propensities = TRUE
+      store_reaction_propensities = TRUE,
+      store_grn = TRUE
     )
   )
 
@@ -81,7 +84,10 @@ model$simulations$meta$sim_time <- floor(model$simulations$meta$sim_time / censu
 time <- model$simulations$meta$sim_time
 
 mol_map <- c(w = "pre-mRNA", x = "mRNA", y = "protein")
-reac_map <- c("premrna_production" = "Transcription", "splicing" = "Splicing", "protein_production" = "Translation", "mrna_degradation" = "mRNA degradation", "protein_degradation" = "Protein degradation")
+reac_map <- c(
+  "transcription" = "Transcription", "splicing" = "Splicing", "translation" = "Translation",
+  "premrna_degradation" = "pre-mRNA degradation", "mrna_degradation" = "mRNA degradation", "protein_degradation" = "Protein degradation"
+)
 
 expr_df <- data.frame(time = time, model$simulations$counts %>% as.matrix()) %>%
   gather(var, value, -time) %>%
@@ -90,18 +96,18 @@ expr_df <- data.frame(time = time, model$simulations$counts %>% as.matrix()) %>%
     molecule = factor(mol_map[gsub("_.*", "", var)], levels = mol_map)
   ) %>%
   filter(time > 0)
-firings_df <- data.frame(time = time, model$simulations$reaction_firings %>% as.matrix()) %>%
+firings_df <- data.frame(time = time, model$simulations$reaction_firings %>% as.matrix(), check.names = FALSE) %>%
   gather(var, value, -time) %>%
   mutate(
     gene = paste0("Gene ", gsub(".*_", "", var)),
     reaction = factor(reac_map[sub("_[^_]*$", "", var)], levels = reac_map)
   ) %>%
   filter(time > 0)
-reg_df <- data.frame(time = time, model$simulations$regulation %>% as.matrix()) %>%
+reg_df <- data.frame(time = time, model$simulations$regulation %>% as.matrix(), check.names = FALSE) %>%
   gather(var, value, -time) %>%
   mutate(
-    from = gsub("regulation_(.*)_.*", "\\1", var),
-    to = gsub("regulation_.*_(.*)", "\\1", var)
+    from = gsub("(.*)->.*", "\\1", var),
+    to = gsub(".*->(.*)", "\\1", var)
   ) %>%
   left_join(model$feature_network, by = c("from", "to")) %>%
   mutate(name = paste0(from, ifelse(effect > 0, " → ", " ⊣ "), to)) %>%
@@ -147,12 +153,12 @@ g1 <- ggplot(expr_df, aes(time, value)) +
     strip.text = element_blank(),
     legend.margin = margin()
   ) +
-  scale_x_continuous(breaks = c(0, 5, 10)) +
+  scale_x_continuous(breaks = time_breaks) +
   scale_y_continuous(breaks = c(0, .5, 1) * max_expr, limits = c(0, max_expr)) +
   geom_text(aes(label = gene), tibble(time = mean(expr_df$time), value = max_expr, gene = paste0("Gene ", LETTERS[1:5])), size = 3, hjust = 0.5, vjust = 1)
 
 #######
-# ABUNDANCE LEVELS
+# CELL STATE
 #######
 g2 <- ggplot(state_df) +
   geom_line(aes(sim_time, percentage, colour = milestone_id), size = 1.5) +
@@ -163,7 +169,7 @@ g2 <- ggplot(state_df) +
     text = element_text(family = "Helvetica"),
     legend.margin = margin()
   ) +
-  scale_x_continuous(breaks = c(0, 5, 10)) +
+  scale_x_continuous(breaks = time_breaks) +
   scale_y_continuous(breaks = c(0, .5, 1))
 
 
@@ -188,7 +194,7 @@ g3 <-
     strip.text = element_blank(),
     legend.margin = margin()
   ) +
-  scale_x_continuous(breaks = c(0, 5, 10)) +
+  scale_x_continuous(breaks = time_breaks) +
   scale_y_continuous(breaks = c(0, .5, 1) * max_fir, limits = c(0, max_fir)) +
   geom_text(aes(label = reaction_text), label_fir_df, size = 3, hjust = 0.5, vjust = 1)
 
@@ -215,7 +221,7 @@ g4 <-
     strip.text = element_blank(),
     legend.margin = margin()
   ) +
-  scale_x_continuous(breaks = c(0, 5, 10)) +
+  scale_x_continuous(breaks = time_breaks) +
   scale_y_continuous(breaks = c(0, .5, 1) * max_prop, limits = c(0, max_prop)) +
   geom_text(aes(label = reaction_text), label_prop_df, size = 3, hjust = 0.5, vjust = 1)
 
@@ -223,10 +229,9 @@ g4 <-
 #######
 # REGULATION
 #######
-max_reg <- max(reg_df$value)
-max_reg <- ceiling(max_reg / 10) * 10
+max_reg <- 1
 g5 <- ggplot(reg_df) +
-  geom_line(aes(time, value, colour = name), size = 1) +
+  geom_line(aes(time, abs(value), colour = name), size = 1) +
   theme_classic() +
   scale_colour_manual(values = RColorBrewer::brewer.pal(6, "Set3")[-2]) +
   labs(x = "Simulation time", y = "Regulation", colour = "Interaction") +
@@ -234,8 +239,8 @@ g5 <- ggplot(reg_df) +
     text = element_text(family = "Helvetica"),
     legend.margin = margin()
   ) +
-  scale_x_continuous(breaks = c(0, 5, 10)) +
-  scale_y_continuous(breaks = c(0, .5, 1) * max_reg, limits = c(0, max_reg))
+  scale_x_continuous(breaks = time_breaks) +
+  scale_y_continuous(breaks = c(0, .5, 1), limits = c(0, 1))
 
 
 g <- patchwork::wrap_plots(
@@ -248,6 +253,7 @@ g <- patchwork::wrap_plots(
   ncol = 1
 )
 
-ggsave("dyngen/simplecyclic.pdf", g, width = 8, height = 8, device = cairo_pdf)
+ggsave("fig/simplecyclic.pdf", g, width = 8, height = 8, device = cairo_pdf)
+
 
 

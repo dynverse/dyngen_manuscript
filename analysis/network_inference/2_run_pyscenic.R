@@ -203,11 +203,26 @@ outs <- map(seq_len(nrow(cross)), function(i) {
 
 
 comb <- bind_rows(
-  map_df(outs, "eval_pyscenic_static") %>% mutate(type = "one_static"),
-  map_df(outs, "eval_pyscenic_sample")
-)
+  map_df(outs, "eval_pyscenic_static") %>% mutate(type = "both_static", type_nice = "pySCENIC evaluated\nagainst static GRN"),
+  map_df(outs, "eval_pyscenic_sample") %>% arrange(desc(type)) %>% mutate(type_nice = c(static = "pySCENIC evaluated\nagainst casewise GRN", casewise = "pySCENIC+AUCell evaluated\nagainst casewise GRN")[type])
+) %>%
+  mutate(type_nice = forcats::fct_inorder(type_nice))
 
-ggplot(comb) + geom_point(aes(auroc, aupr, colour = method)) + facet_grid(dataset ~ type) + theme_bw()
+g <-
+  ggplot(comb %>% sample_n(n())) +
+  geom_point(aes(auroc, aupr, colour = method, size = type)) +
+  facet_grid(dataset ~ type_nice) +
+  theme_bw() +
+  scale_colour_brewer(palette = "Set3") +
+  scale_size_manual(values = c("both_static" = 2, static = .75, casewise = .75))
+ggsave("fig/network_inference/evaluation.pdf", g, width = 8, height = 6)
 
+g <- ggplot(comb %>% sample_n(n())) +
+  geom_point(aes(auroc, aupr, colour = type, size = type)) +
+  facet_wrap(dataset ~ method, ncol = 4, scales = "free") +
+  theme_bw() +
+  scale_colour_brewer(palette = "Set1") +
+  scale_size_manual(values = c("both_static" = 2, static = .75, casewise = .75))
+ggsave("fig/network_inference/evaluation_2.pdf", g, width = 10, height = 10)
 
 

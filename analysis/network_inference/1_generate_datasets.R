@@ -8,6 +8,9 @@ if (!dir.exists(derived_folder)) dir.create(derived_folder, recursive = TRUE)
 
 backbones <- list_backbones()
 
+backbones$binary_tree <- NULL
+backbones$branching <- NULL
+
 walk(names(backbones), function(backbone_name) {
 
   folder <- paste0(derived_folder, "datasets/", backbone_name, "/")

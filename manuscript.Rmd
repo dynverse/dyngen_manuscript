@@ -264,13 +264,16 @@ Housekeeping genes are completely separate from any TFs or target genes. A user-
 \newcommand{\buf}[1]{\chi_{#1}}
 \newcommand{\ba}[1]{\text{ba}_{#1}}
 
-For every gene $G$ in the GRN, the simulation will keep track of the abundance levels of three molecules, a pre-mRNA, a mature mRNA, and a protein. These abundance levels are represented as $\w G$, $\x G$ and $\y G$ respectively.
+Simulating a cell's GRN makes use of a stochastic framework which tracks the abundance levels of molecules over time in a discrete quantity. For every gene $G$, the abundance levels of three molecules are tracked, namely of corresponding pre-mRNAs, mature mRNAs and proteins, which are represented by the terms $\w G$, $\x G$ and $\y G$ respectively. The GRN defines how a reaction affects the abundance levels of molecules and how likely it will occur. Gibson and Bruck[@gibson_probabilisticmodelprokaryotic_2000] provide a good introduction to modelling gene regulation with stochastic frameworks, on which many of the concepts below are based.
 
-Throughout a simulation, the abundance levels of molecules are affected by five reactions, namely transcription, splicing, mRNA degradation, translation, and protein degradation. Each reaction consists of its propensity -- a formula to calculate the probability of the reaction occurring during an infinitesimal time interval -- and the effect -- how it will affect the current state if triggered. 
+For every gene in the GRN a set of reactions are defined, namely transcription, splicing, translation, and degradation. Each reaction consists of a propensity function -- a formula $f(.)$ to calculate the probability $f(.) \times \text{d}t$ of it occurring during a time interval $\text{d}t$ -- and the effect -- how it will affect the current state if triggered. 
 
 The effects of each reaction mimic the respective biological processes (Table\ \ref{tab:reaction_def}, middle). Transcription of gene $G$ results in the creation of a single pre-mRNA molecule $\w G$. Splicing turns one pre-mRNA $\w G$ into a mature mRNA $\w G$. Translation uses a mature mRNA $\x G$ to produce a protein $\y G$. Pre-mRNA, mRNA and protein degradation results in the removal of a $\w G$, $\x G$, and $\y G$ molecule, respectively.
 
-The propensity of all reactions except transcription are straight-forward (Table\ \ref{tab:reaction_def}, right). The degradation and splicing propensity of pre-mRNAs of a gene $G$ are linear functions of the abundance $\w G$, namely $\wdr G \times \w G$ and $\wsr G \times \w G$ respectively. Similarly, the degradation and translation of mature mRNAs are linear functions of $\x G$, namely $\xdr G \times \x G$ and $\ypr G \times \x G$. Degradation of proteins is also a linear function of $\y G$, namely $\ydr G \times \y G$. Constant parameters $\wdr G$, $\wsr G$, $\xdr G$, $\ypr G$, and $\ydr G$ are from respective normal distributions (Table\ \ref{tab:reaction_params}). These formulae are based on those of GNW[@schaffter_genenetweaversilicobenchmark_2011], except that the production and decay of molecules have been separated into two separate formulae.
+The propensity of all reactions except transcription are all linear functions (Table\ \ref{tab:reaction_def}, right) of the abundance level of some molecule multiplied by a constant drawn from a normal distribution (Table\ \ref{tab:reaction_params}). The propensity of transcription of a gene $G$ depends on the abundance levels of its TFs. 
+
+In the most simple case, $G$ is regulated by a single TF $H$, which can either be bound (state $S_0$) or unbound (state $S_1$). The probability $P(S_1)$ that $H$ is bound to the promoter region of $G$ is given by the abundance levels of $H$.
+
 
 
 
@@ -314,7 +317,7 @@ The propensity of all reactions except transcription are straight-forward (Table
         Mature mRNA degradation rate & $\xdr G$ & $= \ln(2)\ /\ \xhl G$ \\
         Protein degradation rate & $\ydr G$ & $= \ln(2)\ /\ \yhl G$ \\
         Dissociation constant & $\dis H$ & $= 0.5 \times \frac{\wpr H \times \ypr H}{\wdr H \times \xdr H \times \ydr H}$ \\
-        Regulatory strength & $\buf{G,H}$ & $= \left(\str{G,H} \times \y H\ /\ \dis H\right) ^ {\hill{G,H}}$ \\
+        Binding & $\buf{G,H}$ & $= \left(\str{G,H} \times \y H\ /\ \dis H\right) ^ {\hill{G,H}}$ \\
         Basal expression & $\ba G$ & $= \begin{cases} 1 & \mbox{if } \rp{G} = \emptyset \\ 0.0001 & \mbox{if } \rn{G} = \emptyset \mbox{ and } \rp{G} \neq \emptyset \\ 0.5 & \mbox{otherwise} \end{cases}$ * \\ \hline
         \multicolumn{3}{l}{*: unless $G$ is a TF, then the value is determined by the backbone.}
     \end{tabular}
@@ -348,7 +351,7 @@ In this step, $N$ cells are sampled the simulations. Two approaches are implemen
 
 \begin{figure}[htb!]
     \centering
-    \includegraphics[width=\linewidth]{fig/sample_cells.pdf}
+    \includegraphics[width=.6\linewidth]{fig/sample_cells.pdf}
     \caption{
         \textbf{Two approaches can be used to sample cells from simulations: snapshot and time-series.}
     }
@@ -359,8 +362,34 @@ In this step, $N$ cells are sampled the simulations. Two approaches are implemen
 ### Sample molecules
 Molecules are sampled from the simulation to replicate how molecules are experimentally sampled. A real dataset is downloaded from a repository of single-cell RNA-seq datasets[@cannoodt_singlecellomicsdatasets_2018]. For each _in silico_ cell $i$, draw its library size $ls_i$from the distribution of transcript counts per cell in the real dataset. The capture rate $cr_j$ of each _in silico_ molecule type $j$ is drawn from $N(1, 0.05)$. Finally, for each cell $i$, draw $ls_i$ molecules from the multinomial distribution with probabilities $cr_j \times ab_{i,j}$ with $ab_{i,j}$ the molecule abundance level of molecule $j$ in cell $i$.
 
-## Extract state-specific regulatory effect {#sec:dyngen-extractgrn}
-When desired, the regulatory effect of a regulator $R$ on a target $T$ can be determined and returned (See Figure\ \ref{fig:explain_methods}). This information is useful, amongst others, for benchmarking casewise network inference methods. To calculate the regulatory effect of $R$ on $T$ at a particular state during a simulation, 
+## Determining the casewise ground-truth regulatory network {#sec:dyngen-extractgrn}
+Calculating the regulatory effect of a regulator $R$ on a target $T$ (Figure\ \ref{fig:explain_methods}F) requires determining the contribution of $R$ in the propensity function of the transcription of $T$ (section\ \ref{sec:dyngen-reactions}) with respect to other regulators. This information is useful, amongst others, for benchmarking casewise network inference methods. 
 
-## Comparison of casewise network inference methods {#sec:dyngen:nicompare}
+The regulatory effect of $R$ on $T$ at a particular state $S$ is defined as the change in the propensity of transcription when $R$ is set to zero, scaled by the inverse of the pre-mRNA production rate of $T$. More formally:
 
+\begin{eqnarray*}
+  \text{regeffect}_G & = \frac{\text{proptrans}_G(S) - \text{proptrans}_G(S[\y T \leftarrow 0])}{\wpr G}
+\end{eqnarray*}
+
+Determining the regulatory effect for all interactions and cells in the dataset yields the complete casewise ground-truth GRN (Figure\ \ref{fig:casewise_grn}). The regulatory effect lie between $[-1, 1]$, where -1 represents complete inhibition of $T$ by $R$, 1 represents maximal activation of $T$ by $R$, and 0 represents inactivity of the regulatory interaction between $R$ and $T$.
+
+\begin{figure}[htb!]
+    \centering
+    \includegraphics[width=.8\linewidth]{fig/small_bifurc/scgrn.pdf}
+    \caption{
+        \textbf{The casewise regulatory effects of all interactions, computed on cells part of a bifurcation trajectory.} Negative values correspond to inhibitory interactions, positive values to activating interactions, and zero values correspond to inactive interactions. 
+    }
+    \label{fig:casewise_grn}
+\end{figure}
+
+
+## Comparison of casewise network inference methods {#sec:dyngen-nicompare}
+Several datasets were generated using the different predefined backbones. For every cell in the dataset, the transcriptomics profile and the corresponding casewise ground-truth regulatory network was determined (Section\ \ref{sec:dyngen-extractgrn}). 
+
+Several casewise NI methods were considered for comparison: SCENIC[@aibar_scenicsinglecellregulatory_2017], LIONESS[@kuijjer_estimatingsamplespecificregulatory_2015; @kuijjer_estimatingsamplespecificregulatory_2019], and SSN[@liu_personalizedcharacterizationdiseases_2016]. 
+
+LIONESS[@kuijjer_estimatingsamplespecificregulatory_2015; @kuijjer_estimatingsamplespecificregulatory_2019] computes the Pearson correlation between a regulator and one of its targets for all cells. The possible targets for a given regulator is predefined according to prior motif analysis. To derive casewise GRNs for a particular cell $C$, the Pearson correlation is recomputed for all cells excluding $C$. The difference in Pearson correlations results in a ranking of regulatory interactions for $C$. 
+
+SSN[@liu_personalizedcharacterizationdiseases_2016] TODO: wip.
+
+SCENIC consists of four main steps: classical network inference with arboreto (similar to GENIE3), selection of 'regulons' from the GRN, filtering of the regulons using motif analysis, and casewise scoring of each regulon for each cell using AUCell. 

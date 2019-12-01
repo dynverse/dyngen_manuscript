@@ -166,7 +166,13 @@ ann_colours <- list(
   `Regulator module` = gene_colours,
   `Target module` = gene_colours
 )
-color <- c("white", grDevices::colorRampPalette(RColorBrewer::brewer.pal(9, "Blues")[-1:-3])(99))
+# color <- c("white", grDevices::colorRampPalette(RColorBrewer::brewer.pal(9, "Blues")[-1:-3])(99))
+color <- c(
+  rev(grDevices::colorRampPalette(RColorBrewer::brewer.pal(7, "Reds"))(49)),
+  "#BBBBBB",
+  grDevices::colorRampPalette(RColorBrewer::brewer.pal(7, "Blues"))(49)
+)
+breaks <- seq(-1, 1, length.out = length(color) + 1)
 
 cell_df <- tibble(
   id = dataset$cell_ids,
@@ -176,7 +182,7 @@ cell_df <- tibble(
 ) %>%
   arrange(group_ord, pseudotime)
 pheatmap::pheatmap(
-  abs(t(as.matrix(dataset$feature_network_sc[cell_df$id,Matrix::colMeans(dataset$feature_network_sc != 0) > 0]))),
+  t(as.matrix(dataset$feature_network_sc[cell_df$id,Matrix::colMeans(dataset$feature_network_sc != 0) > 0])),
   cluster_cols = FALSE,
   show_rownames = FALSE,
   show_colnames = FALSE,
@@ -184,6 +190,7 @@ pheatmap::pheatmap(
   annotation_row = interaction_info,
   annotation_colors = ann_colours,
   color = color,
+  breaks = breaks,
   border = NA,
   filename = "fig/small_bifurc/scgrn.pdf",
   width = 8,
@@ -191,6 +198,23 @@ pheatmap::pheatmap(
   angle_col = 315,
   treeheight_col = 0,
   treeheight_row = 0,
+  gaps_col = which(diff(cell_df$group_ord) != 0),
+  clustering_distance_rows = "correlation"
+)
+
+pheatmap::pheatmap(
+  t(as.matrix(dataset$feature_network_sc[,Matrix::colMeans(dataset$feature_network_sc != 0) > 0])),
+  show_rownames = FALSE,
+  show_colnames = FALSE,
+  color = color,
+  breaks = breaks,
+  border = NA,
+  filename = "fig/small_bifurc/scgrn_noann.pdf",
+  width = 8,
+  height = 6,
+  angle_col = 315,
+  # treeheight_col = 0,
+  # treeheight_row = 0,
   gaps_col = which(diff(cell_df$group_ord) != 0),
   clustering_distance_rows = "correlation"
 )

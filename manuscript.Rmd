@@ -134,6 +134,7 @@ However, it is possible to imagine and implement other sampling strategies, such
 
 ### Single-cell network inference
 
+
 ### RNA velocity
 
 # Discussion {#sec:dyngen-discussion}
@@ -328,7 +329,7 @@ The propensity of all reactions except transcription are all linear functions (T
 \newcommand{\yk}[1]{\frac{y_#1}{k_#1}^{c_#1}}
 \newcommand{\wi}[1]{\nu_#1}
 
-The propensity of the transcription of a gene $G$ is inspired by thermodynamic models of gene regulation [needcitation], in which the promoter of $G$ can be bound or unbound by a set of $N$ transcription factors $H_i$. Let $\proptran(\y 1, \y 2, \ldots, \y N)$ denote the propensity function of $G$, in function of the abundance levels of the transcription factors.
+The propensity of the transcription of a gene $G$ is inspired by thermodynamic models of gene regulation [needcitation], in which the promoter of $G$ can be bound or unbound by a set of $N$ transcription factors $H_i$. Let $\proptran(\y 1, \y 2, \ldots, \y N)$ denote the propensity function of $G$, in function of the abundance levels of the transcription factors. The following subsections explain and define the propensity function when $N=1$, $N=2$, and finally for an arbitrary $N$.
 
 ### Propensity of transcription when $N=1$
 In the simplest case when $N=1$, the promoter can be in one of two states. In state $S_0$, the promoter is not bound by any transcription factors, and in state $S_1$ the promoter is bound by $H_1$. Each state $S_j$ is linked with a relative activation $\alpha_j$, a number between 0 and 1 representing the activity of the promoter at this particular state. The propensity function is thus equal to the expected value of the activity of the promoter multiplied by the pre-mRNA production rate of $G$.
@@ -503,8 +504,11 @@ Several datasets were generated using the different predefined backbones. For ev
 
 Several casewise NI methods were considered for comparison: SCENIC[@aibar_scenicsinglecellregulatory_2017], LIONESS[@kuijjer_estimatingsamplespecificregulatory_2015; @kuijjer_estimatingsamplespecificregulatory_2019], and SSN[@liu_personalizedcharacterizationdiseases_2016]. 
 
-LIONESS[@kuijjer_estimatingsamplespecificregulatory_2015; @kuijjer_estimatingsamplespecificregulatory_2019] computes the Pearson correlation between a regulator and one of its targets for all cells. The possible targets for a given regulator is predefined according to prior motif analysis. To derive casewise GRNs for a particular cell $C$, the Pearson correlation is recomputed for all cells excluding $C$. The difference in Pearson correlations results in a ranking of regulatory interactions for $C$. 
+LIONESS[@kuijjer_estimatingsamplespecificregulatory_2015; @kuijjer_estimatingsamplespecificregulatory_2019] 
+first infers a GRN by computing the Pearson correlation between regulators and targets for all samples and then post-processing this GRN. The possible targets for a given regulator is predefined according to prior motif analysis. To derive casewise GRNs for a particular cell $C$, the Pearson correlation is recomputed for all cells excluding $C$. The difference in Pearson correlations results in a ranking of regulatory interactions for $C$. LIONESS was excluded from this comparison as it requires motif data to be available.
 
-SSN[@liu_personalizedcharacterizationdiseases_2016] TODO: wip.
+SSN[@liu_personalizedcharacterizationdiseases_2016] is similar to LIONESS in methodology. To infer a casewise GRN for one sample, also the difference between the Pearson correlation between all (regulator, target) pairs is calculated for all samples and the Pearson correlation between all (regulator, target) pairs is calculated for all samples except one. SNN was excluded from this comparison as no software was provided by the authors.
 
-SCENIC consists of four main steps: classical network inference with arboreto (similar to GENIE3), selection of 'regulons' from the GRN, filtering of the regulons using motif analysis, and casewise scoring of each regulon for each cell using AUCell. 
+SCENIC[@aibar_scenicsinglecellregulatory_2017] is a pipeline that consists of four main steps. Step 1: classical network inference is performed with arboreto, which is similar to GENIE3[@huynh-thu_inferringregulatorynetworks_2010]. Step 2: setting various cutoffs on the ranked interactions to form groups called 'regulons', each containing one regulator and multiple targets. Step 3: filter the regulons using motif analysis. Step 4: for each cell, determine an activity score of each regulon using AUCell. For this analysis, the Python implementation of SCENIC was used, namely pySCENIC. Since dyngen does not generate motif data, step 3 in this analysis is skipped.
+
+The AUROC and AUPR metrics are common metrics for evaluating a predicted GRN with a ground-truth GRN. To compare a predicted casewise GRN with the ground-truth casewise GRN, the top 10'000 interactions per cell were retained. For each cell-specific network, the AUROC and AUPR were calculated.

@@ -7,6 +7,8 @@
 #' @importFrom magrittr set_rownames set_colnames
 #' @import assertthat
 #' @import dynutils
+#' @import dynwrap
+#' @import dynparam
 #' @importFrom Matrix t Matrix sparseMatrix summary
 #'
 #' @docType package

@@ -34,18 +34,15 @@ cni_auc <- function(dataset, model) {
     mutate(gold = 1) %>%
     rename(gold_strength = strength)
 
-  # regsc <- model$regulatory_network_sc %>% left_join(model$regulatory_network %>% rename(static_strength = strength), by = c("regulator", "target")) %>%
-  #   mutate(strength = strength * 10 + static_strength)
-
   casewise_casewise_auc <- map_df(
     cell_ids,
     function(cell_id) {
       gold_sc <- regulatory_network_sc %>%
         filter(cell_id == !!cell_id)
       reg_sc <-
-        # regsc %>%
         model$regulatory_network_sc %>%
-        filter(cell_id == !!cell_id)
+        filter(cell_id == !!cell_id) %>%
+        mutate(strength = strength + runif(n(), 0, 1e-8))
 
       eval_sc <- with(
         reg_sc %>%
@@ -61,7 +58,6 @@ cni_auc <- function(dataset, model) {
           )
         }
       )
-
       eval_sc$area_under %>% mutate(cell_id) %>% select(cell_id, everything())
     }
   )

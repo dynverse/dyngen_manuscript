@@ -14,6 +14,26 @@ cni_pyscenic_sgbm <- create_ti_method_r(
 
     # describe tuneable parameters
     parameters = parameter_set(
+      numeric_parameter(
+        id = "learning_rate",
+        default = .01,
+        distribution = expuniform_distribution(lower = .0001, upper = 1)
+      ),
+      integer_parameter(
+        id = "n_estimators",
+        default = 5000L,
+        distribution = expuniform_distribution(lower = 100L, upper = 10000L)
+      ),
+      numeric_parameter(
+        id = "max_features",
+        default = .1,
+        distribution = expuniform_distribution(lower = .0001, upper = 1)
+      ),
+      numeric_parameter(
+        id = "subsample",
+        default = .9,
+        distribution = uniform_distribution(lower = 0, upper = 1)
+      ),
       integer_parameter(
         id = "num_int_per_cell",
         default = 10000L,
@@ -36,7 +56,7 @@ cni_pyscenic_sgbm <- create_ti_method_r(
 
     exprdf <- as.data.frame(as.matrix(expression))
     regressor_type <- "GBM"
-    regressor_kwargs <- list(learning_rate = .01, n_estimators = 5000L, max_features = .1, subsample = .9)
+    regressor_kwargs <- parameters[c("learning_rate", "n_estimators", "max_features", "subsample")]
 
     reticulate::use_python("/usr/bin/python3")
     arboreto <- reticulate::import("arboreto")

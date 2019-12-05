@@ -7,7 +7,7 @@ create_dataset <- function(id = "test", seed = 10) {
 
   reread(file_dataset, function() {
     set.seed(seed)
-    wsr_multiplier <- 2
+    wsr_multiplier <- 5
     backbone <- backbone_linear_simple()
     backbone$expression_patterns$time <- backbone$expression_patterns$time * wsr_multiplier
     model <-

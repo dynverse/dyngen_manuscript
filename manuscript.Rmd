@@ -60,7 +60,8 @@ However, a limitation of scRNA-seq profiles generators is that they would requir
 An ideal experiment would be able to observe all aspects of a cell, including a full history of its molecular states, spatial positions and environmental interactions[@stuart_integrativesinglecellanalysis_2019].
 While this falls outside the reach of current experimental technologies, generating synthetic data in anticipation of new experimental technologies would allow already developing the next wave of computational tools.
 
-We introduce dyngen, a multi-modality simulator of single cells and their dynamics (Figure\ \ref{fig:showcase}A). A cell is simulated using Gillespie's Stochastic Simulation Algorithm (SSA)[@gillespie_exactstochasticsimulation_1977] where a cell consists of a set of molecules. Throughout a simulation, reactions (e.g. transcription, splicing) modify the abundance of these molecules. The likelihood of a reaction occurring is again dependent on molecule abundance.
+We introduce dyngen, a multi-modality simulator of single cells and their dynamics (Figure\ \ref{fig:showcase}A).
+dyngen uses Gillespie's Stochastic Simulation Algorithm (SSA)[@gillespie_exactstochasticsimulation_1977] to simulate cells at a single-molecule and single-reaction levels. This means at every time step in the simulation, a single reaction is executed, thereby modifying the abundance of the molecule counts within a cell. 
 
 By simulating a cell over time in terms of its molecular state and the reactions that are allowed to occur, the simulator is more extendible to new modalities or experimental procedures (Figure\ \ref{fig:showcase}B). We demonstrate dyngen's flexibility by simulating snapshot, time-series and perturbation experiments, allowing to benchmark a wide variety of computational tools such as trajectory alignment and differential network inference methods.
 
@@ -69,22 +70,31 @@ By simulating a cell over time in terms of its molecular state and the reactions
     \includegraphics[width=\linewidth]{fig/showcase_4}
     \caption{
         \textbf{Showcase of dyngen functionality.}
-        \textbf{A:}
+        \textbf{A:} The typical process of generating a dataset with dyngen.
         \textbf{B:} Evaluating different types of computational tools requires simulating different types of experiments and extracting different layers of information from the simulation.
     }
     \label{fig:showcase}
 \end{figure}
 
 # Results {#sec:dyngen-results}
+dyngen offers multiple significant qualities, each of which we will discuss below.
+it's methodology allows keeping track of many modalities of the cell at a high resolution level
+simulate different various types of dynamic processes, such as cyclic, branching, disconnected
+perform time-series, perturbation, or knockdown experiments.
 
-A cell consists of a set of molecules, the abundance of which are affected by a set of reactions: transcription, splicing, translation, and degradation (Figure\ \ref{fig:simplecyclic}A). A gene regulatory network (GRN) defines the reactions that are allowed to occur (Figure\ \ref{fig:simplecyclic}B) and is constructed such that a cell will develop over time (Figure\ \ref{fig:simplecyclic}C--D). The likelihood of a reaction occurring is a function of the abundance of key molecules involved in each reaction (Figure\ \ref{fig:simplecyclic}E).
+A cell consists of a set of molecules, the abundance of which are affected by a set of reactions: transcription, splicing, translation, and degradation (Figure\ \ref{fig:simplecyclic}A). A gene regulatory network (GRN) defines the reactions that are allowed to occur (Figure\ \ref{fig:simplecyclic}B), which is constructed in such a way that cells slowly develop over time (Figure\ \ref{fig:simplecyclic}C,D). With every time step $\text{d}t$ in the simulation, the probability of a reaction occurring is computed (not shown). From the probabilities are sampled which reactions occur during this time step $\text{d}t$ (Figure\ \ref{fig:simplecyclic}E). 
 
 \begin{figure}[htb!]
     \centering
     \includegraphics[width=\linewidth]{fig/simplecyclic_edited}
     \caption{
-        \textbf{Key features of dyngen are illustrated using a cyclic toy example.}
-        While this example comprises only of a single cell and 5 genes, dyngen is able to simulate thousands of cells with GRNs containing thousands of genes.
+        \textbf{dyngen models reactions at a single-molecule level and keeps track of multiple levels of information throughput a simulation.} 
+        \textbf{A:} Changes in abundance levels are driven strictly these gene regulatory reactions.
+        \textbf{B:} The input GRN is defined such that it models a dynamic process of interest.
+        \textbf{C:} The reactions define how abundance levels of molecules change at any particular timepoint.
+        \textbf{D:} Firing many reactions can significantly alter the cellular state over time.
+        \textbf{E:} dyngen keeps track of the reactions that were fired during small intervals of time.
+        \textbf{F:} Similarly, dyngen can also keep track of the regulatory activity of every interaction.
     }
     \label{fig:simplecyclic}
 \end{figure}
@@ -93,7 +103,7 @@ A cell consists of a set of molecules, the abundance of which are affected by a 
 dyngen returns many modalities throughout the whole simulation: molecular abundance, cellular state, number of reaction firings, reaction likelihoods, and regulation activations (Figure\ \ref{fig:simplecyclic}C--F). These modalities can serve both as input data and ground truth for benchmarking many types of computational approaches. For example, a network inference method could use mRNA abundance and cellular states as inputs and its output could be benchmarked against the gold standard GRN.
 
 Depending on how the GRN is designed, different cellular developmental processes can be simulated.
-dyngen includes generators of GRNs which result in many different developmental topologies (Figure\ \ref{fig:example_runs}), including branching, converging, cyclic and even disconnected.
+dyngen includes generators of GRNs which result in many different developmental topologies (Figure\ \ref{fig:example_runs}), including branching, converging, cyclic and even disconnected. Custom-defined GRNs offer more fine-grained control over the simulation.
 
 \begin{figure}[ht]
     \centering
@@ -108,25 +118,7 @@ dyngen includes generators of GRNs which result in many different developmental 
 \end{figure}
 
 
-Custom-defined GRNs offer more fine-grained control over the simulation.
-Aside from simulating topologies currently not supported by dyngen, this has several other important use-cases. Simulations of the same GRN with small perturbations allow to emulate batch effects or perturbation experiments (Figure\ \ref{fig:usecases}).
-Simulating perturbed GRNs allow evaluating trajectory alignment methods -- which attempt to map two or more trajectories onto each other -- or differential network inference methods -- which infer differential regulatory interactions between two or more groups of profiles.
-
-
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=0.6\textwidth]{fig/usecases}
-    \caption{
-        \textbf{Examples of simulations with perturbed GRNs.}  
-        \textbf{A:} The cells in the top half were simulated with the same GRN as the cells on the bottom half, except that all parameters (e.g. strength of the interaction) were randomised.
-        \textbf{B:} Only 10 interactions in the GRN were randomised. In this example, the effect of the GRN perturbation is more subtle.
-    }
-    \label{fig:usecases}
-\end{figure}
-
-
-dyngen can be used to simulate different experimental conditions. By default, dyngen supports snapshot experiments (uniformly sampling from an asynchronous dynamic process) and time-series experiments (sampling cells from different intervals in the simulation).
-However, it is possible to imagine and implement other sampling strategies, such as sampling a cell at a certain time point and once more at a later time point. This would allow evaluating the performance of RNA velocity approaches -- which predict the future state of a cell by looking at differences in pre-mRNA and mRNA abundance levels.
+Together, these qualities allow it to be applicable in benchmarking a broad range of use-cases. To demonstrate, we apply dyngen on several novel computational approaches which have recently had a major impact on how single-cell analyses are performed but for which quantitative assessment of the performance was hitherto lacking.
 
 ## Example use cases {#sec:dyngen-example}
 
@@ -136,22 +128,31 @@ However, it is possible to imagine and implement other sampling strategies, such
 
 Using a collection of transcriptomic profiles, network inference (NI) methods predict which genes are the regulators of a target gene. The output of an NI method is called a gene regulatory network (GRN, Figure\ \ref{fig:scgrn}A, top left), in which each predicted interaction can be assigned a predicted strength or effect (activating or inhibitory).
 
-However, cells are very molecularly homogeneous, and only a fraction of all possible gene regulatory interactions is active at any point in time. The advent of single-cell omics have enabled so-called casewise network inference (CNI) methods\footnote{Other names for CNI are single-cell network inference or sample-specific network inference. Single-cell network inference (SCNI) is often used ambiguously, as classical network inference methods adapted to deal with single-cell omics data are also referred to as such. Sample-specific network inference is also ambiguous in the context of single-cell omics, as a sample is from which single cells are extracted.} to try tackling a more complex variant of the same problem, namely "Which regulators are regulating which targets in which profiles?" The end result of such methods is a single GRN for every profile.
+However, cells are very molecularly homogeneous, and only a fraction of all possible gene regulatory interactions is active at any point in time. Casewise network inference (CNI) methods\footnote{Other terms are commonly used when dealing with data from a particular source. For example, single-cell NI when applied to single-cell transcriptomics data; sample-specific NI when applied to bulk transcriptomics; patient-derived NI when applied to bulk profiles of patients.} tackle a more complex variant of NI, namely "Which regulators are regulating which targets in which case?" The end result of such methods is a single GRN for every case, be it a cell, tissue, patient or other sample.
 
-A few CNI methods have already been developed, such as SCENIC[@aibar_scenicsinglecellregulatory_2017], LIONESS[@kuijjer_estimatingsamplespecificregulatory_2019], and SNN[@liu_personalizedcharacterizationdiseases_2016]. However, a quantitative assessment of the performance of such methods is hitherto lacking, mainly because no large-scale information on cell-specific regulatory interactions with which to evaluate CNI methods exists.
+While a few pioneering CNI approaches have already been developed[@aibar_scenicsinglecellregulatory_2017; @kuijjer_estimatingsamplespecificregulatory_2019; @liu_personalizedcharacterizationdiseases_2016], a quantitative assessment of the performance is hitherto lacking. This is not surprising, as neither real nor in silico datasets of cell-specific or even cell-type-specific interactions exists that is large enough so that it can be used as a ground-truth for evaluating CNI methods.
 
-By knocking down the expression of a regulator, it is possible to determine its regulatory effect on targets by comparing the change in transcription rates with and without knock-down. Knocking down every regulator once results in a cell-specific GRN (Figure\ \ref{fig:scgrn}A) than can be used as a ground-truth for evaluating CNI methods (Figure\ \ref{fig:scgrn}B).
+dyngen allows deriving the ground-truth regulatory effect of a regulator on a target in a specific cell state. This information is derived by knocking down the expression of a regulator and observing the change in transcription rate as a result. Performing in silico knockdowns for every regulator in every cell results in the ground-truth casewise GRN (Figure\ \ref{fig:scgrn}A).
+
+We used this ground-truth to compare the performance of three CNI methods  (Figure\ \ref{fig:scgrn}B). We calculated the AUROC and AUPR score -- which are common metrics for NI benchmarking -- for each cell individually. Computing the mean AUROC and AUPR per dataset showed that pySCENIC significantly outperforms LIONESS and SSN.
+
+This comparison could be extended to include analyses on the scalability of execution time w.r.t dataset size, the stability of the results in function of noise, and the usability toward end users.
 
 \begin{figure}[htb!]
     \centering
     \includegraphics[width=.8\linewidth]{fig/network_inference/cni.pdf}
     \caption{
-    \textbf{}
+    \textbf{dyngen allows benchmarking Casewise Network Inference (CNI) methods.} 
+    \textbf{A:} A cell is simulated using the global GRN (top left). However, at any particular state in the simulation, only a fraction of the gene regulatory interactions are active.
+    \textbf{B:} CNI methods were executed to predict the regulatory interactions that are active in each cell specifically. Using the ground-truth casewise GRN, the performance of each method was quantified on 14 dyngen datasets. 
     }
     \label{fig:scgrn}
 \end{figure}
 
+
 ### RNA velocity
+
+In eukaryotes, a gene is first transcribed to a pre-mRNA, and subsequently spliced into a mature mRNA. Both unspliced reads, which map to introns, and spliced reads, mapping to exons are often observed in RNA sequencing experiments, both in bulk[@zeisel_coupledpremrnamrna_2011] and single-cell.
 
 # Discussion {#sec:dyngen-discussion}
 As is, dyngen's single cell simulations can be used to evaluate common single-cell omics computational methods such as clustering, batch correction, trajectory inference and network inference.
@@ -520,11 +521,10 @@ Several datasets were generated using the different predefined backbones. For ev
 
 Several casewise NI methods were considered for comparison: SCENIC[@aibar_scenicsinglecellregulatory_2017], LIONESS[@kuijjer_estimatingsamplespecificregulatory_2015; @kuijjer_estimatingsamplespecificregulatory_2019], and SSN[@liu_personalizedcharacterizationdiseases_2016]. 
 
-LIONESS[@kuijjer_estimatingsamplespecificregulatory_2015; @kuijjer_estimatingsamplespecificregulatory_2019] 
-first infers a GRN by computing the Pearson correlation between regulators and targets for all samples and then post-processing this GRN. The possible targets for a given regulator is predefined according to prior motif analysis. To derive casewise GRNs for a particular cell $C$, the Pearson correlation is recomputed for all cells excluding $C$. The difference in Pearson correlations results in a ranking of regulatory interactions for $C$. LIONESS was excluded from this comparison as it requires motif data to be available.
+LIONESS[@@kuijjer_estimatingsamplespecificregulatory_2019; kuijjer_lionessrsinglesample_2019] uses the Pearson correlation to infer casewise GRNs. To do so, first the Pearson correlation is calculated between regulators and targets for all samples. Next, the Pearson correlation is again calculated for all samples excluding one sample. The difference between the two correlation matrices is considered a casewise GRN for that particular profile. This process is repeated for all profiles, resulting in a casewise GRN.
 
-SSN[@liu_personalizedcharacterizationdiseases_2016] is similar to LIONESS in methodology. To infer a casewise GRN for one sample, also the difference between the Pearson correlation between all (regulator, target) pairs is calculated for all samples and the Pearson correlation between all (regulator, target) pairs is calculated for all samples except one. SNN was excluded from this comparison as no software was provided by the authors.
+SSN[@liu_personalizedcharacterizationdiseases_2016] has, in essence, the exact same methodology as LIONESS. It is worth noting that the LIONESS preprint was released before the publication of SSN. Since no implementation was provided by the authors, we implemented SSN in R using basic R and tidyverse functions[@wickham_welcometidyverse_2019] and marked results from this implementation as "SSN*".
 
-SCENIC[@aibar_scenicsinglecellregulatory_2017] is a pipeline that consists of four main steps. Step 1: classical network inference is performed with arboreto, which is similar to GENIE3[@huynh-thu_inferringregulatorynetworks_2010]. Step 2: setting various cutoffs on the ranked interactions to form groups called 'regulons', each containing one regulator and multiple targets. Step 3: filter the regulons using motif analysis. Step 4: for each cell, determine an activity score of each regulon using AUCell. As a post-processing of this output, all regulon and the corresponding activity scores are combined back into a casewise GRN consisting of (cell, regulator, target, score) pairs. If multiple regulons contain the same (regulator, target) interaction, the maximum activity score is retained. For this analysis, the Python implementation of SCENIC was used, namely pySCENIC. Since dyngen does not generate motif data, step 3 in this analysis is skipped.
+SCENIC[@aibar_scenicsinglecellregulatory_2017] is a pipeline that consists of four main steps. Step 1: classical network inference is performed with arboreto, which is similar to GENIE3[@huynh-thu_inferringregulatorynetworks_2010]. Step 2: select the top 10 regulators per target. Interactions are grouped together in 'modules'; each module contains one regulator and all of its targets. Step 3: filter the modules using motif analysis. Step 4: for each cell, determine an activity score of each module using AUCell. As a post-processing of this output, all modules and the corresponding activity scores are combined back into a casewise GRN consisting of (cell, regulator, target, score) pairs. For this analysis, the Python implementation of SCENIC was used, namely pySCENIC. Since dyngen does not generate motif data, step 3 in this analysis is skipped.
 
 The AUROC and AUPR metrics are common metrics for evaluating a predicted GRN with a ground-truth GRN. To compare a predicted casewise GRN with the ground-truth casewise GRN, the top 10'000 interactions per cell were retained. For each cell-specific network, the AUROC and AUPR were calculated.

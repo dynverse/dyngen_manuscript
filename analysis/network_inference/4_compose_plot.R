@@ -7,7 +7,7 @@ grnh <- 5
 bch <- 2.5
 g <- patchwork::wrap_plots(
   explots + labs(tag = "A"),
-  summplots[[2]] +
+  summplots$casewise_casewise +
     scale_x_continuous(limits = c(.4, .7)) +
     scale_y_continuous(limits = c(0, .06)) +
     labs(tag = "B", title = NULL) +

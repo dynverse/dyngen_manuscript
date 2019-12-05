@@ -122,7 +122,7 @@ g <- patchwork::wrap_plots(
 ) &
   theme(
     plot.margin = margin(0, 0, 0, 0, "cm"),
-    plot.title = element_text(size = 10)
+    plot.title = element_text(size = 10, hjust = .5)
   )
 ggsave("fig/network_inference/casewise_grn.pdf", width = 8, height = 6)
 

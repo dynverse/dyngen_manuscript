@@ -132,8 +132,24 @@ However, it is possible to imagine and implement other sampling strategies, such
 
 ### Trajectory alignment
 
-### Single-cell network inference
+### Casewise network inference
 
+Using a collection of transcriptomic profiles, network inference (NI) methods predict which genes are the regulators of a target gene. The output of an NI method is called a gene regulatory network (GRN, Figure\ \ref{fig:scgrn}A, top left), in which each predicted interaction can be assigned a predicted strength or effect (activating or inhibitory).
+
+However, cells are very molecularly homogeneous, and only a fraction of all possible gene regulatory interactions is active at any point in time. The advent of single-cell omics have enabled so-called casewise network inference (CNI) methods\footnote{Other names for CNI are single-cell network inference or sample-specific network inference. Single-cell network inference (SCNI) is often used ambiguously, as classical network inference methods adapted to deal with single-cell omics data are also referred to as such. Sample-specific network inference is also ambiguous in the context of single-cell omics, as a sample is from which single cells are extracted.} to try tackling a more complex variant of the same problem, namely "Which regulators are regulating which targets in which profiles?" The end result of such methods is a single GRN for every profile.
+
+A few CNI methods have already been developed, such as SCENIC[@aibar_scenicsinglecellregulatory_2017], LIONESS[@kuijjer_estimatingsamplespecificregulatory_2019], and SNN[@liu_personalizedcharacterizationdiseases_2016]. However, a quantitative assessment of the performance of such methods is hitherto lacking, mainly because no large-scale information on cell-specific regulatory interactions with which to evaluate CNI methods exists.
+
+By knocking down the expression of a regulator, it is possible to determine its regulatory effect on targets by comparing the change in transcription rates with and without knock-down. Knocking down every regulator once results in a cell-specific GRN (Figure\ \ref{fig:scgrn}A) than can be used as a ground-truth for evaluating CNI methods (Figure\ \ref{fig:scgrn}B).
+
+\begin{figure}[htb!]
+    \centering
+    \includegraphics[width=.8\linewidth]{fig/network_inference/cni.pdf}
+    \caption{
+    \textbf{}
+    }
+    \label{fig:scgrn}
+\end{figure}
 
 ### RNA velocity
 
@@ -314,7 +330,7 @@ The propensity of all reactions except transcription are all linear functions (T
         Pre-mRNA degradation rate & $\wdr G$ & $= \ln(2)\ /\ \whl G$ \\
         Mature mRNA degradation rate & $\xdr G$ & $= \ln(2)\ /\ \xhl G$ \\
         Protein degradation rate & $\ydr G$ & $= \ln(2)\ /\ \yhl G$ \\
-        Dissociation constant & $\dis H$ & $= 0.5 \times \frac{\wpr H \times \ypr H}{\wdr H \times \xdr H \times \ydr H}$ \\
+        Dissociation constant & $\dis H$ & $= 0.5 \times \frac{\wpr H \times \wsr H \times \ypr H}{(\wdr H + \wsr H) \times \xdr H \times \ydr H}$ \\
         Binding & $\buf{G,H}$ & $= \left(\str{G,H} \times \y H\ /\ \dis H\right) ^ {\hill{G,H}}$ \\
         Basal expression & $\ba G$ & $= \begin{cases} 1 & \mbox{if } \rp{G} = \emptyset \\ 0.0001 & \mbox{if } \rn{G} = \emptyset \mbox{ and } \rp{G} \neq \emptyset \\ 0.5 & \mbox{otherwise} \end{cases}$ * \\ \hline
         \multicolumn{3}{l}{*: unless $G$ is a TF, then the value is determined by the backbone.}
@@ -338,7 +354,7 @@ In the simplest case when $N=1$, the promoter can be in one of two states. In st
   f(y_1, y_2, \ldots, y_N) & = \text{wpr} \cdot \sum_{j = 0}^{2^N - 1} \alpha_j \cdot P(S_j) \label{eqn:activ0} \\
 \end{align}
 
-For $N=1$, $P(S_1)$ is equal to the Hill equation, where $k_i$ represents the concentration of $H_i$ at half-occupation and $n_i$ represents the Hill coefficient.
+For $N=1$, $P(S_1)$ is equal to the Hill equation, where $k_i$ represents the concentration of $H_i$ at half-occupation and $n_i$ represents the Hill coefficient. Typically, $n_i$ is between [1,10]
 
 \begin{align}
   P(S_1) & = \frac{y_1^{n_1}}{k_1^{n_1} + y_1^{n_1}} \\
@@ -509,6 +525,6 @@ first infers a GRN by computing the Pearson correlation between regulators and t
 
 SSN[@liu_personalizedcharacterizationdiseases_2016] is similar to LIONESS in methodology. To infer a casewise GRN for one sample, also the difference between the Pearson correlation between all (regulator, target) pairs is calculated for all samples and the Pearson correlation between all (regulator, target) pairs is calculated for all samples except one. SNN was excluded from this comparison as no software was provided by the authors.
 
-SCENIC[@aibar_scenicsinglecellregulatory_2017] is a pipeline that consists of four main steps. Step 1: classical network inference is performed with arboreto, which is similar to GENIE3[@huynh-thu_inferringregulatorynetworks_2010]. Step 2: setting various cutoffs on the ranked interactions to form groups called 'regulons', each containing one regulator and multiple targets. Step 3: filter the regulons using motif analysis. Step 4: for each cell, determine an activity score of each regulon using AUCell. For this analysis, the Python implementation of SCENIC was used, namely pySCENIC. Since dyngen does not generate motif data, step 3 in this analysis is skipped.
+SCENIC[@aibar_scenicsinglecellregulatory_2017] is a pipeline that consists of four main steps. Step 1: classical network inference is performed with arboreto, which is similar to GENIE3[@huynh-thu_inferringregulatorynetworks_2010]. Step 2: setting various cutoffs on the ranked interactions to form groups called 'regulons', each containing one regulator and multiple targets. Step 3: filter the regulons using motif analysis. Step 4: for each cell, determine an activity score of each regulon using AUCell. As a post-processing of this output, all regulon and the corresponding activity scores are combined back into a casewise GRN consisting of (cell, regulator, target, score) pairs. If multiple regulons contain the same (regulator, target) interaction, the maximum activity score is retained. For this analysis, the Python implementation of SCENIC was used, namely pySCENIC. Since dyngen does not generate motif data, step 3 in this analysis is skipped.
 
 The AUROC and AUPR metrics are common metrics for evaluating a predicted GRN with a ground-truth GRN. To compare a predicted casewise GRN with the ground-truth casewise GRN, the top 10'000 interactions per cell were retained. For each cell-specific network, the AUROC and AUPR were calculated.

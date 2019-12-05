@@ -19,43 +19,56 @@ datasets <- list_as_tibble(map(dataset_files, function(dataset_file) {
 
 methods <- list(
   "bred" = cni_bred(num_trees = 1000L),
-  "deltacor" = cni_deltacor(),
+  "SNN*" = cni_deltacor(),
   "pySCENIC GBM" = cni_pyscenic_sgbm(subsample = 1, n_estimators = 500L),
   "pySCENIC SGBM" = cni_pyscenic_sgbm(subsample = .9, n_estimators = 5000L)
 )
 
-evals <- map(methods, function(method) {
-  evaluate_ti_method(
-    dataset = datasets,
-    method = method,
-    metrics = list(auc = cni_auc),
-    parameters = NULL
-  )
-})
-
-aucs <- map_df(seq_along(evals), function(i) {
-  summ <- evals[[i]]$summary
-  mapdf_dfr(summ, function(li) {
-    li$evals %>% mutate(
-      cni_method_id = names(methods)[[i]],
-      dataset_id = li$dataset_id
+eval_file <- "derived_files/network_inference/evaluation.rds"
+if (!file.exists(eval_file)) {
+  evals <- map(methods, function(method) {
+    evaluate_ti_method(
+      dataset = datasets,
+      method = method,
+      metrics = list(auc = cni_auc),
+      parameters = NULL
     )
   })
-})
-int_ns <- mapdf_dfr(datasets, function(dat) dat$regulatory_network_sc %>% group_by(cell_id) %>% summarise(nints = n()) %>% mutate(dataset_id = dat$id))
-aucs <- aucs %>% left_join(int_ns, c("cell_id", "dataset_id"))
 
+  aucs <- map_df(seq_along(evals), function(i) {
+    summ <- evals[[i]]$summary
+    mapdf_dfr(summ, function(li) {
+      li$evals %>% mutate(
+        cni_method_id = names(methods)[[i]],
+        dataset_id = li$dataset_id
+      )
+    })
+  })
+  int_ns <- mapdf_dfr(datasets, function(dat) dat$regulatory_network_sc %>% group_by(cell_id) %>% summarise(nints = n()) %>% mutate(dataset_id = dat$id))
+  aucs <- aucs %>% left_join(int_ns, c("cell_id", "dataset_id"))
+
+  write_rds(lst(evals, aucs), eval_file, compress = "gz")
+}
+
+list2env(read_rds(eval_file))
+aucs <-
+  aucs %>%
+  filter(method != "static_casewise") %>%
+  mutate(
+    method_label = c("static_static" = "Regular Network Inference", "casewise_casewise" = "Casewise Network Inference")[method],
+    cni_method_id = ifelse(cni_method_id == "deltacor", "SNN*", cni_method_id)
+  )
 
 ggplot(aucs) + geom_point(aes(auroc, aupr, colour = method)) + facet_wrap(~cni_method_id, nrow = 1)
 ggplot(aucs) + geom_point(aes(auroc, aupr, colour = method)) + facet_grid(cni_method_id~dataset_id)
 ggplot(aucs) + geom_point(aes(auroc, aupr, colour = cni_method_id)) + facet_wrap(~method, scales = "free")
 
-g <- ggplot(aucs %>% filter(method == "casewise_casewise")) +
-  geom_point(aes(auroc, aupr), colour = "lightgray", function(df) select(df, -cni_method_id), size = 1) +
-  geom_point(aes(auroc, aupr, colour = cni_method_id), size = 1) +
-  facet_grid(dataset_id~cni_method_id) +
-  theme_bw()
-ggsave(paste0("fig/network_inference/comparison_casewise_casewise.pdf"), g, width = 6, height = 15)
+# g <- ggplot(aucs %>% filter(method == "casewise_casewise")) +
+#   geom_point(aes(auroc, aupr), colour = "lightgray", function(df) select(df, -cni_method_id), size = 1) +
+#   geom_point(aes(auroc, aupr, colour = cni_method_id), size = 1) +
+#   facet_grid(dataset_id~cni_method_id) +
+#   theme_bw()
+# ggsave(paste0("fig/network_inference/comparison_casewise_casewise.pdf"), g, width = 6, height = 15)
 
 
 g <- ggplot(aucs %>% filter(method == "casewise_casewise") %>% sample_n(n())) +
@@ -97,7 +110,7 @@ g <- map(c("static_static", "casewise_casewise"), function(meth) {
     geom_point(aes(auroc, aupr, colour = cni_method_id)) +
     theme_bw() +
     facet_wrap(~cni_method_id, nrow = 1) +
-    labs(title = meth, x = "AUROC", y = "AUPR", colour = ifelse(meth == "static_static", "NI method", "CNI method")) +
+    labs(title = meth, x = "mean AUROC", y = "mean AUPR", colour = ifelse(meth == "static_static", "NI method", "CNI method")) +
     scale_color_brewer(palette = "Set1")
 }) %>% patchwork::wrap_plots(ncol = 1)
 ggsave("fig/network_inference/score_summary.pdf", g, width = 8, height = 5)

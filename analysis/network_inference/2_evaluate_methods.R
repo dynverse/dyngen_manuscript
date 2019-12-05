@@ -12,16 +12,12 @@ datasets <- list_as_tibble(map(dataset_files, function(dataset_file) {
   dataset
 }))
 
-# expression <- dataset$expression
-# regulators <- dataset$regulators
-# targets <- dataset$targets
-# parameters <- list(num_int_per_cell = 10000L)
-
 methods <- list(
-  "bred" = cni_bred(num_trees = 1000L),
-  "SSN*" = cni_deltacor(),
+  # "bred" = cni_bred(num_trees = 1000L),
+  "SSN*" = cni_ssn(),
   "pySCENIC GBM" = cni_pyscenic_sgbm(subsample = 1, n_estimators = 500L),
-  "pySCENIC SGBM" = cni_pyscenic_sgbm(subsample = .9, n_estimators = 5000L)
+  "pySCENIC SGBM" = cni_pyscenic_sgbm(subsample = .9, n_estimators = 5000L),
+  "LIONESS" = cni_lioness()
 )
 
 eval_file <- "derived_files/network_inference/evaluation.rds"

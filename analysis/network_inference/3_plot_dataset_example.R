@@ -8,6 +8,10 @@ library(ggraph)
 dataset_file <- paste0("derived_files/network_inference/datasets/small_disconnected/dataset.rds")
 dataset <- read_rds(dataset_file)
 
+# expression <- dataset$expression
+# priors <- list(regulators = dataset$regulators, targets = dataset$targets)
+# parameters <- list(num_int_per_cell = 10000L)
+
 set.seed(1)
 
 feature_info <- dataset$feature_info

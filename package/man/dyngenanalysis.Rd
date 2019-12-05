@@ -3,7 +3,6 @@
 \docType{package}
 \name{dyngenanalysis}
 \alias{dyngenanalysis}
-\alias{dyngenanalysis-package}
 \title{Helper package for dyngen manuscript}
 \description{
 Helper package for dyngen manuscript

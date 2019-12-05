@@ -2,8 +2,9 @@
 
 export(cni_auc)
 export(cni_bred)
-export(cni_deltacor)
+export(cni_lioness)
 export(cni_pyscenic_sgbm)
+export(cni_ssn)
 import(assertthat)
 import(dplyr)
 import(dynparam)

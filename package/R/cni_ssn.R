@@ -1,22 +1,21 @@
 #' @export
-cni_deltacor <- create_ti_method_r(
+cni_ssn <- create_ti_method_r(
   package_required = c("reshape2"),
   package_loaded = c("dynutils", "dynwrap"),
   definition = definition(
     method = def_method(
-      id = "deltacor",
-      name = "Delta Corr."
+      id = "ssn",
+      name = "SSN*"
     ),
     wrapper = def_wrapper(
       input_required = c("expression", "regulators", "targets"),
       input_optional = NULL
     ),
-
     # describe tuneable parameters
     parameters = parameter_set(
       character_parameter(
         id = "method",
-        default = "spearman",
+        default = "pearson",
         values = c("pearson", "spearman", "cosine"),
         description = "Which similarity measure to use"
       ),

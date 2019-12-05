@@ -7,7 +7,7 @@ create_dataset <- function(id = "test", seed = 10) {
 
   reread(file_dataset, function() {
     set.seed(seed)
-    wsr_multiplier <- 2
+    wsr_multiplier <- 5
     backbone <- backbone_linear_simple()
     backbone$expression_patterns$time <- backbone$expression_patterns$time * wsr_multiplier
     model <-
@@ -19,7 +19,9 @@ create_dataset <- function(id = "test", seed = 10) {
         verbose = TRUE,
         num_cells = 1000,
         download_cache_dir = "~/.cache/dyngen",
-        kinetics_params = kinetics_default(function(n) rnorm_bounded(n, 1, 1, min = 1)),
+        kinetics_params = kinetics_default(
+          sample_wsr = function(n) rep(1, n)#rnorm_bounded(n, 2, 1, min = 1)
+        ),
         gold_standard_params = gold_standard_default(
           tau = .001 * wsr_multiplier, census_interval = 0.01 * wsr_multiplier
         ),

@@ -3,7 +3,7 @@ library(tidyverse)
 source("analysis/velocity/1_datasets_functions.R")
 library(dyngen)
 
-pwalk(dataset_design, create_dataset)
+pwalk(dataset_design[1, ], create_dataset)
 
 
 

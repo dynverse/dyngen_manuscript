@@ -80,7 +80,7 @@ model <-
     num_cores = 8,
     distance_metric = "pearson",
     tf_network_params = tf_network_default(min_tfs_per_module = 2, sample_num_regulators = function() 1),
-    simulation_params = simulation_default(num_simulations = 10, census_interval = .01)
+    simulation_params = simulation_default(census_interval = .01)
   ) %>%
   generate_tf_network() %>%
   generate_feature_network()
@@ -158,6 +158,8 @@ library(dtw)
 setwd("/home/louisedc/Work/dyngen_analysis/analysis")
 source("dtw_functions.R")
 
+traj_order <- calculate_correct_pseudotime(dataset1)
+
 wpp1 <- get_waypoint_progression(dataset1, 200)
 wpp2 <- get_waypoint_progression(dataset2, 200)
 
@@ -232,6 +234,8 @@ dataset_merged <- wrap_dataset(merged_model)
 
 library(dynplot)
 plot_dimred(dataset_merged)
+
+traj_order <- calculate_correct_pseudotime(dataset_unperturbed)
 
 # Apply dtw to these
 

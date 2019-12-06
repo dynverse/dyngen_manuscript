@@ -445,7 +445,7 @@ wexpr1 <- interpolate_expression(dataset1, wpp1$percentage, gd1)
 wexpr2 <- interpolate_expression(dataset2, wpp2$percentage, gd2)
 
 d2 <- dist(as.matrix(t(wexpr2)), as.matrix(t(wexpr1)), dist.method="pearson")
-am2 <- dtw(as.matrix(t(wexpr2)), as.matrix(t(wexpr1)), step.pattern = symmetric2, keep.internals = TRUE, open.end = TRUE)
+am2 <- dtw(as.matrix(t(wexpr2)), as.matrix(t(wexpr1)), step.pattern = symmetric2, keep.internals = TRUE, open.end = FALSE)
 
 ```
 
@@ -461,10 +461,13 @@ cnt2 <- as.matrix(dataset2$counts)
 cnts2 <- cnt2[volg2,]
 
 d3 <- dist(cnts2, cnts1, dist.method="pearson")
-am3 <- dtw(d3, step.pattern = symmetric2, keep.internals = TRUE, open.end = TRUE)
+am3 <- dtw(d3, step.pattern = symmetric2, keep.internals = TRUE, open.end = FALSE)
 ```
 
-We can plot both dimensionality reductions. TODO: why slope low
+We can plot both dynamic time warpings. The indicated slope is the trajectory of the warping path we expect. Because we surpressed the transcription rate and the mrna degradation rate of C1_TF1, we don't expect there to be any expression past that point. We know how long the different parts of the trajectory are, and we also know that the amount of milestones is linked to the length of the trajectory parts.
+
+This means that, if the length of the milestone network between A and C is 66% of the complete length, we expect the whole of the shortened trajectory to match to the first 66% of the complete trajectory.
+
 
 ```{r, plot_topology_dtw, cache=TRUE, dependson=c("dtw_topology_smoothed", "dtw_topology_unsmoothed"), collapse=TRUE, fig.height=7, fig.width=7, fig.align = "center"}
 
@@ -472,6 +475,12 @@ dtwPlotDensity(am2)
 abline(coef= c(0, sum(dataset1$milestone_network$length[1:2]) / sum(dataset1$milestone_network$length)))
 dtwPlotDensity(am3)
 abline(coef = c(0, sum(dataset1$milestone_network$length[1:2]) / sum(dataset1$milestone_network$length)))
+```
+
+```{r}
+# Calculate euclidean distance metric
+
+
 ```
 
 <!-- library(MESS) -->

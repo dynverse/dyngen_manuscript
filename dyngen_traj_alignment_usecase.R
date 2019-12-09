@@ -75,11 +75,49 @@ dists_200 <- list()
 dists_1000 <- list()
 dists_cells <- list()
 
-for(exp_i in seq(1:10)){
+for(exp_i in seq(1:2)){
+
+  # lm1 <- runmodel()
+  # lm2 <- lm1 %>% generate_cells() %>% generate_experiment()
 
   # Generate first two linear datasets
+  # lm1 <- initialise_model(
+  #   num_tfs = 50,
+  #   num_targets = 200,
+  #   num_hks = 200,
+  #   num_cells = 1000,
+  #   backbone = backbone,
+  #   verbose = TRUE,
+  #   num_cores = 8,
+  #   distance_metric = "pearson",
+  #   tf_network_params = tf_network_default(min_tfs_per_module = 2, sample_num_regulators = function() 1),
+  #   simulation_params = simulation_default(census_interval = .01)
+  # ) %>%
+  #   generate_tf_network() %>%
+  #   generate_feature_network()
+  #
+  # lm2 <- lm1
+
   lm1 <- runmodel()
   lm2 <- lm1 %>% generate_cells() %>% generate_experiment()
+
+  # lm2$feature_info <- lm1$feature_info %>%
+  #   mutate_at(c("basal", "independence"), ~ . * rnorm(length(.), mean = 1, sd = .01)) %>%
+  #   mutate_at(c("basal", "independence"), ~ pmin(., 1))
+  # lm2$feature_network <- lm1$feature_network %>%
+  #   mutate_at(c("strength", "cooperativity"), ~ . * rnorm(length(.), mean = 1, sd = .01))
+  # lm2 <- lm2 %>%
+  #   generate_kinetics() %>%
+  #   generate_gold_standard() %>%
+  #   generate_cells() %>%
+  #   generate_experiment()
+  #
+  # lm1 <- lm1 %>% generate_kinetics() %>%
+  #   generate_gold_standard() %>%
+  #   generate_cells() %>%
+  #   generate_experiment
+
+  # lm2 <- lm1 %>% generate_cells() %>% generate_experiment()
   dlm1 <- wrap_dataset(lm1)
   dlm2 <- wrap_dataset(lm2)
 
@@ -130,6 +168,7 @@ for(exp_i in seq(1:10)){
   expressions1000[[length(expressions1000) + 1]] <- expr3_1000
 
   dist_dtw_100 <- matrix(NA, nrow=13, ncol=13)
+  dist_dtw_200 <- matrix(NA, nrow=13, ncol=13)
   dist_dtw_1000 <- matrix(NA, nrow=13, ncol=13)
   dist_cells <- matrix(NA, nrow=13, ncol=13)
 
@@ -146,20 +185,20 @@ for(exp_i in seq(1:10)){
 
       if(i > j){
 
-        expr1 <- expr1_100[,1:50]
-        expr2 <- expr2_100[,1:50]
+        expr1 <- expr1_100[1:50,]
+        expr2 <- expr2_100[1:50,]
 
         am <- dtw(dist(as.matrix(t(expr1)), as.matrix(t(expr2)), dist.method="correlation"), step.pattern = symmetric2, keep.internals = TRUE, open.end = FALSE)
         dist_dtw_100[i, j] <- am$normalizedDistance
 
-        expr1 <- expr1_200[,1:50]
-        expr2 <- expr2_200[,1:50]
+        expr1 <- expr1_200[1:50,]
+        expr2 <- expr2_200[1:50,]
 
         am <- dtw(dist(as.matrix(t(expr1)), as.matrix(t(expr2)), dist.method="correlation"), step.pattern = symmetric2, keep.internals = TRUE, open.end = FALSE)
         dist_dtw_200[i, j] <- am$normalizedDistance
 
-        expr1 <- expr1_1000[,1:50]
-        expr2 <- expr2_1000[,1:50]
+        expr1 <- expr1_1000[1:50,]
+        expr2 <- expr2_1000[1:50,]
 
         am <- dtw(dist(as.matrix(t(expr1)), as.matrix(t(expr2)), dist.method="correlation"), step.pattern = symmetric2, keep.internals = TRUE, open.end = FALSE)
         dist_dtw_1000[i, j] <- am$normalizedDistance
@@ -176,8 +215,8 @@ for(exp_i in seq(1:10)){
         cnt2 <- as.matrix(dataset2$counts)
         cnts2 <- cnt2[volg2,]
 
-        cnts1 <- cnts1[,1:50]
-        cnts2 <- cnts2[,1:50]
+        cnts1 <- cnts1[1:50,]
+        cnts2 <- cnts2[1:50,]
 
         am3 <- dtw(dist(cnts1, cnts2, dist.method="correlation"), step.pattern = symmetric2, keep.internals = TRUE, open.end = FALSE)
 
@@ -203,12 +242,83 @@ for(exp_i in seq(1:10)){
   dists_100[[length(dists_100) + 1]] <- dist_dtw_100
   dists_200[[length(dists_200) + 1]] <- dist_dtw_200
   dists_1000[[length(dists_1000) + 1]] <- dist_dtw_1000
-  dists_cells[[length(dists_cells) + 1]] <- dist_cellss
+  dists_cells[[length(dists_cells) + 1]] <- dist_cells
+
+  # saveRDS(dist_dtw_100, paste0("2dist_dtw_100_", exp_i))
+  # saveRDS(dist_dtw_200, paste0("2dist_dtw_200_", exp_i))
+  # saveRDS(dist_dtw_1000, paste0("2dist_dtw_1000_", exp_i))
+  # saveRDS(dist_cells, paste0("2dist_cells_", exp_i))
 
   print(paste0("DONE WITH ROUND ", exp_i))
 
 }
 
+saveRDS(dists_100, "2dists_100")
+saveRDS(dists_200, "2dists_200")
+saveRDS(dists_1000, "2dists_1000")
+saveRDS(dists_cells, "2_dists_cells")
+
+d_1_100 <- readRDS("dists_100")
+d_1_200 <- readRDS("dists_200")
+d_1_1000 <- readRDS("dists_1000")
+d_1_cell <- lapply(seq(1:10), function(i) readRDS(paste0("dist_cells_", i)))
+
+avg_100 <- Reduce('+', d_1_100) / length(d_1_100)
+avg_200 <- Reduce('+', d_1_200) / length(d_1_200)
+avg_1000 <- Reduce('+', d_1_1000) / length(d_1_1000)
+avg_cells <- Reduce('+', d_1_cell) / length(d_1_cell)
 
 
+expr1 <- expressions100[[1]][1:50,]
+expr2 <- expressions100[[2]][1:50,]
 
+am <- dtw(dist(as.matrix(t(expr1)), as.matrix(t(expr2)), dist.method="correlation"), step.pattern = symmetric2, keep.internals = TRUE, open.end = FALSE)
+dtwPlotTwoWay(am, expr1, expr2)
+
+get_ratios1 <- function(data){
+  verh <- list(0)
+  verh[[1]] <- data[[3]] / data[[4]]
+  verh[[2]] <- data[[5]] / data[[7]]
+  verh[[3]] <- data[[6]] / data[[8]]
+  verh[[4]] <- data[[9]] / data[[11]]
+  verh[[5]] <- data[[10]] / data[[12]]
+  verh
+}
+
+get_ratios2 <- function(data){
+  verh <- list(0)
+  verh[[1]] <- data[[4]] / data[[3]]
+  verh[[2]] <- data[[7]] / data[[5]]
+  verh[[3]] <- data[[8]] / data[[6]]
+  verh[[4]] <- data[[11]] / data[[9]]
+  verh[[5]] <- data[[12]] / data[[10]]
+  verh
+}
+
+
+plot_data <- function(data, model){
+
+}
+
+lm1s_100 <- lapply(d_1_100, function(data) get_ratios2(data[,1]))
+lm2s_100 <- lapply(d_1_100, function(data) get_ratios(data[,2]))
+lm1s_200 <- lapply(d_1_200, function(data) get_ratios2(data[,1]))
+lm2s_200 <- lapply(d_1_200, function(data) get_ratios(data[,2]))
+lm1s_1000 <- lapply(d_1_1000, function(data) get_ratios2(data[,1]))
+lm2s_1000 <- lapply(d_1_1000, function(data) get_ratios(data[,2]))
+lm1s_cells <- lapply(d_1_cell, function(data) get_ratios2(data[,1]))
+lm2s_cells <- lapply(d_1_cell, function(data) get_ratios(data[,2]))
+
+# df <- data.frame(c(unlist(lm1s_100), unlist(lm2s_100), unlist(lm1s_1000), unlist(lm2s_1000), unlist(lm1s_cells), unlist(lm2s_cells)))
+# df$model <- c(rep("100 wp, traj 1", 50), rep("100 wp, traj 2", 50), rep("1000 wp,  traj 1", 50), rep("1000 wp, traj 2", 50), rep("all cells,  traj 1", 50), rep("all cells,  traj 2", 50))
+# df$color <- rep(c("remove milestone C", "10% noise", "20% noise", "remove milestone C + 10% noise", "remove milestone C + 20% noise"), 60)
+# df <- df %>% rename(distance.ratio = c.unlist.lm1s_100...unlist.lm2s_100...unlist.lm1s_1000...unlist.lm2s_1000...)
+# ggplot2::qplot(model, distance.ratio, data=df, aes(color = color), geom='beeswarm') + scale_y_log10() + theme_minimal()
+
+df <- data.frame(c(unlist(lm1s_100), unlist(lm2s_100), unlist(lm1s_cells), unlist(lm2s_cells)))
+df$Model <- c(rep("100 wp, traj 1", 50), rep("100 wp, traj 2", 50), rep("all cells,  traj 1", 50), rep("all cells,  traj 2", 50))
+df$Noise <- rep(c("remove milestone C", "10% noise", "20% noise", "remove milestone C + 10% noise", "remove milestone C + 20% noise"), 40)
+df <- df %>% rename(distance.ratio = c.unlist.lm1s_100...unlist.lm2s_100...unlist.lm1s_cells...unlist.lm2s_cells..)
+ggplot2::qplot(Model, distance.ratio, data=df, aes(color = Noise), geom='beeswarm') + scale_y_log10() + theme_bw() + ylab("Discrimination power (higher is better)") + xlab("")
+
+plot(dtw(dist(cnts1, cnts2, dist.method="correlation"), step.pattern = symmetric2, keep.internals = TRUE, open.end = FALSE), type="twoway")

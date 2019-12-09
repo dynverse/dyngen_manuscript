@@ -51,12 +51,11 @@ list2env(read_rds(eval_file), .GlobalEnv)
 aucs <-
   aucs %>%
   filter(
-    cni_method_id != "bred",
-    method != "static_casewise"
+    !cni_method_id %in% c("bred", "pySCENIC GBM")
   ) %>%
   mutate(
     method_label = c("static_static" = "Regular Network Inference", "casewise_casewise" = "Casewise Network Inference")[method],
-    cni_method_id = ifelse(cni_method_id == "deltacor", "SSN*", cni_method_id)
+    cni_method_id = ifelse(cni_method_id == "pySCENIC SGBM", "pySCENIC", cni_method_id)
   )
 
 summ <- aucs %>%
@@ -93,7 +92,8 @@ ggplot(summ %>% filter(method == "casewise_casewise")) +
   facet_wrap(~cni_method_id)
 
 
-summplots <- map(c("static_static", "casewise_casewise"), function(meth) {
+nam <- unique(summ$method)
+summplots <- map(nam, function(meth) {
   s <- summ %>% filter(method == meth)
   meth_lab <- s$method_label[[1]]
   ggplot(s) +
@@ -104,6 +104,7 @@ summplots <- map(c("static_static", "casewise_casewise"), function(meth) {
     labs(title = meth_lab, x = "mean AUROC", y = "mean AUPR", colour = "Method") +
     scale_color_brewer(palette = "Set1")
 })
+names(summplots) <- nam
 ggsave("fig/network_inference/score_summary.pdf", patchwork::wrap_plots(summplots, ncol = 1), width = 8, height = 5)
 
 write_rds(summplots, "fig/network_inference/score_summary.rds")

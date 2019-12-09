@@ -13,8 +13,8 @@ run_velocity <- function(
     function() {
       if(method_id == "scvelo") {
         velocity <- scvelo::get_velocity(dataset$expression, dataset$expression_unspliced, mode = params$mode %||% "deterministic")
-      } else if (params$method == "velocyto") {
-        stop()
+      } else if (method_id == "velocyto") {
+        velocity <- get_velocity_velocyto(dataset$expression, dataset$expression_unspliced, assumption = params$assumption %||% "constant_velocity")
       }
 
       write_rds(velocity, experiment_file("velocity.rds"))

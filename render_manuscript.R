@@ -24,3 +24,4 @@ render("manuscript.Rmd")
 lines <- read_lines("manuscript.tex")
 content <- lines[seq(which(lines == "\\hypertarget{sec:dyngen-introduction}{%"), which(lines == "\\printbibliography")-1)]
 write_lines(content, "content.tex")
+

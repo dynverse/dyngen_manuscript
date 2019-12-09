@@ -42,10 +42,11 @@ library(tidyverse)
 
 **Author contributions:**
 
-* R.C. and W.S. designed the study.
+* W.S. and R.C. designed the study.
 * R.C., W.S., and L.D. performed the experiments and analysed the data.
 * R.C. and W.S. implemented the dyngen software package.
-* R.C. wrote the original manuscript.
+* R.C. and W.S. wrote the original manuscript.
+* L.D. wrote the section on trajectory alignment.
 * R.C., W.S., L.D., and Y.S. reviewed and edited the manuscript.
 * Y.S. supervised the project.
 
@@ -55,15 +56,14 @@ Continuous technological advancements to single-cells omics are having profound 
 This presents method developers with a problem. The majority of the 250+ peer-reviewed computational tools for analysing single cell omics data were published without a quantitative assessment of the accuracy of the tool. This is partially due to low availability of suitable benchmarking datasets; even if there are sufficient suitable input datasets available, these are often not accompanied by the necessary metadata to serve as ground-truth for a benchmark.
 
 Here, synthetic data plays a crucial role in asserting minimum performance requirements for novel tools in anticipation of adequate real data. Generators of scRNA-seq data (e.g. splatter[@zappia_splattersimulationsinglecell_2017], powsimR[@vieth_powsimrpoweranalysis_2017], PROSSTT[@papadopoulos_prossttprobabilisticsimulation_2018] and SymSim[@zhang_simulatingmultiplefaceted_2019]) have already been widely used to explore the strengths and weaknesses of computational tools, both by method developers[@street_slingshotcelllineage_2018; @parra_reconstructingcomplexlineage_2018; @lummertzdarocha_reconstructioncomplexsinglecell_2018; @lin_scclassifyhierarchicalclassification_2019] and independent benchmarkers[@duo_systematicperformanceevaluation_2018; @saelens_comparisonsinglecelltrajectory_2019; @soneson_biasrobustnessscalability_2018].
-However, a limitation of scRNA-seq profiles generators is that they would require significant methodological alterations to add additional modalities.
+However, a limitation of scRNA-seq profiles generators is that they would require significant methodological alterations to add additional modalities or experimental conditions.
+
+
 
 An ideal experiment would be able to observe all aspects of a cell, including a full history of its molecular states, spatial positions and environmental interactions[@stuart_integrativesinglecellanalysis_2019].
 While this falls outside the reach of current experimental technologies, generating synthetic data in anticipation of new experimental technologies would allow already developing the next wave of computational tools.
 
-We introduce dyngen, a multi-modality simulator of single cells and their dynamics (Figure\ \ref{fig:showcase}A).
-dyngen uses Gillespie's Stochastic Simulation Algorithm (SSA)[@gillespie_exactstochasticsimulation_1977] to simulate cells at a single-molecule and single-reaction levels. This means at every time step in the simulation, a single reaction is executed, thereby modifying the abundance of the molecule counts within a cell. 
-
-By simulating a cell over time in terms of its molecular state and the reactions that are allowed to occur, the simulator is more extendible to new modalities or experimental procedures (Figure\ \ref{fig:showcase}B). We demonstrate dyngen's flexibility by simulating snapshot, time-series and perturbation experiments, allowing to benchmark a wide variety of computational tools such as trajectory alignment and differential network inference methods.
+We developed a multi-modality simulator of single cells called dyngen (Figure\ \ref{fig:showcase}A). dyngen uses Gillespie's stochastic simulation algorithm[@gillespie_exactstochasticsimulation_1977]  to simulate gene regulatory interactions at a single-molecule level. Its methodology allows tracking of many layers of information throughout the simulation, including the abundance of any molecule in the cell, progression of the cell along a dynamic process, and the activation strength of individual regulatory interactions. dyngen can simulate a large variety of dynamic processes (e.g. cyclic, branching, disconnected) as well as a broad range of experimental conditions (e.g. batch effects and time-series, perturbation and knockdown experiments). The fine-grained controls over simulation parameters allow dyngen to be applicable to a broad range of use-cases. We demonstrate this by performing first quantitative evaluations of three types of novel computational approaches: RNA velocity, casewise network inference and trajectory alignment methods.
 
 \begin{figure}[htb!]
     \centering
@@ -77,10 +77,6 @@ By simulating a cell over time in terms of its molecular state and the reactions
 \end{figure}
 
 # Results {#sec:dyngen-results}
-dyngen offers multiple significant qualities, each of which we will discuss below.
-it's methodology allows keeping track of many modalities of the cell at a high resolution level
-simulate different various types of dynamic processes, such as cyclic, branching, disconnected
-perform time-series, perturbation, or knockdown experiments.
 
 A cell consists of a set of molecules, the abundance of which are affected by a set of reactions: transcription, splicing, translation, and degradation (Figure\ \ref{fig:simplecyclic}A). A gene regulatory network (GRN) defines the reactions that are allowed to occur (Figure\ \ref{fig:simplecyclic}B), which is constructed in such a way that cells slowly develop over time (Figure\ \ref{fig:simplecyclic}C,D). With every time step $\text{d}t$ in the simulation, the probability of a reaction occurring is computed (not shown). From the probabilities are sampled which reactions occur during this time step $\text{d}t$ (Figure\ \ref{fig:simplecyclic}E). 
 
@@ -126,13 +122,11 @@ Together, these qualities allow it to be applicable in benchmarking a broad rang
 
 ### Casewise network inference
 
-Using a collection of transcriptomic profiles, network inference (NI) methods predict which genes are the regulators of a target gene. The output of an NI method is called a gene regulatory network (GRN, Figure\ \ref{fig:scgrn}A, top left), in which each predicted interaction can be assigned a predicted strength or effect (activating or inhibitory).
-
-However, cells are very molecularly homogeneous, and only a fraction of all possible gene regulatory interactions is active at any point in time. Casewise network inference (CNI) methods\footnote{Other terms are commonly used when dealing with data from a particular source. For example, single-cell NI when applied to single-cell transcriptomics data; sample-specific NI when applied to bulk transcriptomics; patient-derived NI when applied to bulk profiles of patients.} tackle a more complex variant of NI, namely "Which regulators are regulating which targets in which case?" The end result of such methods is a single GRN for every case, be it a cell, tissue, patient or other sample.
+Casewise network inference (CNI) methods\footnote{Other terms are commonly used when dealing with data from a particular source. For example, single-cell NI when applied to single-cell transcriptomics data; sample-specific NI when applied to bulk transcriptomics; patient-derived NI when applied to bulk profiles of patients.} predict not only which transcription factors regulate which target genes (Figure\ \ref{fig:scgrn}A, top left), but also how active each interaction is in every case (Figure\ \ref{fig:scgrn}A). In CNI, a 'case' might be a cell, but it might also refer to a bulk sample.
 
 While a few pioneering CNI approaches have already been developed[@aibar_scenicsinglecellregulatory_2017; @kuijjer_estimatingsamplespecificregulatory_2019; @liu_personalizedcharacterizationdiseases_2016], a quantitative assessment of the performance is hitherto lacking. This is not surprising, as neither real nor in silico datasets of cell-specific or even cell-type-specific interactions exists that is large enough so that it can be used as a ground-truth for evaluating CNI methods.
 
-dyngen allows deriving the ground-truth regulatory effect of a regulator on a target in a specific cell state. This information is derived by knocking down the expression of a regulator and observing the change in transcription rate as a result. Performing in silico knockdowns for every regulator in every cell results in the ground-truth casewise GRN (Figure\ \ref{fig:scgrn}A).
+Since dyngen computes tracks the probability of transcription, temporarily 'knocking down' the expression of a regulator and observing the change in transcription probability. This is a much more accurate ground-truth for regulatory interaction between a regulator and target in comparison to observing the change in transcript abundance levels when knocking down a regulator, as the regulation of the target could be indirect.
 
 We used this ground-truth to compare the performance of three CNI methods  (Figure\ \ref{fig:scgrn}B). We calculated the AUROC and AUPR score -- which are common metrics for NI benchmarking -- for each cell individually. Computing the mean AUROC and AUPR per dataset showed that pySCENIC significantly outperforms LIONESS and SSN.
 
@@ -143,16 +137,33 @@ This comparison could be extended to include analyses on the scalability of exec
     \includegraphics[width=.8\linewidth]{fig/network_inference/cni.pdf}
     \caption{
     \textbf{dyngen allows benchmarking Casewise Network Inference (CNI) methods.} 
-    \textbf{A:} A cell is simulated using the global GRN (top left). However, at any particular state in the simulation, only a fraction of the gene regulatory interactions are active.
+    \textbf{A:} A cell is simulated using the global gene regulatory network (GRN, top left). However, at any particular state in the simulation, only a fraction of the gene regulatory interactions are active.
     \textbf{B:} CNI methods were executed to predict the regulatory interactions that are active in each cell specifically. Using the ground-truth casewise GRN, the performance of each method was quantified on 14 dyngen datasets. 
     }
     \label{fig:scgrn}
 \end{figure}
 
 
+
 ### RNA velocity
 
-In eukaryotes, a gene is first transcribed to a pre-mRNA, and subsequently spliced into a mature mRNA. Both unspliced reads, which map to introns, and spliced reads, mapping to exons are often observed in RNA sequencing experiments, both in bulk[@zeisel_coupledpremrnamrna_2011] and single-cell.
+In eukaryotes, a gene is first transcribed to a pre-mRNA, and subsequently spliced into mature mRNA. Because reads coming from both unspliced and spliced transcripts are observed in expression data, the relative ratio between the two can tell us something about which genes are increasing, decreasing or remaining the same[@zeisel_coupledpremrnamrna_2011;@lamanno_rnavelocitysingle_2018]. To determine this, some parameters have to be estimated to determine which fraction of unspliced and spliced mRNAs corresponds to an increase or decrease. The estimation of these parameters makes some assumptions, and can be handled in different ways in the two main algorithms that are now available for RNA velocity estimation: velocyto[@lamanno_rnavelocitysingle_2018] and scvelo[@bergen_generalizingrnavelocity_2019]. It can be difficult to obtain ground truth data to benchmark these algorithms, given that it would require continuous data of transcriptional dynamics in individual cells. On the other hand, the ground truth velocity is rapidly extracted from the dyngen model, by looking whether each transcript is currently increasing or decreasing in expression.
+
+We tested scvelo and velocyto on 8 datasets containing linear, bifurcating, disconnected and cyclic trajectories, and varied the main parameter settings in which they estimate the velocity. We found that the original velocyto implementation, which assumes that the velocity remains constant in some cells, performed the best across all datasets. The dynamical estimation of velocyto, as implemented in scvelo, performed the worst of all parameter settings. This was mainly due to scvelo overestimating the dynamics of a gene, especially towards upregulation, while velocyto correctly estimated not only when a gene changes, but also when it remained in a steady state.
+
+\begin{figure}[htb!]
+    \centering
+    \includegraphics[width=.8\linewidth]{results/velocity/usecase.pdf}
+    \caption{
+    \textbf{dyngen allows benchmarking of RNA velocity methods.} 
+    \textbf{A:} We tested five different methods and parameter settings for the estimation of RNA velocity on datasets with varying backbones (colors). Overall, the velocyto method with the constant velocity assumption performed the best overall.
+    \textbf{B:} An example bifurcating dataset, with as illustration the expression and ground truth velocity of a gene that goes up and down in the trajectory. 
+\textbf{C:} The RNA velocity estimates of the different methods.
+\textbf{D:} The embedded RNA velocity of the different methods.
+    }
+    \label{fig:velocity}
+\end{figure}
+
 
 # Discussion {#sec:dyngen-discussion}
 As is, dyngen's single cell simulations can be used to evaluate common single-cell omics computational methods such as clustering, batch correction, trajectory inference and network inference.
@@ -528,3 +539,10 @@ SSN[@liu_personalizedcharacterizationdiseases_2016] has, in essence, the exact s
 SCENIC[@aibar_scenicsinglecellregulatory_2017] is a pipeline that consists of four main steps. Step 1: classical network inference is performed with arboreto, which is similar to GENIE3[@huynh-thu_inferringregulatorynetworks_2010]. Step 2: select the top 10 regulators per target. Interactions are grouped together in 'modules'; each module contains one regulator and all of its targets. Step 3: filter the modules using motif analysis. Step 4: for each cell, determine an activity score of each module using AUCell. As a post-processing of this output, all modules and the corresponding activity scores are combined back into a casewise GRN consisting of (cell, regulator, target, score) pairs. For this analysis, the Python implementation of SCENIC was used, namely pySCENIC. Since dyngen does not generate motif data, step 3 in this analysis is skipped.
 
 The AUROC and AUPR metrics are common metrics for evaluating a predicted GRN with a ground-truth GRN. To compare a predicted casewise GRN with the ground-truth casewise GRN, the top 10'000 interactions per cell were retained. For each cell-specific network, the AUROC and AUPR were calculated.
+## Comparison of RNA velocity methods {#sec:dyngen-velcompare}
+
+15 datasets were generated with 5 different backbones: linear, linear simple, bifurcating, cyclic, and disconnected. We extracted a ground truth RNA velocity by subtracting for each mRNA molecule the propensity of its production by the propensity of its degradation. If the expression of an mRNA will increase in the future, this value is positive, while it is negative if it is going to decrease. For each gene, we compared the ground truth velocity with the observed velocity by calculating the Spearman rank correlation.
+
+We compared two RNA velocity methods. The velocyto method[@lamanno_rnavelocitysingle_2018], as implemented in the velocyto.py package, in which we varied the "assumption" parameter between "constant_unspliced" and "constant_velocity". The scvelo method[@bergen_generalizingrnavelocity_2019], as implemented in the python scvelo package (http://scvelo.de), in which we varied the "mode" parameter between "deterministic", "stochastic" and "dynamical". For both methods, we used the same normalized data as provided by dyngen, with no extra cell or feature filtering. We also matched the parameters between both methods as best as possible, i.e. the k parameter for smoothing was set to 20 for both methods.
+
+To visualize the velocity on an embedding, we used the "velocity_embedding" function, implemented in the scvelo python package.

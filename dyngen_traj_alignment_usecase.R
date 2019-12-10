@@ -4,6 +4,7 @@ library(dynplot)
 library(dtw)
 
 set.seed(276)
+# set.seed(15)
 
 setwd("/home/louisedc/Work/dyngen_analysis/analysis")
 source("dtw_functions.R")
@@ -59,7 +60,7 @@ runmodel <- function(){
     num_cores = 8,
     distance_metric = "pearson",
     tf_network_params = tf_network_default(min_tfs_per_module = 2, sample_num_regulators = function() 1),
-    simulation_params = simulation_default(census_interval = .01)
+    simulation_params = simulation_default(census_interval = .01, experiment_params = bind_rows(simulation_type_wild_type(num_simulations = 32), simulation_type_knockdown(num_simulations = 0)))
   ) %>%
     generate_tf_network() %>%
     generate_feature_network() %>%
@@ -71,119 +72,90 @@ runmodel <- function(){
 }
 
 dists_100 <- list()
-dists_200 <- list()
-dists_1000 <- list()
 dists_cells <- list()
 
-for(exp_i in seq(1:2)){
-
-  # lm1 <- runmodel()
-  # lm2 <- lm1 %>% generate_cells() %>% generate_experiment()
-
-  # Generate first two linear datasets
-  # lm1 <- initialise_model(
-  #   num_tfs = 50,
-  #   num_targets = 200,
-  #   num_hks = 200,
-  #   num_cells = 1000,
-  #   backbone = backbone,
-  #   verbose = TRUE,
-  #   num_cores = 8,
-  #   distance_metric = "pearson",
-  #   tf_network_params = tf_network_default(min_tfs_per_module = 2, sample_num_regulators = function() 1),
-  #   simulation_params = simulation_default(census_interval = .01)
-  # ) %>%
-  #   generate_tf_network() %>%
-  #   generate_feature_network()
-  #
-  # lm2 <- lm1
-
+for(exp_i in seq(1:10)){
+#
   lm1 <- runmodel()
   lm2 <- lm1 %>% generate_cells() %>% generate_experiment()
 
-  # lm2$feature_info <- lm1$feature_info %>%
-  #   mutate_at(c("basal", "independence"), ~ . * rnorm(length(.), mean = 1, sd = .01)) %>%
-  #   mutate_at(c("basal", "independence"), ~ pmin(., 1))
-  # lm2$feature_network <- lm1$feature_network %>%
-  #   mutate_at(c("strength", "cooperativity"), ~ . * rnorm(length(.), mean = 1, sd = .01))
-  # lm2 <- lm2 %>%
-  #   generate_kinetics() %>%
-  #   generate_gold_standard() %>%
-  #   generate_cells() %>%
-  #   generate_experiment()
-  #
-  # lm1 <- lm1 %>% generate_kinetics() %>%
-  #   generate_gold_standard() %>%
-  #   generate_cells() %>%
-  #   generate_experiment
-
-  # lm2 <- lm1 %>% generate_cells() %>% generate_experiment()
-  dlm1 <- wrap_dataset(lm1)
-  dlm2 <- wrap_dataset(lm2)
+  # dlm1 <- wrap_dataset(lm1)
+  # dlm2 <- wrap_dataset(lm2)
+  # dlm1 <- readRDS(paste0("2shuffle_lm1", exp_i))
+  # dlm2 <- readRDS(paste0("2shuffle_lm2", exp_i))
 
   # Generate datasets with C cut off
-  rmC1 <- surpress_module(lm1, "C1")
-  rmC2 <- surpress_module(lm2, "C1")
+  # rmC1 <- surpress_module(lm1, "C1")
+  # rmC2 <- surpress_module(lm2, "C1")
+  #
+  # drmCD1 <- wrap_dataset(rmC1)
+  # drmCD2 <- wrap_dataset(rmC2)
 
-  drmCD1 <- wrap_dataset(rmC1)
-  drmCD2 <- wrap_dataset(rmC2)
-
-  names <- list("lm1", "lm2", "rmC1", "rmC2")
-  datasets <- list(dlm1, dlm2, drmCD1, drmCD2)
+  names <- list("lm1", "lm2") #, "rmC1", "rmC2")
+  datasets <- list(dlm1, dlm2) #, drmCD1, drmCD2)
   expressions100 <- list()
   expressions200 <- list()
   expressions1000 <- list()
-  for(j in seq(1:length(datasets))){
+  expressionscells <- list()
+
+  new_datasets <- list()
+  new_names <- list()
+
+  for(j in seq(1:length(names))){
     dataset <- datasets[[j]]
     expressions100[[length(expressions100) + 1]] <- get_wexpr(dataset, 100)
-    expressions200[[length(expressions200) + 1]] <- get_wexpr(dataset, 200)
-    expressions1000[[length(expressions1000) + 1]] <- get_wexpr(dataset, 1000)
 
-    for(i in c(0.1, 0.2)){
+    nor2 <- names(sort(calculate_correct_pseudotime(dataset)))
+    volg2 <- sapply(nor2, function(i) strtoi(substr(i, 5, 7)))
+    cnt2 <- as.matrix(dataset$counts)
+    cnts2 <- cnt2[volg2,]
+
+    expressionscells[[length(expressionscells) + 1]] <- cnts2
+
+    name <- names[[j]]
+    new_datasets <- append(new_datasets, list(ds))
+    new_names <- append(new_names, name)
+    saveRDS(dataset, paste0(paste0("shuffle_", name), exp_i))
+
+    # for(i in c(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0)){
+    for(i in c(0.02, 0.04, 0.06, 0.08, 0.1, 0.12, 0.14, 0.16, 0.18, 0.2)){
       ds <- dataset
-      ds$counts[sample(length(ds$counts), length(ds$counts) * i, replace=FALSE)] <- 0
+
+      # ds$counts[sample(length(ds$counts), length(ds$counts) * i, replace=FALSE)] <- 0
+      smp <- sample(length(ds$counts), size = length(ds$counts) * i, replace=FALSE)
+      res <- sample(ds$counts[smp])
+      ds$counts[smp] <- res
 
       expressions100[[length(expressions100) + 1]] <- get_wexpr(ds, 100)
-      expressions200[[length(expressions200) + 1]] <- get_wexpr(ds, 200)
-      expressions1000[[length(expressions1000) + 1]] <- get_wexpr(ds, 1000)
 
-      datasets <- append(datasets, list(ds))
+      nor2 <- names(sort(calculate_correct_pseudotime(ds)))
+      volg2 <- sapply(nor2, function(i) strtoi(substr(i, 5, 7)))
+      cnt2 <- as.matrix(ds$counts)
+      cnts2 <- cnt2[volg2,]
+      expressionscells[[length(expressionscells) + 1]] <- cnts2
+
+      new_datasets <- append(new_datasets, list(ds))
       name <- paste0(names[[j]], i)
-      names <- c(names, name)
+      new_names <- c(new_names, name)
 
       print(name)
+
+      saveRDS(ds, paste0(paste0("shuffle_", name), exp_i))
     }
   }
 
-  lm3 <- runmodel()
-  dlm3 <- wrap_dataset(lm3)
-  expr3_100 <- get_wexpr(dlm3, 100)
-  expr3_200 <- get_wexpr(dlm3, 200)
-  expr3_1000 <- get_wexpr(dlm3, 1000)
-  datasets <- append(datasets, list(dlm3))
-  names <- c(names, "lm3")
+  dist_dtw_100 <- matrix(NA, nrow=22, ncol=12)
+  dist_cells <- matrix(NA, nrow=22, ncol=12)
 
-  expressions100[[length(expressions100) + 1]] <- expr3_100
-  expressions200[[length(expressions200) + 1]] <- expr3_200
-  expressions1000[[length(expressions1000) + 1]] <- expr3_1000
-
-  dist_dtw_100 <- matrix(NA, nrow=13, ncol=13)
-  dist_dtw_200 <- matrix(NA, nrow=13, ncol=13)
-  dist_dtw_1000 <- matrix(NA, nrow=13, ncol=13)
-  dist_cells <- matrix(NA, nrow=13, ncol=13)
-
-  for(i in seq(1:length(datasets))){
+  # i = lm1 of lm2
+  for(i in seq(1:length(new_datasets))){
     expr1_100 <- expressions100[[i]]
-    expr1_200 <- expressions200[[i]]
-    expr1_1000 <- expressions1000[[i]]
-    dataset1 <- datasets[[i]]
+    expr1_cells <- expressionscells[[i]]
 
-    for(j in seq(1:length(datasets))){
-      expr2_100 <- expressions100[[j]]
-      expr2_200 <- expressions200[[j]]
-      expr2_1000 <- expressions1000[[j]]
-
-      if(i > j){
+    for(j in c(1, 12)){
+      # if(i > j){
+        expr2_100 <- expressions100[[j]]
+        expr2_cells <- expressionscells[[j]]
 
         expr1 <- expr1_100[1:50,]
         expr2 <- expr2_100[1:50,]
@@ -191,77 +163,47 @@ for(exp_i in seq(1:2)){
         am <- dtw(dist(as.matrix(t(expr1)), as.matrix(t(expr2)), dist.method="correlation"), step.pattern = symmetric2, keep.internals = TRUE, open.end = FALSE)
         dist_dtw_100[i, j] <- am$normalizedDistance
 
-        expr1 <- expr1_200[1:50,]
-        expr2 <- expr2_200[1:50,]
-
-        am <- dtw(dist(as.matrix(t(expr1)), as.matrix(t(expr2)), dist.method="correlation"), step.pattern = symmetric2, keep.internals = TRUE, open.end = FALSE)
-        dist_dtw_200[i, j] <- am$normalizedDistance
-
-        expr1 <- expr1_1000[1:50,]
-        expr2 <- expr2_1000[1:50,]
-
-        am <- dtw(dist(as.matrix(t(expr1)), as.matrix(t(expr2)), dist.method="correlation"), step.pattern = symmetric2, keep.internals = TRUE, open.end = FALSE)
-        dist_dtw_1000[i, j] <- am$normalizedDistance
-
-
-        dataset2 <- datasets[[j]]
-        nor1 <- names(sort(calculate_correct_pseudotime(dataset1)))
-        volg1 <- sapply(nor1, function(i) strtoi(substr(i, 5, 7)))
-        cnt1 <- as.matrix(dataset1$counts)
-        cnts1 <- cnt1[volg1,]
-
-        nor2 <- names(sort(calculate_correct_pseudotime(dataset2)))
-        volg2 <- sapply(nor2, function(i) strtoi(substr(i, 5, 7)))
-        cnt2 <- as.matrix(dataset2$counts)
-        cnts2 <- cnt2[volg2,]
-
-        cnts1 <- cnts1[1:50,]
-        cnts2 <- cnts2[1:50,]
+        # somehow, this is saved differently, so transposing isn't needed
+        cnts1 <- expr1_cells[,1:50]
+        cnts2 <- expr2_cells[,1:50]
 
         am3 <- dtw(dist(cnts1, cnts2, dist.method="correlation"), step.pattern = symmetric2, keep.internals = TRUE, open.end = FALSE)
-
         dist_cells[i, j] <- am3$normalizedDistance
 
+        print(i)
 
-        print(j)
-
-      }
+      # }
     }
   }
 
 
-  colnames(dist_dtw_100) <- names
-  rownames(dist_dtw_100) <- names
-  colnames(dist_dtw_200) <- names
-  rownames(dist_dtw_200) <- names
-  colnames(dist_dtw_1000) <- names
-  rownames(dist_dtw_1000) <- names
-  colnames(dist_cells) <- names
-  rownames(dist_cells) <- names
+  colnames(dist_dtw_100) <- new_names[1:12]
+  rownames(dist_dtw_100) <- new_names
+  colnames(dist_cells) <- new_names[1:12]
+  rownames(dist_cells) <- new_names
 
   dists_100[[length(dists_100) + 1]] <- dist_dtw_100
-  dists_200[[length(dists_200) + 1]] <- dist_dtw_200
-  dists_1000[[length(dists_1000) + 1]] <- dist_dtw_1000
   dists_cells[[length(dists_cells) + 1]] <- dist_cells
 
-  # saveRDS(dist_dtw_100, paste0("2dist_dtw_100_", exp_i))
-  # saveRDS(dist_dtw_200, paste0("2dist_dtw_200_", exp_i))
-  # saveRDS(dist_dtw_1000, paste0("2dist_dtw_1000_", exp_i))
-  # saveRDS(dist_cells, paste0("2dist_cells_", exp_i))
+  saveRDS(dist_dtw_100, paste0("shuffle_dist_dtw_100_", exp_i))
+  saveRDS(dist_cells, paste0("shuffle_dist_cells_", exp_i))
 
   print(paste0("DONE WITH ROUND ", exp_i))
 
 }
 
-saveRDS(dists_100, "2dists_100")
-saveRDS(dists_200, "2dists_200")
-saveRDS(dists_1000, "2dists_1000")
-saveRDS(dists_cells, "2_dists_cells")
+saveRDS(dists_100, "shuffle_dists_100")
+# saveRDS(dists_200, "dists_200")
+# saveRDS(dists_1000, "dists_1000")
+saveRDS(dists_cells, "shuffle_dists_cells")
 
-d_1_100 <- readRDS("dists_100")
+d_1_100 <- readRDS("shuffle_dists_100")
 d_1_200 <- readRDS("dists_200")
 d_1_1000 <- readRDS("dists_1000")
-d_1_cell <- lapply(seq(1:10), function(i) readRDS(paste0("dist_cells_", i)))
+d_1_cell <- readRDS("shuffle_dists_cells") #
+
+dists_100 <- lapply(seq(1:10), function(i) readRDS(paste0("5shuffle_dist_dtw_100_", i)))
+dists_cells <- lapply(seq(1:10), function(i) readRDS(paste0("5shuffle_dist_cells_", i)))
 
 avg_100 <- Reduce('+', d_1_100) / length(d_1_100)
 avg_200 <- Reduce('+', d_1_200) / length(d_1_200)
@@ -275,23 +217,33 @@ expr2 <- expressions100[[2]][1:50,]
 am <- dtw(dist(as.matrix(t(expr1)), as.matrix(t(expr2)), dist.method="correlation"), step.pattern = symmetric2, keep.internals = TRUE, open.end = FALSE)
 dtwPlotTwoWay(am, expr1, expr2)
 
-get_ratios1 <- function(data){
+get_ratio_lm1_lm2 <- function(data){
   verh <- list(0)
-  verh[[1]] <- data[[3]] / data[[4]]
-  verh[[2]] <- data[[5]] / data[[7]]
-  verh[[3]] <- data[[6]] / data[[8]]
-  verh[[4]] <- data[[9]] / data[[11]]
-  verh[[5]] <- data[[10]] / data[[12]]
+  verh[[1]] <- data[[3]] / data[[13]]
+  verh[[2]] <- data[[4]] / data[[14]]
+  verh[[3]] <- data[[5]] / data[[15]]
+  verh[[4]] <- data[[6]] / data[[16]]
+  verh[[5]] <- data[[7]] / data[[17]]
+  verh[[6]] <- data[[8]] / data[[18]]
+  verh[[7]] <- data[[9]] / data[[19]]
+  verh[[8]] <- data[[10]] / data[[20]]
+  verh[[9]] <- data[[11]] / data[[21]]
+  # verh[[10]] <- data[[12]] / data[[22]]
   verh
 }
 
-get_ratios2 <- function(data){
+get_ratio_lm2_lm1 <- function(data){
   verh <- list(0)
-  verh[[1]] <- data[[4]] / data[[3]]
-  verh[[2]] <- data[[7]] / data[[5]]
-  verh[[3]] <- data[[8]] / data[[6]]
-  verh[[4]] <- data[[11]] / data[[9]]
-  verh[[5]] <- data[[12]] / data[[10]]
+  verh[[1]] <- data[[13]] / data[[3]]
+  verh[[2]] <- data[[14]] / data[[4]]
+  verh[[3]] <- data[[15]] / data[[5]]
+  verh[[4]] <- data[[16]] / data[[6]]
+  verh[[5]] <- data[[17]] / data[[7]]
+  verh[[6]] <- data[[18]] / data[[8]]
+  verh[[7]] <- data[[19]] / data[[9]]
+  verh[[8]] <- data[[20]] / data[[10]]
+  verh[[9]] <- data[[21]] / data[[11]]
+  # verh[[10]] <- data[[22]] / data[[12]]
   verh
 }
 
@@ -309,12 +261,12 @@ lm2s_1000 <- lapply(d_1_1000, function(data) get_ratios(data[,2]))
 lm1s_cells <- lapply(d_1_cell, function(data) get_ratios2(data[,1]))
 lm2s_cells <- lapply(d_1_cell, function(data) get_ratios(data[,2]))
 
-# df <- data.frame(c(unlist(lm1s_100), unlist(lm2s_100), unlist(lm1s_1000), unlist(lm2s_1000), unlist(lm1s_cells), unlist(lm2s_cells)))
-# df$model <- c(rep("100 wp, traj 1", 50), rep("100 wp, traj 2", 50), rep("1000 wp,  traj 1", 50), rep("1000 wp, traj 2", 50), rep("all cells,  traj 1", 50), rep("all cells,  traj 2", 50))
-# df$color <- rep(c("remove milestone C", "10% noise", "20% noise", "remove milestone C + 10% noise", "remove milestone C + 20% noise"), 60)
-# df <- df %>% rename(distance.ratio = c.unlist.lm1s_100...unlist.lm2s_100...unlist.lm1s_1000...unlist.lm2s_1000...)
-# ggplot2::qplot(model, distance.ratio, data=df, aes(color = color), geom='beeswarm') + scale_y_log10() + theme_minimal()
-
+df <- data.frame(c(unlist(lm1s_100), unlist(lm2s_100), unlist(lm1s_200), unlist(lm2s_200), unlist(lm1s_cells), unlist(lm2s_cells)))
+df$model <- c(rep("100 wp, traj 1", 50), rep("100 wp, traj 2", 50), rep("200 wp,  traj 1", 50), rep("200 wp, traj 2", 50), rep("all cells,  traj 1", 50), rep("all cells,  traj 2", 50))
+df$Noise <- rep(c("remove milestone C", "10% noise", "20% noise", "remove milestone C + 10% noise", "remove milestone C + 20% noise"), 60)
+df <- df %>% rename(distance.ratio = c.unlist.lm1s_100...unlist.lm2s_100...unlist.lm1s_200...unlist.lm2s_200...)
+ggplot2::qplot(model, distance.ratio, data=df, aes(color = Noise), geom='beeswarm') + scale_y_log10() + theme_bw() + ylab("Discrimination power (higher is better)") + xlab("")
+library(ggbeeswarm)
 df <- data.frame(c(unlist(lm1s_100), unlist(lm2s_100), unlist(lm1s_cells), unlist(lm2s_cells)))
 df$Model <- c(rep("100 wp, traj 1", 50), rep("100 wp, traj 2", 50), rep("all cells,  traj 1", 50), rep("all cells,  traj 2", 50))
 df$Noise <- rep(c("remove milestone C", "10% noise", "20% noise", "remove milestone C + 10% noise", "remove milestone C + 20% noise"), 40)
@@ -322,3 +274,111 @@ df <- df %>% rename(distance.ratio = c.unlist.lm1s_100...unlist.lm2s_100...unlis
 ggplot2::qplot(Model, distance.ratio, data=df, aes(color = Noise), geom='beeswarm') + scale_y_log10() + theme_bw() + ylab("Discrimination power (higher is better)") + xlab("")
 
 plot(dtw(dist(cnts1, cnts2, dist.method="correlation"), step.pattern = symmetric2, keep.internals = TRUE, open.end = FALSE), type="twoway")
+
+lm1s_100 <- lapply(d_1_100, function(data) get_ratios(data[,1]))
+lm2s_100 <- lapply(d_1_100, function(data) get_ratios2(data[,2]))
+
+# long scatter plot noise levels
+df <- data.frame(c(unlist(lm1s_100), unlist(lm2s_100), unlist(lm1s_cells), unlist(lm2s_cells)))
+df$m <- c(rep("smoothed", 200), rep("unsmoothed", 200))
+df$x <- rep(c("0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1"), 40)
+df$s <- c(rep("traj1_sm", 100), rep("traj2_sm", 100), rep("traj1_nosm", 100), rep("traj2_nosm", 100))
+# df$Model <- c(rep("100 wp, traj 1", 50), rep("100 wp, traj 2", 50), rep("all cells,  traj 1", 50), rep("all cells,  traj 2", 50))
+df$Noise <- rep(c("remove milestone C", "10% noise", "20% noise", "remove milestone C + 10% noise", "remove milestone C + 20% noise"), 40)
+df <- df %>% rename(distance.ratio = c.unlist.lm1s_100...unlist.lm2s_100...unlist.lm1s_cells...unlist.lm2s_cells..)
+ggplot2::qplot(x, distance.ratio, data=df, geom='beeswarm', aes(color=s)) + scale_y_log10() + theme_bw() + ylab("Discrimination power (higher is better)") + xlab("")
+
+
+lm1a <- get_ratios2(avg_100[, 1])
+lm2a <- get_ratios(avg_100[, 2])
+
+lm1acells <- get_ratios2(avg_cells[, 1])
+lm2acells <- get_ratios(avg_cells[, 2])
+# line plot
+df <- data.frame(c(unlist(lm1a), unlist(lm2a), unlist(lm1acells), unlist(lm2acells)))
+df$m <- c(rep("smoothed", 20), rep("unsmoothed", 20))
+df$x <- rep(c("0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1"), 4)
+df$s <- c(rep("traj1_sm", 10), rep("traj2_sm", 10), rep("traj1_nosm", 10), rep("traj2_nosm", 10))
+df$t <- c(rep("traj1_sm", 20), rep("traj1_nosm", 20))
+# df$Model <- c(rep("100 wp, traj 1", 50), rep("100 wp, traj 2", 50), rep("all cells,  traj 1", 50), rep("all cells,  traj 2", 50))
+# df$Noise <- rep(c("remove milestone C", "10% noise", "20% noise", "remove milestone C + 10% noise", "remove milestone C + 20% noise"), 40)
+df <- df %>% rename(distance.ratio = c.unlist.lm1a...unlist.lm2a...unlist.lm1acells...unlist.lm1acells..)
+ggplot2::qplot(x, distance.ratio, data=df, geom='beeswarm', aes(color=t)) + scale_y_log10() + theme_bw() + ylab("Discrimination power (higher is better)") + xlab("")
+
+lm1a <- get_ratios2(avg_100[, 1])
+lm2a <- get_ratios(avg_100[, 2])
+
+lm1acells <- get_ratios2(avg_cells[, 1])
+lm2acells <- get_ratios(avg_cells[, 2])
+
+lm1a <- get_ratios2(avg_100[, 1])
+lm2a <- get_ratios(avg_100[, 2])
+
+dists_100 <- readRDS("2shuffle_dists_100")
+dists_cells <- readRDS("2shuffle_dists_cells")
+
+lm1s_100 <- lapply(dists_100, function(data) get_ratios2(data[,1]))
+lm2s_100 <- lapply(dists_100, function(data) get_ratios(data[,2]))
+
+lm1acells <- lapply(dists_cells, function(data) get_ratios2(data[,1]))
+lm2acells <- lapply(dists_cells, function(data) get_ratios(data[,2]))
+
+# line plot
+df <- data.frame(c(unlist(lm1s_100), unlist(lm2s_100), unlist(lm1acells), unlist(lm2acells)))
+df$m <- c(rep("smoothed", 200), rep("unsmoothed", 200))
+df$x <- rep(c("0.02", "0.04", "0.06", "0.08", "0.1", "0.12", "0.14", "0.16", "0.18", "0.2"), 40)
+df$s <- c(rep("traj1_sm", 100), rep("traj2_sm", 100), rep("traj1_nosm", 100), rep("traj2_nosm", 100))
+df$t <- c(rep("traj1_sm", 200), rep("traj1_nosm", 200))
+# df$Model <- c(rep("100 wp, traj 1", 50), rep("100 wp, traj 2", 50), rep("all cells,  traj 1", 50), rep("all cells,  traj 2", 50))
+# df$Noise <- rep(c("remove milestone C", "10% noise", "20% noise", "remove milestone C + 10% noise", "remove milestone C + 20% noise"), 40)
+df <- df %>% rename(distance.ratio = c.unlist.lm1s_100...unlist.lm2s_100...unlist.lm1acells...unlist.lm2acells..)
+ggplot2::qplot(x, distance.ratio, data=df, geom='beeswarm', aes(color=t)) + scale_y_log10() + theme_bw() + ylab("Discrimination power (higher is better)") + xlab("")
+
+
+library(ggbeeswarm)
+dists_100 <- readRDS("3shuffle_dists_100")
+dists_cells <- readRDS("3shuffle_dists_cells")
+
+lm1s_100 <- lapply(dists_100, function(data) get_ratio_lm2_lm1(data[,1]))
+lm2s_100 <- lapply(dists_100, function(data) get_ratio_lm1_lm2(data[,2]))
+
+lm1acells <- lapply(dists_cells, function(data) get_ratio_lm2_lm1(data[,1]))
+lm2acells <- lapply(dists_cells, function(data) get_ratio_lm1_lm2(data[,2]))
+# line plot
+df <- data.frame(c(unlist(lm1s_100), unlist(lm2s_100), unlist(lm1acells), unlist(lm2acells)))
+df$m <- c(rep("smoothed", 180), rep("unsmoothed", 180))
+# df$x <- rep(c("0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9"), 40)
+df$x <- rep(c("0.02", "0.04", "0.06", "0.08", "0.1", "0.12", "0.14", "0.16", "0.18"), 40)
+df$s <- c(rep("traj1_sm", 90), rep("traj2_sm", 90), rep("traj1_nosm", 90), rep("traj2_nosm", 90))
+df$t <- c(rep("traj1_sm", 180), rep("traj1_nosm", 180))
+# df$Model <- c(rep("100 wp, traj 1", 50), rep("100 wp, traj 2", 50), rep("all cells,  traj 1", 50), rep("all cells,  traj 2", 50))
+# df$Noise <- rep(c("remove milestone C", "10% noise", "20% noise", "remove milestone C + 10% noise", "remove milestone C + 20% noise"), 40)
+df <- df %>% rename(distance.ratio = c.unlist.lm1s_100...unlist.lm2s_100...unlist.lm1acells...unlist.lm2acells..)
+ggplot2::qplot(x, distance.ratio, data=df, geom='beeswarm', aes(color=s)) + theme_bw() + ylab("Discrimination power (higher is better)") + xlab("") + scale_y_log10(breaks = scales::pretty_breaks(n = 10))
+
+
+avg_100 <- Reduce('+', dists_100) / length(dists_100)
+avg_cells <- Reduce('+', dists_cells) / length(dists_cells)
+ra100_1 <- get_ratio_lm2_lm1(avg_100[,1])
+ra100_2 <- get_ratio_lm1_lm2(avg_100[,2])
+
+rac_1 <- get_ratio_lm2_lm1(avg_cells[,1])
+rac_2 <- get_ratio_lm1_lm2(avg_cells[,2])
+
+df <- data.frame(c(unlist(ra100_1), unlist(ra100_2), unlist(rac_1), unlist(rac_2)))
+df$m <- c(rep("smoothed", 18), rep("unsmoothed", 18))
+# df$x <- rep(c("0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9"), 4)
+df$x <- rep(c("0.02", "0.04", "0.06", "0.08", "0.1", "0.12", "0.14", "0.16", "0.18"), 4)
+df$s <- c(rep("traj1_sm", 9), rep("traj2_sm", 9), rep("traj1_nosm", 9), rep("traj2_nosm", 9))
+# df$t <- c(rep("traj1_sm", 200), rep("traj1_nosm", 200))
+# df$Model <- c(rep("100 wp, traj 1", 50), rep("100 wp, traj 2", 50), rep("all cells,  traj 1", 50), rep("all cells,  traj 2", 50))
+# df$Noise <- rep(c("remove milestone C", "10% noise", "20% noise", "remove milestone C + 10% noise", "remove milestone C + 20% noise"), 40)
+df <- df %>% rename(distance.ratio = c.unlist.ra100_1...unlist.ra100_2...unlist.rac_1...unlist.rac_2..)
+ggplot2::qplot(x, distance.ratio, data=df, geom='beeswarm', aes(color=s)) + scale_y_log10() + theme_bw() + ylab("Discrimination power (higher is better)") + xlab("")
+
+
+ra100_1 <- get_ratio_lm2_lm1(dist_dtw_100[,1])
+ra100_2 <- get_ratio_lm1_lm2(dist_dtw_100[,12])
+
+rac_1 <- get_ratio_lm2_lm1(dist_cells[,1])
+rac_2 <- get_ratio_lm1_lm2(dist_cells[,12])

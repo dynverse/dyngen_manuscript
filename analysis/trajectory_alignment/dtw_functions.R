@@ -23,7 +23,6 @@ calculate_correct_pseudotime <- function(dataset){
     names_traj <- c(names_traj, nams)
 
     start <- end
-    print(start)
     nr_piece <- nr_piece + 1
 
   }

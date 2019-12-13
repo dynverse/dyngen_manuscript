@@ -6,19 +6,24 @@ library(ggbeeswarm)
 
 set.seed(276)
 
+setwd("/home/louisedc/Work/dyngen_analysis/analysis/trajectory_alignment")
 output_dir <- paste0(getwd(), "/data/")
 source("dtw_functions.R")
 source("1_runmodels.R")
 source("2_get_expression.R")
 
-noise_experiment <- function(i){
-  # Generate two datasets containing a trajectory
-  lm1 <- runmodel()
-  dlm2 <- lm1 %>% generate_cells() %>% generate_experiment() %>% wrap_dataset()
-  dlm1 <- wrap_dataset(lm1)
-
-  saveRDS(dlm1, paste0(output_dir, paste0("dlm1_", i)))
-  saveRDS(dlm2, paste0(output_dir, paste0("dlm2_", i)))
+noise_experiment <- function(i, new_datasets=T){
+  if(new_datasets){
+    # Generate two datasets containing a trajectory
+    lm1 <- runmodel()
+    dlm2 <- lm1 %>% generate_cells() %>% generate_experiment() %>% wrap_dataset()
+    dlm1 <- wrap_dataset(lm1)
+    saveRDS(dlm1, paste0(output_dir, paste0("dlm1_", i)))
+    saveRDS(dlm2, paste0(output_dir, paste0("dlm2_", i)))
+  } else {
+    dlm1 <- readRDS(paste0(output_dir, paste0("dlm1_", i)))
+    dlm2 <- readRDS(paste0(output_dir, paste0("dlm2_", i)))
+  }
 
   # Generate noisy datasets for each base dataset
   # noise -> [dlm1, dlm2, dlm1_0.05, dlm1_0.1, dlm1_0.15, ...]
@@ -39,14 +44,21 @@ noise_experiment <- function(i){
     am$normalizedDistance
   }
 
+  get_noisy_distances <- function(exprs1, exprs2){
+    sapply(seq_along(exprs1), function(i) get_normalized_dist(exprs1[[i]], exprs2[[i]]))
+  }
+
+  distnoisy100 <- get_noisy_distances(c(list(expr100[[1]]), expr100[3:22]), c(list(expr100[[2]]), expr100[23:length(expr100)]))
+  distnoisycells <- get_noisy_distances(c(list(exprcells[[1]]), exprcells[3:22]), c(list(exprcells[[2]]), exprcells[23:length(exprcells)]))
+
   dist100 <- lapply(list(expr100[[1]], expr100[[2]]), get_normalized_dists, expr_list=expr100[3:length(expr100)])
   distcells <- lapply(list(exprcells[[1]], exprcells[[2]]), get_normalized_dists, expr_list=exprcells[3:length(exprcells)])
 
-  return(list(wp=dist100, orig=distcells, dlm1=dlm1, dlm2=dlm2))
+  return(list(wp=dist100, orig=distcells, wp_pw=distnoisy100, orig_pw=distnoisycells, dlm1=dlm1, dlm2=dlm2))
 }
 
 nr_it <- 10
-res <- lapply(seq(1:nr_it), noise_experiment)
+res <- lapply(seq(1:nr_it), noise_experiment, new_datasets=F)
 x <-list()
 x$dist100 <- lapply(res, "[[", 1)
 x$distcells <- lapply(res, "[[", 2)
@@ -54,12 +66,10 @@ x$distcells <- lapply(res, "[[", 2)
 get_ratio_lm1_lm2 <- function(data, lm1_on_lm2){
   verh <- list()
   if(lm1_on_lm2){
-    verh <- sapply(seq(1:15), function(i) data[[i]] / data[[20+i]])
+    return(sapply(seq(1:15), function(i) data[[i]] / data[[20+i]]))
   } else {
-    verh <- sapply(seq(1:15), function(i) data[[i+20]] / data[[i]])
+    return(sapply(seq(1:15), function(i) data[[i+20]] / data[[i]]))
   }
-
-  verh
 }
 
 get_ratios <- function(dists){

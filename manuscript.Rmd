@@ -37,8 +37,8 @@ knitr::opts_chunk$set(collapse=TRUE, results="hold")
 library(tidyverse)
 ```
 
-**Purpose:** A common problem of pioneering computational tools is that during their development, there are rarely sufficient datasets available for adequately quantitatively assessing its performance.  
-**Results:** We developed dyngen, a multi-modality simulator of single cells. In dyngen, the biomolecular state of an _in silico_ cell changes over time according to a set of reactions defined by the cell's gene regulatory network. By simulating single cells in terms of its biomolecular state and reactions, the simulator is easily extendible for adding new modalities or experimental procedures. We demonstrate dyngen's flexibility by simulating snapshot, time-series and perturbation experiments.  
+**Purpose:** When developing new types of tools for single-cell analyses, there is often a lack of datasets on which to quantitatively assess the performance.A common problem of pioneering computational tools is that during their development, there are rarely sufficient datasets available for adequately quantitatively assessing its performance.  
+**Results:** We developed dyngen, a multi-modality simulator of single cells. In dyngen, the biomolecular state of an _in silico_ cell changes over time according to a predefined gene regulatory network.  We used dyngen to benchmark three upcoming methods for single-cell analyses: RNA velocity, casewise network inference and trajectory alignment methods. The simulator is easily extendible for adding new modalities or experimental procedures. We demonstrate dyngen's flexibility by applying it to benchmark RNA velocity, casewise network inference and trajectory alignment methods. 
 **Conclusion:** dyngen lays the foundations for benchmarking a wide variety of computational single-cell tools and can be used to help kick-start the development of future types of analyses.
 
 **Author contributions:**
@@ -57,7 +57,7 @@ Continuous technological advancements to single-cells omics are having profound 
 This presents method developers with a problem. The majority of the 250+ peer-reviewed computational tools for analysing single cell omics data were published without a quantitative assessment of the accuracy of the tool. This is partially due to low availability of suitable benchmarking datasets; even if there are sufficient suitable input datasets available, these are often not accompanied by the necessary metadata to serve as ground-truth for a benchmark.
 
 Here, synthetic data plays a crucial role in asserting minimum performance requirements for novel tools in anticipation of adequate real data. Generators of scRNA-seq data (e.g. splatter[@zappia_splattersimulationsinglecell_2017], powsimR[@vieth_powsimrpoweranalysis_2017], PROSSTT[@papadopoulos_prossttprobabilisticsimulation_2018] and SymSim[@zhang_simulatingmultiplefaceted_2019]) have already been widely used to explore the strengths and weaknesses of computational tools, both by method developers[@street_slingshotcelllineage_2018; @parra_reconstructingcomplexlineage_2018; @lummertzdarocha_reconstructioncomplexsinglecell_2018; @lin_scclassifyhierarchicalclassification_2019] and independent benchmarkers[@duo_systematicperformanceevaluation_2018; @saelens_comparisonsinglecelltrajectory_2019; @soneson_biasrobustnessscalability_2018].
-However, a limitation of scRNA-seq profiles generators is that they would require significant methodological alterations to add additional modalities or experimental conditions, thereby limiting the applicability of each generator.
+However, a limitation of existing scRNA-seq profiles generators is that they would require significant methodological alterations to add additional modalities or experimental conditions., thereby limiting the applicability of each generator.
 
 
 ```{r generators, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
@@ -135,6 +135,52 @@ tab %>%
   knitr::kable(escape = FALSE) %>%
   kableExtra::row_spec(0, angle = 0)
 ```
+method
+model
+modalities
+(possible) applications
+splatter[@zappia_splattersimulationsinglecell_2017]
+Several distributional models with parameters that allow the generation of datasets by sampling from distributions
+Cell types, linear trajectories and batch effects can be simulated by changing the parameters of certain genes
+mRNA expression
+Clustering
+Linear trajectory inference
+Batch effect correction
+Differential expression
+powsimR[@vieth_powsimrpoweranalysis_2017]
+Negative binomial or zero-inflated negative binomial.
+Cell types can be simulated by changing the parameters of this distribution
+mRNA expression
+Differential expression
+Clustering
+PROSSTT[@papadopoulos_prossttprobabilisticsimulation_2018]
+(1) Generation of a random tree
+(2) The expression of each gene is seen as a sum of contributions from different expression programs. The activity of each program depends on pseudotime.
+(3) Generation of cells and expression by random sampling along the trajectory, and from a negative binomial distribution
+mRNA expression
+Linear and branching trajectory inference
+SymSim[@zhang_simulatingmultiplefaceted_2019]
+Kinetic model of each gene, in which it can be on or off, and where the mRNA can be degraded. The parameters of this model depend on a gene effect and cell effect, each of these effects represents a vector in an n-dimensional space (e.g. 10). The cell effect vectors are sampled in such a way that cells that have to be more similar (according to a tree provided by the user), will also have a more similar vector.
+mRNA expression
+promoter activity
+Clustering
+Linear, branching and disconnected trajectory inference
+
+dyngen
+Simulation of a thermodynamic model of gene regulation, in which a set of transcription factors can bind the promoter and can have varying effects on the activity of the promoter. Clusters or trajectories are simulated by specifying a regulatory network that will induce a certain diversification of expression. Expression is simulated using a single-molecule model, after which individual UMIs are simulated using a multinomial distribution. Apart from gene regulation, splicing and protein production are also simulated.
+Protein expression
+mRNA expression
+pre-mRNA expression
+promoter activity
+lineage state
+reaction activity
+Clustering
+Linear, branching and disconnected trajectory inference
+Cellwise network inference
+Batch effect correction
+RNA velocity
+Trajectory alignment
+
 
 An ideal experiment would be able to observe all aspects of a cell, including a full history of its molecular states, spatial positions and environmental interactions[@stuart_integrativesinglecellanalysis_2019].
 While this falls outside the reach of current experimental technologies, generating synthetic data in anticipation of new experimental technologies would allow already developing the next wave of computational tools.
@@ -191,30 +237,30 @@ dyngen includes generators of GRNs which result in many different developmental 
 
 
 Together, these qualities allow it to be applicable in benchmarking a broad range of use-cases. In practice, dyngen has already successfully been used to evaluate trajectory inference[@saelens_comparisonsinglecelltrajectory_2019], trajectory-based differential expression[@vandenberge_trajectorybaseddifferentialexpression_2019], and network inference[@pratapa_benchmarkingalgorithmsgene_2019] methods.
-To demonstrate this point even further, we apply dyngen on several promising novel computational approaches which have recently had a major impact on how single-cell analyses are performed but for which quantitative assessment of the performance was hitherto lacking.
+To demonstrate this point even further, we apply dyngen on several promising novel computational approaches for which quantitative assessment of the performance was hitherto lacking.
 
 ## Trajectory alignment
 
-Trajectory alignment is a technique used to discover the similarities and differences between the developmental trajectories of cells. 
-This technique has been used to compare gene expression kinetics resulting from different biological processes[@cacchiarelli_aligningsinglecelldevelopmental_2018], to compare human, chimpanzee and macaque neuronal development[@kanton_organoidsinglecellgenomic_2019], to find differences in gene regulation in the presence of certain growth factors[@mcfaline-figueroa_pooledsinglecellgenetic_2019], and to compare human and mouse embryogenesis[@alpert_alignmentsinglecelltrajectories_2018].
+Trajectory alignment allows studying the differences between multiple trajectories that are mostly similar. For example, the cell developmental process of a patient could be compared to that of a healthy control to detect the transcriptomic differences of a particular lineage branch.
 
-Unfortunately, not many methods to align trajectories exist. DTW (Dynamic Time Warping)[@giorgino_computingvisualizingdynamic_2009] is most commonly used to align linear trajectories. DTW is a technique originating in the field of speech recognition and aligns temporal sequences by creating a warping path between two sequences that indicates which sequence must be dilated or contracted to best match the other one.
+However, aligning trajectories becomes exponentially more difficult as the complexity of compared trajectories increases. For this reason, trajectory alignment remains a mostly unexplored territory within single-cell omics.
 
-dyngen can be used to evaluate trajectory alignment techniques. We generated two datasets and permuted each of those datasets in five ways: we knocked down the transcription factors belonging to the end of the second milestone, we set 10% or 20% of the count matrix to zero, and we performed the combination of those techniques. This results in 12 datasets, each containing a slightly different trajectory.
-We compared DTW when using smoothed pseudocells (with a gaussian kernel) and using just all cells. For each combination of trajectories, we calculated the DTW alignment. In figure x, the ratio between one trajectory with a certain permutation, and the other trajectory with the same permutation is shown. We expect this ratio to be low, as we want the alignment to be able to distinguish between different trajectories. We especially expect the smoothed versions to be able to overcome the extra 10% or 20% noise.
-We performed this experiment 10 times.
+Dynamic Time Warping (DTW)[@giorgino_computingvisualizingdynamic_2009] is most commonly used to align linear trajectories. DTW is a technique originating in the field of speech recognition and aligns temporal sequences by creating a warping path between the sequences that indicates which sequence must be dilated or contracted to best match the other one. DTW can also be used in combination with smoothed pseudocells[@alpert_alignmentsinglecelltrajectories_2018]. 
 
-In Figure \ref{fig:traj_align}, we can see that DTW with gaussian smoothing cannot distinguish between trajectory 1 and trajectory 2. When using the cells themselves, we find that they can clearly distinguish between trajectory 1 and 2 when noise is added, but not when the trajectory is limited to milestone C.
+Trajectory alignment, using DTW, has been used to compare gene expression kinetics resulting from different biological processes[@cacchiarelli_aligningsinglecelldevelopmental_2018], to compare human, chimpanzee and macaque neuronal development[@kanton_organoidsinglecellgenomic_2019], to find differences in gene regulation in the presence of certain growth factors[@mcfaline-figueroa_pooledsinglecellgenetic_2019], and to compare human and mouse embryogenesis[@alpert_alignmentsinglecelltrajectories_2018].
 
-<!--
+dyngen can be used to evaluate trajectory alignment techniques. We look how well DTW can continue to distinguish between different trajectories when an increasing amount of noise is added. In Figure \ref{fig:traj_align} we can see that when noise increases, DTW can no longer distinguish trajectories clearly, and that in this case, there is no difference whether smoothed pseudocells are used or when actual cells and their gene expression are used.
+
+
 \begin{figure}[htb!]
     \centering
     \includegraphics[width=.8\linewidth]{fig/traj_alignment/tares.pdf}
     \caption{
     \textbf{dyngen allows benchmarking of trajectory alignment methods.} 
+  \textbf{A: Example of trajectory alignment using DTW. The segments between the two trajectories show which cells are aligned.}
+\textbf{B: Shows the discrimination power of DTW decreasing as the amount of noise added increases.}
     \label{fig:traj_align}
 \end{figure}
--->
 
 
 
@@ -329,7 +375,12 @@ The backbone can make use of one or more "backbone lego" (BBL) pieces (Figure\ \
     \centering
     \includegraphics[width=0.8\textwidth]{fig/backbone_lego}
     \caption{
-      \textbf{Backbone lego.}
+      \textbf{Reusable regulatory building blocks that can be used to construct GRNs that result in dynamic processes following an expected pattern.}
+      \textbf{A:} Each building block contains genes which serve as inputs that can be regulated by external transcription factors. The connections inside the building block transform the input signal in a particular way and has one or more output interactions of which the targets are not yet determined.
+      \textbf{B:} By connecting multiple building blocks together, a backbone of regulatory modules can be formed.
+      \textbf{C:} dyngen offers several variations of linear building blocks which allow for differing regulatory mechanisms.
+      \textbf{D:} A branching module will upregulate the expression of just one of the output interactions. Two variations are given of which the simple variant is more prone to reprogramming events in comparison to the robust branching module.
+      \textbf{E,F:} These components allow to specify the beginning (no inputs) and end (no outputs) of the backbone.
     }
     \label{fig:backbone_lego}
 \end{figure}
@@ -357,7 +408,7 @@ The GRN is generated based on the given backbone in four main steps (Figure\ \re
 
 **Step 1, sampling the transcription factors (TF).** The TFs are the main drivers of the molecular changes in the simulation. The user provides a backbone and the number of TFs to generate. Each TF is assigned to a module such that each module has at least $x$ parameters (default $x=1$). A TF inherits the 'burn' and 'basal expression' from the module it belongs to.
 
-**Step 2, generating the TF interactions.** Let each TF be regulated according to the interactions in the backbone. These interactions inherit the effect, strength, and cooperativity parameters from the interactions in the backbone. A TF can only be regulated by other TFs or itself.
+**Step 2, generating the TF interactions.** Let each TF be regulated according to the interactions in the backbone. These interactions inherit the effect, strength, and independence parameters from the interactions in the backbone. A TF can only be regulated by other TFs or itself.
 
 **Step 3, sampling the target subnetwork.**
 A user-defined number of target genes are added to the GRN. Target genes are regulated by a TF or another target gene, but is always downstream of at least one TF. To sample the interactions between target genes, one of the many FANTOM5 \cite{lizio_gatewaysfantom5promoter_2015} GRNs is sampled. The currently existing TFs are mapped to regulators in the FANTOM5 GRN. The targets are drawn from the FANTOM5 GRN, weighted by their page rank value. For each target, at most $x$ regulators are sampled from the induced FANTOM5 GRN (default $x=5$). The interactions connecting a target gene and its regulators are added the GRN.
@@ -388,10 +439,10 @@ Housekeeping genes are completely separate from any TFs or target genes. A user-
 
 \newcommand{\str}[1]{\text{str}_{#1}}
 \newcommand{\hill}[1]{\text{hill}_{#1}}
-\newcommand{\coop}[1]{\text{co}_{#1}}
+\newcommand{\ind}[1]{\text{ind}_{#1}}
 \newcommand{\dis}[1]{\text{dis}_{#1}}
 \newcommand{\buf}[1]{\chi_{#1}}
-\newcommand{\ba}[1]{\text{ba}_{#1}}
+\newcommand{\ba}[1]{\text{bas}_{#1}}
 
 Simulating a cell's GRN makes use of a stochastic framework which tracks the abundance levels of molecules over time in a discrete quantity. For every gene $G$, the abundance levels of three molecules are tracked, namely of corresponding pre-mRNAs, mature mRNAs and proteins, which are represented by the terms $\w G$, $\x G$ and $\y G$ respectively. The GRN defines how a reaction affects the abundance levels of molecules and how likely it will occur. Gibson and Bruck[@gibson_probabilisticmodelprokaryotic_2000] provide a good introduction to modelling gene regulation with stochastic frameworks, on which many of the concepts below are based.
 
@@ -411,7 +462,7 @@ The propensity of all reactions except transcription are all linear functions (T
     \begin{tabular}{|lcc|}
         \hline
         Reaction & Effect & Propensity \\ \hline \hline
-        Transcription & $\emptyset \rightarrow \w G$ & $\wpr G \times \frac{\ba G - \coop{G}^{|\rp{G}|} + \prod\limits_{H \in \rp{G}}(\coop G + \buf{G,H})}{\prod\limits_{H \in \rs{G}}(1 + \buf{G,H})}$ \\
+        Transcription & $\emptyset \rightarrow \w G$ & $\wpr G \times \frac{\ba G - \ind{G}^{|\rp{G}|} + \prod\limits_{H \in \rp{G}}(\ind G + \buf{G,H})}{\prod\limits_{H \in \rs{G}}(1 + \buf{G,H})}$ \\
         Pre-mRNA degradation & $\w G \rightarrow \emptyset$ & $\wdr G \times \w G$ \\
         Splicing & $\w G \rightarrow \x G$ & $\wsr G \times \w G$ \\
         Mature mRNA degradation & $\x G \rightarrow \emptyset$ & $\xdr G \times \x G$ \\
@@ -438,7 +489,7 @@ The propensity of all reactions except transcription are all linear functions (T
         Protein half-life rate & $\yhl G$ & $\in N(0.25, 0.05),\ \geq 0.1$ \\
         Interaction strength & $\str{G,H}$ & $\in 10^{U(0, 2)}$ * \\
         Hill coefficient & $\hill{G,H}$ & $\in U(0.5, 2)$ * \\
-        Cooperativity factor & $\coop G$ & $\in [0, 1]$ * \\ \hline\hline
+        Independence factor & $\ind G$ & $\in [0, 1]$ * \\ \hline\hline
         Pre-mRNA degradation rate & $\wdr G$ & $= \ln(2)\ /\ \whl G$ \\
         Mature mRNA degradation rate & $\xdr G$ & $= \ln(2)\ /\ \xhl G$ \\
         Protein degradation rate & $\ydr G$ & $= \ln(2)\ /\ \yhl G$ \\
@@ -457,7 +508,7 @@ The propensity of all reactions except transcription are all linear functions (T
 \newcommand{\yk}[1]{\frac{y_#1}{k_#1}^{c_#1}}
 \newcommand{\wi}[1]{\nu_#1}
 
-The propensity of the transcription of a gene $G$ is inspired by thermodynamic models of gene regulation [needcitation], in which the promoter of $G$ can be bound or unbound by a set of $N$ transcription factors $H_i$. Let $\proptran(\y 1, \y 2, \ldots, \y N)$ denote the propensity function of $G$, in function of the abundance levels of the transcription factors. The following subsections explain and define the propensity function when $N=1$, $N=2$, and finally for an arbitrary $N$.
+The propensity of the transcription of a gene $G$ is inspired by thermodynamic models of gene regulation[@schilstra_biologicgeneexpression_2008needcitation], in which the promoter of $G$ can be bound or unbound by a set of $N$ transcription factors $H_i$. Let $\proptran(\y 1, \y 2, \ldots, \y N)$ denote the propensity function of $G$, in function of the abundance levels of the transcription factors. The following subsections explain and define the propensity function when $N=1$, $N=2$, and finally for an arbitrary $N$.
 
 ### Propensity of transcription when $N=1$
 In the simplest case when $N=1$, the promoter can be in one of two states. In state $S_0$, the promoter is not bound by any transcription factors, and in state $S_1$ the promoter is bound by $H_1$. Each state $S_j$ is linked with a relative activation $\alpha_j$, a number between 0 and 1 representing the activity of the promoter at this particular state. The propensity function is thus equal to the expected value of the activity of the promoter multiplied by the pre-mRNA production rate of $G$.
@@ -632,13 +683,14 @@ Several datasets were generated using the different predefined backbones. For ev
 
 Several casewise NI methods were considered for comparison: SCENIC[@aibar_scenicsinglecellregulatory_2017], LIONESS[@kuijjer_estimatingsamplespecificregulatory_2015; @kuijjer_estimatingsamplespecificregulatory_2019], and SSN[@liu_personalizedcharacterizationdiseases_2016]. 
 
-LIONESS[@@kuijjer_estimatingsamplespecificregulatory_2019; kuijjer_lionessrsinglesample_2019] uses the Pearson correlation to infer casewise GRNs. To do so, first the Pearson correlation is calculated between regulators and targets for all samples. Next, the Pearson correlation is again calculated for all samples excluding one sample. The difference between the two correlation matrices is considered a casewise GRN for that particular profile. This process is repeated for all profiles, resulting in a casewise GRN.
+LIONESS[@@kuijjer_estimatingsamplespecificregulatory_2019; @kuijjer_lionessrsinglesample_2019] uses the Pearson correlation to infer casewise GRNs. To do so, first the Pearson correlation is calculated between regulators and targets for all samples. Next, the Pearson correlation is again calculated for all samples excluding one sample. The difference between the two correlation matrices is considered a casewise GRN for that particular profile. This process is repeated for all profiles, resulting in a casewise GRN.
 
 SSN[@liu_personalizedcharacterizationdiseases_2016] has, in essence, the exact same methodology as LIONESS. It is worth noting that the LIONESS preprint was released before the publication of SSN. Since no implementation was provided by the authors, we implemented SSN in R using basic R and tidyverse functions[@wickham_welcometidyverse_2019] and marked results from this implementation as "SSN*".
 
 SCENIC[@aibar_scenicsinglecellregulatory_2017] is a pipeline that consists of four main steps. Step 1: classical network inference is performed with arboreto, which is similar to GENIE3[@huynh-thu_inferringregulatorynetworks_2010]. Step 2: select the top 10 regulators per target. Interactions are grouped together in 'modules'; each module contains one regulator and all of its targets. Step 3: filter the modules using motif analysis. Step 4: for each cell, determine an activity score of each module using AUCell. As a post-processing of this output, all modules and the corresponding activity scores are combined back into a casewise GRN consisting of (cell, regulator, target, score) pairs. For this analysis, the Python implementation of SCENIC was used, namely pySCENIC. Since dyngen does not generate motif data, step 3 in this analysis is skipped.
 
 The AUROC and AUPR metrics are common metrics for evaluating a predicted GRN with a ground-truth GRN. To compare a predicted casewise GRN with the ground-truth casewise GRN, the top 10'000 interactions per cell were retained. For each cell-specific network, the AUROC and AUPR were calculated.
+
 ## Comparison of RNA velocity methods {#sec:dyngen-velcompare}
 
 15 datasets were generated with 5 different backbones: linear, linear simple, bifurcating, cyclic, and disconnected. We extracted a ground truth RNA velocity by subtracting for each mRNA molecule the propensity of its production by the propensity of its degradation. If the expression of an mRNA will increase in the future, this value is positive, while it is negative if it is going to decrease. For each gene, we compared the ground truth velocity with the observed velocity by calculating the Spearman rank correlation.
@@ -646,3 +698,30 @@ The AUROC and AUPR metrics are common metrics for evaluating a predicted GRN wit
 We compared two RNA velocity methods. The velocyto method[@lamanno_rnavelocitysingle_2018], as implemented in the velocyto.py package, in which we varied the "assumption" parameter between "constant_unspliced" and "constant_velocity". The scvelo method[@bergen_generalizingrnavelocity_2019], as implemented in the python scvelo package (http://scvelo.de), in which we varied the "mode" parameter between "deterministic", "stochastic" and "dynamical". For both methods, we used the same normalized data as provided by dyngen, with no extra cell or feature filtering. We also matched the parameters between both methods as best as possible, i.e. the k parameter for smoothing was set to 20 for both methods.
 
 To visualize the velocity on an embedding, we used the "velocity_embedding" function, implemented in the scvelo python package.
+
+## Comparison of trajectory alignment with added noise {#sec:dyngen-tacompare}
+
+2 datasets containing a trajectory were generated using dyngen. For each dataset, we shuffled 5\% to 75\% of the count matrix, with steps of 5\%. Next, we aligned (using DTW) all the base trajectories with all the noisy trajectories.
+
+Let the normalized alignment distance between base trajectory x and trajectory y with z\% noise be $dxy_z$.
+Then we looked at the discrimination power of DTW: how well DTW is able to distinguish between two trajectories with a certain amount of added noise. We looked at the following ratios to determine this:
+\begin{equation}
+    \frac{d12_{z}}{d11_{z}} \quad \forall z \in \{0.05, 0.1, 0.15, ..., 0.75 \}
+\end{equation}
+
+\begin{equation}
+    \frac{d21_{z}}{d22_{z}} \quad \forall z \in \{0.05, 0.1, 0.15, ..., 0.75 \}
+\end{equation}
+
+If this ratio is high, it means that DTW is able to distinguish well between the two trajectories. If this ratio is 1, DTW is not able to distinguish between the two trajectories at all.
+
+These datasets and ratios were generated 10 times to reduce possible stochastic effects.
+
+## Code availability {#sec:dyngen-code}
+
+dyngen is available as an open source R package at
+\url{https://github.com/dynverse/dyngen}. All code used
+in this study is made publicly available at
+\url{https://github.com/rcannood/dyngen_analysis}.
+
+

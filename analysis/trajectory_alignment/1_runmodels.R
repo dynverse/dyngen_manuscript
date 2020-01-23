@@ -5,7 +5,7 @@ backbone <- bblego(
   bblego_start("A", type = "simple", num_modules = 4),
   bblego_linear("A", "B", type = "simple", num_modules = 6),
   bblego_linear("B", "C", type = "simple", num_modules = 6),
-  bblego_end("C", type = "simple", num_modules = 6)
+  bblego_end("C", type = "simple", num_modules = 4)
 )
 
 
@@ -18,9 +18,6 @@ runmodel <- function(){
     backbone = backbone,
     verbose = TRUE,
     num_cores = 8,
-    distance_metric = "pearson",
-    tf_network_params = tf_network_default(min_tfs_per_module = 2, sample_num_regulators = function() 1),
-    simulation_params = simulation_default(census_interval = .01, experiment_params = bind_rows(simulation_type_wild_type(num_simulations = 32), simulation_type_knockdown(num_simulations = 0)))
   ) %>%
     generate_tf_network() %>%
     generate_feature_network() %>%
@@ -28,18 +25,15 @@ runmodel <- function(){
     generate_gold_standard() %>%
     generate_cells() %>%
     generate_experiment()
-  model
 }
 
 
-get_noisy_data <- function(ds, noise_perc){
-  smp <- sample(length(ds$counts), size = length(ds$counts) * noise_perc, replace=FALSE)
-  ds$counts[smp] <- sample(ds$counts[smp])
-  ds
-}
-
-get_all_noisy <- function(ds, start, stop, step){
-  lapply(seq(start, stop, step), get_noisy_data, ds=ds)
+get_all_noisy_data <- function(ds, start, stop, step){
+  lapply(seq(start, stop, step), function(noise_perc, ds_=ds){
+    smp <- sample(length(ds_$counts), size = length(ds_$counts) * noise_perc, replace=FALSE)
+    ds_$counts[smp] <- sample(ds_$counts[smp])
+    ds_
+  })
 }
 
 
@@ -68,4 +62,6 @@ surpress_module <- function(model, module){
   model <- model %>% generate_gold_standard() %>% generate_cells() %>% generate_experiment()
   model
 }
+
+
 

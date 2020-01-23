@@ -67,12 +67,13 @@ get_waypoint_progression <- function(dataset, nr){
   waypoint_progressions
 }
 
-interpolate_expression <- function(dataset, wps, gds){
+interpolate_expression <- function(dataset, wps, gds, ws = 0.05){
+  dc <- t(as.matrix(dataset$counts))
   weighted_expr <- do.call('cbind', lapply(seq_along(wps), function(idx){
     dist <- gds[idx,]
-    weighted <- exp(-(dist^2)/(0.1)^2)
+    weighted <- exp(-(dist^2)/(ws)^2)
     weighted <- weighted/sum(weighted)
-    weighted_exp <- t(as.matrix(dataset$counts)) %*% weighted
+    weighted_exp <- dc %*% weighted
     weighted_exp
   }))
   weighted_expr

@@ -14,14 +14,10 @@ drive <- drive_download(as_id("1BOltsUJBQ8NhF5s9kU_Q470U0U00QblbG8HBgQwEzRE"), t
 
 # read docx
 textreadr::read_docx(drive$local_path, remove.empty = FALSE, trim = FALSE) %>%
-  str_replace_all(" *(\\[@[^\\]]*\\])", "\\1") %>% # remove spaces before citations
+  str_replace_all("([^ ])(\\[@[^\\]]*\\])", "\\1 \\2") %>% # add spaces before citations
+  str_replace_all("^#", "\n#") %>%
   write_lines("manuscript.Rmd")
 
 # render the manuscript
 render("manuscript.Rmd")
-
-# copy content to content.tex
-lines <- read_lines("manuscript.tex")
-content <- lines[seq(which(lines == "\\hypertarget{sec:dyngen-introduction}{%"), which(lines == "\\printbibliography")-1)]
-write_lines(content, "content.tex")
 

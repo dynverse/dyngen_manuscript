@@ -2292,9 +2292,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="3.959798"
-     inkscape:cx="166.64035"
-     inkscape:cy="512.7968"
+     inkscape:zoom="1.979899"
+     inkscape:cx="341.46807"
+     inkscape:cy="478.29022"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -2364,7 +2364,7 @@
            y="80.918793"
            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';text-align:start;text-anchor:start;stroke-width:0.26458332"><tspan
    style="font-weight:bold"
-   id="tspan6080">D </tspan> Calculate average expression along backbone transitions</tspan></text>
+   id="tspan6080">D </tspan> Determine expression levels along ground-truth trajectory</tspan></text>
       <g
          id="g23389"
          transform="translate(9.1456822,64.420565)">
@@ -4346,7 +4346,7 @@
            id="tspan4981"
            sodipodi:role="line"><tspan
    style="font-weight:bold"
-   id="tspan6078">E </tspan> Simulate single cells and map to backbone</tspan></text>
+   id="tspan6078">E </tspan> Simulate single cells and map to ground-truth trajectory</tspan></text>
       <g
          id="g28055"
          inkscape:label="simulation_expression"
@@ -5226,7 +5226,7 @@
            y="209.72662"
            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Helvetica LT Std';-inkscape-font-specification:'Helvetica LT Std';text-align:start;text-anchor:start;stroke-width:0.26458332"><tspan
    style="font-weight:bold"
-   id="tspan6090">F </tspan> Perform experiment; sample cells and molecules</tspan></text>
+   id="tspan6090">F </tspan> Emulate wet-lab experiment; sample cells and molecules</tspan></text>
       <g
          transform="translate(1.0583333)"
          id="g20178">

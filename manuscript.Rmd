@@ -5,7 +5,7 @@ author:
 - Wouter Saelens*
 - Louise Deconinck
 - Yvan Saeys
-date: "`r format(Sys.time(), '%d %B %Y')`"
+date: "* Equal contribution"
 output:
   pdf_document:
     keep_tex: yes

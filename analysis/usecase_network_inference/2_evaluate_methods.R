@@ -4,7 +4,10 @@ library(dyneval)
 library(dyngenanalysis)
 library(dynutils)
 
-dataset_files <- list.files("derived_files/network_inference/datasets/", pattern = "dataset.rds", full.names = TRUE, recursive = TRUE)
+tmp_folder <- "temporary_files/usecase_network_inference/"
+output_folder <- "results/usecase_network_inference/"
+
+dataset_files <- list.files(paste0(tmp_folder, "/datasets/"), pattern = "dataset.rds", full.names = TRUE, recursive = TRUE)
 datasets <- list_as_tibble(map(dataset_files, function(dataset_file) {
   dataset <- read_rds(dataset_file) %>% add_cell_waypoints()
   dataset$prior_information$regulators <- dataset$regulators
@@ -13,14 +16,13 @@ datasets <- list_as_tibble(map(dataset_files, function(dataset_file) {
 }))
 
 methods <- list(
-  # "bred" = cni_bred(num_trees = 1000L),
   "SSN*" = cni_ssn(),
   "pySCENIC GBM" = cni_pyscenic_sgbm(subsample = 1, n_estimators = 500L),
   "pySCENIC SGBM" = cni_pyscenic_sgbm(subsample = .9, n_estimators = 5000L),
   "LIONESS" = cni_lioness()
 )
 
-eval_file <- "derived_files/network_inference/evaluation.rds"
+eval_file <- paste0(tmp_folder, "/evaluation.rds")
 if (!file.exists(eval_file)) {
   evals <- map(methods, function(method) {
     evaluate_ti_method(
@@ -68,7 +70,7 @@ g <- ggplot(aucs %>% filter(method == "casewise_casewise")) +
   geom_point(aes(auroc, aupr, colour = cni_method_id), size = 1) +
   facet_grid(dataset_id~cni_method_id) +
   theme_bw()
-ggsave(paste0("fig/network_inference/comparison_casewise_casewise.pdf"), g, width = 6, height = 15)
+ggsave(paste0(tmp_folder, "/comparison_casewise_casewise.pdf"), g, width = 6, height = 15)
 
 # g <- ggplot(aucs %>% filter(method == "casewise_casewise") %>% sample_n(n())) +
 #   geom_point(aes(auroc, aupr), colour = "lightgray", function(df) select(df, -cni_method_id), size = 1) +
@@ -76,14 +78,14 @@ ggsave(paste0("fig/network_inference/comparison_casewise_casewise.pdf"), g, widt
 #   facet_grid(dataset_id~cni_method_id) +
 #   viridis::scale_color_viridis() +
 #   theme_bw()
-# ggsave(paste0("fig/network_inference/comparison_casewise_casewise_nints.pdf"), g, width = 6, height = 15)
+# ggsave(paste0(tmp_folder, "/comparison_casewise_casewise_nints.pdf"), g, width = 6, height = 15)
 
 g <- ggplot(aucs %>% filter(method == "static_static")) +
   geom_point(aes(auroc, aupr), colour = "lightgray", function(df) select(df, -cni_method_id), size = 1) +
   geom_point(aes(auroc, aupr, colour = cni_method_id), size = 1) +
   facet_grid(~cni_method_id) +
   theme_bw()
-ggsave(paste0("fig/network_inference/comparison_static_static.pdf"), g, width = 10, height = 3)
+ggsave(paste0(tmp_folder, "/comparison_static_static.pdf"), g, width = 10, height = 3)
 
 ggplot(summ %>% filter(method == "casewise_casewise")) +
   geom_point(aes(auroc, aupr), colour = "gray", function(df) df %>% select(-cni_method_id)) +
@@ -105,7 +107,7 @@ summplots <- map(nam, function(meth) {
     scale_color_brewer(palette = "Set1")
 })
 names(summplots) <- nam
-ggsave("fig/network_inference/score_summary.pdf", patchwork::wrap_plots(summplots, ncol = 1), width = 8, height = 5)
+ggsave(paste0("tmp_folder, /score_summary.pdf"), patchwork::wrap_plots(summplots, ncol = 1), width = 8, height = 5)
 
-write_rds(summplots, "fig/network_inference/score_summary.rds")
+write_rds(summplots, paste0(tmp_folder, "/score_summary.rds"))
 

@@ -5,7 +5,10 @@ library(dynutils)
 library(tidygraph)
 library(ggraph)
 
-dataset_file <- paste0("derived_files/network_inference/datasets/small_disconnected/dataset.rds")
+tmp_folder <- "temporary_files/usecase_network_inference/"
+output_folder <- "results/usecase_network_inference/"
+
+dataset_file <- paste0(tmp_folder, "/datasets/small_disconnected/dataset.rds")
 dataset <- read_rds(dataset_file)
 
 # expression <- dataset$expression
@@ -91,6 +94,6 @@ g <- ggplot() +
     plot.margin = margin(0, 0, 0, 0, "cm")
   )
 
-ggsave("fig/network_inference/casewise_grn.pdf", g, width = 8, height = 5)
-write_rds(g, "fig/network_inference/casewise_grn.rds")
+ggsave(paste0(output_folder, "/casewise_grn.pdf"), g, width = 8, height = 5)
+write_rds(g, paste0(output_folder, "/casewise_grn.rds"))
 

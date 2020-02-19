@@ -23,3 +23,4 @@ derived_files
 dask-worker-space
 derived
 analysis/data
+temporary_files

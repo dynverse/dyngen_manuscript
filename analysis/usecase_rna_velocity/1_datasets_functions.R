@@ -48,26 +48,3 @@ create_dataset <- function(id = "test", seed = 10, backbone = "linear_simple") {
     write_rds(dataset, dataset_file(id, "dataset.rds"))
   })
 }
-
-
-load_dataset <- function(id) {
-  dataset <- read_rds(dataset_file(id, "dataset.rds"))
-  dataset
-}
-
-
-load_model <- function(id) {
-  model <- read_rds(dataset_file(id, "model.rds"))
-  model
-}
-
-
-
-
-
-dataset_file <- dynamic_file(derived_file("datasets"))
-
-load_dataset <- function(id) {
-  dataset <- read_rds(dataset_file(id, "dataset.rds"))
-  dataset
-}

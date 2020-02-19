@@ -1,7 +1,8 @@
 library(tidyverse)
 library(dyngen)
+library(dyngen.manuscript)
 
-tmp_folder <- "temporary_files/usecase_network_inference/"
+analysis <- start_analysis("usecase_network_inference")
 
 backbones <- list_backbones()
 
@@ -10,10 +11,9 @@ for (backbone_name in names(backbones)) {
   tryCatch({
     set.seed(1)
 
-    folder <- paste0(tmp_folder, "small_", backbone_name, "/")
-    dir.create(folder, recursive = TRUE)
+    folder <- analysis$temporary("datasets/", backbone_name)
 
-    if (!file.exists(paste0(folder, "/datasets/model.rds"))) {
+    if (!file.exists(paste0(folder, "/model.rds"))) {
       backbone <- backbones[[backbone_name]]()
       wanted_genes <- 200
 

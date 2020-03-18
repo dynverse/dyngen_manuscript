@@ -1,9 +1,10 @@
 library(tidyverse)
 library(dyngen)
+library(dyngen.manuscript)
 
 set.seed(1)
 
-output_folder <- "results/fig1_showcase_functionality/"
+exp <- start_analysis("fig2_showcase_data")
 
 backbone <- backbone(
   module_info = tribble(
@@ -15,7 +16,7 @@ backbone <- backbone(
     "E", 0, TRUE, 1
   ),
   module_network = tribble(
-    ~from, ~to, ~effect, ~strength, ~cooperativity,
+    ~from, ~to, ~effect, ~strength, ~hill,
     "A", "B", -1L, 4, 2,
     "B", "C", -1L, 4, 2,
     "C", "D", 1L, 1, 2,
@@ -24,15 +25,15 @@ backbone <- backbone(
   ),
   expression_patterns = tribble(
     ~from, ~to, ~module_progression, ~start, ~burn, ~time,
-    "Burn0", "S1", "+A,+B,+C", TRUE, TRUE, 3,
-    "S1", "S2", "+D,+E,-C", FALSE, FALSE, 4,
-    "S2", "S3", "+C,-A,-B", FALSE, FALSE, 4,
-    "S3", "S1", "+A,+B,-D,-E", FALSE, FALSE, 4
+    "Burn0", "S1", "+A,+B,+C", TRUE, TRUE, 100,
+    "S1", "S2", "+D,+E,-C", FALSE, FALSE, 80,
+    "S2", "S3", "+C,-A,-B", FALSE, FALSE, 80,
+    "S3", "S1", "+A,+B,-D,-E", FALSE, FALSE, 80
   )
 )
-census_interval <- .2
-total_time <- 20
-time_breaks = c(0, 10, 20)
+census_interval <- 1
+total_time <- 400
+time_breaks <- c(0, 200, 400)
 model <-
   initialise_model(
     num_tfs = nrow(backbone$module_info) * 1,
@@ -43,16 +44,16 @@ model <-
     verbose = TRUE,
     download_cache_dir = "~/.cache/dyngen",
     num_cores = 8,
-    kinetics_params = kinetics_default(
-      sample_wpr = function(n) 50,
-      sample_wsr = function(n) 5,
-      sample_ypr = function(n) 2.5,
-      sample_whl = function(n) .25,
-      sample_xhl = function(n) .25,
-      sample_yhl = function(n) .25
-    ),
+    # kinetics_params = kinetics_default(
+    #   sample_wpr = function(n) 50,
+    #   sample_wsr = function(n) 5,
+    #   sample_ypr = function(n) 2.5,
+    #   sample_whl = function(n) .25,
+    #   sample_xhl = function(n) .25,
+    #   sample_yhl = function(n) .25
+    # ),
     simulation_params = simulation_default(
-      burn_time = 8,
+      burn_time = 160,
       total_time = total_time,
       ssa_algorithm = GillespieSSA2::ssa_exact(),
       experiment_params = simulation_type_wild_type(num_simulations = 1),
@@ -85,7 +86,7 @@ plot_backbone_modulenet(model)
 model$simulations$meta$sim_time <- floor(model$simulations$meta$sim_time / census_interval) * census_interval
 time <- model$simulations$meta$sim_time
 
-mol_map <- c(w = "pre-mRNA", x = "mRNA", y = "protein")
+mol_map <- c(mol_premrna = "pre-mRNA", mol_mrna = "mRNA", mol_protein = "protein")
 reac_map <- c(
   "transcription" = "Transcription", "splicing" = "Splicing", "translation" = "Translation",
   "premrna_degradation" = "pre-mRNA degradation", "mrna_degradation" = "mRNA degradation", "protein_degradation" = "Protein degradation"
@@ -95,7 +96,7 @@ expr_df <- data.frame(time = time, model$simulations$counts %>% as.matrix()) %>%
   gather(var, value, -time) %>%
   mutate(
     gene = paste0("Gene ", gsub(".*_", "", var)),
-    molecule = factor(mol_map[gsub("_.*", "", var)], levels = mol_map)
+    molecule = factor(mol_map[gsub("_[^_]*$", "", var)], levels = mol_map)
   ) %>%
   filter(time > 0)
 firings_df <- data.frame(time = time, model$simulations$reaction_firings %>% as.matrix(), check.names = FALSE) %>%
@@ -141,14 +142,13 @@ state_df <- state_df %>%
 #######
 # ABUNDANCE LEVELS
 #######
-max_expr <- max(expr_df$value)
-max_expr <- ceiling(max_expr / 10) * 10
 g1 <- ggplot(expr_df, aes(time, value)) +
-  geom_step(aes(colour = molecule)) +
-  facet_wrap(~gene, ncol = 1) +
+  geom_step(aes(colour = gene)) +
+  facet_wrap(~molecule, ncol = 1, scales = "free_y") +
   theme_classic() +
   labs(x = "Simulation time", y = "Expression", colour = "Molecule") +
-  scale_colour_manual(values = c("pre-mRNA" = "#4daf4a", "mRNA" = "#377eb8", "protein" = "#e41a1c", "gene" = "black")) +
+  scale_colour_brewer(palette = "Set1") +
+  # scale_colour_manual(values = c("pre-mRNA" = "#4daf4a", "mRNA" = "#377eb8", "protein" = "#e41a1c", "gene" = "black")) +
   theme(
     text = element_text(family = "Helvetica"),
     strip.background = element_blank(),
@@ -156,8 +156,7 @@ g1 <- ggplot(expr_df, aes(time, value)) +
     legend.margin = margin()
   ) +
   scale_x_continuous(breaks = time_breaks) +
-  scale_y_continuous(breaks = c(0, .5, 1) * max_expr, limits = c(0, max_expr)) +
-  geom_text(aes(label = gene), tibble(time = mean(expr_df$time), value = max_expr, gene = paste0("Gene ", LETTERS[1:5])), size = 3, hjust = 0.5, vjust = 1)
+  geom_text(aes(x = time_breaks[[2]], y = max, label = molecule), expr_df %>% group_by(molecule) %>% summarise(max = max(value)), size = 3, hjust = 0.5, vjust = 1)
 
 #######
 # CELL STATE
@@ -179,13 +178,11 @@ g2 <- ggplot(state_df) +
 # REACTION FIRINGS
 #######
 firings_df_A <- firings_df %>% filter(gene == "Gene A")
-max_fir <- firings_df_A$value %>% max
-max_fir <- ceiling(max_fir / 10) * 10
-label_fir_df <- firings_df_A %>% group_by(reaction) %>% summarise(time = mean(time), value = max_fir) %>% mutate(reaction_text = paste0("Gene A ", reaction))
+label_fir_df <- firings_df_A %>% group_by(reaction) %>% summarise(time = mean(time), value = max(value)) %>% mutate(reaction_text = paste0("Gene A ", reaction))
 
 g3 <-
   ggplot(firings_df_A, aes(time, value)) +
-  facet_wrap(~reaction, ncol = 1) +
+  facet_wrap(~reaction, ncol = 1, scales = "free_y") +
   geom_area(aes(fill = forcats::fct_rev(reaction)), position = "stack") +
   theme_classic() +
   scale_fill_brewer(palette = "Set2") +
@@ -197,7 +194,7 @@ g3 <-
     legend.margin = margin()
   ) +
   scale_x_continuous(breaks = time_breaks) +
-  scale_y_continuous(breaks = c(0, .5, 1) * max_fir, limits = c(0, max_fir)) +
+  # scale_y_continuous(breaks = c(0, .5, 1) * max_fir, limits = c(0, max_fir)) +
   geom_text(aes(label = reaction_text), label_fir_df, size = 3, hjust = 0.5, vjust = 1)
 
 
@@ -255,7 +252,7 @@ g <- patchwork::wrap_plots(
   ncol = 1
 )
 
-ggsave(paste0(output_folder, "overview_unedited.pdf"), g, width = 8, height = 8, device = cairo_pdf)
+ggsave(exp$result("overview_unedited.pdf"), g, width = 8, height = 8, device = cairo_pdf)
 
 
 

@@ -1,24 +1,32 @@
 library(tidyverse)
 library(dyngen)
+library(dyngen.manuscript)
 library(dynplot)
 
-output_folder <- "results/fig3_showcase_backbones/"
+set.seed(1)
+
+exp <- start_analysis("fig3_showcase_backbones")
 
 backs <- list_backbones()
 
-oks <- c("linear", "bifurcating", "converging", "cycle", "bifurcating_loop", "consecutive_bifurcating")
-oks <- c(oks, "bifurcating_cycle", "bifurcating_converging", "binary_tree", "branching", "disconnected")
-oks <- c("binary_tree", "branching", "disconnected")
+oks <- names(backs)
 
-for (seed in seq_len(10))
+# oks <- c("linear", "bifurcating", "converging", "cycle", "bifurcating_loop", "consecutive_bifurcating")
+# oks <- c(oks, "bifurcating_cycle", "bifurcating_converging", "binary_tree", "branching", "disconnected")
+# oks <- c("binary_tree", "branching", "disconnected")
+
+seed <- 1
+# for (seed in seq_len(10))
 for (nb in oks) {
   cat("=============== SIMULATING ", nb, " seed ", seed, " ===============\n", sep = "")
   set.seed(seed)
 
-  out_dir <- paste0(output_folder, "/backbone_plots/bb_", nb, "_", seed, "/")
+  out_dir <- exp$result("backbone_plots/bb_", nb, "_", seed, "/")
+  temp_dir <- exp$temporary("backbone_plots/bb_", nb, "_", seed, "/")
   if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
+  if (!dir.exists(temp_dir)) dir.create(temp_dir, recursive = TRUE, showWarnings = FALSE)
 
-  if (!file.exists(paste0(out_dir, "traj_dimred.pdf"))) {
+  if (!file.exists(exp$result("traj_dimred.pdf"))) {
     back <- backs[[nb]]()
     model <-
       initialise_model(
@@ -29,23 +37,17 @@ for (nb in oks) {
         backbone = back,
         verbose = TRUE,
         download_cache_dir = "~/.cache/dyngen",
-        num_cores = 4,
-        gold_standard_params = gold_standard_default(
-          tau = .001,
-          census_interval = .02
-        ),
+        num_cores = 6,
         simulation_params = simulation_default(
-          ssa_algorithm = GillespieSSA2::ssa_etl(tau = .001),
-          num_simulations = ifelse(nb %in% c("binary_tree", "branching", "disconnected"), 80, 16),
-          census_interval = .05,
-          burn_time = simtime_from_backbone(back),
-          total_time = simtime_from_backbone(back)
+          experiment_params = simulation_type_wild_type(
+            num_simulations = ifelse(nb %in% c("binary_tree", "branching", "disconnected"), 80, 16)
+          )
         )
       )
 
     out <- generate_dataset(model, make_plots = TRUE)
 
-    # write_rds(out, paste0(out_dir, "/out.rds"), compress = "gz")
+    write_rds(out, paste0(temp_dir, "/out.rds"), compress = "gz")
     ggsave(paste0(out_dir, "plot.pdf"), out$plot, width = 20, height = 15)
 
     dataset <- out$dataset

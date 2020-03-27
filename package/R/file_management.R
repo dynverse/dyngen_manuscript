@@ -1,6 +1,6 @@
-make_directory_function <- function(path) {
+make_directory_function <- function(prefix, postfix = character(0)) {
   function(...) {
-    file <- file.path(path, paste0(...))
+    file <- do.call(file.path, as.list(c(prefix, paste0(...), postfix)))
     folder <- fs::path_dir(file)
     if (!file.exists(folder)) {
       dir.create(folder, recursive = TRUE)
@@ -30,20 +30,12 @@ make_directory_function <- function(path) {
 start_analysis <- function(experiment_id) {
   list(
     temporary = make_directory_function(paste0("temporary_files/", experiment_id)),
-    result = make_directory_function(paste0("result_files/", experiment_id))
+    result = make_directory_function(paste0("result_files/", experiment_id)),
+    dataset_folder = make_directory_function(paste0("temporary_files/", experiment_id, "/datasets"), postfix = ""),
+    model_file = make_directory_function(paste0("temporary_files/", experiment_id, "/datasets"), postfix = "model.rds"),
+    dataset_file = make_directory_function(paste0("temporary_files/", experiment_id, "/datasets"), postfix = "dataset.rds")
   )
 }
-
-#' @rdname start_analysis
-temporary_file <- function(experiment_id, ...) {
-  start_experiment(experiment_id = experiment_id)$temporary(...)
-}
-
-#' @rdname start_analysis
-result_file <- function(experiment_id, ...) {
-  start_experiment(experiment_id = experiment_id)$result(...)
-}
-
 
 #' Obtain an object from cache, if it exists
 #'
@@ -69,30 +61,3 @@ result_file <- function(experiment_id, ...) {
   }
 }
 
-
-#
-#
-#
-#
-#
-# load_dataset <- function(id) {
-#   dataset <- read_rds(dataset_file(id, "dataset.rds"))
-#   dataset
-# }
-#
-#
-# load_model <- function(id) {
-#   model <- read_rds(dataset_file(id, "model.rds"))
-#   model
-# }
-#
-#
-#
-#
-#
-# dataset_file <- dynamic_file(derived_file("datasets"))
-#
-# load_dataset <- function(id) {
-#   dataset <- read_rds(dataset_file(id, "dataset.rds"))
-#   dataset
-# }

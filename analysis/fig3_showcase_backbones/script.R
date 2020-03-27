@@ -3,6 +3,8 @@ library(dyngen)
 library(dyngen.manuscript)
 library(dynplot)
 
+RcppParallel::setThreadOptions(numThreads = 6)
+
 set.seed(1)
 
 exp <- start_analysis("fig3_showcase_backbones")
@@ -16,7 +18,7 @@ oks <- names(backs)
 # oks <- c("binary_tree", "branching", "disconnected")
 
 seed <- 1
-# for (seed in seq_len(10))
+# for (seed in seq_len(4))
 for (nb in oks) {
   cat("=============== SIMULATING ", nb, " seed ", seed, " ===============\n", sep = "")
   set.seed(seed)
@@ -26,7 +28,7 @@ for (nb in oks) {
   if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
   if (!dir.exists(temp_dir)) dir.create(temp_dir, recursive = TRUE, showWarnings = FALSE)
 
-  if (!file.exists(exp$result("traj_dimred.pdf"))) {
+  if (!file.exists(paste0(out_dir, "traj_dimred.pdf"))) {
     back <- backs[[nb]]()
     model <-
       initialise_model(

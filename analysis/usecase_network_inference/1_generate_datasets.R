@@ -2,6 +2,8 @@ library(tidyverse)
 library(dyngen)
 library(dyngen.manuscript)
 
+RcppParallel::setThreadOptions(numThreads = 6)
+
 analysis <- start_analysis("usecase_network_inference")
 
 backbones <- list_backbones()

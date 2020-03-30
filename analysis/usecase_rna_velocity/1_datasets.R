@@ -89,8 +89,7 @@ dynplot_dimred(dataset) +
 # Plot the spliced vs unspliced changes
 feature_info <-
   model$feature_info %>%
-  filter(!burn) %>%
-  head(1)
+  slice(80)
 plotdata <-
   model$simulations$counts %>%
   as.matrix() %>%

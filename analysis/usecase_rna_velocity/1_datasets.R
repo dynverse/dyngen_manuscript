@@ -2,33 +2,21 @@ library(tidyverse)
 library(dyngen)
 library(dyngen.manuscript)
 
-RcppParallel::setThreadOptions(numThreads = 6)
-
 exp <- start_analysis("usecase_rna_velocity")
 
 # setup dataset design
-dataset_design <- tibble(
-  seed = 1:3
+design_datasets <- crossing(
+  seed = 1:3,
+  backbone = c("linear", "linear_simple", "bifurcating", "cycle", "disconnected")
 ) %>%
-  crossing(backbone = c("linear", "linear_simple", "bifurcating", "cycle", "disconnected")) %>%
   mutate(id = paste0(backbone, "_", seed))
 
-design_velocity <- tribble(
-  ~method_id, ~params, ~params_id,
-  "velocyto", list(assumption = "constant_velocity"), "constant_velocity",
-  "velocyto", list(assumption = "constant_unspliced"), "constant_unspliced",
-  "scvelo", list(mode = "deterministic"), "deterministic",
-  "scvelo", list(mode = "dynamical"), "dynamical",
-  "scvelo", list(mode = "stochastic"), "stochastic",
-) %>%
-  crossing(
-    dataset_design %>% select(dataset_id = id)
-  )
-
-write_rds(lst(dataset_design, design_velocity), exp$result("design.rds"))
+write_rds(design_datasets, exp$result("design_datasets.rds"))
 
 # generate datasets
-pwalk(dataset_design, function(id, seed, backbone) {
+RcppParallel::setThreadOptions(numThreads = 6)
+
+pwalk(design_datasets, function(id, seed, backbone) {
   if (!file.exists(exp$dataset_file(id))) {
     set.seed(seed)
     backbone <- dyngen::list_backbones()[[backbone]]()
@@ -65,7 +53,7 @@ pwalk(dataset_design, function(id, seed, backbone) {
 
 
 
-# characterise datasets
+# make some plots
 library(dynwrap)
 library(dynplot2)
 

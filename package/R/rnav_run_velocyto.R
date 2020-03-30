@@ -1,12 +1,14 @@
-
-
-
-library(reticulate)
-velocyto <- import("velocyto")
-get_velocity_velocyto <- function(
+#' Obtain velocity with velocyto
+#'
+#' @importFrom reticulate import
+#' @importFrom Matrix t sparseMatrix
+#'
+#' @export
+rnav_run_velocyto <- function(
   spliced,
   unspliced,
-  assumption = "constant_velocity"
+  assumption = "constant_velocity",
+  velocyto = reticulate::import("velocyto")
 ) {
   # prepare loom file ------------------------------------------------------------------
   S <- Matrix::t(spliced)
@@ -59,6 +61,3 @@ get_velocity_velocyto <- function(
     vlm
   )
 }
-
-
-

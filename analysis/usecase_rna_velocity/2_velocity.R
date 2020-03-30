@@ -19,15 +19,11 @@ design_velocity <- tribble(
     design_datasets %>% select(dataset_id = id)
   )
 
-# load either velocyto or scvelo
-# source("analysis/velocity/2_velocity_velocyto.R")
-# devtools::load_all('~/thesis/projects/dynverse/libraries/scvelo/')
-
 #' @examples
 #' design_velocity %>% dynutils::extract_row_to_list(1) %>% list2env(.GlobalEnv)
 
 pwalk(
-  design_velocity %>% filter(method_id == "velocyto"),
+  design_velocity,
   function(dataset_id, method_id, params, params_id) {
     dataset <- read_rds(exp$dataset_file(dataset_id))
 
@@ -53,22 +49,10 @@ pwalk(
       if (method_id == "scvelo") {
         reticulate::py_save_object(velocity$scvelo, filename = pkl)
       }
+
+      velocity
     }
   }
 )
-
-
-
-
-
-list2env(dynutils::extract_row_to_list(design_velocity %>% filter(method_id == "velocyto"), 1), .GlobalEnv)
-
-dataset <- load_dataset(dataset_id)
-model <- load_model(dataset_id)
-
-run_velocity(dataset_id, method_id, params, params_id)
-velocity <- load_velocity(dataset_id, method_id, params_id)
-
-
 
 

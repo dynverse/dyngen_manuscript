@@ -84,39 +84,38 @@ feature_ids <- model$feature_info %>% group_by(module_id) %>% slice(1) %>% pull(
 dynplot_dimred(dataset) +
   geom_cell_point(aes(color = select_feature_expression(feature_id, .data))) +
   facet_wrap_data(feature_id = feature_ids) +
-  scale_expression_fillcolour()
+  scale_expression_colour()
 
 # Plot the spliced vs unspliced changes
-# feature_id <- model$feature_info$feature_id[[2]]
-feature_id <- model$feature_info %>% filter(!burn) %>% pull(feature_id) %>% first()
-meta <- model$simulations$meta %>%
-  mutate(step_ix = row_number()) %>%
-  # filter(simulation_i == 1)
-  identity()
-counts <- model$simulations$counts[meta$step_ix, ]
-plotdata <- bind_rows(
-  tibble(
-    expression =  counts[,paste0("w_", feature_id)],
-    step_ix = meta$step_ix,
-    simulation_i = meta$simulation_i,
-    sim_time = meta$sim_time,
-    molecule = "unspliced"
-  ),
-  tibble(
-    expression =  counts[,paste0("x_", feature_id)],
-    step_ix = meta$step_ix,
-    simulation_i = meta$simulation_i,
-    sim_time = meta$sim_time,
-    molecule = "spliced"
+feature_info <-
+  model$feature_info %>%
+  filter(!burn) %>%
+  head(1)
+plotdata <-
+  model$simulations$counts %>%
+  as.matrix() %>%
+  reshape2::melt(varnames = c("step_ix", "molecule"), value.name = "expression") %>%
+  as_tibble() %>%
+  inner_join(
+    feature_info %>%
+      select(feature_id, mol_mrna, mol_premrna) %>%
+      pivot_longer(-feature_id, names_to = "mol_type", values_to = "molecule"),
+    by = "molecule"
+  ) %>%
+  inner_join(
+    model$simulations$meta %>%
+      mutate(step_ix = row_number()),
+    by = "step_ix"
   )
-)
 plotdata %>%
-  pivot_wider(names_from = "molecule", values_from = "expression") %>%
-  ggplot(aes(spliced, unspliced)) + geom_path(aes(color = sim_time)) +
-  facet_wrap(~simulation_i)
-
+  select(-molecule) %>%
+  pivot_wider(names_from = "mol_type", values_from = "expression") %>%
+  ggplot(aes(mol_mrna, mol_premrna)) +
+  geom_path(aes(color = sim_time, group = simulation_i)) +
+  facet_wrap(~simulation_i) +
+  viridis::scale_color_viridis()
 
 
 plotdata %>%
   filter(simulation_i == 1) %>%
-  ggplot(aes(step_ix, expression)) + geom_line(aes(color = molecule))
+  ggplot(aes(sim_time, expression)) + geom_line(aes(color = molecule))

@@ -3,6 +3,8 @@ library(dyngen.manuscript)
 
 exp <- start_analysis("usecase_rna_velocity")
 
+reticulate::use_python("/usr/bin/python3", required = TRUE)
+
 design_datasets <- read_rds(exp$result("design_datasets.rds"))
 
 design_velocity <- tribble(
@@ -24,32 +26,34 @@ design_velocity <- tribble(
 #' @examples
 #' design_velocity %>% dynutils::extract_row_to_list(1) %>% list2env(.GlobalEnv)
 
-pmap(
+pwalk(
   design_velocity %>% filter(method_id == "velocyto"),
   function(dataset_id, method_id, params, params_id) {
     dataset <- read_rds(exp$dataset_file(dataset_id))
 
     velocity_file <- exp$temporary("velocity/", dataset_id, "-", method_id, "-", params_id, "/velocity.rds")
 
-    velocity_file %cache% function() {
-
-    }
-    reread(
-      experiment_file("velocity.rds"),
-      function() {
-        if(method_id == "scvelo") {
-          velocity <- scvelo::get_velocity(dataset$expression, dataset$expression_unspliced, mode = params$mode %||% "deterministic")
+    velocity_file %cache% {
+      velocity <-
+        if (method_id == "scvelo") {
+          scvelo::get_velocity(
+            spliced = dataset$expression,
+            unspliced = dataset$expression_unspliced,
+            mode = params$mode %||% "deterministic"
+          )
         } else if (method_id == "velocyto") {
-          velocity <- get_velocity_velocyto(dataset$expression, dataset$expression_unspliced, assumption = params$assumption %||% "constant_velocity")
+          rnav_run_velocyto(
+            spliced = dataset$expression,
+            unspliced = dataset$expression_unspliced,
+            assumption = params$assumption %||% "constant_velocity"
+          )
         }
 
-        write_rds(velocity, experiment_file("velocity.rds"))
-
-        if(method_id == "scvelo") {
-          reticulate::py_save_object(velocity$scvelo, filename = experiment_file("scvelo.pkl"))
-        }
+      pkl <- exp$temporary("velocity/", dataset_id, "-", method_id, "-", params_id, "/scvelo.pkl")
+      if (method_id == "scvelo") {
+        reticulate::py_save_object(velocity$scvelo, filename = pkl)
       }
-    )
+    }
   }
 )
 

@@ -42,6 +42,8 @@ start_analysis <- function(experiment_id) {
 #' @param file The cache file
 #' @param value A code block to obtain the object
 #'
+#' @export
+#'
 #' @examples
 #' \dontrun{
 #' obj <- "myfile.rds" %cache% {

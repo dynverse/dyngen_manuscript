@@ -1,36 +1,3 @@
-run_velocity <- function(
-  dataset_id = "initial",
-  method_id = "scvelo",
-  params = list(),
-  params_id = "default"
-) {
-  dataset <- load_dataset(dataset_id)
-
-  experiment_file <- velocity_file(dataset_id, method_id, params_id)
-
-  reread(
-    experiment_file("velocity.rds"),
-    function() {
-      if(method_id == "scvelo") {
-        velocity <- scvelo::get_velocity(dataset$expression, dataset$expression_unspliced, mode = params$mode %||% "deterministic")
-      } else if (method_id == "velocyto") {
-        velocity <- get_velocity_velocyto(dataset$expression, dataset$expression_unspliced, assumption = params$assumption %||% "constant_velocity")
-      }
-
-      write_rds(velocity, experiment_file("velocity.rds"))
-
-      if(method_id == "scvelo") {
-        reticulate::py_save_object(velocity$scvelo, filename = experiment_file("scvelo.pkl"))
-      }
-    }
-  )
-}
-
-velocity_file <- function(dataset_id, method_id, params_id) {
-  dynamic_file(derived_file("velocity", dataset_id, method_id, params_id))
-}
-
-
 find_updown_feature <- function(model) {
   feature_ids <- model$feature_network %>%
     group_by(to) %>%
@@ -81,19 +48,17 @@ plot_velocity_updown <- function(dataset, model, feature_id = NULL) {
 }
 
 
-
-
-load_velocity <- function(dataset_id, method_id, params_id, folder = velocity_file(dataset_id, method_id, params_id)) {
-  velocity <- read_rds(folder("velocity.rds"))
-  if(file.exists(folder("scvelo.pkl"))) {
-    velocity$scvelo <- reticulate::py_load_object(folder("scvelo.pkl"))
-  }
-  velocity
-}
-
-load_dataset_velocity <- function(dataset_id, method_id, params_id) {
-  dataset <- load_dataset(dataset_id)
-  dataset <- dataset %>% add_velocity(velocity = load_velocity(dataset_id, method_id, params_id))
-  dataset
-}
+# load_velocity <- function(dataset_id, method_id, params_id, folder = velocity_file(dataset_id, method_id, params_id)) {
+#   velocity <- read_rds(folder("velocity.rds"))
+#   if(file.exists(folder("scvelo.pkl"))) {
+#     velocity$scvelo <- reticulate::py_load_object(folder("scvelo.pkl"))
+#   }
+#   velocity
+# }
+#
+# load_dataset_velocity <- function(dataset_id, method_id, params_id) {
+#   dataset <- load_dataset(dataset_id)
+#   dataset <- dataset %>% add_velocity(velocity = load_velocity(dataset_id, method_id, params_id))
+#   dataset
+# }
 

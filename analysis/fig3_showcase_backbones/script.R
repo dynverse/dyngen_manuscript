@@ -5,36 +5,35 @@ library(dynplot)
 
 RcppParallel::setThreadOptions(numThreads = 6)
 
-set.seed(1)
-
 exp <- start_analysis("fig3_showcase_backbones")
 
 backs <- list_backbones()
 
-oks <- names(backs)
+grid <- crossing(
+  backbone_name = names(backs) %>% setdiff("disconnected"),
+  seed = seq_len(4)
+) %>% mutate(
+  id = paste0("bb_", backbone_name, "_", seed)
+)
 
-# oks <- c("linear", "bifurcating", "converging", "cycle", "bifurcating_loop", "consecutive_bifurcating")
-# oks <- c(oks, "bifurcating_cycle", "bifurcating_converging", "binary_tree", "branching", "disconnected")
-# oks <- c("binary_tree", "branching", "disconnected")
+#' @examples
+#' backbone_name <- "linear"
+#' seed <- 1
+#' id <- paste0("bb_", backbone_name, "_", seed)
 
-seed <- 1
-# for (seed in seq_len(4))
-for (nb in oks) {
-  cat("=============== SIMULATING ", nb, " seed ", seed, " ===============\n", sep = "")
+pwalk(grid, function(backbone_name, seed, id) {
+  cat("=============== SIMULATING ", backbone_name, " seed ", seed, " ===============\n", sep = "")
   set.seed(seed)
 
-  out_dir <- exp$result("backbone_plots/bb_", nb, "_", seed, "/")
-  temp_dir <- exp$temporary("backbone_plots/bb_", nb, "_", seed, "/")
-  if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
-  if (!dir.exists(temp_dir)) dir.create(temp_dir, recursive = TRUE, showWarnings = FALSE)
+  out_dir <- exp$dataset_folder(id)
 
   if (!file.exists(paste0(out_dir, "traj_dimred.pdf"))) {
-    back <- backs[[nb]]()
+    back <- backs[[backbone_name]]()
     model <-
       initialise_model(
-        num_tfs = nrow(back$module_info) * 2,
-        num_targets = 100,
-        num_hks = 20,
+        num_tfs = nrow(back$module_info) * 1.5,
+        num_targets = 20,
+        num_hks = 0,
         num_cells = 1000,
         backbone = back,
         verbose = TRUE,
@@ -42,21 +41,22 @@ for (nb in oks) {
         num_cores = 6,
         simulation_params = simulation_default(
           experiment_params = simulation_type_wild_type(
-            num_simulations = ifelse(nb %in% c("binary_tree", "branching", "disconnected"), 80, 16)
+            num_simulations = ifelse(backbone_name %in% c("binary_tree", "branching", "disconnected"), 40, 16)
           )
         )
       )
 
-    out <- generate_dataset(model, make_plots = TRUE)
+    generate_dataset(
+      model,
+      make_plots = TRUE,
+      output_dir = out_dir
+    )
 
-    write_rds(out, paste0(temp_dir, "/out.rds"), compress = "gz")
-    ggsave(paste0(out_dir, "plot.pdf"), out$plot, width = 20, height = 15)
-
-    dataset <- out$dataset
+    dataset <- read_rds(exp$dataset_file(id))
     dimred <- dyndimred::dimred_landmark_mds(dataset$expression, distance_method = "pearson")
     g <- plot_dimred(dataset, dimred = dimred)
-    ggsave(paste0(out_dir, "traj_dimred.pdf"), g, width = 4, height = 4)
+    ggsave(exp$result("backbone_plots/", id, "/traj_dimred.pdf"), g, width = 4, height = 4)
 
     gc()
   }
-}
+})

@@ -4,23 +4,23 @@
 \alias{\%cache\%}
 \title{Obtain an object from cache, if it exists}
 \usage{
-file \%cache\% func
+file \%cache\% value
 }
 \arguments{
 \item{file}{The cache file}
 
-\item{func}{The function to obtain the object}
+\item{value}{A code block to obtain the object}
 }
 \description{
 Obtain an object from cache, if it exists
 }
 \examples{
 \dontrun{
-long_execution_function <- function() {
+obj <- "myfile.rds" \%cache\% {
+  # long execution
   Sys.sleep(100)
   10
 }
 
-obj <- "myfile.rds" \%cache\% long_execution_function
 }
 }

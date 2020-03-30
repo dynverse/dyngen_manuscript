@@ -40,22 +40,21 @@ start_analysis <- function(experiment_id) {
 #' Obtain an object from cache, if it exists
 #'
 #' @param file The cache file
-#' @param func The function to obtain the object
+#' @param value A code block to obtain the object
 #'
 #' @examples
 #' \dontrun{
-#' long_execution_function <- function() {
+#' obj <- "myfile.rds" %cache% {
+#'   # long execution
 #'   Sys.sleep(100)
 #'   10
 #' }
 #'
-#' obj <- "myfile.rds" %cache% long_execution_function
 #' }
-`%cache%` <- function(file, func) {
+`%cache%` <- function(file, value) {
   if (!file.exists(file)) {
-    x <- func()
-    write_rds(x, file, compress = "gz")
-    x
+    write_rds(value, file, compress = "gz")
+    value
   } else {
     read_rds(file)
   }

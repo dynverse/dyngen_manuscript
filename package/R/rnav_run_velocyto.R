@@ -3,6 +3,7 @@
 #' @importFrom reticulate import
 #' @importFrom Matrix t sparseMatrix
 #'
+#' @importFrom reticulate py_dict np_array
 #' @export
 rnav_run_velocyto <- function(
   spliced,

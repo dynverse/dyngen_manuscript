@@ -1,7 +1,7 @@
 make_directory_function <- function(prefix, postfix = character(0)) {
   function(...) {
     file <- do.call(file.path, as.list(c(prefix, paste0(...), postfix)))
-    folder <- fs::path_dir(file)
+    folder <- gsub("[^/]*$", "", file)
     if (!file.exists(folder)) {
       dir.create(folder, recursive = TRUE)
     }

@@ -5,19 +5,19 @@ exp <- start_analysis("usecase_rna_velocity")
 
 reticulate::use_python("/usr/bin/python3", required = TRUE)
 
-design_datasets <- read_rds(exp$result("design_datasets.rds"))
-
-design_velocity <- tribble(
-  ~method_id, ~params, ~params_id,
-  "velocyto", list(assumption = "constant_velocity"), "constant_velocity",
-  "velocyto", list(assumption = "constant_unspliced"), "constant_unspliced",
-  "scvelo", list(mode = "deterministic"), "deterministic",
-  "scvelo", list(mode = "dynamical"), "dynamical",
-  "scvelo", list(mode = "stochastic"), "stochastic",
-) %>%
-  crossing(
-    design_datasets %>% select(dataset_id = id)
-  )
+design_velocity <- exp$result("design_velocity.rds") %cache% {
+  tribble(
+    ~method_id, ~params, ~params_id,
+    "velocyto", list(assumption = "constant_velocity"), "constant_velocity",
+    "velocyto", list(assumption = "constant_unspliced"), "constant_unspliced",
+    "scvelo", list(mode = "deterministic"), "deterministic",
+    "scvelo", list(mode = "dynamical"), "dynamical",
+    "scvelo", list(mode = "stochastic"), "stochastic",
+  ) %>%
+    crossing(
+      read_rds(exp$result("design_datasets.rds")) %>% select(dataset_id = id)
+    )
+}
 
 #' @examples
 #' design_velocity %>% dynutils::extract_row_to_list(1) %>% list2env(.GlobalEnv)
@@ -27,9 +27,7 @@ pwalk(
   function(dataset_id, method_id, params, params_id) {
     dataset <- read_rds(exp$dataset_file(dataset_id))
 
-    velocity_file <- exp$temporary("velocity/", dataset_id, "-", method_id, "-", params_id, "/velocity.rds")
-
-    velocity_file %cache% {
+    exp$velocity_file(dataset_id, method_id, params_id) %cache% {
       velocity <-
         if (method_id == "scvelo") {
           scvelo::get_velocity(

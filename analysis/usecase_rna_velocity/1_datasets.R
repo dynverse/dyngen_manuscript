@@ -5,22 +5,22 @@ library(dyngen.manuscript)
 exp <- start_analysis("usecase_rna_velocity")
 
 # setup dataset design
-design_datasets <- crossing(
-  seed = 1:3,
-  backbone = c("linear", "linear_simple", "bifurcating", "cycle", "disconnected")
-) %>%
-  mutate(id = paste0(backbone, "_", seed))
+design_datasets <- exp$result("design_datasets.rds") %cache% {
+  crossing(
+    seed = 1:3,
+    backbone = c("linear", "linear_simple", "bifurcating", "cycle", "disconnected")
+  ) %>%
+    mutate(id = paste0(backbone, "_", seed))
+}
 
-write_rds(design_datasets, exp$result("design_datasets.rds"))
-
-# generate datasets
-RcppParallel::setThreadOptions(numThreads = 6)
+#' @examples
+#' design_datasets %>% dynutils::extract_row_to_list(1) %>% list2env(.GlobalEnv)
 
 pwalk(design_datasets, function(id, seed, backbone) {
   if (!file.exists(exp$dataset_file(id))) {
+    cat("## Generating ", id, "\n", sep = "")
     set.seed(seed)
     backbone <- dyngen::list_backbones()[[backbone]]()
-
     model <-
       initialise_model(
         id = id,
@@ -28,26 +28,23 @@ pwalk(design_datasets, function(id, seed, backbone) {
         num_targets = 50,
         num_hks = 15,
         backbone = backbone,
-        verbose = TRUE,
         num_cells = 1000,
-        download_cache_dir = "~/.cache/dyngen",
-        num_cores = 6,
         simulation_params = simulation_default(
-          perform_dimred = FALSE,
-          store_reaction_propensities = TRUE
-        )
+          compute_propensity_ratios = TRUE
+        ),
+        num_cores = 4,
+        download_cache_dir = "~/.cache/dyngen",
+        verbose = TRUE
       )
-    model <- generate_tf_network(model)
-    model <- generate_feature_network(model)
-    model <- generate_kinetics(model)
-    model <- generate_gold_standard(model)
-    model <- generate_cells(model)
-    model <- generate_experiment(model)
-    dataset <- wrap_dataset(model)
-
-    write_rds(model, exp$model_file(id))
-    write_rds(dataset, exp$dataset_file(id))
+    generate_dataset(
+      model,
+      output_dir = exp$dataset_folder(id),
+      make_plots = TRUE,
+      store_propensity_ratios = TRUE
+    )
   }
+
+  gc()
 })
 
 

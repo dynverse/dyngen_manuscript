@@ -33,7 +33,15 @@ start_analysis <- function(experiment_id) {
     result = make_directory_function(paste0("result_files/", experiment_id)),
     dataset_folder = make_directory_function(paste0("temporary_files/", experiment_id, "/datasets"), postfix = ""),
     model_file = make_directory_function(paste0("temporary_files/", experiment_id, "/datasets"), postfix = "model.rds"),
-    dataset_file = make_directory_function(paste0("temporary_files/", experiment_id, "/datasets"), postfix = "dataset.rds")
+    dataset_file = make_directory_function(paste0("temporary_files/", experiment_id, "/datasets"), postfix = "dataset.rds"),
+    velocity_file = function(dataset_id, method_id, params_id) {
+      make_directory_function(
+        prefix = paste0("temporary_files/", experiment_id, "/velocity"),
+        postfix = "velocity.rds"
+      )(
+        paste0(dataset_id, "-", method_id, "-", params_id)
+      )
+    }
   )
 }
 

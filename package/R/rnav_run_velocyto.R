@@ -54,11 +54,11 @@ rnav_run_velocyto <- function(
   vlm$calculate_shift(assumption=assumption)
   vlm$extrapolate_cell_at_t(delta_t=1.)
 
-  expression_projected <- as(Matrix::t(vlm$Sx_sz_t), "dgCMatrix")
-  dimnames(expression_projected) <- dimnames(spliced)
+  expression_future <- as(Matrix::t(vlm$Sx_sz_t), "dgCMatrix")
+  dimnames(expression_future) <- dimnames(spliced)
 
   lst(
-    expression_projected,
+    expression_future,
     vlm
   )
 }

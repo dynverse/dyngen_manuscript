@@ -4,7 +4,7 @@ library(dynplot2)
 
 exp <- start_analysis("usecase_rna_velocity")
 
-reticulate::use_python("/usr/bin/python3", required = TRUE)
+# reticulate::use_python("/usr/bin/python3", required = TRUE)
 design_velocity <- read_rds(exp$result("design_velocity.rds"))
 
 # PART A: Average scores --------------------------------------------------
@@ -64,7 +64,7 @@ transform_groundtruth_velocity <- function(x) {
 
 gs_plot <- dynplot_dimred(dataset) +
   geom_cell_point(aes(color = transform_groundtruth_velocity(dataset$propensity_ratios[,feature_oi]))) +
-  scale_velocity_color() +
+  dynplot2:::scale_velocity_color() +
   ggtitle("Ground truth velocity") +
   theme_common()
 
@@ -82,7 +82,7 @@ plot_part_C <- pmap(design_velocity_oi, function(dataset_id, method_id, params_i
   dataset2 <- dataset %>% scvelo::add_velocity(velocity = velocity)
   dynplot_dimred(dataset2) +
     geom_cell_point(aes(color = select_feature_velocity(feature_oi, .data))) +
-    scale_velocity_color(name = "", guide = "none") +
+    dynplot2:::scale_velocity_color(name = "", guide = "none") +
     ggtitle(method_id, subtitle = params_id) +
     theme_common()
 }) %>% patchwork::wrap_plots(nrow = 1)
@@ -98,14 +98,13 @@ velocity_plots <- pmap(design_velocity_oi, function(dataset_id, method_id, param
   if (method_id == "scvelo") {
     velocity$scvelo <- reticulate::py_load_object(paste0(dirname(velocity_file), "/scvelo.pkl"))
   }
-  dataset2 <- dataset %>%
-    scvelo::add_velocity(velocity = velocity) %>%
-    dynwrap::add_dimred(
-      dataset$dimred,
-      dimred_projected = scvelo:::embed_velocity(dataset, expression_future = velocity$expression_future)
-    )
 
-  dynplot_dimred(dataset) +
+  dataset2 <- dataset %>%
+    scvelo::add_velocity(velocity = velocity)
+  dataset2 <- dataset2 %>%
+    scvelo::add_dimred_future()
+
+  dynplot_dimred(dataset2) +
     geom_cell_point(aes(color = milestone_percentages)) +
     scale_milestones_colour() +
     geom_velocity_arrow(

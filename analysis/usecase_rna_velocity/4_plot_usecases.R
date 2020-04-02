@@ -4,7 +4,6 @@ library(dynplot2)
 
 exp <- start_analysis("usecase_rna_velocity")
 
-# reticulate::use_python("/usr/bin/python3", required = TRUE)
 design_velocity <- read_rds(exp$result("design_velocity.rds"))
 
 # PART A: Average scores --------------------------------------------------
@@ -20,7 +19,7 @@ plot_part_A <-
 
 
 # PART B: Illustration of velocity ----------------------------------------
-dataset_id <- "bifurcating_2"
+dataset_id <- "bifurcating_1"
 
 dataset <- read_rds(exp$dataset_file(dataset_id))
 model <- read_rds(exp$model_file(dataset_id))
@@ -28,7 +27,7 @@ model <- read_rds(exp$model_file(dataset_id))
 # compute dimred if dimred is missing
 if (is.null(dataset$dimred)) {
   set.seed(1)
-  dataset <- dataset %>% dynwrap::add_dimred(dyndimred::dimred_landmark_mds)
+  dataset <- dataset %>% dynwrap::add_dimred(dyndimred::dimred_mds)
 }
 
 # Plot 1, trajectory
@@ -88,11 +87,8 @@ plot_part_C <- pmap(design_velocity_oi, function(dataset_id, method_id, params_i
 }) %>% patchwork::wrap_plots(nrow = 1)
 
 
-#' @examples
-#' design_velocity_oi %>% dynutils::extract_row_to_list(1) %>% list2env(.GlobalEnv)
-
 # PART D: Embedded RNA velocity estimates of different methods ------------
-velocity_plots <- pmap(design_velocity_oi, function(dataset_id, method_id, params_id, ...) {
+plot_part_D <- pmap(design_velocity_oi, function(dataset_id, method_id, params_id, ...) {
   velocity_file <- exp$velocity_file(dataset_id, method_id, params_id)
   velocity <- read_rds(velocity_file)
   if (method_id == "scvelo") {
@@ -117,9 +113,8 @@ velocity_plots <- pmap(design_velocity_oi, function(dataset_id, method_id, param
     ggtitle(method_id, subtitle = params_id) +
     theme_common() +
     theme(legend.position = "none")
-})
-
-plot_part_D <- patchwork::wrap_plots(velocity_plots, nrow = 1)
+}) %>%
+  patchwork::wrap_plots(nrow = 1)
 
 
 
@@ -140,8 +135,7 @@ plot_part_B[[1]] <- plot_part_B[[1]] + labs(tag = "B")
 plot_part_C[[1]] <- plot_part_C[[1]] + labs(tag = "C")
 plot_part_D[[1]] <- plot_part_D[[1]] + labs(tag = "D")
 
-pdf("results/velocity/usecase.pdf", height = 14, width = 10, useDingbats = FALSE)
-patchwork::wrap_plots(
+g <- patchwork::wrap_plots(
   plot_part_A,
   plot_part_B,
   plot_part_C,
@@ -149,10 +143,6 @@ patchwork::wrap_plots(
   ncol = 1,
   heights = rep(1, 4)
 )
-graphics.off()
-
-magick::image_read_pdf("results/velocity/usecase.pdf") %>%
-  magick::image_convert("png") %>%
-  magick::image_write("results/velocity/usecase.png") %>%
-  invisible()
+ggsave(exp$result("usecase.pdf"), g, height = 14, width = 10, useDingbats = FALSE)
+ggsave(exp$result("usecase.png"), g, height = 14, width = 10)
 

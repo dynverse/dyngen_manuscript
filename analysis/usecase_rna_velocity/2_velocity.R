@@ -3,7 +3,19 @@ library(dyngen.manuscript)
 
 exp <- start_analysis("usecase_rna_velocity")
 
-reticulate::use_python("/usr/bin/python3", required = TRUE)
+# if need be: reticulate::install_miniconda()
+try({
+  reticulate::import("velocyto")
+}, error = function(e) {
+  reticulate::py_install("Cython", pip = TRUE)
+  reticulate::py_install("velocyto", pip = TRUE)
+})
+
+try({
+  reticulate::import("scvelo")
+}, error = function(e) {
+  reticulate::py_install("scvelo", pip = TRUE)
+})
 
 design_velocity <- exp$result("design_velocity.rds") %cache% {
   tribble(

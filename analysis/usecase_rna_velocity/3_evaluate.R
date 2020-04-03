@@ -7,7 +7,7 @@ design_datasets <- read_rds(exp$result("design_datasets.rds"))
 design_velocity <- read_rds(exp$result("design_velocity.rds"))
 
 #' @examples
-#' design_velocity %>% dynutils::extract_row_to_list(46) %>% list2env(.GlobalEnv)
+#' design_velocity %>% dynutils::extract_row_to_list(16) %>% list2env(.GlobalEnv)
 
 # Calculate scores -----
 scores <- exp$result("scores_individual.rds") %cache% {
@@ -17,7 +17,11 @@ scores <- exp$result("scores_individual.rds") %cache% {
       dataset <- read_rds(exp$dataset_file(dataset_id))
       groundtruth_velocity <- dataset$propensity_ratios
 
-      velocity <- read_rds(exp$velocity_file(dataset_id, method_id, params_id))
+      velocity_file <- exp$velocity_file(dataset_id, method_id, params_id)
+      if (!file.exists(velocity_file)) {
+        return(NULL)
+      }
+      velocity <- read_rds(velocity_file)
 
       velocity_differences <- velocity$expression_future - dataset$expression
       velocity_differences[velocity_differences == 0] <- NA

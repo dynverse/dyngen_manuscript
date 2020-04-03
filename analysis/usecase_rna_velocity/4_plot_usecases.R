@@ -1,6 +1,7 @@
 library(tidyverse)
 library(dyngen.manuscript)
 library(dynplot2)
+library(ggbeeswarm)
 
 exp <- start_analysis("usecase_rna_velocity")
 
@@ -16,7 +17,6 @@ plot_part_A <-
   scale_x_discrete("") +
   scale_y_continuous("Correlation (higher is better)") +
   theme_common()
-
 
 # PART B: Illustration of velocity ----------------------------------------
 dataset_id <- "bifurcating_1"

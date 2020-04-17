@@ -1,9 +1,10 @@
 library(tidyverse)
+library(dyngen.manuscript)
 
-output_folder <- "results/usecase_network_inference/"
+exp <- start_analysis("usecase_network_inference")
 
-explots <- read_rds(paste0(output_folder, "/casewise_grn.rds"))
-summplots <- read_rds(paste0(output_folder, "/score_summary.rds"))
+explots <- read_rds(exp$result("casewise_grn.rds"))
+summplots <- read_rds(exp$result("score_summary.rds"))
 
 grnh <- 5
 bch <- 2.5
@@ -19,5 +20,5 @@ g <- patchwork::wrap_plots(
   ncol = 1
 ) & theme(plot.tag.position = c(0,1))
 
-ggsave(paste0(output_folder, "/cni.pdf"), g, width = 8, height = grnh + 1 * bch)
+ggsave(exp$result("cni.pdf"), g, width = 8, height = grnh + 1 * bch)
 

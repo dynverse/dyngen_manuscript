@@ -1,4 +1,5 @@
 library(tidyverse)
+library(rlang)
 library(dyngen)
 library(dyngen.manuscript)
 
@@ -8,31 +9,35 @@ exp <- start_analysis("usecase_rna_velocity")
 design_datasets <- exp$result("design_datasets.rds") %cache% {
   crossing(
     seed = 1:3,
-    backbone = c("linear", "linear_simple", "bifurcating", "cycle", "disconnected")
+    backbone_name = names(list_backbones())
   ) %>%
-    mutate(id = paste0(backbone, "_", seed))
+    mutate(id = paste0(backbone_name, "_", seed))
 }
 
 #' @examples
 #' design_datasets %>% dynutils::extract_row_to_list(1) %>% list2env(.GlobalEnv)
 
-pwalk(design_datasets, function(id, seed, backbone) {
+pwalk(design_datasets, function(id, seed, backbone_name) {
   if (!file.exists(exp$dataset_file(id))) {
+
     cat("## Generating ", id, "\n", sep = "")
     set.seed(seed)
-    backbone <- dyngen::list_backbones()[[backbone]]()
+    backbone <- dyngen::list_backbones()[[backbone_name]]()
     model <-
       initialise_model(
         id = id,
-        num_tfs = 20,
-        num_targets = 50,
-        num_hks = 15,
+        num_tfs = 50,
+        num_targets = 70,
+        num_hks = 30,
         backbone = backbone,
         num_cells = 1000,
         simulation_params = simulation_default(
-          compute_propensity_ratios = TRUE
+          compute_propensity_ratios = TRUE,
+          experiment_params = simulation_type_wild_type(
+            num_simulations = ifelse(backbone_name %in% c("binary_tree", "branching", "disconnected"), 40, 16)
+          )
         ),
-        num_cores = 4,
+        num_cores = 6,
         download_cache_dir = "~/.cache/dyngen",
         verbose = TRUE
       )
@@ -42,9 +47,9 @@ pwalk(design_datasets, function(id, seed, backbone) {
       make_plots = TRUE,
       store_propensity_ratios = TRUE
     )
-  }
 
-  gc()
+    gc()
+  }
 })
 
 
@@ -54,8 +59,8 @@ pwalk(design_datasets, function(id, seed, backbone) {
 library(dynwrap)
 library(dynplot2)
 
-dataset <- read_rds(exp$dataset_file("linear_simple_1"))
-model <- read_rds(exp$model_file("linear_simple_1"))
+dataset <- read_rds(exp$dataset_file("cycle_1"))
+model <- read_rds(exp$model_file("cycle_1"))
 
 dataset <- dataset %>% add_dimred(dyndimred::dimred_landmark_mds, pair_with_velocity = FALSE)
 
@@ -64,7 +69,7 @@ dynplot_dimred(dataset) +
   geom_cell_point()
 
 # features
-feature_ids <- model$feature_info %>% group_by(module_id) %>% slice(1) %>% pull(feature_id)
+feature_ids <- model$feature_info %>% group_by(module_id) %>% sample_n(1) %>% pull(feature_id)
 
 dynplot_dimred(dataset) +
   geom_cell_point(aes(color = select_feature_expression(feature_id, .data))) +
@@ -74,7 +79,7 @@ dynplot_dimred(dataset) +
 # Plot the spliced vs unspliced changes
 feature_info <-
   model$feature_info %>%
-  slice(80)
+  sample_n(1)
 plotdata <-
   model$simulations$counts %>%
   as.matrix() %>%

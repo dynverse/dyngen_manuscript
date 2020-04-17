@@ -12,14 +12,14 @@ mean_scores <- read_rds(exp$result("scores_aggregated.rds"))
 
 plot_part_A <-
   ggplot(mean_scores, aes(paste0(method_id, "\n", params_id), score)) +
-  ggbeeswarm::geom_quasirandom(aes(color = backbone))  +
+  ggbeeswarm::geom_quasirandom(aes(color = backbone_name))  +
   theme_bw() +
   scale_x_discrete("") +
   scale_y_continuous("Correlation (higher is better)") +
   theme_common()
 
 # PART B: Illustration of velocity ----------------------------------------
-dataset_id <- "bifurcating_1"
+dataset_id <- "bifurcating_2"
 
 dataset <- read_rds(exp$dataset_file(dataset_id))
 model <- read_rds(exp$model_file(dataset_id))

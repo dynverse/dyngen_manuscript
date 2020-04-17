@@ -38,9 +38,8 @@ design_velocity <- exp$result("design_velocity.rds") %cache% {
 #' design_velocity %>% dynutils::extract_row_to_list(40) %>% list2env(.GlobalEnv)
 
 pwalk(
-  design_velocity %>% mutate(rn = row_number()),
-  function(dataset_id, method_id, params, params_id, rn) {
-    cat(rn, "\n", sep = "")
+  design_velocity,
+  function(dataset_id, method_id, params, params_id) {
     dataset <- read_rds(exp$dataset_file(dataset_id))
 
     try({

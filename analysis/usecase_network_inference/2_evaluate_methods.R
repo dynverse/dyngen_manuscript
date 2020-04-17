@@ -18,7 +18,7 @@ methods <- list(
   "SSN*" = cni_ssn(),
   "pySCENIC GBM" = cni_pyscenic_sgbm(subsample = 1, n_estimators = 500L),
   "pySCENIC SGBM" = cni_pyscenic_sgbm(subsample = .9, n_estimators = 5000L),
-  "LIONESS" = cni_lioness()
+  "LIONESS + Pearson" = cni_lioness()
 )
 
 out <- exp$result("evaluation.rds") %cache% function() {

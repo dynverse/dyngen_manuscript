@@ -54,11 +54,9 @@ cni_pyscenic_sgbm <- create_ti_method_r(
     targets <- priors$targets
     samples <- rownames(expression)
 
-    exprdf <- as.data.frame(as.matrix(expression))
     regressor_type <- "GBM"
     regressor_kwargs <- parameters[c("learning_rate", "n_estimators", "max_features", "subsample")]
 
-    reticulate::use_python("/usr/bin/python3")
     arboreto <- reticulate::import("arboreto")
     pyscenic <- reticulate::import("pyscenic")
     builtins <- reticulate::import_builtins()
@@ -66,13 +64,16 @@ cni_pyscenic_sgbm <- create_ti_method_r(
     # TIMING: done with preproc
     checkpoints <- list(method_afterpreproc = as.numeric(Sys.time()))
 
-    # run grnboost2
+    exprm <- as.matrix(expression)
+    exprdf <- as.data.frame(exprm)
+
     adjacencies <- arboreto$algo$diy(
-      expression_data = exprdf,
+      expression_data = exprm,
       regressor_type = regressor_type,
       regressor_kwargs = regressor_kwargs,
       tf_names = regulators,
-      verbose = FALSE
+      verbose = FALSE,
+      gene_names = colnames(expression)
     ) %>%
       as_tibble()
     regulatory_network <-
@@ -80,7 +81,13 @@ cni_pyscenic_sgbm <- create_ti_method_r(
       transmute(regulator = TF, target, strength = importance)
 
     # convert to modules
-    modules <- pyscenic$utils$modules_from_adjacencies(adjacencies, exprdf, top_n_regulators = list(10L), thresholds = list(), top_n_targets = list())
+    modules <- pyscenic$utils$modules_from_adjacencies(
+      adjacencies = adjacencies,
+      ex_mtx = exprdf,
+      top_n_regulators = list(10L),
+      thresholds = list(),
+      top_n_targets = list()
+    )
 
     # rename due to otherwise duplicate names
     for (i in seq_along(modules)) {

@@ -18,33 +18,62 @@ methods <- list(
   "SSN*" = cni_ssn(),
   "pySCENIC GBM" = cni_pyscenic_sgbm(subsample = 1, n_estimators = 500L),
   "pySCENIC SGBM" = cni_pyscenic_sgbm(subsample = .9, n_estimators = 5000L),
-  "LIONESS + Pearson" = cni_lioness()
+  "LIONESS + Pearson" = cni_lioness(method = "pearson"),
+  "LIONESS + Spearman" = cni_lioness(method = "spearman")#,
+  # "LIONESS + GRNBOOST2" = cni_lioness(method = "grnboost2")
 )
 
-out <- exp$result("evaluation.rds") %cache% function() {
-  evals <- map(methods, function(method) {
-    evaluate_ti_method(
-      dataset = datasets,
-      method = method,
-      metrics = list(auc = cni_auc),
-      parameters = NULL
-    )
-  })
+#' @examples
+#' dataset <- datasets %>% extract_row_to_list(1)
+#' priors <- dataset$prior_information
+#' expression <- dataset$expression
+#' parameters <- dynwrap::get_default_parameters(methods[["pySCENIC SGBM"]])
+#' parameters <- dynwrap::get_default_parameters(methods[["LIONESS + Pearson"]])
 
-  aucs <- map_df(seq_along(evals), function(i) {
-    summ <- evals[[i]]$summary
-    mapdf_dfr(summ, function(li) {
-      li$evals %>% mutate(
-        cni_method_id = names(methods)[[i]],
-        dataset_id = li$dataset_id
+
+# if needed, install pyscenic:
+# reticulate::py_install("pyscenic", pip = TRUE)
+
+# # see https://github.com/aertslab/pySCENIC/issues/147#issuecomment-597686104
+# reticulate::py_install("git+https://github.com/aertslab/pySCENIC.git", pip = TRUE)
+# reticulate::py_install("fsspec>=0.3.3", pip = TRUE)
+# reticulate::py_install("dask[dataframe]", pip = TRUE, upgrade = TRUE)
+# reticulate::py_install("distributed", pip = TRUE, upgrade = TRUE)
+
+for (i in seq_along(methods)) {
+  method <- methods[[i]]
+  name <- names(methods)[[i]]
+  name_id <- name %>% tolower() %>% gsub("[^a-z]", "", .)
+  cat("Evaluating ", i, "/", length(methods), ": ", name, "\n", sep = "")
+
+  try(
+    exp$temporary("evaluation_", name_id, ".rds") %cache% {
+      out <- evaluate_ti_method(
+        dataset = datasets,
+        method = method,
+        metrics = list(auc = cni_auc),
+        parameters = NULL
       )
-    })
-  })
-  int_ns <- mapdf_dfr(datasets, function(dat) dat$regulatory_network_sc %>% group_by(cell_id) %>% summarise(nints = n()) %>% mutate(dataset_id = dat$id))
-  aucs <- aucs %>% left_join(int_ns, c("cell_id", "dataset_id"))
 
-  lst(evals, aucs)
+      int_ns <- mapdf_dfr(datasets, function(dat) dat$regulatory_network_sc %>% group_by(cell_id) %>% summarise(nints = n()) %>% mutate(dataset_id = dat$id))
+
+      summ <-
+        out$summary %>%
+        mutate(cni_method_id = name) %>%
+        left_join(int_ns, c("cell_id", "dataset_id"))
+
+      list(
+        name = name,
+        name_id = name_id,
+        models = out$models,
+        summary = out$summary
+      )
+    }
+  )
 }
+
+
+# TODO: read magic
 
 aucs <-
   out$aucs %>%

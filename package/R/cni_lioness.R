@@ -48,7 +48,7 @@ cni_lioness <- create_ti_method_r(
     drop_same <- match(regulators, targets)
     drop_same[is.na(drop_same)] <- 0
 
-    if (method %in% c("pearson", "spearman", "cosine")) {
+    if (parameters$method %in% c("pearson", "spearman", "cosine")) {
       agg <- calculate_similarity(
         expression[, regulators, drop = FALSE],
         expression[, targets, drop = FALSE],
@@ -61,7 +61,7 @@ cni_lioness <- create_ti_method_r(
         arrange(desc(strength)) %>%
         head(parameters$num_int_per_cell) %>%
         as_tibble()
-    } else if (method == "grnboost2") {
+    } else if (parameters$method == "grnboost2") {
       arboreto <- reticulate::import("arboreto")
       regulatory_network <- arboreto$algo$grnboost2(
         expression_data = as.matrix(expression),
@@ -77,7 +77,7 @@ cni_lioness <- create_ti_method_r(
       map_df(
         seq_len(nrow(expression)),
         function(i) {
-          if (method %in% c("pearson", "spearman", "cosine")) {
+          if (parameters$method %in% c("pearson", "spearman", "cosine")) {
             ss <- calculate_similarity(
               expression[-i, regulators, drop = FALSE],
               expression[-i, targets, drop = FALSE],
@@ -93,7 +93,7 @@ cni_lioness <- create_ti_method_r(
               mutate(cell_id = factor(rownames(expression)[[i]], levels = rownames(expression))) %>%
               select(cell_id, regulator, target, strength) %>%
               as_tibble()
-          } else if (method == "grnboost2") {
+          } else if (parameters$method == "grnboost2") {
             arboreto <- reticulate::import("arboreto")
             adjacencies_ss <- arboreto$algo$grnboost2(
               expression_data = as.matrix(expression[-i,]),

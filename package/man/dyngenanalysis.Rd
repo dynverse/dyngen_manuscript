@@ -4,3 +4,6 @@
 \name{dyngenanalysis}
 \alias{dyngenanalysis}
 \title{Helper package for dyngen manuscript}
+\description{
+Helper package for dyngen manuscript
+}

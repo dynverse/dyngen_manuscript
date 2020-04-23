@@ -9,16 +9,16 @@ cni_auc <- function(dataset, model) {
   # evaluate static NI
   regulatory_network <-
     dataset$regulatory_network %>%
-    mutate(gold = 1) %>%
+    mutate(gold = 1L) %>%
     rename(gold_strength = strength, gold_effect = effect)
 
   eval_static_static <- with(
     model$regulatory_network %>%
       left_join(regulatory_network, by = c("regulator", "target")) %>%
-      mutate(gold = gold %|% 0, gold_strength = gold_strength %|% 0, gold_effect = gold_effect %|% 0) %>%
+      mutate(gold = gold %|% 0L, gold_strength = gold_strength %|% 0, gold_effect = gold_effect %|% 0L) %>%
       as_tibble(),
     {
-      GENIE4::evaluate_ranking_direct(
+      GENIE3bis::evaluate_ranking_direct(
         values = strength,
         are_true = gold,
         num_positive_interactions = nrow(regulatory_network),
@@ -31,7 +31,7 @@ cni_auc <- function(dataset, model) {
   # evaluate casewise NI
   regulatory_network_sc <-
     dataset$regulatory_network_sc %>%
-    mutate(gold = 1) %>%
+    mutate(gold = 1L) %>%
     rename(gold_strength = strength)
 
   casewise_casewise_auc <- map_df(
@@ -47,10 +47,10 @@ cni_auc <- function(dataset, model) {
       eval_sc <- with(
         reg_sc %>%
           left_join(gold_sc, by = c("cell_id", "regulator", "target")) %>%
-          mutate(gold = gold %|% 0, gold_strength = gold_strength %|% 0) %>%
+          mutate(gold = gold %|% 0L, gold_strength = gold_strength %|% 0) %>%
           as_tibble(),
         {
-          GENIE4::evaluate_ranking_direct(
+          GENIE3bis::evaluate_ranking_direct(
             values = strength,
             are_true = gold,
             num_positive_interactions = nrow(gold_sc),
@@ -72,10 +72,10 @@ cni_auc <- function(dataset, model) {
       eval_sc <- with(
         reg_sc %>%
           left_join(gold_sc, by = c("regulator", "target")) %>%
-          mutate(gold = gold %|% 0, gold_strength = gold_strength %|% 0) %>%
+          mutate(gold = gold %|% 0L, gold_strength = gold_strength %|% 0) %>%
           as_tibble(),
         {
-          GENIE4::evaluate_ranking_direct(
+          GENIE3bis::evaluate_ranking_direct(
             values = strength,
             are_true = gold,
             num_positive_interactions = nrow(gold_sc),

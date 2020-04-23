@@ -17,7 +17,7 @@ cni_lioness <- create_ti_method_r(
       character_parameter(
         id = "method",
         default = "pearson",
-        values = c("pearson", "spearman", "cosine"),
+        values = c("pearson", "spearman", "cosine", "grnboost2"),
         description = "Which similarity measure to use"
       ),
       integer_parameter(
@@ -48,39 +48,75 @@ cni_lioness <- create_ti_method_r(
     drop_same <- match(regulators, targets)
     drop_same[is.na(drop_same)] <- 0
 
-    agg <- calculate_similarity(
-      expression[, regulators, drop = FALSE],
-      expression[, targets, drop = FALSE],
-      method = parameters$method,
-      margin = 2
-    )
-
-    regulatory_network <-
-      reshape2::melt(agg, varnames = c("regulator", "target"), value.name = "strength") %>%
-      filter(drop_same[regulator] != as.integer(target)) %>%
-      arrange(desc(strength)) %>%
-      head(parameters$num_int_per_cell) %>%
-      as_tibble()
+    if (parameters$method %in% c("pearson", "spearman", "cosine")) {
+      agg <- calculate_similarity(
+        expression[, regulators, drop = FALSE],
+        expression[, targets, drop = FALSE],
+        method = parameters$method,
+        margin = 2
+      )
+      regulatory_network <-
+        reshape2::melt(agg, varnames = c("regulator", "target"), value.name = "strength") %>%
+        filter(drop_same[regulator] != as.integer(target)) %>%
+        arrange(desc(strength)) %>%
+        head(parameters$num_int_per_cell) %>%
+        as_tibble()
+    } else if (parameters$method == "grnboost2") {
+      arboreto <- reticulate::import("arboreto")
+      regulatory_network <- arboreto$algo$grnboost2(
+        expression_data = as.matrix(expression),
+        tf_names = regulators,
+        verbose = FALSE,
+        gene_names = colnames(expression)
+      ) %>%
+        as_tibble() %>%
+        transmute(regulator = TF, target, strength = importance)
+    }
 
     regulatory_network_sc <-
       map_df(
         seq_len(nrow(expression)),
         function(i) {
-          ss <- calculate_similarity(
-            expression[-i, regulators, drop = FALSE],
-            expression[-i, targets, drop = FALSE],
-            method = parameters$method,
-            margin = 2
-          )
+          if (parameters$method %in% c("pearson", "spearman", "cosine")) {
+            ss <- calculate_similarity(
+              expression[-i, regulators, drop = FALSE],
+              expression[-i, targets, drop = FALSE],
+              method = parameters$method,
+              margin = 2
+            )
 
-          (nr_samples * (agg - ss)  + ss) %>%
-            reshape2::melt(varnames = c("regulator", "target"), value.name = "strength") %>%
-            filter(drop_same[regulator] != as.integer(target)) %>%
-            arrange(desc(strength)) %>%
-            head(parameters$num_int_per_cell) %>%
-            mutate(cell_id = factor(rownames(expression)[[i]], levels = rownames(expression))) %>%
-            select(cell_id, regulator, target, strength) %>%
-            as_tibble()
+            (nr_samples * (agg - ss) + ss) %>%
+              reshape2::melt(varnames = c("regulator", "target"), value.name = "strength") %>%
+              filter(drop_same[regulator] != as.integer(target)) %>%
+              arrange(desc(strength)) %>%
+              head(parameters$num_int_per_cell) %>%
+              mutate(cell_id = factor(rownames(expression)[[i]], levels = rownames(expression))) %>%
+              select(cell_id, regulator, target, strength) %>%
+              as_tibble()
+          } else if (parameters$method == "grnboost2") {
+            arboreto <- reticulate::import("arboreto")
+            adjacencies_ss <- arboreto$algo$grnboost2(
+              expression_data = as.matrix(expression[-i,]),
+              tf_names = regulators,
+              verbose = FALSE,
+              gene_names = colnames(expression)
+            ) %>%
+              as_tibble() %>%
+              transmute(regulator = TF, target, strength = importance)
+            full_join(
+              regulatory_network %>% rename(strength_agg = strength),
+              adjacencies_ss %>% rename(strength_ss = strength),
+              by = c("regulator", "target")
+            ) %>%
+              transmute(
+                cell_id = factor(rownames(expression)[[i]], levels = rownames(expression)),
+                regulator,
+                target,
+                strength = nr_samples * (strength_agg - strength_ss) + strength_ss
+              ) %>%
+                arrange(desc(strength)) %>%
+                head(parameters$num_int_per_cell)
+          }
         }
       ) %>%
       arrange(desc(strength))

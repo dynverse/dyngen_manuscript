@@ -68,6 +68,8 @@ alignment_smooth <- dtw(res2_sm$expression, res1_sm$expression, step.pattern=sym
 a_sm <- plot_density(alignment_smooth, title = "Smoothed")
 
 all_plots <- (ao + asubs + a_sm) / g
+all_plots[[1]] <- all_plots[[1]] + plot_layout(tag_level = 'new')
+all_plots <- all_plots + plot_annotation(tag_levels = c('A', 1))
 
-ggsave(exp$result("usecase.pdf"), all_plots, height = 5, width = 8, useDingbats = FALSE)
-ggsave(exp$result("usecase.png"), all_plots, height = 5, width = 8)
+ggsave(exp$result("usecase.pdf"), all_plots, height = 6, width = 12, useDingbats = FALSE)
+ggsave(exp$result("usecase.png"), all_plots, height = 6, width = 12)

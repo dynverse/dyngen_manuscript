@@ -28,7 +28,7 @@ design_datasets <- exp$result("design_datasets.rds") %cache% {
     mutate(id2 = paste0(base_id2, "_", noise))
 }
 
-# Generates only the base models. The noise added onto these base models
+# Generates only the base models. The noise is added onto these base models
 pwalk(design_datasets, function(base_id1, base_id2, id1, id2, seed, backbone_name, noise) {
 
   if (!file.exists(exp$dataset_file(base_id1))) {
@@ -63,13 +63,14 @@ pwalk(design_datasets, function(base_id1, base_id2, id1, id2, seed, backbone_nam
     dataset1 <- readRDS(paste0(exp$dataset_folder(base_id1), "dataset.rds"))
     model1 <- readRDS(paste0(exp$dataset_folder(base_id1), "model.rds"))
 
+    # Generate the second trajectory of the pair
     model2 <- model1 %>% generate_cells() %>% generate_experiment()
     dataset2 <- wrap_dataset(model2)
 
     saveRDS(model2, file = paste0(exp$dataset_folder(base_id2), "model.rds"))
     saveRDS(dataset2, file = paste0(exp$dataset_folder(base_id2), "dataset.rds"))
 
-    # Add noise gradually to the dataset, according to the noise num
+    # Add noise gradually to the datasets, according to the noiselevels
     walk(noise_levels, function(noise_perc, ds1=dataset1, ds2=dataset2){
       name1 <- paste0(base_id1, "_", noise_perc)
       name2 <- paste0(base_id2, "_", noise_perc)

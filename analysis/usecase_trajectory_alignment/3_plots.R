@@ -19,7 +19,7 @@ g <- ggplot(data = result_smoothing, aes(x = ordered(as.factor(noise)), y = resu
   ylab("Distance (lower is better)") +
   theme_linedraw()
 
-
+# Plot the three different alignments of a single pair of trajectories
 plot_density <- function(a1, title = "Distance matrix + warping path", subtitle = ""){
   x <- as_tibble(a1$index1)
   x$Y <- a1$index2
@@ -67,6 +67,7 @@ asubs <- plot_density(alignment_subsample, title = "Subsampled")
 alignment_smooth <- dtw(res2_sm$expression, res1_sm$expression, step.pattern=symmetric2, keep.internals=T)
 a_sm <- plot_density(alignment_smooth, title = "Smoothed")
 
+# Combine all plots together
 all_plots <- (ao + asubs + a_sm) / g
 all_plots[[1]] <- all_plots[[1]] + plot_layout(tag_level = 'new')
 all_plots <- all_plots + plot_annotation(tag_levels = c('A', 1))

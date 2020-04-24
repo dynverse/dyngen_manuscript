@@ -6,10 +6,11 @@ library(viridis)
 
 exp <- start_analysis("usecase_trajectory_alignment")
 
+# For each pair, use 3 different kind of processing: smoothing, subsampling, original cells
 design_smoothing <- exp$result("design_smoothing.rds") %cache% {
   read_rds(exp$result("design_datasets.rds")) %>%
     select("base_id1","base_id2", "id1", "id2", "noise") %>%
-    mutate("smooth" = c(rep("smoothing", 50), rep("subsampling", 50), rep("original cells", 50))) %>%
+    mutate("smooth" = c(rep("smoothed", 50), rep("subsampled", 50), rep("original cells", 50))) %>%
     expand(nesting(base_id1, base_id2, id1, id2, noise), smooth)
 }
 
@@ -20,7 +21,7 @@ alignment_results <- pmap(design_smoothing %>% mutate(rn = row_number()),
         dataset1 <- read_rds(exp$dataset_file(id1))
         dataset2 <- read_rds(exp$dataset_file(id2))
 
-        if(smooth == "smooth"){
+        if(smooth == "smoothed"){
           res1 <- get_waypoint_expression(dataset1, 100)
           res2 <- get_waypoint_expression(dataset2, 100)
         } else {
@@ -34,9 +35,9 @@ alignment_results <- pmap(design_smoothing %>% mutate(rn = row_number()),
         expr1 <- res1$expression
         expr2 <- res2$expression
 
-        if(smooth == "subsample"){
-          smp1 <- seq(from = 1, to = 1000, by = 10) #sample(1000, size = 100, replace = FALSE)
-          smp2 <- seq(from = 1, to = 1000, by = 10) #sample(1000, size = 100, replace = FALSE)
+        if(smooth == "subsampled"){
+          smp1 <- seq(from = 1, to = 1000, by = 10)
+          smp2 <- seq(from = 1, to = 1000, by = 10)
           pt1_smp <- pt1[smp1]
           pt2_smp <- pt2[smp2]
           expr1_smp <- expr1[names(pt1_smp),]

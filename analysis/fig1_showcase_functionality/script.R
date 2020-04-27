@@ -28,7 +28,8 @@ model <-
       kinetics_noise_function = kinetics_noise_none(),
       ssa_algorithm = GillespieSSA2::ssa_exact(),
       experiment_params = simulation_type_wild_type(num_simulations = 8),
-      store_grn = TRUE
+      compute_cellwise_grn = TRUE,
+      compute_log_propensity_ratios = TRUE
     )
   ) %>%
   generate_tf_network() %>%
@@ -82,7 +83,7 @@ ggsave(exp$result("simulations.pdf"), g, width = 8, height = 6)
 g <- plot_gold_mappings(model2, do_facet = FALSE) + scale_colour_brewer(palette = "Dark2")
 ggsave(exp$result("simulations_mapping.pdf"), g, width = 8, height = 6)
 
-g <- plot_simulation_expression(model2, 1:4, what = "x")
+g <- plot_simulation_expression(model2, 1:4, what = "mol_mrna")
 ggsave(exp$result("simulation_expression.pdf"), g, width = 8, height = 6)
 
 

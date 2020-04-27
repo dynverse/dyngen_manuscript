@@ -3,13 +3,14 @@ library(viridis)
 library(dtw)
 library(reshape2)
 library(patchwork)
+library(readr)
 
 exp <- start_analysis("usecase_trajectory_alignment")
 
 result_smoothing <- read_rds(exp$result("result_smoothing.rds"))
 
 result_smoothing$noise <- ordered(as.factor(result_smoothing$noise))
-result_smoothing$result_scaled <-ifelse(result_smoothing$smooth == "original", result_smoothing$result / 10,  result_smoothing$result)
+result_smoothing$result_scaled <-ifelse(result_smoothing$smooth == "original cells", result_smoothing$result / 10,  result_smoothing$result)
 
 g <- ggplot(data = result_smoothing, aes(x = ordered(as.factor(noise)), y = result_scaled, fill = smooth)) +
   geom_boxplot() +

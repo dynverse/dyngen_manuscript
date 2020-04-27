@@ -37,7 +37,7 @@ pwalk(design_datasets, function(base_id1, base_id2, id1, id2, seed, backbone_nam
     set.seed(seed)
     model <-
       initialise_model(
-        id = base_id,
+        id = base_id1,
         num_tfs = 50,
         num_targets = 70,
         num_hks = 30,
@@ -80,7 +80,7 @@ pwalk(design_datasets, function(base_id1, base_id2, id1, id2, seed, backbone_nam
       ds1$counts[ds1$counts<0] <- 0
 
       smp <- sample(length(ds2$counts), size = length(ds2$counts) * noise_perc, replace=FALSE)
-      ds2$counts[smp] <- ds2$counts[smp] + rnorm(length(ds2$counts) * noise_perc, mean=5, sd = 2.5)
+      ds2$counts[smp] <- ds2$counts[smp] + rnorm(length(ds2$counts) * noise_perc, mean=7, sd = 3.5)
       ds2$counts[ds2$counts<0] <- 0
 
       saveRDS(ds1, file = paste0(exp$dataset_folder(name1), "dataset.rds"))

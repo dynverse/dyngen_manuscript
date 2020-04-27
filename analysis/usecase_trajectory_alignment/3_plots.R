@@ -3,23 +3,24 @@ library(viridis)
 library(dtw)
 library(reshape2)
 library(patchwork)
+library(readr)
 
 exp <- start_analysis("usecase_trajectory_alignment")
 
 result_smoothing <- read_rds(exp$result("result_smoothing.rds"))
 
 result_smoothing$noise <- ordered(as.factor(result_smoothing$noise))
-result_smoothing$result_scaled <-ifelse(result_smoothing$smooth == "original", result_smoothing$result / 10,  result_smoothing$result)
+result_smoothing$result_scaled <-ifelse(result_smoothing$smooth == "original cells", result_smoothing$result / 10,  result_smoothing$result)
 
 g <- ggplot(data = result_smoothing, aes(x = ordered(as.factor(noise)), y = result_scaled, fill = smooth)) +
   geom_boxplot() +
   scale_fill_viridis(discrete = TRUE, alpha=0.6) +
   labs(fill = "Processing method") +
-  xlab("Percentage of cells with added noise") +
+  xlab("Percentage of count matrix with added noise") +
   ylab("Distance (lower is better)") +
   theme_linedraw()
 
-
+# Plot the three different alignments of a single pair of trajectories
 plot_density <- function(a1, title = "Distance matrix + warping path", subtitle = ""){
   x <- as_tibble(a1$index1)
   x$Y <- a1$index2
@@ -67,6 +68,7 @@ asubs <- plot_density(alignment_subsample, title = "Subsampled")
 alignment_smooth <- dtw(res2_sm$expression, res1_sm$expression, step.pattern=symmetric2, keep.internals=T)
 a_sm <- plot_density(alignment_smooth, title = "Smoothed")
 
+# Combine all plots together
 all_plots <- (ao + asubs + a_sm) / g
 all_plots[[1]] <- all_plots[[1]] + plot_layout(tag_level = 'new')
 all_plots <- all_plots + plot_annotation(tag_levels = c('A', 1))

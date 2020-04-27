@@ -17,6 +17,7 @@ tryCatch({
   scvelo:::install_scvelo()
 })
 
+# file.remove(design_velocity <- exp$result("design_velocity.rds"))
 design_velocity <- exp$result("design_velocity.rds") %cache% {
   tribble(
     ~method_id, ~params, ~params_id,
@@ -40,7 +41,7 @@ design_velocity <- exp$result("design_velocity.rds") %cache% {
 pwalk(
   design_velocity %>% mutate(rn = row_number()),
   function(dataset_id, method_id, params, params_id, rn) {
-    cat(rn, "\n", sep = "")
+    cat(rn, "/", nrow(design_velocity), "\n", sep = "")
     dataset <- read_rds(exp$dataset_file(dataset_id))
 
     try({

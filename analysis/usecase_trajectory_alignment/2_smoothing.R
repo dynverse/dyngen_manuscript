@@ -10,7 +10,7 @@ exp <- start_analysis("usecase_trajectory_alignment")
 design_smoothing <- exp$result("design_smoothing.rds") %cache% {
   read_rds(exp$result("design_datasets.rds")) %>%
     select("base_id1","base_id2", "id1", "id2", "noise") %>%
-    mutate("smooth" = c(rep("smoothed", 50), rep("subsampled", 50), rep("original cells", 50))) %>%
+    mutate("smooth" = c(rep("smoothed", 25), rep("subsampled", 25), rep("original cells", 25))) %>%
     expand(nesting(base_id1, base_id2, id1, id2, noise), smooth)
 }
 

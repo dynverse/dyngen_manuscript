@@ -16,7 +16,7 @@ g <- ggplot(data = result_smoothing, aes(x = ordered(as.factor(noise)), y = resu
   geom_boxplot() +
   scale_fill_viridis(discrete = TRUE, alpha=0.6) +
   labs(fill = "Processing method") +
-  xlab("Percentage of cells with added noise") +
+  xlab("Percentage of count matrix with added noise") +
   ylab("Distance (lower is better)") +
   theme_linedraw()
 

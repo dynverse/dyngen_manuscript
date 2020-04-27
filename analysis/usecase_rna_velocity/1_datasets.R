@@ -5,6 +5,8 @@ library(dyngen.manuscript)
 
 exp <- start_analysis("usecase_rna_velocity")
 
+# file.remove(exp$result("design_datasets.rds"))
+
 # setup dataset design
 design_datasets <- exp$result("design_datasets.rds") %cache% {
   crossing(
@@ -26,18 +28,19 @@ pwalk(design_datasets, function(id, seed, backbone_name) {
     model <-
       initialise_model(
         id = id,
-        num_tfs = 50,
+        num_tfs = nrow(backbone$module_info),
         num_targets = 70,
         num_hks = 30,
         backbone = backbone,
         num_cells = 1000,
         simulation_params = simulation_default(
-          compute_propensity_ratios = TRUE,
+          census_interval = 10,
+          compute_log_propensity_ratios = TRUE,
           experiment_params = simulation_type_wild_type(
-            num_simulations = ifelse(backbone_name %in% c("binary_tree", "branching", "disconnected"), 40, 16)
+            num_simulations = 100
           )
         ),
-        num_cores = 6,
+        num_cores = 7,
         download_cache_dir = "~/.cache/dyngen",
         verbose = TRUE
       )
@@ -45,7 +48,7 @@ pwalk(design_datasets, function(id, seed, backbone_name) {
       model,
       output_dir = exp$dataset_folder(id),
       make_plots = TRUE,
-      store_propensity_ratios = TRUE
+      store_log_propensity_ratios = TRUE
     )
 
     gc()
@@ -53,7 +56,25 @@ pwalk(design_datasets, function(id, seed, backbone_name) {
 })
 
 
+pwalk(design_datasets, function(id, seed, backbone_name) {
+  model <- read_rds(exp$model_file(id))
+  dataset <- read_rds(exp$dataset_file(id))
 
+  model$simulations$propensity_ratios <- NULL
+  lpr <- dyngen:::.generate_cells_compute_log_propensity_ratios(model, model$simulations$reaction_propensities)
+  model$simulations$log_propensity_ratios <- lpr
+
+  lpre <- lpr[model$experiment$cell_info$step_ix, ]
+  rownames(lpre) <- model$experiment$cell_info$cell_id
+  model$experiment$log_propensity_ratios <- lpre
+  model$experiment$propensity_ratios <- NULL
+
+  dataset$propensity_ratios <- NULL
+  dataset$log_propensity_ratios <- lpre
+
+  write_rds(dataset, exp$dataset_file(id), compress = "gz")
+  write_rds(model, exp$model_file(id), compress = "gz")
+})
 
 # make some plots
 library(dynwrap)

@@ -18,6 +18,8 @@ plot_part_A <-
   scale_y_continuous("Correlation (higher is better)") +
   theme_common()
 
+plot_part_A
+
 # PART B: Illustration of velocity ----------------------------------------
 dataset_id <- "bifurcating_2"
 
@@ -58,11 +60,11 @@ expression_plot <- dynplot_dimred(dataset) +
 
 # Plot 3, ground truth velocity
 transform_groundtruth_velocity <- function(x) {
-  log2(scales::squish(x, c(0.1, 10), only.finite = FALSE))
+  scales::squish(x, c(-1, 1), only.finite = FALSE)
 }
 
 gs_plot <- dynplot_dimred(dataset) +
-  geom_cell_point(aes(color = transform_groundtruth_velocity(dataset$propensity_ratios[,feature_oi]))) +
+  geom_cell_point(aes(color = transform_groundtruth_velocity(dataset$log_propensity_ratios[,feature_oi]))) +
   dynplot2:::scale_velocity_color() +
   ggtitle("Ground truth velocity") +
   theme_common()

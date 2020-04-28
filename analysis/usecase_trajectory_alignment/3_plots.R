@@ -10,13 +10,15 @@ exp <- start_analysis("usecase_trajectory_alignment")
 result_smoothing <- read_rds(exp$result("result_smoothing.rds"))
 
 result_smoothing$noise <- ordered(as.factor(result_smoothing$noise))
+result_smoothing$smooth <- factor(result_smoothing$smooth, levels = c("smoothed", "original cells", "subsampled"))
 result_smoothing$result_scaled <-ifelse(result_smoothing$smooth == "original cells", result_smoothing$result / 10,  result_smoothing$result)
 
 g <- ggplot(data = result_smoothing, aes(x = ordered(as.factor(noise)), y = result_scaled, fill = smooth)) +
-  geom_boxplot() +
-  scale_fill_viridis(discrete = TRUE, alpha=0.6) +
+  geom_boxplot(width = 0.5, size=0.45,outlier.size=0.5) +
+  # scale_fill_viridis_d(direction=-1) +
+  # scale_color_viridis(discrete = TRUE, alpha=0.8) +
   labs(fill = "Processing method") +
-  xlab("Percentage of count matrix with added noise") +
+  xlab("Amount of added noise") +
   ylab("Distance (lower is better)") +
   theme_linedraw()
 
@@ -39,8 +41,8 @@ plot_density <- function(a1, title = "Distance matrix + warping path", subtitle 
   p_heat1
 }
 
-d1 <- readRDS(exp$dataset_file("linear1_1_0.2"))
-d2 <- readRDS(exp$dataset_file("linear1_2_0.2"))
+d1 <- readRDS(exp$dataset_file("linear1_1_0.5"))
+d2 <- readRDS(exp$dataset_file("linear1_2_0.5"))
 
 res1 <- get_cell_expression(d1)
 res2 <- get_cell_expression(d2)
@@ -70,8 +72,10 @@ a_sm <- plot_density(alignment_smooth, title = "Smoothed")
 
 # Combine all plots together
 all_plots <- (ao + asubs + a_sm) / g
-all_plots[[1]] <- all_plots[[1]] + plot_layout(tag_level = 'new')
-all_plots <- all_plots + plot_annotation(tag_levels = c('A', 1))
+all_plots[[1]] <- all_plots[[1]] + plot_layout(tag_level = 'keep')
+all_plots <- all_plots + plot_annotation(tag_levels = c('A')) + plot_layout(heights = c(1, 1.5))
 
-ggsave(exp$result("usecase.pdf"), all_plots, height = 6, width = 12, useDingbats = FALSE)
-ggsave(exp$result("usecase.png"), all_plots, height = 6, width = 12)
+all_plots
+
+ggsave(exp$result("usecase.pdf"), all_plots, height = 8, width = 12, useDingbats = FALSE)
+ggsave(exp$result("usecase.png"), all_plots, height = 8, width = 12)

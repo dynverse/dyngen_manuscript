@@ -1,9 +1,11 @@
+library(dyngen.manuscript)
 library(ggplot2)
 library(viridis)
 library(dtw)
 library(reshape2)
 library(patchwork)
 library(readr)
+library(dplyr)
 
 exp <- start_analysis("usecase_trajectory_alignment")
 
@@ -20,7 +22,8 @@ g <- ggplot(data = result_smoothing, aes(x = ordered(as.factor(noise)), y = resu
   labs(fill = "Processing method") +
   xlab("Amount of added noise") +
   ylab("Distance (lower is better)") +
-  theme_linedraw()
+  theme_linedraw() +
+  theme(legend.position = "bottom")
 
 # Plot the three different alignments of a single pair of trajectories
 plot_density <- function(a1, title = "Distance matrix + warping path", subtitle = ""){
@@ -71,11 +74,13 @@ alignment_smooth <- dtw(res2_sm$expression, res1_sm$expression, step.pattern=sym
 a_sm <- plot_density(alignment_smooth, title = "Smoothed")
 
 # Combine all plots together
-all_plots <- (ao + asubs + a_sm) / g
-all_plots[[1]] <- all_plots[[1]] + plot_layout(tag_level = 'keep')
-all_plots <- all_plots + plot_annotation(tag_levels = c('A')) + plot_layout(heights = c(1, 1.5))
+library(cowplot)
 
-all_plots
+part1 <- ggdraw() +
+  draw_image(exp$result("dyngen_ta_plot_flat.svg"))
 
-ggsave(exp$result("usecase.pdf"), all_plots, height = 8, width = 12, useDingbats = FALSE)
-ggsave(exp$result("usecase.png"), all_plots, height = 8, width = 12)
+all_plots <- part1  / (ao + asubs + a_sm) / g
+all_plots <- all_plots + plot_annotation(tag_levels = c('A')) + plot_layout(heights = c(1, 1.1, 1.5))
+
+ggsave(exp$result("usecase_all.pdf"), all_plots, height = 11, width = 11, useDingbats = FALSE)
+ggsave(exp$result("usecase_all.png"), all_plots, height = 11, width = 11)

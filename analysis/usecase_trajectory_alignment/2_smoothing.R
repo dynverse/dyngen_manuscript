@@ -44,7 +44,6 @@ alignment_results <- pmap(design_smoothing %>% mutate(rn = row_number()),
           expr2_smp <- expr2[names(pt2_smp),]
 
           dtw_alignment <- dtw(expr2_smp, expr1_smp, step.pattern=symmetric2, keep.internals=T)
-          # dtwPlotAlignment(dtw_alignment)
 
           pt1_aligned_smp <- pt1_smp[dtw_alignment$index2]
           pt2_aligned_smp <- pt2_smp[dtw_alignment$index1]
@@ -57,7 +56,6 @@ alignment_results <- pmap(design_smoothing %>% mutate(rn = row_number()),
         } else {
 
           dtw_alignment <- dtw(expr2, expr1, step.pattern=symmetric2, keep.internals=T)
-          # dtwPlotAlignment(dtw_alignment)
 
           pt1_aligned <- pt1[dtw_alignment$index2]
           pt2_aligned <- pt2[dtw_alignment$index1]

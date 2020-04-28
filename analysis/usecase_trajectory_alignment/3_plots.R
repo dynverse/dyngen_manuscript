@@ -82,5 +82,5 @@ part1 <- ggdraw() +
 all_plots <- part1  / (ao + asubs + a_sm) / g
 all_plots <- all_plots + plot_annotation(tag_levels = c('A')) + plot_layout(heights = c(1, 1.1, 1.5))
 
-ggsave(exp$result("usecase_all.pdf"), all_plots, height = 11, width = 11, useDingbats = FALSE)
-ggsave(exp$result("usecase_all.png"), all_plots, height = 11, width = 11)
+ggsave(exp$result("usecase.pdf"), all_plots, height = 11, width = 11, useDingbats = FALSE)
+ggsave(exp$result("usecase.png"), all_plots, height = 11, width = 11)

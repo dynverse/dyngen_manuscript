@@ -25,18 +25,18 @@ backbone <- backbone(
   ),
   expression_patterns = tribble(
     ~from, ~to, ~module_progression, ~start, ~burn, ~time,
-    "Burn0", "S1", "+A,+B,+C", TRUE, TRUE, 100,
-    "S1", "S2", "+D,+E,-C", FALSE, FALSE, 80,
-    "S2", "S3", "+C,-A,-B", FALSE, FALSE, 80,
-    "S3", "S1", "+A,+B,-D,-E", FALSE, FALSE, 80
+    "Burn0", "S1", "+A,+B,+C", TRUE, TRUE, 150,
+    "S1", "S2", "+D,+E,-C", FALSE, FALSE, 120,
+    "S2", "S3", "+C,-A,-B", FALSE, FALSE, 120,
+    "S3", "S1", "+A,+B,-D,-E", FALSE, FALSE, 120
   )
 )
-census_interval <- 1
-total_time <- 400
-time_breaks <- c(0, 200, 400)
+census_interval <- 5
+total_time <- 500
+time_breaks <- c(0, 250, 500)
 model <-
   initialise_model(
-    num_tfs = nrow(backbone$module_info) * 1,
+    num_tfs = nrow(backbone$module_info),
     num_targets = 0,
     num_hks = 0,
     num_cells = 300,
@@ -53,14 +53,14 @@ model <-
     #   sample_yhl = function(n) .25
     # ),
     simulation_params = simulation_default(
-      burn_time = 160,
+      burn_time = 240,
       total_time = total_time,
-      ssa_algorithm = GillespieSSA2::ssa_exact(),
       experiment_params = simulation_type_wild_type(num_simulations = 1),
       census_interval = census_interval,
       store_reaction_firings = TRUE,
       store_reaction_propensities = TRUE,
-      store_grn = TRUE
+      compute_cellwise_grn = TRUE,
+      compute_log_propensity_ratios = TRUE
     )
   )
 
@@ -106,7 +106,7 @@ firings_df <- data.frame(time = time, model$simulations$reaction_firings %>% as.
     reaction = factor(reac_map[sub("_[^_]*$", "", var)], levels = reac_map)
   ) %>%
   filter(time > 0)
-reg_df <- data.frame(time = time, model$simulations$regulation %>% as.matrix(), check.names = FALSE) %>%
+reg_df <- data.frame(time = time, model$simulations$cellwise_grn %>% as.matrix(), check.names = FALSE) %>%
   gather(var, value, -time) %>%
   mutate(
     from = gsub("(.*)->.*", "\\1", var),
@@ -125,6 +125,13 @@ prop_df <- data.frame(time = time, model$simulations$reaction_propensities %>% a
     reaction = factor(reac_map[sub("_[^_]*$", "", var)], levels = reac_map)
   ) %>%
   filter(time > 0)
+velocity <- data.frame(time = time, model$simulations$net_propensity %>% as.matrix()) %>%
+  gather(var, value, -time) %>%
+  mutate(
+    gene = paste0("Gene ", var)
+  ) %>%
+  filter(time > 0)
+
 
 dummy <-
   dynwrap::wrap_data(
@@ -178,7 +185,7 @@ g2 <- ggplot(state_df) +
 # REACTION FIRINGS
 #######
 firings_df_A <- firings_df %>% filter(gene == "Gene A")
-label_fir_df <- firings_df_A %>% group_by(reaction) %>% summarise(time = mean(time), value = max(value)) %>% mutate(reaction_text = paste0("Gene A ", reaction))
+label_fir_df <- firings_df_A %>% group_by(reaction) %>% summarise(time = mean(time), value = max(value)*1.1) %>% mutate(reaction_text = paste0("Gene A ", reaction))
 
 g3 <-
   ggplot(firings_df_A, aes(time, value)) +
@@ -194,7 +201,7 @@ g3 <-
     legend.margin = margin()
   ) +
   scale_x_continuous(breaks = time_breaks) +
-  # scale_y_continuous(breaks = c(0, .5, 1) * max_fir, limits = c(0, max_fir)) +
+  scale_y_continuous(breaks = scales::breaks_extended(n = 3)) +
   geom_text(aes(label = reaction_text), label_fir_df, size = 3, hjust = 0.5, vjust = 1)
 
 
@@ -203,13 +210,11 @@ g3 <-
 # REACTION PROPENSITIES
 #######
 prop_df_A <- prop_df %>% filter(gene == "Gene A")
-max_prop <- prop_df_A$value %>% max
-max_prop <- ceiling(max_prop / 10) * 10
-label_prop_df <- prop_df_A %>% group_by(reaction) %>% summarise(time = mean(time), value = max_prop) %>% mutate(reaction_text = paste0("Gene A ", reaction))
+label_prop_df <- prop_df_A %>% group_by(reaction) %>% summarise(time = mean(time), value = max(value)*1.2) %>% mutate(reaction_text = paste0("Gene A ", reaction))
 
 g4 <-
   ggplot(prop_df_A, aes(time, value)) +
-  facet_wrap(~reaction, ncol = 1) +
+  facet_wrap(~reaction, ncol = 1, scales = "free_y") +
   geom_area(aes(fill = forcats::fct_rev(reaction)), position = "stack") +
   theme_classic() +
   scale_fill_brewer(palette = "Set2") +
@@ -221,14 +226,13 @@ g4 <-
     legend.margin = margin()
   ) +
   scale_x_continuous(breaks = time_breaks) +
-  scale_y_continuous(breaks = c(0, .5, 1) * max_prop, limits = c(0, max_prop)) +
+  scale_y_continuous(breaks = scales::breaks_extended(n = 3)) +
   geom_text(aes(label = reaction_text), label_prop_df, size = 3, hjust = 0.5, vjust = 1)
 
 
 #######
 # REGULATION
 #######
-max_reg <- 1
 g5 <- ggplot(reg_df) +
   geom_line(aes(time, abs(value), colour = name), size = 1) +
   theme_classic() +
@@ -242,11 +246,30 @@ g5 <- ggplot(reg_df) +
   scale_y_continuous(breaks = c(0, .5, 1), limits = c(0, 1))
 
 
+#######
+# Prop diff
+#######
+g6 <- ggplot(velocity, aes(time, value)) +
+  geom_step(aes(colour = gene)) +
+  # facet_wrap(~gene, ncol = 1, scales = "free_y") +
+  theme_classic() +
+  labs(x = "Simulation time", y = "Velocity ground-truth", colour = "Molecule") +
+  scale_colour_brewer(palette = "Set1") +
+  # scale_colour_manual(values = c("pre-mRNA" = "#4daf4a", "mRNA" = "#377eb8", "protein" = "#e41a1c", "gene" = "black")) +
+  theme(
+    text = element_text(family = "Helvetica"),
+    strip.background = element_blank(),
+    strip.text = element_blank(),
+    legend.margin = margin()
+  ) +
+  scale_x_continuous(breaks = time_breaks)
+
+
+
 g <- patchwork::wrap_plots(
   g1,
   g2,
   g3,
-  # g4,
   g5,
   heights = c(3, 1, 3, 1),
   ncol = 1
@@ -254,5 +277,21 @@ g <- patchwork::wrap_plots(
 
 ggsave(exp$result("overview_unedited.pdf"), g, width = 8, height = 8, device = cairo_pdf)
 
+
+
+
+g <- patchwork::wrap_plots(
+  g1 + labs(title = "Expression"),
+  g2 + labs(title = "State"),
+  g3 + labs(title = "Reaction firings"),
+  g4 + labs(title = "Propensity"),
+  g5 + labs(title = "Regulation"),
+  g6 + labs(title = "Velocity ground-truth"),
+  heights = c(3, 1, 3),
+  ncol = 2,
+  byrow = FALSE
+)
+
+ggsave(exp$result("overview_alldata.pdf"), g, width = 16, height = 6, device = cairo_pdf)
 
 

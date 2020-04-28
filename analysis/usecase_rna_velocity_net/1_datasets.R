@@ -36,6 +36,7 @@ pwalk(design_datasets, function(id, seed, backbone_name) {
         simulation_params = simulation_default(
           census_interval = 10,
           compute_log_propensity_ratios = TRUE,
+          store_reaction_propensities = TRUE,
           experiment_params = simulation_type_wild_type(
             num_simulations = 100
           )

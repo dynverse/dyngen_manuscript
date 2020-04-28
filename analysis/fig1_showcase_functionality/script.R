@@ -9,7 +9,7 @@ exp <- start_analysis("fig1_showcase_functionality")
 backbone <- bblego(
   bblego_start("A", type = "simple", num_modules = 1),
   bblego_linear("A", "B", type = "simple", num_modules = 3),
-  bblego_branching("B", c("C", "D")),
+  bblego_branching("B", c("C", "D"), num_steps = 1),
   bblego_end("C", type = "simple", num_modules = 2),
   bblego_end("D", type = "simple", num_modules = 2)
 )
@@ -26,7 +26,6 @@ model <-
     distance_metric = "euclidean",
     simulation_params = simulation_default(
       kinetics_noise_function = kinetics_noise_none(),
-      ssa_algorithm = GillespieSSA2::ssa_exact(),
       experiment_params = simulation_type_wild_type(num_simulations = 8),
       compute_cellwise_grn = TRUE,
       compute_log_propensity_ratios = TRUE
@@ -66,6 +65,7 @@ co1 <- model2$gold_standard$counts %>% as.matrix
 co2 <- model2$simulations$counts[,colnames(co1)] %>% as.matrix
 space <- prcomp(rbind(co1, co2), rank. = 2)$x
 colnames(space) <- c("comp_1", "comp_2")
+space <- dynutils::scale_uniform(space)
 model2$gold_standard$dimred <- space[seq_len(nrow(co1)),]
 model2$simulations$dimred <- space[-seq_len(nrow(co1)),]
 
@@ -87,7 +87,7 @@ g <- plot_simulation_expression(model2, 1:4, what = "mol_mrna")
 ggsave(exp$result("simulation_expression.pdf"), g, width = 8, height = 6)
 
 
-dataset <- wrap_dataset(model2, store_grn = TRUE)
+dataset <- wrap_dataset(model2)
 
 library(dynplot)
 g <- plot_dimred(dataset)
@@ -117,7 +117,7 @@ ggsave(exp$result("slingshot.pdf"), g, width = 8, height = 6)
 expr <- dataset$expression[, Matrix::colMeans(dataset$expression > 0) > 0, drop = FALSE]
 regs <- unique(model$feature_network$from) %>% intersect(colnames(expr))
 tars <- model$feature_info$feature_id %>% intersect(colnames(expr))
-# devtools::install_github("rcannood/GENIE3")
+# devtools::install_github("rcannood/GENIE3bis")
 g3 <- GENIE3bis::run_genie3(
   data = as.matrix(dataset$expression),
   regulators = regs,
@@ -144,7 +144,8 @@ g <- ggraph(gr, layout = "manual", x = layout$x, y = layout$y) +
 
 ggsave(exp$result("genie3.pdf"), g, width = 8, height = 6)
 
-dimred <- dyndimred::dimred_umap(dataset$expression, n_neighbors = 70)
+# dimred <- dyndimred::dimred_umap(dataset$expression, n_neighbors = 100, distance_method = "euclidean", pca_components = 20)
+dimred <- dyndimred::dimred_pca(dataset$expression)
 g <- ggplot(as.data.frame(dimred)) + geom_point(aes(comp_1, comp_2)) + coord_equal() + theme_classic() +
   theme(axis.text = element_blank(), axis.ticks = element_blank()) +
   labs(x = "Comp 1", y = "Comp 2")

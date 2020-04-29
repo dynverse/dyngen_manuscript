@@ -28,7 +28,7 @@ model <-
       kinetics_noise_function = kinetics_noise_none(),
       experiment_params = simulation_type_wild_type(num_simulations = 8),
       compute_cellwise_grn = TRUE,
-      compute_log_propensity_ratios = TRUE
+      compute_rna_velocity = TRUE
     )
   ) %>%
   generate_tf_network() %>%

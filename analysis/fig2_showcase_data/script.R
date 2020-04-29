@@ -60,7 +60,7 @@ model <-
       store_reaction_firings = TRUE,
       store_reaction_propensities = TRUE,
       compute_cellwise_grn = TRUE,
-      compute_log_propensity_ratios = TRUE
+      compute_rna_velocity = TRUE
     )
   )
 
@@ -125,7 +125,7 @@ prop_df <- data.frame(time = time, model$simulations$reaction_propensities %>% a
     reaction = factor(reac_map[sub("_[^_]*$", "", var)], levels = reac_map)
   ) %>%
   filter(time > 0)
-velocity <- data.frame(time = time, model$simulations$net_propensity %>% as.matrix()) %>%
+velocity <- data.frame(time = time, model$simulations$rna_velocity %>% as.matrix()) %>%
   gather(var, value, -time) %>%
   mutate(
     gene = paste0("Gene ", var)

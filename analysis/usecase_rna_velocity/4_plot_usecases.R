@@ -64,7 +64,7 @@ transform_groundtruth_velocity <- function(x) {
 }
 
 gs_plot <- dynplot_dimred(dataset) +
-  geom_cell_point(aes(color = transform_groundtruth_velocity(dataset$log_propensity_ratios[,feature_oi]))) +
+  geom_cell_point(aes(color = transform_groundtruth_velocity(dataset$rna_velocity[,feature_oi]))) +
   dynplot2:::scale_velocity_color() +
   ggtitle("Ground truth velocity") +
   theme_common()

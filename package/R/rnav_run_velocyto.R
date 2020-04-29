@@ -54,7 +54,8 @@ rnav_run_velocyto <- function(
   vlm$calculate_shift(assumption=assumption)
   vlm$extrapolate_cell_at_t(delta_t=1.)
 
-  velocity_vector <- as(Matrix::t(vlm$Sx_sz_t), "dgCMatrix") - spliced
+  # extrapolated profile minus the smoothed spliced counts
+  velocity_vector <- as(Matrix::t(vlm$Sx_sz_t - vlm$Sx), "dgCMatrix")
   dimnames(velocity_vector) <- dimnames(spliced)
 
   lst(

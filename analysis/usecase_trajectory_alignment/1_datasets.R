@@ -13,15 +13,16 @@ backbone <- bblego(
   bblego_end("C", type = "simple", num_modules = 4)
 )
 
-noise_levels <- seq(from = 0.05, to = 0.75, by = 0.05)
+noise_levels <- seq(from = 0.1, to = 1, by = 0.1)
+only_noise <- T
 
 # setup dataset design
 design_datasets <- exp$result("design_datasets.rds") %cache% {
   crossing(
-    seed = 1:5,
+    seed = 1:10,
     backbone_name = "linear",
     noise = noise_levels
-    ) %>%
+  ) %>%
     mutate(base_id1 = paste0(backbone_name, seed, "_1")) %>%
     mutate(base_id2 = paste0(backbone_name, seed, "_2")) %>%
     mutate(id1 = paste0(base_id1, "_", noise)) %>%
@@ -69,29 +70,18 @@ pwalk(design_datasets, function(base_id1, base_id2, id1, id2, seed, backbone_nam
     saveRDS(model2, file = paste0(exp$dataset_folder(base_id2), "model.rds"))
     saveRDS(dataset2, file = paste0(exp$dataset_folder(base_id2), "dataset.rds"))
 
-    max_mean1 <- ds1$counts %>% as.vector() %>% quantile(0.9) * 1.5
-    max_dev1 <- max_mean1 / 5
-
-    max_mean2 <- ds2$counts %>% as.vector() %>% quantile(0.9) * 1.5
-    max_dev2 <- max_mean2 / 5
+    max_dev1 <- dataset1$counts %>% as.vector() %>% Filter(f = function(x) x > 0) %>% quantile(0.75)
+    max_dev2 <- dataset2$counts %>% as.vector() %>% Filter(f = function(x) x > 0) %>% quantile(0.75)
 
     # Add noise gradually to the datasets, according to the noiselevels
     walk(noise_levels, function(noise_perc, ds1=dataset1, ds2=dataset2){
       name1 <- paste0(base_id1, "_", noise_perc)
       name2 <- paste0(base_id2, "_", noise_perc)
 
-      # mean1 <- ds1$counts %>% as.matrix() %>% mean()
-      # mean2 <- ds2$counts %>% as.matrix() %>% mean()
+      ds1$counts <- ds1$counts + rnorm(length(ds1$counts), mean = 0, sd = max_dev1 * noise_perc)
+      ds2$counts <- ds2$counts + rnorm(length(ds2$counts), mean = 0, sd = max_dev2 * noise_perc)
 
-      ds1$counts <- ds1$counts + rnorm(lenght(ds1$counts), mean = max_mean1 * noise_perc, sd = max_dev1 * noise_perc)
-      ds2$counts <- ds2$counts + rnorm(lenght(ds2$counts), mean = max_mean2 * noise_perc, sd = max_dev2 * noise_perc)
-
-      # smp <- sample(length(ds1$counts), size = length(ds1$counts) * noise_perc, replace=FALSE)
-      # ds1$counts[smp] <- ds1$counts[smp] + rnorm(length(ds1$counts) * noise_perc, mean=mean1 * 2, sd = mean1 / 5)
       ds1$counts[ds1$counts<0] <- 0
-
-      # smp <- sample(length(ds2$counts), size = length(ds2$counts) * noise_perc, replace=FALSE)
-      # ds2$counts[smp] <- ds2$counts[smp] + rnorm(length(ds2$counts) * noise_perc, mean=mean2 * 2, sd = mean2 / 5)
       ds2$counts[ds2$counts<0] <- 0
 
       saveRDS(ds1, file = paste0(exp$dataset_folder(name1), "dataset.rds"))

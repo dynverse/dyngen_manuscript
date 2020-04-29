@@ -26,7 +26,7 @@ scores <- exp$result("scores_individual.rds") %cache% {
       }
       velocity <- read_rds(velocity_file)
 
-      velocity_differences <- velocity$expression_future - dataset$expression
+      velocity_differences <- velocity$velocity_vector
       velocity_differences[velocity_differences == 0] <- NA
       velocity_differences[is.na(velocity_differences)] <- runif(sum(is.na(velocity_differences)), -1e-10, 1e-10)
 

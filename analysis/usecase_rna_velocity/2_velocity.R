@@ -24,10 +24,8 @@ design_velocity <- exp$result("design_velocity.rds") %cache% {
     "velocyto", list(assumption = "constant_velocity"), "constant_velocity",
     "velocyto", list(assumption = "constant_unspliced"), "constant_unspliced",
     "scvelo", list(mode = "deterministic"), "deterministic",
-    "scvelo", list(mode = "dynamical"), "dynamical_1_biorxiv",
-    "scvelo", list(mode = "dynamical", var_names = "all"), "dynamical_2_varnamesall",
-    "scvelo", list(mode = "dynamical", layer = "imputed"), "dynamical_3_useimputed",
-    "scvelo", list(mode = "dynamical", var_names = "all", layer = "imputed"), "dynamical_4_both",
+    "scvelo", list(mode = "dynamical", var_names = "all"), "dynamical",
+    "scvelo", list(mode = "dynamical_residuals", var_names = "all"), "dynamical_residuals",
     "scvelo", list(mode = "stochastic"), "stochastic",
   ) %>%
     crossing(

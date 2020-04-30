@@ -21,7 +21,10 @@ plot_part_A <-
 plot_part_A
 
 # PART B: Illustration of velocity ----------------------------------------
-dataset_id <- "bifurcating_2"
+dataset_id <- "cycle_1"
+# dataset_id <- "bifurcating_1"
+# dataset_id <- "bifurcating_2"
+# dataset_id <- "bifurcating_3"
 
 dataset <- read_rds(exp$dataset_file(dataset_id))
 model <- read_rds(exp$model_file(dataset_id))
@@ -148,3 +151,25 @@ g <- patchwork::wrap_plots(
 ggsave(exp$result("usecase.pdf"), g, height = 14, width = 10, useDingbats = FALSE)
 ggsave(exp$result("usecase.png"), g, height = 14, width = 10)
 
+
+### extra plots
+ggsave(exp$temporary("scores.pdf"), plot_part_A, height = 4, width = 12, useDingbats = FALSE)
+ggsave(exp$temporary("scores.png"), plot_part_A, height = 4, width = 12)
+
+
+g <- patchwork::wrap_plots(
+  plot_part_B,
+  plot_part_C,
+  (plot_part_D & theme(plot.title = element_blank(), plot.subtitle = element_blank())),
+  ncol = 1,
+  heights = c(2, 1, 1)
+)
+ggsave(exp$temporary("plots_", dataset_id, ".pdf"), g, height = 10, width = 12, useDingbats = FALSE)
+
+dataset$expression %>% as.matrix %>% as.data.frame %>% rownames_to_column %>% write_csv(exp$temporary(dataset_id, "_expression_spliced.csv"))
+dataset$expression_unspliced %>% as.matrix %>% as.data.frame %>% rownames_to_column %>% write_csv(exp$temporary(dataset_id, "_expression_unspliced.csv"))
+
+qplot(
+  dataset$expression %>% as.matrix %>% as.vector,
+  dataset$expression_unspliced %>% as.matrix %>% as.vector
+)

@@ -26,9 +26,9 @@ scores <- exp$result("scores_individual.rds") %cache% {
       }
       velocity <- read_rds(velocity_file)
 
-      velocity_differences <- velocity$velocity_vector
-      velocity_differences[velocity_differences == 0] <- NA
-      velocity_differences[is.na(velocity_differences)] <- runif(sum(is.na(velocity_differences)), -1e-10, 1e-10)
+      predicted_velocity <- velocity$velocity_vector
+      predicted_velocity[predicted_velocity == 0] <- NA
+      predicted_velocity[is.na(predicted_velocity)] <- runif(sum(is.na(predicted_velocity)), -1e-10, 1e-10)
 
       paired_simil(
         velocity_differences,

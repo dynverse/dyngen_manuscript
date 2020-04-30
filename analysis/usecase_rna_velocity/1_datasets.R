@@ -36,6 +36,7 @@ pwalk(design_datasets, function(id, seed, backbone_name) {
         simulation_params = simulation_default(
           census_interval = 10,
           compute_rna_velocity = TRUE,
+          store_reaction_propensities = TRUE,
           experiment_params = simulation_type_wild_type(
             num_simulations = 100
           )
@@ -47,8 +48,7 @@ pwalk(design_datasets, function(id, seed, backbone_name) {
     generate_dataset(
       model,
       output_dir = exp$dataset_folder(id),
-      make_plots = TRUE,
-      store_rna_velocity = TRUE
+      make_plots = TRUE
     )
 
     gc()

@@ -1,20 +1,37 @@
 library(tidyverse)
+library(dyngen)
 library(dyngen.manuscript)
 
 exp <- start_analysis("usecase_rna_velocity")
 
-design_datasets <- read_rds(exp$result("design_datasets.rds"))
-design_velocity <- read_rds(exp$result("design_velocity.rds"))
-
-method_id <- "scvelo"
-params_id <- "dynamical"
-dataset_id <- "cycle_1"
-
+# generate dataset
+set.seed(1)
+backbone <- backbone_cycle_simple()
+model <-
+  initialise_model(
+    id = "testb2b",
+    num_tfs = nrow(backbone$module_info),
+    num_targets = 70,
+    num_hks = 30,
+    backbone = backbone,
+    num_cells = 1000,
+    simulation_params = simulation_default(
+      census_interval = 10,
+      compute_rna_velocity = TRUE,
+      store_reaction_propensities = TRUE,
+      experiment_params = simulation_type_wild_type(
+        num_simulations = 100
+      )
+    ),
+    num_cores = 7,
+    download_cache_dir = "~/.cache/dyngen",
+    verbose = TRUE
+  )
+out <- generate_dataset(model)
+dataset <- out$dataset
+model <- out$model
 
 # GROUNDTRUTH -------------------------------------------------------------
-dataset <- read_rds(exp$dataset_file(dataset_id))
-model <- read_rds(exp$model_file(dataset_id))
-
 reac_prop <- model$simulations$reaction_propensities[model$experiment$cell_info$step_ix, ]
 rownames(reac_prop) <- model$experiment$cell_info$cell_id
 transcription_prop <- reac_prop[, paste0("transcription_", dataset$feature_ids)]
@@ -32,18 +49,12 @@ velocity <- scvelo::get_velocity(
   unspliced = dataset$expression_unspliced,
   mode = "dynamical", var_names = "all"
 )
-
-# same:
-# velocity <- read_rds(exp$velocity_file(dataset_id, method_id, params_id))
-
 predicted_velocity <- velocity$velocity_vector
 
 
-
-
 # COMPARE -----------------------------------------------------------------
-dyngen::plot_backbone_modulenet(model)
-goi <- "C6_TF1"
+plot_backbone_modulenet(model)
+goi <- "M1_TF1"
 df <-
   dataset$cell_info %>%
   left_join(dataset$progressions, by = "cell_id") %>%
@@ -85,6 +96,7 @@ ggplot(df) + geom_point(aes(degradation_prop, predicted_velocity))
 
 
 
+
 # simil metriek
 psim <- paired_simil(
   predicted_velocity,
@@ -97,67 +109,3 @@ psim <- paired_simil(
 mean(psim$score)
 
 
-
-# poging tot een dimred / arrow metriek
-
-
-dimred <- dataset$dimred
-dataset$velocity_vector <- velocity$velocity_vector
-dimred_future <- scvelo::embed_velocity(dataset, dimred)
-dimred_diff <- dimred_future - dimred
-
-progression_segments <- dataset$dimred_segment_progressions
-dimred_segments <- dataset$dimred_segment_points
-
-ranges <- apply(rbind(dimred, dimred_diff), 2, range)
-diffrange <- apply(ranges, 2, diff)
-
-grid_sd <- sqrt(mean((diffrange / 15)^2)) * sqrt(3) / 2
-
-
-qplot(dimred[,1], dimred[,2]) + geom_point(x = segdr[[1]], y = segdr[[2]], colour = "red", size = 10)
-
-segdr <- dimred_segments[1,]
-segdr <- dimred_segments[2000,]
-apply(dimred_segments, 1, function(segdr) {
-  cd <- sqrt(rowSums(sweep(dimred, 2, segdr, "-")^2))
-  cw <- cd < grid_sd
-
-  qplot(dimred[,1], dimred[,2], col = ifelse(cw, "black", "gray")) + scale_colour_identity()  + geom_point(x = segdr[[1]], y = segdr[[2]], colour = "red", data = data.frame(x = 1))
-
-  cws <- max(1, sum(cw))
-
-  Matrix::colSums(dimred_diff[cw,]) / cws
-})
-
-# calculate for each gaussian the smoothed arrow using a gaussian kernel
-garrows <- map_dfr(grid_x, function(x) {
-  # cell distances and weights to each grid point
-  cd <- sqrt(outer(cell_positions$y,-grid_y,'+')^2 + (x-cell_positions$x)^2)
-  cw <- cd < grid_sd
-
-  # calculate the actual arrow
-  gw <- Matrix::colSums(cw)
-  cws <- pmax(1,Matrix::colSums(cw))
-  gxd <- Matrix::colSums(cw*cell_positions_difference$x)/cws
-  gyd <- Matrix::colSums(cw*cell_positions_difference$y)/cws
-
-  arrow_length <- sqrt(gxd^2+gyd^2)
-
-  tibble(
-    x = x,
-    y = grid_y,
-    x_difference = gxd,
-    y_difference = gyd,
-    length = arrow_length,
-    angle = atan2(y_difference, x_difference),
-    mass = gw
-  )
-})
-
-
-
-
-
-
-dynwrap::calculate_geodesic_distances()

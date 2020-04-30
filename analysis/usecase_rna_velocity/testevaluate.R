@@ -68,6 +68,13 @@ patchwork::wrap_plots(
   nrow = 2
 )
 
+ggplot(df %>% gather(var, val, expr_spliced:predicted_velocity)) + geom_point(aes(cycle_time, val, colour = var))
+
+
+
+
+
+# simil metriek
 paired_simil(
   predicted_velocity,
   groundtruth_velocity,

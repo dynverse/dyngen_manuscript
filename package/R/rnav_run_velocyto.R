@@ -48,7 +48,7 @@ rnav_run_velocyto <- function(
   vlm <- velocyto$VelocytoLoom(loom_file)
   vlm$`_normalize_S`(relative_size=rowSums(vlm$S), target_size=mean(rowSums(vlm$S)))
   vlm$`_normalize_U`(relative_size=rowSums(vlm$U), target_size=mean(rowSums(vlm$U)))
-  vlm$perform_PCA("S")
+  vlm$perform_PCA()
   vlm$knn_imputation(n_pca_dims=20L, pca_space = TRUE, k=20L, balanced=TRUE, b_sight=50L, b_maxl=20L, n_jobs=16L, size_norm=FALSE)
   vlm$fit_gammas()
   vlm$predict_U()

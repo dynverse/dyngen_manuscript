@@ -10,29 +10,43 @@ exp <- start_analysis("usecase_rna_velocity")
 # setup dataset design
 design_datasets <- exp$result("design_datasets.rds") %cache% {
   crossing(
-    seed = 1:3,
-    backbone_name = names(list_backbones())
+    seed = 1,
+    # seed = 1:3,
+    backbone_name = names(list_backbones()),
+    difficulty = c("easy", "medium", "hard")
   ) %>%
-    mutate(id = paste0(backbone_name, "_", seed))
+    mutate(
+      tr_rate_multiplier = c(easy = 25, medium = 5, hard = 1)[difficulty],
+      id = paste0(backbone_name, "_", difficulty, "_seed", seed)
+    )
 }
 
 #' @examples
 #' design_datasets %>% dynutils::extract_row_to_list(1) %>% list2env(.GlobalEnv)
 
-pwalk(design_datasets, function(id, seed, backbone_name) {
+pwalk(design_datasets, function(id, seed, backbone_name, tr_rate_multiplier, ...) {
   if (!file.exists(exp$dataset_file(id))) {
 
     cat("## Generating ", id, "\n", sep = "")
     set.seed(seed)
+
+    kinetic_params <- kinetics_default()
+    kinetic_params$sampler_tfs <- function(...) {
+      x <- kinetics_default()$sampler_tfs(...)
+      x$transcription_rate <- x$transcription_rate * tr_rate_multiplier
+      x
+    }
+
     backbone <- dyngen::list_backbones()[[backbone_name]]()
     model <-
       initialise_model(
         id = id,
         num_tfs = nrow(backbone$module_info),
         num_targets = 70,
-        num_hks = 30,
+        num_hks = 0,
         backbone = backbone,
         num_cells = 1000,
+        kinetics_params = kinetic_params,
         simulation_params = simulation_default(
           census_interval = 10,
           compute_rna_velocity = TRUE,
@@ -54,3 +68,39 @@ pwalk(design_datasets, function(id, seed, backbone_name) {
     gc()
   }
 })
+
+
+# pwalk(design_datasets, function(id, seed, backbone_name, tr_rate_multiplier) {
+#   cat(id, "\n", sep = "")
+#   if (!file.exists(exp$model_file(id))) return(NULL)
+#   model <- read_rds(exp$model_file(id))
+#   dataset <- read_rds(exp$dataset_file(id))
+#
+#   reac_prop <- model$simulations$reaction_propensities
+#   transcription_prop <- reac_prop[, paste0("transcription_", dataset$feature_ids)]
+#   degradation_prop <- reac_prop[, paste0("premrna_degradation_", dataset$feature_ids)] + reac_prop[, paste0("mrna_degradation_", dataset$feature_ids)]
+#   colnames(transcription_prop) <- colnames(degradation_prop) <- dataset$feature_ids
+#
+#   groundtruth_velocity <- as(transcription_prop - degradation_prop, "dgCMatrix")
+#   model$simulations$rna_velocity <- groundtruth_velocity
+#   groundtruth_velocity_exp <- groundtruth_velocity[model$experiment$cell_info$step_ix, ]
+#   rownames(groundtruth_velocity_exp) <- model$experiment$cell_info$cell_id
+#   model$experiment$rna_velocity <- groundtruth_velocity_exp
+#   dataset$rna_velocity <- groundtruth_velocity_exp
+#
+#   write_rds(dataset, exp$dataset_file(id), compress = "gz")
+#   write_rds(model, exp$model_file(id), compress = "gz")
+# })
+#
+#
+#
+# pwalk(design_datasets, function(id, seed, backbone_name, tr_rate_multiplier) {
+#   cat(id, "\n", sep = "")
+#   if (!file.exists(exp$model_file(id))) return(NULL)
+#   model <- read_rds(exp$model_file(id))
+#   dataset <- read_rds(exp$dataset_file(id))
+#   dataset$counts_unspliced = model$experiment$counts_premrna
+#   dataset$counts_protein = model$experiment$counts_protein
+#   write_rds(dataset, exp$dataset_file(id), compress = "gz")
+#   # write_rds(model, exp$model_file(id), compress = "gz")
+# })

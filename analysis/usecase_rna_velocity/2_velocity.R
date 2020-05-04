@@ -26,7 +26,7 @@ design_velocity <- exp$result("design_velocity.rds") %cache% {
     "scvelo", list(mode = "deterministic"), "deterministic",
     "scvelo", list(mode = "dynamical", var_names = "all"), "dynamical",
     "scvelo", list(mode = "dynamical_residuals", var_names = "all"), "dynamical_residuals",
-    "scvelo", list(mode = "stochastic"), "stochastic",
+    "scvelo", list(mode = "stochastic"), "stochastic"
   ) %>%
     crossing(
       read_rds(exp$result("design_datasets.rds")) %>% select(dataset_id = id)
@@ -39,13 +39,14 @@ design_velocity <- exp$result("design_velocity.rds") %cache% {
 pwalk(
   design_velocity %>% mutate(rn = row_number()),
   function(dataset_id, method_id, params, params_id, rn) {
-    cat(rn, "/", nrow(design_velocity), "\n", sep = "")
+    cat(rn, "/", nrow(design_velocity), ": ", method_id, " ", params_id, " on ", dataset_id, "\n", sep = "")
+    if (!file.exists(exp$dataset_file(dataset_id))) return(NULL)
     dataset <- read_rds(exp$dataset_file(dataset_id))
 
     try({
       exp$velocity_file(dataset_id, method_id, params_id) %cache% {
-        params$spliced <- dataset$expression
-        params$unspliced <- dataset$expression_unspliced
+        params$spliced <- dataset$counts
+        params$unspliced <- dataset$counts_unspliced
 
         velocity_fun <-
           if (method_id == "scvelo") {

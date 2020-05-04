@@ -8,7 +8,9 @@ rnav_run_velocyto(
   spliced,
   unspliced,
   assumption = "constant_velocity",
-  velocyto = reticulate::import("velocyto")
+  velocyto = reticulate::import("velocyto"),
+  n_neighbors = 20L,
+  n_pcs = 20L
 )
 }
 \description{

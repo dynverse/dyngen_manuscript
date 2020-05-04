@@ -9,7 +9,9 @@ rnav_run_velocyto <- function(
   spliced,
   unspliced,
   assumption = "constant_velocity",
-  velocyto = reticulate::import("velocyto")
+  velocyto = reticulate::import("velocyto"),
+  n_neighbors = 20L,
+  n_pcs = 20L
 ) {
   # prepare loom file ------------------------------------------------------------------
   S <- Matrix::t(spliced)
@@ -49,7 +51,7 @@ rnav_run_velocyto <- function(
   vlm$`_normalize_S`(relative_size=rowSums(vlm$S), target_size=mean(rowSums(vlm$S)))
   vlm$`_normalize_U`(relative_size=rowSums(vlm$U), target_size=mean(rowSums(vlm$U)))
   vlm$perform_PCA()
-  vlm$knn_imputation(n_pca_dims=20L, k=20L, balanced=TRUE, b_sight=200L, b_maxl=500L, n_jobs=16L)
+  vlm$knn_imputation(k = n_neighbors, n_pca_dims=n_pcs)
   vlm$fit_gammas()
   vlm$predict_U()
   vlm$calculate_velocity()

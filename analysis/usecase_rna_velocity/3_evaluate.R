@@ -47,8 +47,8 @@ scores <- exp$result("scores.rds") %cache% {
       dimred_diff <- dimred_future - dimred
 
       waypoints <- dynwrap::select_waypoints(dataset)
-      dimred_waypoints <- dynwrap::project_waypoints(dataset, waypoints = waypoints, space = dimred, trajectory_projection_sd = .01)
-      dimred_diff_waypoints <- dynwrap::project_waypoints(dataset, waypoints = waypoints, space = dimred_diff, trajectory_projection_sd = .01)
+      dimred_waypoints <- dynwrap::project_waypoints(dataset, waypoints = waypoints, space = dimred)#, trajectory_projection_sd = .01)
+      dimred_diff_waypoints <- dynwrap::project_waypoints(dataset, waypoints = waypoints, space = dimred_diff)#, trajectory_projection_sd = .01)
       nexts <- waypoints$progressions %>%
         mutate(index = row_number()) %>%
         group_by(from, to) %>%

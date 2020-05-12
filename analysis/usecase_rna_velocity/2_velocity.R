@@ -36,7 +36,10 @@ design_velocity <- exp$result("design_velocity.rds") %cache% {
 #' @examples
 #' design_velocity %>% dynutils::extract_row_to_list(40) %>% list2env(.GlobalEnv)
 
-pwalk(
+library(furrr)
+plan(multiprocess)
+future_pmap(
+# pwalk(
   design_velocity %>% mutate(rn = row_number()),
   function(dataset_id, method_id, params, params_id, rn) {
     cat(rn, "/", nrow(design_velocity), ": ", method_id, " ", params_id, " on ", dataset_id, "\n", sep = "")
@@ -64,6 +67,7 @@ pwalk(
 
         velocity
       }
+      0
     })
   }
 )

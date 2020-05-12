@@ -2,6 +2,7 @@ library(tidyverse)
 library(rlang)
 library(dyngen)
 library(dyngen.manuscript)
+library(dynplot2)
 
 exp <- start_analysis("usecase_rna_velocity")
 
@@ -26,8 +27,14 @@ design_datasets <- exp$result("design_datasets.rds") %cache% {
 #' @examples
 #' design_datasets %>% dynutils::extract_row_to_list(1) %>% list2env(.GlobalEnv)
 
-pwalk(design_datasets, function(id, seed, backbone_name, tr_rate_multiplier, num_cells, ...) {
-  if (!file.exists(exp$dataset_file(id))) {
+backbones <- dyngen::list_backbones()
+backbones$disconnected <- function() dyngen::backbone_disconnected("linear", "cycle")
+
+pwalk(design_datasets, function(id, seed, backbone_name, tr_rate_multiplier, ...) {
+  dataset_file <- exp$dataset_file(id)
+  plot_file <- gsub("\\.rds$", ".pdf", dataset_file)
+
+  if (!file.exists(plot_file)) {
 
     cat("## Generating ", id, "\n", sep = "")
     set.seed(seed)
@@ -39,7 +46,7 @@ pwalk(design_datasets, function(id, seed, backbone_name, tr_rate_multiplier, num
       x
     }
 
-    backbone <- dyngen::list_backbones()[[backbone_name]]()
+    backbone <- backbones[[backbone_name]]()
     model <-
       initialise_model(
         id = id,
@@ -47,9 +54,10 @@ pwalk(design_datasets, function(id, seed, backbone_name, tr_rate_multiplier, num
         num_targets = 70,
         num_hks = 0,
         backbone = backbone,
-        num_cells = num_cells,
+        num_cells = 2500,
         kinetics_params = kinetic_params,
         simulation_params = simulation_default(
+          burn_time = simtime_from_backbone(backbone, burn = TRUE) * 1.5,
           census_interval = 10,
           compute_rna_velocity = TRUE,
           store_reaction_propensities = TRUE,
@@ -67,57 +75,27 @@ pwalk(design_datasets, function(id, seed, backbone_name, tr_rate_multiplier, num
       make_plots = TRUE
     )
 
+
+    # add dimred
+    dataset <- read_rds(dataset_file)
+
+    fimp <- dynfeature::calculate_overall_feature_importance(dataset)
+    dimred <- dyndimred::dimred_pca(dataset$expression[,fimp$feature_id[1:20]])
+
+    dataset <- dataset %>%
+      dynwrap::add_dimred(dimred = dimred) %>%
+      dynwrap::add_waypoints()
+    pl <- dynplot_dimred(dataset) +
+      geom_cell_point(aes(color = milestone_percentages), size = 1) +
+      scale_milestones_colour() +
+      geom_trajectory_segments(size = 1, color = "#333333") +
+      geom_milestone_label(aes(label = label), color = "black", fill = "#EEEEEE") +
+      theme_common(legend.position = "none")
+    ggsave(plot_file, pl, width = 6, height = 5)
+    write_rds(dataset, dataset_file, compress = "gz")
+
     gc()
   }
 })
 
-
-# pwalk(design_datasets, function(id, seed, backbone_name, tr_rate_multiplier) {
-#   cat(id, "\n", sep = "")
-#   if (!file.exists(exp$model_file(id))) return(NULL)
-#   model <- read_rds(exp$model_file(id))
-#   dataset <- read_rds(exp$dataset_file(id))
-#
-#   reac_prop <- model$simulations$reaction_propensities
-#   transcription_prop <- reac_prop[, paste0("transcription_", dataset$feature_ids)]
-#   degradation_prop <- reac_prop[, paste0("premrna_degradation_", dataset$feature_ids)] + reac_prop[, paste0("mrna_degradation_", dataset$feature_ids)]
-#   colnames(transcription_prop) <- colnames(degradation_prop) <- dataset$feature_ids
-#
-#   groundtruth_velocity <- as(transcription_prop - degradation_prop, "dgCMatrix")
-#   model$simulations$rna_velocity <- groundtruth_velocity
-#   groundtruth_velocity_exp <- groundtruth_velocity[model$experiment$cell_info$step_ix, ]
-#   rownames(groundtruth_velocity_exp) <- model$experiment$cell_info$cell_id
-#   model$experiment$rna_velocity <- groundtruth_velocity_exp
-#   dataset$rna_velocity <- groundtruth_velocity_exp
-#
-#   write_rds(dataset, exp$dataset_file(id), compress = "gz")
-#   write_rds(model, exp$model_file(id), compress = "gz")
-# })
-
-library(dynplot2)
-# id <- "bifurcating_cycle_medium_seed1_2500"
-id <- "bifurcating_loop_hard_seed1_2500"
-pwalk(design_datasets, function(id, ...) {
-  cat(id, "\n", sep = "")
-  if (!file.exists(exp$model_file(id))) return(NULL)
-  dataset <- read_rds(exp$dataset_file(id))
-  dataset <- dataset %>% dynwrap::add_waypoints(n_waypoints = 100, trafo = function(x) x * 0 + 1, recompute = TRUE)
-
-  dimred <- dyndimred::dimred_mds(dataset$expression, ndim = 5)
-  dataset <- dataset %>% dynwrap::add_dimred(dimred = dimred)
-  out <- dynwrap::project_trajectory(dataset, dataset$dimred, trajectory_projection_sd = .025)
-  dataset[names(out)] <- out
-  # dynplot::plot_dimred(dataset)
-
-  dynplot_dimred(dataset) +
-    geom_cell_point(aes(color = milestone_percentages), size = 1) +
-    scale_milestones_colour() +
-    geom_trajectory_segments(size = 1, color = "#333333") +
-    geom_milestone_label(aes(label = label), color = "black", fill = "#EEEEEE") +
-    theme_common(legend.position = "none") +
-    ggtitle("Trajectory")
-
-
-  write_rds(dataset, exp$dataset_file(id), compress = "gz")
-})
 

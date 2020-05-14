@@ -11,7 +11,8 @@ qsub::rsync_remote(
   remote_src = FALSE,
   path_src = local_dir,
   remote_dest = "prism",
-  path_dest = dirname(remote_dir)
+  path_dest = dirname(remote_dir),
+  delete = "yes"
 )
 
 # DOWNLOAD

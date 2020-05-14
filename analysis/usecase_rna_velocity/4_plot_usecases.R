@@ -49,7 +49,8 @@ plot_part_A <-
   labs(x = "", y = "Correlation (higher is better)", colour = "Difficulty") +
   scale_y_continuous(limits = c(0, 1)) +
   guides(colour = guide_legend(nrow = 3), shape = guide_legend(nrow = 3)) +
-  facet_wrap(~metric_label, ncol = 2)
+  facet_wrap(~metric_label, ncol = 2) +
+  scale_colour_brewer(palette = "Dark2")
 
 plot_part_A
 
@@ -136,10 +137,13 @@ expression_plot <- dynplot_dimred(dataset) +
 transform_groundtruth_velocity <- function(x) {
   scales::squish(x, c(-1, 1), only.finite = FALSE)
 }
+RdGyBu <- RColorBrewer::brewer.pal(9, "RdBu")
+RdGyBu <- c(RdGyBu[1:3], "lightgray", RdGyBu[7:9])
+# RdGyBu[5] <- "lightgray"
 
 gs_plot <- dynplot_dimred(dataset) +
   geom_cell_point(aes(color = transform_groundtruth_velocity(dataset$rna_velocity[,feature_oi])), size = 1) +
-  dynplot2:::scale_velocity_color() +
+  scale_colour_gradientn(colours = RdGyBu, limits = c(-1, 1), name = "Velocity", guide = dynplot2:::common_colorbar_legend) +
   ggtitle(paste0("Ground truth velocity of ", feature_oi)) +
   theme_common()
 
@@ -159,7 +163,7 @@ plot_part_C <- pmap(design_velocity_oi, function(dataset_id, method_id, params_i
   maxv <- quantile(abs(velo_vec), .8)
   dynplot_dimred(dataset) +
     geom_cell_point(aes(color = transform_groundtruth_velocity(velo_vec / maxv)), size = 1) +
-    dynplot2:::scale_velocity_color(name = "", guide = "none") +
+    scale_colour_gradientn(colours = RdGyBu, limits = c(-1, 1), name = "Velocity", guide = "none") +
     ggtitle(method_id, subtitle = params_id) +
     theme_common()
 }) %>% patchwork::wrap_plots(nrow = 1)
@@ -181,13 +185,18 @@ plot_part_D <- pmap(design_velocity_oi, function(dataset_id, method_id, params_i
   dynplot_dimred(dataset2) +
     geom_cell_point(aes(color = milestone_percentages), size = 1) +
     scale_milestones_colour() +
-    geom_velocity_arrow(
-      size = 1.2,
+    # geom_velocity_arrow(
+    #   size = 1.2,
+    #   color = "#333333",
+    #   stat = stat_velocity_grid(grid_bandwidth = 1, filter = rlang::quo(mass > max(mass) * 0.05)),
+    #   arrow = arrow(length = unit(0.2, "cm"))
+    # ) +
+    geom_velocity_stream(
+      size = .8,
       color = "#333333",
-      stat = stat_velocity_grid(grid_bandwidth = 1, filter = rlang::quo(mass > max(mass) * 0.05)),
-      arrow = arrow(length = unit(0.2, "cm"))
+      stat = stat_velocity_stream(grid_bandwidth = 1, filter = rlang::quo(mass > max(mass) * 0.1)),
+      arrow = arrow(length = unit(0.3, "cm"), type = "closed")
     ) +
-    # geom_velocity_arrow(size = 1, color = "white") +
     ggtitle(method_id, subtitle = params_id) +
     theme_common() +
     theme(legend.position = "none")
@@ -208,7 +217,6 @@ plot_part_E <- pmap(design_velocity_oi %>% mutate(i = row_number()), function(i,
     ggtitle(method_id, subtitle = params_id) +
     theme_common() +
     viridis::scale_color_viridis(name = "Cosine", limits = c(.9, 1))
-    # scale_color_distiller(palette = "RdBu", limits = c(-1, 1), name = "Cosine")
 
   if (i != 1) {
     pl <- pl + theme(legend.position = "none")
@@ -234,11 +242,10 @@ tag_first <- function(x, tag) {
   x
 }
 
-plot_part_A <- plot_part_A + labs(tag = "A")
-plot_part_B[[1]] <- plot_part_B[[1]] + labs(tag = "B")
-plot_part_C[[1]] <- plot_part_C[[1]] + labs(tag = "C")
-plot_part_D[[1]] <- plot_part_D[[1]] + labs(tag = "D")
-plot_part_E[[1]] <- plot_part_E[[1]] + labs(tag = "E")
+plot_part_A <- plot_part_A + labs(tag = "D")
+plot_part_B[[1]] <- plot_part_B[[1]] + labs(tag = "A")
+plot_part_C[[1]] <- plot_part_C[[1]] + labs(tag = "B")
+plot_part_D[[1]] <- plot_part_D[[1]] + labs(tag = "C")
 
 g <- patchwork::wrap_plots(
   plot_part_B,

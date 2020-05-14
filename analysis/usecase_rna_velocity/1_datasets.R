@@ -58,7 +58,7 @@ pwalk(design_datasets, function(id, seed, backbone_name, tr_rate_multiplier, ...
         kinetics_params = kinetic_params,
         simulation_params = simulation_default(
           burn_time = simtime_from_backbone(backbone, burn = TRUE) * 1.5,
-          census_interval = 10,
+          census_interval = ifelse(!backbone_name %in% c("linear_simple"), 10, 1),
           compute_rna_velocity = TRUE,
           store_reaction_propensities = TRUE,
           experiment_params = simulation_type_wild_type(
@@ -79,8 +79,7 @@ pwalk(design_datasets, function(id, seed, backbone_name, tr_rate_multiplier, ...
     # add dimred
     dataset <- read_rds(dataset_file)
 
-    fimp <- dynfeature::calculate_overall_feature_importance(dataset)
-    dimred <- dyndimred::dimred_pca(dataset$expression[,fimp$feature_id[1:20]])
+    dimred <- dyndimred::dimred_mds(dataset$expression, distance_method = "pearson", ndim = 3)
 
     dataset <- dataset %>%
       dynwrap::add_dimred(dimred = dimred) %>%
@@ -98,4 +97,28 @@ pwalk(design_datasets, function(id, seed, backbone_name, tr_rate_multiplier, ...
   }
 })
 
+# # recalculate dimreds
+# pwalk(design_datasets, function(id, ...) {
+#   cat(id, "\n", sep = "")
+#   dataset_file <- exp$dataset_file(id)
+#   plot_file <- gsub("\\.rds$", ".pdf", dataset_file)
+#
+#   if (!file.exists(dataset_file)) return(NULL)
+#   dataset <- read_rds(dataset_file)
+#
+#   dimred <- dyndimred::dimred_mds(dataset$expression, distance_method = "pearson", ndim = 3)
+#
+#   dataset <- dataset %>%
+#     dynwrap::add_dimred(dimred = dimred)
+#   pl <- dynplot_dimred(dataset) +
+#     geom_cell_point(aes(color = milestone_percentages), size = 1) +
+#     scale_milestones_colour() +
+#     geom_trajectory_segments(size = 1, color = "#333333") +
+#     geom_milestone_label(aes(label = label), color = "black", fill = "#EEEEEE") +
+#     theme_common(legend.position = "none")
+#   ggsave(plot_file, pl, width = 6, height = 5)
+#   write_rds(dataset, dataset_file, compress = "gz")
+#
+#   gc()
+# })
 

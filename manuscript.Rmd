@@ -5,7 +5,7 @@ author:
 - Wouter Saelens*
 - Louise Deconinck
 - Yvan Saeys
-date: "* Equal contribution"
+date: "`r format(Sys.time(), '%d %B %Y')`"
 output:
   pdf_document:
     keep_tex: yes
@@ -119,78 +119,14 @@ However, a limitation of existing scRNA-seq profiles generators is that they wou
 \end{table}
 -->
 
-<!--
-method
-model
-modalities
-(derived) ground truths
-(possible) applications
-splatter [@zappia_splattersimulationsinglecell_2017]
-Several distributional models with parameters that allow the generation of datasets by sampling from distributions
-Cell types, linear trajectories and batch effects can be simulated by changing the parameters of certain genes
-mRNA expression
-cluster labels
-trajectory
-batch labels
-differential expression
-true counts
-Clustering
-Linear trajectory inference
-Batch effect correction
-Differential expression
-powsimR [@vieth_powsimrpoweranalysis_2017]
-Negative binomial or zero-inflated negative binomial.
-Cell types can be simulated by changing the parameters of this distribution
-mRNA expression
-differential expression
-cluster labels
-Differential expression
-Clustering
-PROSSTT [@papadopoulos_prossttprobabilisticsimulation_2018]
-(1) Generation of a random tree
-(2) The expression of each gene is seen as a sum of contributions from different expression programs. The activity of each program depends on pseudotime.
-(3) Generation of cells and expression by random sampling along the trajectory, and from a negative binomial distribution
-mRNA expression
-trajectory (linear and branching)
-Linear and branching trajectory inference
-SymSim [@zhang_simulatingmultiplefaceted_2019]
-Kinetic model of each gene, in which it can be on or off, and where the mRNA can be degraded. The parameters of this model depend on a gene effect and cell effect, each of these effects represents a vector in an n-dimensional space (e.g. 10). The cell effect vectors are sampled in such a way that cells that have to be more similar (according to a tree provided by the user), will also have a more similar vector.
-mRNA expression
-promoter activity
-cluster labels
-trajectory
-differential expression
-true counts
-Clustering
-Linear, branching and disconnected trajectory inference
-
-dyngen
-Simulation of a thermodynamic model of gene regulation, in which a set of transcription factors can bind the promoter and can have varying effects on the activity of the promoter. Clusters or trajectories are simulated by specifying a regulatory network that will induce a certain diversification of expression. Expression is simulated using a single-molecule model, after which individual UMIs are simulated using a multinomial distribution. Apart from gene regulation, splicing and protein production are also simulated.
-Protein expression
-mRNA expression
-pre-mRNA expression
-promoter activity
-reaction activity
-true counts
-trajectory
-batch labels
-(perturbed transcription factors)
-Clustering
-Linear, branching and disconnected trajectory inference
-Cell-specific network inference
-Batch effect correction
-RNA velocity
-Trajectory alignment
--->
-
 An ideal experiment would be able to observe all aspects of a cell, including a full history of its molecular states, spatial positions and environmental interactions [@stuart_integrativesinglecellanalysis_2019].
-While this falls outside the reach of current experimental technologies, generating synthetic data in anticipation of new experimental technologies would allow already developing the next wave of computational tools.
+While this falls outside the reach of current experimental technologies, generating synthetic data in anticipation of new experimental technologies would allow developing the next wave of computational tools.
 
-We developed a multi-modality simulator of single cells called dyngen (Figure\ \ref{fig:showcase}A). dyngen uses an optimized version of Gillespie's stochastic simulation algorithm [@gillespie_exactstochasticsimulation_1977]  to simulate gene regulation, splicing and translation at a single-molecule level. Its methodology allows tracking of many layers of information throughout the simulation, including the abundance of any molecule in the cell, the progression of the cell along a dynamic process, and the activation strength of individual regulatory interactions. dyngen can simulate a large variety of dynamic processes (e.g. cyclic, branching, disconnected) as well as a broad range of experimental conditions (e.g. batch effects and time-series, perturbation and knockdown experiments). The fine-grained controls over simulation parameters allow dyngen to be applicable to a broad range of use-cases. We demonstrate this by performing first quantitative evaluations of three types of novel computational approaches: RNA velocity, cell-specific network inference and trajectory alignment methods.
+We developed a multi-modality simulator of single cells called dyngen (Figure\ \ref{fig:showcase}A). dyngen uses an optimized version of Gillespie's stochastic simulation algorithm [@gillespie_exactstochasticsimulation_1977]  to simulate gene regulation, splicing, and translation at a single-molecule level. Its methodology allows tracking of many layers of information throughout the simulation, including the abundance of any molecule in the cell, the progression of the cell along a dynamic process, and the activation strength of individual regulatory interactions. dyngen can simulate a large variety of dynamic processes (e.g. cyclic, branching, disconnected) as well as a broad range of experimental conditions (e.g. batch effects and time-series, perturbation and knockdown experiments). The fine-grained controls over simulation parameters allow dyngen to be applicable to a broad range of use-cases. We demonstrate this by performing the first quantitative evaluations of three types of novel computational approaches: RNA velocity, cell-specific network inference, and trajectory alignment methods.
 
 \begin{figure}[htb!]
     \centering
-    \includegraphics[width=\linewidth]{fig/showcase_4}
+    \includegraphics[width=\linewidth]{result_files/fig1_showcase_functionality/overview_1.pdf}
     \caption{
         \textbf{Showcase of dyngen functionality.}
         \textbf{A:} The typical process of generating a dataset with dyngen.
@@ -202,14 +138,14 @@ We developed a multi-modality simulator of single cells called dyngen (Figure\ \
 
 # Results {#sec:dyngen-results}
 
-A cell consists of a set of molecules, the abundance of which are affected by a set of reactions: transcription, splicing, translation, and degradation (Figure\ \ref{fig:simplecyclic}A). A gene regulatory network (GRN) defines the reactions that are allowed to occur (Figure\ \ref{fig:simplecyclic}B), which is constructed in such a way that cells slowly develop over time (Figure\ \ref{fig:simplecyclic}C,D). With every time step $\text{d}t$ in the simulation, the probability of a reaction occurring is computed (not shown). From the probabilities are sampled which reactions occur during this time step $\text{d}t$ (Figure\ \ref{fig:simplecyclic}E). 
+A cell consists of a set of molecules, the abundance of which is affected by a set of reactions: transcription, splicing, translation, and degradation (Figure\ \ref{fig:simplecyclic}A). A gene regulatory network (GRN) defines the reactions that are allowed to occur (Figure\ \ref{fig:simplecyclic}B), which is constructed in such a way that cells slowly develop over time (Figure\ \ref{fig:simplecyclic}C,D). With every time step $\text{d}t$ in the simulation, the probability of a reaction occurring is computed (not shown). From the probabilities are sampled which reactions occur during this time step $\text{d}t$ (Figure\ \ref{fig:simplecyclic}E). 
 
 \begin{figure}[htb!]
     \centering
-    \includegraphics[width=\linewidth]{fig/simplecyclic_edited}
+    \includegraphics[width=\linewidth]{result_files/fig2_showcase_data/overview.pdf}
     \caption{
-        \textbf{dyngen models reactions at a single-molecule level and keeps track of multiple levels of information throughput a simulation.} 
-        \textbf{A:} Changes in abundance levels are driven strictly these gene regulatory reactions.
+        \textbf{dyngen models reactions at a single-molecule level and keeps track of multiple levels of information throughout a simulation.} 
+        \textbf{A:} Changes in abundance levels are driven strictly by gene regulatory reactions.
         \textbf{B:} The input GRN is defined such that it models a dynamic process of interest.
         \textbf{C:} The reactions define how abundance levels of molecules change at any particular time point.
         \textbf{D:} Firing many reactions can significantly alter the cellular state over time.
@@ -227,7 +163,7 @@ dyngen includes generators of GRNs which result in many different developmental 
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=0.6\textwidth]{fig/example_runs_2}
+    \includegraphics[width=0.6\textwidth]{result_files/fig3_showcase_backbones/overview_2.pdf}
     \caption{
         \textbf{Multiple executions of dyngen with different predefined backbones.} From each simulation of about 200 genes, 1000 cells were sampled.
         \textbf{A:}~Linear. \textbf{B:}~Bifurcating. \textbf{C:}~Converging.
@@ -249,15 +185,15 @@ In eukaryotes, a gene is first transcribed to a pre-mRNA and subsequently splice
 
 We tested scvelo and velocyto on 8 datasets containing linear, bifurcating, disconnected and cyclic trajectories, and varied the main parameter settings in which they estimate the velocity. We found that the original velocyto implementation, which assumes that the velocity remains constant in some cells, performed the best across all datasets. The dynamical estimation of velocyto, as implemented in scvelo, performed the worst of all parameter settings. This was mainly due to scvelo overestimating the dynamics of a gene, especially towards upregulation, while velocyto correctly estimated not only when a gene changes, but also when it remained in a steady state.
 
-\begin{figure}[htb!]
+\begin{figure}[ht]
     \centering
-    \includegraphics[width=.8\linewidth]{results/velocity/usecase.pdf}
+    \includegraphics[width=\linewidth]{result_files/usecase_rna_velocity/usecase.pdf}
     \caption{
     \textbf{dyngen allows benchmarking of RNA velocity methods.} 
-    \textbf{A:} We tested five different methods and parameter settings for the estimation of RNA velocity on datasets with varying backbones (colours). Overall, the velocyto method with the constant velocity assumption performed the best overall.
-    \textbf{B:} An example bifurcating dataset, with as illustration the expression and ground truth velocity of a gene that goes up and down in the trajectory. 
-\textbf{C:} The RNA velocity estimates of the different methods.
-\textbf{D:} The embedded RNA velocity of the different methods.
+    \textbf{A:} An example bifurcating cycle dataset, with as illustration the expression and ground truth velocity of a gene D1\_TF1 that goes up and down in one branch of the trajectory. 
+\textbf{B:} The RNA velocity estimates of gene D1\_TF1 by the different methods.
+\textbf{C:} The velocity stream plots produced from the predictions of each method, as generated by scvelo.
+\textbf{D:} TODO: discuss new benchmark results
     }
     \label{fig:velocity}
 \end{figure}
@@ -267,10 +203,10 @@ We tested scvelo and velocyto on 8 datasets containing linear, bifurcating, disc
 
 ## Cell-specific network inference
 
-Cell-specific network inference (CSNI) methods\footnote{Different terms are commonly used when dealing with data from a particular source. For example, single-cell NI when applied to single-cell transcriptomics data; sample-specific NI when applied to bulk transcriptomics; patient-derived NI when applied to bulk profiles of patients. A more generaised variant of CSNI is casewise NI, which does not specify the type of data which is being analysed.} predict not only which transcription factors regulate which target genes (Figure\ \ref{fig:scgrn}A, top left), but also how active each interaction is in every case (Figure\ \ref{fig:scgrn}A).
+Cell-specific network inference (CSNI) methods\footnote{Different terms are commonly used when dealing with data from a particular source. For example, single-cell NI when applied to single-cell transcriptomics data; sample-specific NI when applied to bulk transcriptomics; patient-derived NI when applied to bulk profiles of patients. A more generalised variant of CSNI is casewise NI, which does not specify the type of data which is being analysed.} predict not only which transcription factors regulate which target genes (Figure\ \ref{fig:scgrn}A, top left), but also how active each interaction is in every case (Figure\ \ref{fig:scgrn}A).
 
 
-While a few pioneering CSNI approaches have already been developed [@aibar_scenicsinglecellregulatory_2017; @kuijjer_estimatingsamplespecificregulatory_2019; @liu_personalizedcharacterizationdiseases_2016], a quantitative assessment of the performance is until now lacking. This is not surprising, as neither real nor in silico datasets of cell-specific or even cell-type-specific interactions exists that is large enough so that it can be used as a ground-truth for evaluating CSNI methods. Extracting the ground-truth dynamic network in dyngen is straightforward though, given that we can calculate how target gene expression would change without the regulator being present.
+While a few pioneering CSNI approaches have already been developed [@aibar_scenicsinglecellregulatory_2017; @kuijjer_estimatingsamplespecificregulatory_2019; @liu_personalizedcharacterizationdiseases_2016], a quantitative assessment of the performance is until now lacking. This is not surprising, as neither real nor in silico datasets of cell-specific or even cell-type-specific interactions exists that are large enough so that it can be used as a ground-truth for evaluating CSNI methods. Extracting the ground-truth dynamic network in dyngen is straightforward though, given that we can calculate how target gene expression would change without the regulator being present.
 
 We used this ground-truth to compare the performance of three CSNI methods (Figure\ \ref{fig:scgrn}B). We calculated the AUROC and AUPR score -- which are common metrics for NI benchmarking -- for each cell individually. Computing the mean AUROC and AUPR per dataset showed that pySCENIC significantly outperforms LIONESS and SSN.
 
@@ -278,7 +214,7 @@ We used this ground-truth to compare the performance of three CSNI methods (Figu
 
 \begin{figure}[htb!]
     \centering
-    \includegraphics[width=.8\linewidth]{fig/network_inference/cni.pdf}
+    \includegraphics[width=.8\linewidth]{result_files/usecase_network_inference/cni.pdf}
     \caption{
     \textbf{dyngen allows benchmarking Cell-specific Network Inference (CSNI) methods.} 
     \textbf{A:} A cell is simulated using the global gene regulatory network (GRN, top left). However, at any particular state in the simulation, only a fraction of the gene regulatory interactions are active.
@@ -293,36 +229,41 @@ We used this ground-truth to compare the performance of three CSNI methods (Figu
 
 ## Trajectory alignment
 
-Trajectory alignment allows studying the differences between the same trajectories from different samples. For example, the cell developmental process of a patient could be compared to that of a healthy control to detect the transcriptomic differences of a particular lineage. 
+Trajectory alignment allows studying the differences between the same trajectories from different samples, as shown in Figure \ref{fig:traj_align} A. For example, the cell developmental process of a patient could be compared to that of a healthy control to detect the transcriptomic differences of a particular lineage. 
 
-Dynamic Time Warping (DTW) [@giorgino_computingvisualizingdynamic_2009] is most commonly used to align linear trajectories. DTW is a technique originating in the field of speech recognition and aligns temporal sequences by creating a warping path between the sequences that indicates which sequence must be dilated or contracted to best match the other one. DTW can also be used in combination with smoothed pseudocells [@alpert_alignmentsinglecelltrajectories_2018]. 
+Dynamic Time Warping (DTW) [@giorgino_computingvisualizingdynamic_2009] is most commonly used to align linear trajectories. DTW is a technique originating in the field of speech recognition and aligns temporal sequences by creating a warping path between the sequences that indicate which sequence must be dilated or contracted to best match the other one. DTW can also be used in combination with smoothed pseudo-cells [@alpert_alignmentsinglecelltrajectories_2018]. 
 
 Trajectory alignment, using DTW, has been used to compare gene expression kinetics resulting from different biological processes [@cacchiarelli_aligningsinglecelldevelopmental_2018], to compare human, chimpanzee and macaque neuronal development [@kanton_organoidsinglecellgenomic_2019], to find differences in gene regulation in the presence of certain growth factors [@mcfaline-figueroa_pooledsinglecellgenetic_2019], and to compare human and mouse embryogenesis [@alpert_alignmentsinglecelltrajectories_2018].
 
-dyngen can be used to evaluate trajectory alignment techniques. We analyse how well DTW distinguishes between different trajectories for increasing amounts of noise. When noise increases, DTW can no longer distinguish trajectories clearly (Figure\ \ref{fig:traj_align}). In this case, there is no difference between when smoothed pseudocells are used or when actual cells and their gene expression are used.
+The pseudotime values produced by dyngen are comparable across experiments, which allows us to evaluate the accuracy of an alignment technique. We use DTW, but process the trajectories in 3 different ways: we either used the original cells, we used pseudocells with a smoothed gene expression, or we used every tenth cell in the trajectory. An example of the different results obtained is shown in \ref{fig:traj_align} B, C and D. We can see that the smoothed way of processing recovers the signal in the data best, it finds a diagonal warping path, which indicates that the two trajectories develop in a similar fashion.
+We test this on 10 pairs of two datasets, where an increasing amount of noise was added to the count matrix. As shown in Figure \ref{fig:traj_align} E, the smoothed pseudocells perform best.
+
+
+
 
 
 \begin{figure}[htb!]
     \centering
-    \includegraphics[width=.8\linewidth]{fig/traj_alignment/tares.pdf}
+    \includegraphics[width=.8\linewidth]{result_files/usecase_trajectory_alignment/usecase.pdf}
     \caption{
     \textbf{dyngen allows benchmarking of trajectory alignment methods.} 
-  \textbf{A:} Example of trajectory alignment using DTW. The segments between the two trajectories show which cells are aligned.
-\textbf{B:} Shows the discrimination power of DTW decreasing as the amount of noise added increases.
+ \textbf{A}: Example of a trajectory alignment process. The pseudotimes of individual inferred trajectories can be aligned to indicate differences between the trajectories. 
+  \textbf{B, C, D}: Shows the accumulated distance matrices obtained after using DTW on two trajectories where noise (noise level of 0.4) was added to the count matrix. In B the complete count matrices were used to perform the alignment. In C, each 10th cell was used to perform the alignment. In D, smoothed pseudocells were used.
+  \textbf{E:} Shows the influence of added noise to the different processing methods. We can see that smoothing performs best in noisy circumstances.
     }
     \label{fig:traj_align}
 \end{figure}
 
 
 # Discussion {#sec:dyngen-discussion}
-As is, dyngen's single-cell simulations can be used to evaluate common single-cell omics computational methods such as clustering, batch correction, trajectory inference and network inference.
-However, the combined effect of these advantages results in a framework that is flexible enough to adapt to a broad range of applications. This may include methods that integrate clustering, network inference and trajectory inference. In this respect, dyngen may promote the development of new tools in the single-cell field similarly as other simulators have done in the past [@schaffter_genenetweaversilicobenchmark_2011; @ewing_combiningtumorgenome_2015].
+As is, dyngen's single-cell simulations can be used to evaluate common single-cell omics computational methods such as clustering, batch correction, trajectory inference, and network inference.
+However, the combined effect of these advantages results in a framework that is flexible enough to adapt to a broad range of applications. This may include methods that integrate clustering, network inference, and trajectory inference. In this respect, dyngen may promote the development of new tools in the single-cell field similarly as other simulators have done in the past [@schaffter_genenetweaversilicobenchmark_2011; @ewing_combiningtumorgenome_2015].
 
 dyngen ultimately allows anticipating technological developments in single-cell multi-omics. In this way, it is possible to design and evaluate the performance and robustness of new types of computational analyses before experimental data becomes available.
 In addition, it could also be used to compare which experimental protocol is the most cost-effective in producing qualitative and robust results in downstream analysis.
 
 Currently, dyngen focuses on simulating cells as standalone entities that are well mixed.
-Splitting up the simulation space into separate subvolumes could pave the way to better study key cellular processes such as cell division, intercellular communication and migration [@smith_spatialstochasticintracellular_2019].
+Splitting up the simulation space into separate subvolumes could pave the way to better study key cellular processes such as cell division, intercellular communication, and migration [@smith_spatialstochasticintracellular_2019].
 
 
 # Methods {#sec:dyngen-methods}
@@ -330,10 +271,10 @@ The workflow to generate _in silico_ single-cell data consists of six main steps
 
 \begin{figure}[htb!]
     \centering
-    \includegraphics[width=\textwidth]{fig/explain_methods}
-    \caption{\textbf{The workflow of dyngen is comprised of six main steps.} 
-    \textbf{A:} The user needs to specify the desired module network or use a predefined module network. 
-    \textbf{B:} Each gene in a module is is regulated by one or more transcription factors from the upstream module. Additional target genes are generated. 
+    \includegraphics[width=\textwidth]{result_files/explain_methods}
+    \caption{\textbf{The workflow of dyngen consists of six main steps.} 
+    \textbf{A:} The user needs to specify the desired module network or use a predefined module network. The module network is what determines the dynamic behaviour of simulated cells.
+    \textbf{B:} The number of desired transcription factors (which drive the desired dynamic process) are amongst the given modules and adds regulatory interactions according to the module network. Additional target genes (which do not influence the dynamic process) are added by sampling interactions from GRN interaction databases.
     \textbf{C:} Each gene regulatory interaction in the GRN is converted to a set of biochemical reactions. 
     \textbf{D:} Along with the module network, the user also needs to specify the backbone structure of expected cell states. The average expression of each edge in the backbone is simulated by activating a restricted set of genes for each edge. 
     \textbf{E:} Multiple Gillespie SSA simulations are run using the reactions defined in step C.  The counts of each of the molecules at each time step are extracted. Each time step is mapped to a point in the backbone. 
@@ -344,63 +285,39 @@ The workflow to generate _in silico_ single-cell data consists of six main steps
 
 
 
-## Defining the backbone: modules and states {#sec:dyngen-backbone}
+## Defining the module network {#sec:dyngen-modules}
 
-One of the main processes involved in cellular dynamic processes is gene regulation, where regulatory cascades and feedback loops lead to progressive changes in expression and decision making. The exact way a cell chooses a certain path during its differentiation is still an active research field, although certain models have already emerged and been tested _in vivo_. One driver of bifurcation seems to be mutual antagonism, where two genes strongly repress each other [@rekhtman_directinteractionhematopoietic_1999; @xu_regulationbifurcatingcell_2015], forcing one of the two to become inactive [@graf_forcingcellschange_2009]. Such mutual antagonism can be modelled and simulated [@wang_quantifyingwaddingtonlandscape_2011; @ferrell_bistabilitybifurcationswaddington_2012]. Although the two-gene model is simple and elegant, the reality is frequently more complex, with multiple genes (grouped into modules) repressing each other [@yosef_dynamicregulatorynetwork_2013].
+One of the main processes involved in cellular dynamic processes is gene regulation, where regulatory cascades and feedback loops lead to progressive changes in expression and decision making. The exact way a cell chooses a certain path during its differentiation is still an active research field, although certain models have already emerged and been tested _in vivo_. One driver of bifurcation is mutual antagonism, where two genes strongly repress each other [@rekhtman_directinteractionhematopoietic_1999; @xu_regulationbifurcatingcell_2015], forcing one of the two to become inactive [@graf_forcingcellschange_2009]. Such mutual antagonism can be modelled and simulated [@wang_quantifyingwaddingtonlandscape_2011; @ferrell_bistabilitybifurcationswaddington_2012]. Although the two-gene model is simple and elegant, the reality is frequently more complex, with multiple genes (grouped into modules) repressing each other [@yosef_dynamicregulatorynetwork_2013].
 
-To start a dyngen simulation, the user needs to define a module network and a backbone. The module network defines how sets of co-regulated genes, called modules, regulate each other. The module network is what mainly determines which dynamic processes occur within the simulated cells. 
+To start a dyngen simulation, the user needs to define a module network. The module network describes how sets of genes regulate each other and is what mainly determines which dynamic processes occur within the simulated cells. 
 
-A module network consists of modules connected together by regulatory interactions. 
-A module may have basal expression, which means genes in this module will be transcribed without the presence of transcription factor molecules. A module marked as "active during the burn phase" means that this module will be allowed to generate expression of its genes during an initial warm-up phase (See section \ref{sec:dyngen-simcell}). At the end of the dyngen process, cells will not be sampled from the burn phase simulations. Interactions between modules have a strength (which is a positive integer) and an effect (+1 for upregulating, -1 for downregulating).
+A module network consists of modules connected together by regulatory interactions, which can be either up- or down-regulating. A module may have basal expression, which means genes in this module will be transcribed without the presence of transcription factor molecules. A module marked as "active during the burn phase" means that this module will be allowed to generate expression of its genes during an initial warm-up phase (See section \ref{sec:dyngen-simcell}). At the end of the dyngen process, cells will not be sampled from the burn phase simulations. Interactions between modules have a strength (which is a positive integer) and an effect (+1 for upregulating, -1 for downregulating).
 
-Several examples of module networks are given (Figure\ \ref{fig:example_backbones}).
+Several examples of module networks are given (Figure\ \ref{fig:example_backbones_onlymodules}).
 A simple chain of modules (where one module upregulates the next) results in a _linear_ process. By having the last module repress the first module, the process becomes _cyclic_. Two modules repressing each other is the basis of a _bifurcating_ process, though several chains of modules have to be attached in order to achieve progression before and after the bifurcation process. Finally, a _converging_ process has a bifurcation occurring during the burn phase, after which any differences in module regulation is removed.
 
 Note that these examples represent the bare minimum in terms of the number of modules used. Using longer chains of modules is typically desired. In addition, the fate decisions made in this example of a bifurcation is reversible, meaning cells can be reprogrammed to go down a different differentiation path. If this effect is undesirable, more safeguards need to be put in place to prevent reprogramming from occurring (Section \ref{sec:dyngen-bbl}).
 
 \begin{figure}[htb!]
     \centering
-    \includegraphics[width=0.8\textwidth]{fig/example_backbones}
+    \includegraphics[width=0.8\textwidth]{result_files/example_backbones_onlymodules}
     \caption{
-      \textbf{Example module networks.}
+      \textbf{The module network determines the type of dynamic process which simulated cells will undergo.} A module network describes the regulatory interactions between sets of transcription factors which drive the desired dynamic process.
     }
-    \label{fig:example_backbones}
+    \label{fig:example_backbones_onlymodules}
 \end{figure}
 
 
 
-### Backbone lego {#sec:dyngen-bbl}
-The backbone can make use of one or more "backbone lego" (BBL) pieces (Figure\ \ref{fig:backbone_lego}). A BBL consists of one or more modules which regulate each other such that the output modules present a specific behaviour, depending on the input module (Figure\ \ref{fig:backbone_lego}A). Parameters allow determining the number of modules involved in the process and the number of outputs. Multiple BBLs can be chained together in order to intuitively create module networks and corresponding state networks (Figure\ \ref{fig:backbone_lego}B). Note that not all dynamic processes can be represented by a combination of BBLs, but they can serve as common building blocks to aid the construction of the backbone.
-
-\begin{figure}[htb!]
-    \centering
-    \includegraphics[width=0.8\textwidth]{fig/backbone_lego}
-    \caption{
-      \textbf{Reusable regulatory building blocks that can be used to construct GRNs that result in dynamic processes following an expected pattern.}
-      \textbf{A:} Each building block contains genes which serve as inputs that can be regulated by external transcription factors. The connections inside the building block transform the input signal in a particular way and has one or more output interactions of which the targets are not yet determined.
-      \textbf{B:} By connecting multiple building blocks together, a backbone of regulatory modules can be formed.
-      \textbf{C:} dyngen offers several variations of linear building blocks which allow for differing regulatory mechanisms.
-      \textbf{D:} A branching module will upregulate the expression of just one of the output interactions. Two variations are given of which the simple variant is more prone to reprogramming events in comparison to the robust branching module.
-      \textbf{E,F:} These components allow to specify the beginning (no inputs) and end (no outputs) of the backbone.
-    }
-    \label{fig:backbone_lego}
-\end{figure}
-
-
-When the input node of a **linear BBL** (Figure\ \ref{fig:backbone_lego}C) is upregulated, the module the BBL is connected to will be upregulated. A _simple chain_ is a set of modules where a module upregulates the next. A _chain with double repression_ has an uneven number of modules forming a chain where each module downregulates the next but all modules (except the input) have basal expression. A _grid with double repression_ is similar; except that modules do not have basal expression but instead get upregulated by an upstream module in the chain. Finally, a _flip flop_} consists of a simple chain where first the modules (except the last) are upregulated. Once the second to last module is upregulated, that module upregulates itself and the first module is strongly repressed, causing all other modules to lose expression and finally the last module to be upregulated. The _flip flop_ retains this output state, even when the input changes.
-
-When the input node of a **branching BBL** (Figure\ \ref{fig:backbone_lego}D) is upregulated, a subset of its output modules will eventually be upregulated. A \emph{simple branching} uses reciprocal inhibition to drive the upregulation of one of the output modules. Due to its simplicity, however, multiple output modules might be upregulated simultaneously and over long periods of simulation time it might be possible that the choice of upregulated module changes. A _robust branching_ improves upon the simple branching by preventing upregulation of output modules until an internal branching decision has been made, and by repressing the decision mechanism to avoid other output modules being upregulated other than the one that has been chosen.
-
-A **leaf BBL** (Figure\ \ref{fig:backbone_lego}E) is a linear BBL that has either no inputs or no outputs. A _start_ BBL is a linear BBL where the first module has basal expression, and all modules in this module will be active during the burn-in phase of the simulation. An _end_ BBL is also a linear BBL with its output regulating one final module.
 
 
 
 ## Generating the gene regulatory network {#sec:dyngen-grn}
-The GRN is generated based on the given backbone in four main steps (Figure\ \ref{fig:gen_feature_network}).
+The GRN is generated based on the given module network in four main steps (Figure\ \ref{fig:gen_feature_network}).
 
 \begin{figure}[htb!]
     \centering
-    \includegraphics[width=\linewidth]{fig/gen_feature_network}
+    \includegraphics[width=\linewidth]{result_files/gen_feature_network}
     \caption{
         \textbf{Generating the feature network from a backbone consists of four main steps.}
     }
@@ -413,7 +330,7 @@ The GRN is generated based on the given backbone in four main steps (Figure\ \re
 **Step 2, generating the TF interactions.** Let each TF be regulated according to the interactions in the backbone. These interactions inherit the effect, strength, and independence parameters from the interactions in the backbone. A TF can only be regulated by other TFs or itself.
 
 **Step 3, sampling the target subnetwork.**
-A user-defined number of target genes are added to the GRN. Target genes are regulated by a TF or another target gene, but is always downstream of at least one TF. To sample the interactions between target genes, one of the many FANTOM5 \cite{lizio_gatewaysfantom5promoter_2015} GRNs is sampled. The currently existing TFs are mapped to regulators in the FANTOM5 GRN. The targets are drawn from the FANTOM5 GRN, weighted by their page rank value. For each target, at most $x$ regulators are sampled from the induced FANTOM5 GRN (default $x=5$). The interactions connecting a target gene and its regulators are added the GRN.
+A user-defined number of target genes are added to the GRN. Target genes are regulated by a TF or another target gene, but are always downstream of at least one TF. To sample the interactions between target genes, one of the many FANTOM5 \cite{lizio_gatewaysfantom5promoter_2015} GRNs is sampled. The currently existing TFs are mapped to regulators in the FANTOM5 GRN. The targets are drawn from the FANTOM5 GRN, weighted by their page rank value. For each target, at most $x$ regulators are sampled from the induced FANTOM5 GRN (default $x=5$). The interactions connecting a target gene and its regulators are added to the GRN.
 
 **Step 4, sampling the housekeeping subnetwork.**
 Housekeeping genes are completely separate from any TFs or target genes. A user-defined set of housekeeping genes are also sampled from the FANTOM5 GRN. The interactions of the FANTOM5 GRN are first subsampled such that the maximum in-degree of each gene is $x$ (default $x=5$). A random gene is sampled and a breadth-first-search is performed to sample the desired number of housekeeping genes.
@@ -421,56 +338,55 @@ Housekeeping genes are completely separate from any TFs or target genes. A user-
 
 ## Convert gene regulatory network to a set of reactions {#sec:dyngen-reactions}
 
-\newcommand{\w}[1]{\text{w}_{#1}}
 \newcommand{\x}[1]{\text{x}_{#1}}
 \newcommand{\y}[1]{\text{y}_{#1}}
+\newcommand{\z}[1]{\text{z}_{#1}}
 
 
 \newcommand{\rs}[1]{\text{R}_{#1}}
 \newcommand{\rp}[1]{\text{R}^+_{#1}}
 \newcommand{\rn}[1]{\text{R}^-_{#1}}
 
-\newcommand{\wpr}[1]{\text{wpr}_{#1}}
-\newcommand{\whl}[1]{\text{whl}_{#1}}
-\newcommand{\wdr}[1]{\text{wdr}_{#1}}
-\newcommand{\wsr}[1]{\text{wsr}_{#1}}
+\newcommand{\xpr}[1]{\text{xpr}_{#1}}
 \newcommand{\xhl}[1]{\text{xhl}_{#1}}
-\newcommand{\xdr}[1]{\text{xdr}_{#1}}
-\newcommand{\ypr}[1]{\text{ypr}_{#1}}
+\newcommand{\ysr}[1]{\text{ysr}_{#1}}
 \newcommand{\yhl}[1]{\text{yhl}_{#1}}
 \newcommand{\ydr}[1]{\text{ydr}_{#1}}
+\newcommand{\zpr}[1]{\text{zpr}_{#1}}
+\newcommand{\zhl}[1]{\text{zhl}_{#1}}
+\newcommand{\zdr}[1]{\text{zdr}_{#1}}
 
 \newcommand{\str}[1]{\text{str}_{#1}}
 \newcommand{\hill}[1]{\text{hill}_{#1}}
 \newcommand{\ind}[1]{\text{ind}_{#1}}
 \newcommand{\dis}[1]{\text{dis}_{#1}}
-\newcommand{\buf}[1]{\chi_{#1}}
+\newcommand{\buf}[1]{\text{bind}_{#1}}
 \newcommand{\ba}[1]{\text{bas}_{#1}}
 
-Simulating a cell's GRN makes use of a stochastic framework which tracks the abundance levels of molecules over time in a discrete quantity. For every gene $G$, the abundance levels of three molecules are tracked, namely of corresponding pre-mRNAs, mature mRNAs and proteins, which are represented by the terms $\w G$, $\x G$ and $\y G$ respectively. The GRN defines how a reaction affects the abundance levels of molecules and how likely it will occur. Gibson and Bruck [@gibson_probabilisticmodelprokaryotic_2000] provide a good introduction to modelling gene regulation with stochastic frameworks, on which many of the concepts below are based.
+Simulating a cell's GRN makes use of a stochastic framework which tracks the abundance levels of molecules over time in a discrete quantity. For every gene $G$, the abundance levels of three molecules are tracked, namely of corresponding pre-mRNAs, mature mRNAs and proteins, which are represented by the terms $\x G$, $\y G$ and $\z G$ respectively. The GRN defines how a reaction affects the abundance levels of molecules and how likely it will occur. Gibson and Bruck [@gibson_probabilisticmodelprokaryotic_2000] provide a good introduction to modelling gene regulation with stochastic frameworks, on which many of the concepts below are based.
 
 For every gene in the GRN a set of reactions are defined, namely transcription, splicing, translation, and degradation. Each reaction consists of a propensity function -- a formula $f(.)$ to calculate the probability $f(.) \times \text{d}t$ of it occurring during a time interval $\text{d}t$ -- and the effect -- how it will affect the current state if triggered. 
 
-The effects of each reaction mimic the respective biological processes (Table\ \ref{tab:reaction_def}, middle). Transcription of gene $G$ results in the creation of a single pre-mRNA molecule $\w G$. Splicing turns one pre-mRNA $\w G$ into a mature mRNA $\w G$. Translation uses a mature mRNA $\x G$ to produce a protein $\y G$. Pre-mRNA, mRNA and protein degradation results in the removal of a $\w G$, $\x G$, and $\y G$ molecule, respectively.
+The effects of each reaction mimic the respective biological processes (Table\ \ref{tab:reaction_def}, middle). Transcription of gene $G$ results in the creation of a single pre-mRNA molecule $\x G$. Splicing turns one pre-mRNA $\x G$ into a mature mRNA $\x G$. Translation uses a mature mRNA $\y G$ to produce a protein $\z G$. Pre-mRNA, mRNA and protein degradation results in the removal of a $\x G$, $\y G$, and $\z G$ molecule, respectively.
 
-The propensity of all reactions except transcription are all linear functions (Table\ \ref{tab:reaction_def}, right) of the abundance level of some molecule multiplied by a constant drawn from a normal distribution (Table\ \ref{tab:reaction_params}). The propensity of transcription of a gene $G$ depends on the abundance levels of its TFs. 
+The propensity of all reactions except transcription are all linear functions (Table\ \ref{tab:reaction_def}, right) of the abundance level of some molecule multiplied by a per-gene constant (Table\ \ref{tab:reaction_params}). The propensity of transcription of a gene $G$ depends on the abundance levels of its TFs. The per-gene and per-interaction constants are based on the median reported production-rates and half-lives of molecules measured of 5000 mammalian genes [@schwanhausser_globalquantificationmammalian_2011], except that the transcription rate has been amplified by a factor of 10.
 
 
 
 \begin{table}[ht]
     \caption{
-      \textbf{Reactions affecting the abundance levels of pre-mRNA $\w G$, mature mRNA $\x G$ and proteins $\y G$ of gene $G$.} Define the set of regulators of $G$ as $\rs{G}$, the set of upregulating regulators of $G$ as $\rp G$, and the set of downregulating regulators of $G$ as $\rn G$. Parameters used in the propensity formulae are defined in Table \ref{tab:reaction_params}.
+      \textbf{Reactions affecting the abundance levels of pre-mRNA $\x G$, mature mRNA $\y G$ and proteins $\z G$ of gene $G$.} Define the set of regulators of $G$ as $\rs{G}$, the set of upregulating regulators of $G$ as $\rp G$, and the set of downregulating regulators of $G$ as $\rn G$. Parameters used in the propensity formulae are defined in Table \ref{tab:reaction_params}.
     } \label{tab:reaction_def}
     \centering
     \begin{tabular}{|lcc|}
         \hline
         Reaction & Effect & Propensity \\ \hline \hline
-        Transcription & $\emptyset \rightarrow \w G$ & $\wpr G \times \frac{\ba G - \ind{G}^{|\rp{G}|} + \prod\limits_{H \in \rp{G}}(\ind G + \buf{G,H})}{\prod\limits_{H \in \rs{G}}(1 + \buf{G,H})}$ \\
-        Pre-mRNA degradation & $\w G \rightarrow \emptyset$ & $\wdr G \times \w G$ \\
-        Splicing & $\w G \rightarrow \x G$ & $\wsr G \times \w G$ \\
-        Mature mRNA degradation & $\x G \rightarrow \emptyset$ & $\xdr G \times \x G$ \\
-        Translation & $\x G \rightarrow \x G + \y G$ & $\ypr G \times \x G$ \\
-        Protein degradation & $\y G \rightarrow \emptyset$ & $\ydr G \times \y G$ \\ \hline
+        Transcription & $\emptyset \rightarrow \x G$ & $\xpr G \times \frac{\ba G - \ind{G}^{|\rp{G}|} + \prod\limits_{H \in \rp{G}}(\ind G + \buf{G,H})}{\prod\limits_{H \in \rs{G}}(1 + \buf{G,H})}$ \\
+        Splicing & $\x G \rightarrow \y G$ & $\ysr G \times \x G$ \\
+        Translation & $\y G \rightarrow \y G + \z G$ & $\zpr G \times \y G$ \\ \hline\hline
+        Pre-mRNA degradation & $\x G \rightarrow \emptyset$ & $\ydr G \times \x G$ \\
+        Mature mRNA degradation & $\y G \rightarrow \emptyset$ & $\ydr G \times \y G$ \\
+        Protein degradation & $\z G \rightarrow \emptyset$ & $\zdr G \times \z G$ \\ \hline
     \end{tabular}
 \end{table}
 
@@ -483,20 +399,18 @@ The propensity of all reactions except transcription are all linear functions (T
     \begin{tabular}{|lrl|}
         \hline
         Parameter & Symbol & Definition \\ \hline \hline
-        Transcription rate & $\wpr{G}$ & $\in N(50, 10),\ \geq 10$ \\
-        Splicing rate & $\wsr G$ & $\in N(5, 1),\ \geq 1$ \\
-        Translation rate & $\ypr{G}$ & $\in N(5, 1),\ \geq 1$ \\
-        Pre-mRNA half-life & $\whl{G}$ & $\in N(0.15, 0.03),\ \geq 0.05$ \\
-        Mature mRNA half-life & $\xhl{G}$ & $\in N(0.15, 0.03),\ \geq 0.05$ \\
-        Protein half-life rate & $\yhl G$ & $\in N(0.25, 0.05),\ \geq 0.1$ \\
+        Transcription rate & $\xpr{G}$ & $\in U(10, 20)$ \\
+        Splicing rate & $\ysr G$ & $= \ln(2)\ /\ 2$ \\
+        Translation rate & $\zpr{G}$ & $\in U(100, 150)$ \\
+        (Pre-)mRNA half-life & $\yhl{G}$ & $\in U(2.5, 5)$ \\
+        Protein half-life & $\zhl G$ & $\in U(5, 10)$ \\
         Interaction strength & $\str{G,H}$ & $\in 10^{U(0, 2)}$ * \\
         Hill coefficient & $\hill{G,H}$ & $\in U(0.5, 2)$ * \\
-        Independence factor & $\ind G$ & $\in [0, 1]$ * \\ \hline\hline
-        Pre-mRNA degradation rate & $\wdr G$ & $= \ln(2)\ /\ \whl G$ \\
-        Mature mRNA degradation rate & $\xdr G$ & $= \ln(2)\ /\ \xhl G$ \\
-        Protein degradation rate & $\ydr G$ & $= \ln(2)\ /\ \yhl G$ \\
-        Dissociation constant & $\dis H$ & $= 0.5 \times \frac{\wpr H \times \wsr H \times \ypr H}{(\wdr H + \wsr H) \times \xdr H \times \ydr H}$ \\
-        Binding & $\buf{G,H}$ & $= \str{G,H} \times \left(\y H\ /\ \dis H\right) ^ {\hill{G,H}}$ \\
+        Independence factor & $\ind G$ & $\in U(0, 1)$ * \\ \hline\hline
+        (Pre-)mRNA degradation rate & $\ydr G$ & $= \ln(2)\ /\ \yhl G$ \\
+        Protein degradation rate & $\zdr G$ & $= \ln(2)\ /\ \zhl G$ \\
+        Dissociation constant & $\dis H$ & $= 0.5 \times \frac{\xpr H \times \ysr H \times \zpr H}{(\ydr H + \ysr H) \times \ydr H \times \zdr H}$ \\
+        Binding strength & $\buf{G,H}$ & $= \str{G,H} \times \left(\z H\ /\ \dis H\right) ^ {\hill{G,H}}$ \\
         Basal expression & $\ba G$ & $= \begin{cases} 1 & \mbox{if } \rp{G} = \emptyset \\ 0.0001 & \mbox{if } \rn{G} = \emptyset \mbox{ and } \rp{G} \neq \emptyset \\ 0.5 & \mbox{otherwise} \end{cases}$ * \\ \hline
         \multicolumn{3}{l}{*: unless $G$ is a TF, then the value is determined by the backbone.}
     \end{tabular}
@@ -507,17 +421,17 @@ The propensity of all reactions except transcription are all linear functions (T
 
 \newcommand{\proptran}{f}
 \newcommand{\ai}[2]{$S_{#1} = S_{#2b}$}
-\newcommand{\yk}[1]{\frac{y_#1}{k_#1}^{c_#1}}
+\newcommand{\zk}[1]{\frac{y_#1}{k_#1}^{c_#1}}
 \newcommand{\wi}[1]{\nu_#1}
 
-The propensity of the transcription of a gene $G$ is inspired by thermodynamic models of gene regulation [@schilstra_biologicgeneexpression_2008], in which the promoter of $G$ can be bound or unbound by a set of $N$ transcription factors $H_i$. Let $\proptran(\y 1, \y 2, \ldots, \y N)$ denote the propensity function of $G$, in function of the abundance levels of the transcription factors. The following subsections explain and define the propensity function when $N=1$, $N=2$, and finally for an arbitrary $N$.
+The propensity of the transcription of a gene $G$ is inspired by thermodynamic models of gene regulation [@schilstra_biologicgeneexpression_2008], in which the promoter of $G$ can be bound or unbound by a set of $N$ transcription factors $H_i$. Let $\proptran(\z 1, \z 2, \ldots, \z N)$ denote the propensity function of $G$, in function of the abundance levels of the transcription factors. The following subsections explain and define the propensity function when $N=1$, $N=2$, and finally for an arbitrary $N$.
 
 
 ### Propensity of transcription when $N=1$
 In the simplest case when $N=1$, the promoter can be in one of two states. In state $S_0$, the promoter is not bound by any transcription factors, and in state $S_1$ the promoter is bound by $H_1$. Each state $S_j$ is linked with a relative activation $\alpha_j$, a number between 0 and 1 representing the activity of the promoter at this particular state. The propensity function is thus equal to the expected value of the activity of the promoter multiplied by the pre-mRNA production rate of $G$.
 
 \begin{align}
-  f(y_1, y_2, \ldots, y_N) & = \text{wpr} \cdot \sum_{j = 0}^{2^N - 1} \alpha_j \cdot P(S_j) \label{eqn:activ0} \\
+  f(y_1, y_2, \ldots, y_N) & = \text{xpr} \cdot \sum_{j = 0}^{2^N - 1} \alpha_j \cdot P(S_j) \label{eqn:activ0} \\
 \end{align}
 
 For $N=1$, $P(S_1)$ is equal to the Hill equation, where $k_i$ represents the concentration of $H_i$ at half-occupation and $n_i$ represents the Hill coefficient. Typically, $n_i$ is between [1,10]
@@ -538,9 +452,9 @@ Since $P(S_0) = 1 - P(S_1)$, the activation function is formulated and simplifie
 
 
 \begin{align}
-f(y_1) & = \text{wpr} \cdot \left(\alpha_0 \cdot P(S_0) + \alpha_1 \cdot P(S_1)\right) \\
-   & = \text{wpr} \cdot \left(\alpha_0 \cdot \frac{1}{1 + \nu_1} + \alpha_1 \cdot \frac{\nu_1}{1 + \nu_1}\right) \\
-   & = \text{wpr} \cdot \frac{\alpha_0 + \alpha_1 \cdot \nu_1}{1 + \nu_1} \\
+f(y_1) & = \text{xpr} \cdot \left(\alpha_0 \cdot P(S_0) + \alpha_1 \cdot P(S_1)\right) \\
+   & = \text{xpr} \cdot \left(\alpha_0 \cdot \frac{1}{1 + \nu_1} + \alpha_1 \cdot \frac{\nu_1}{1 + \nu_1}\right) \\
+   & = \text{xpr} \cdot \frac{\alpha_0 + \alpha_1 \cdot \nu_1}{1 + \nu_1} \\
 \end{align}
 
 
@@ -569,9 +483,9 @@ The denominator of $P(S_j)$ is then equal to the sum of all $w_j$. The probabili
 Substituting $P(S_j)$ and $w_j$ into $f(.)$ results in the following equation:
 
 \begin{align}
-f(y_1, y_2) & = \text{wpr} \cdot \sum_{j = 0}^{2^N - 1} \alpha_j \cdot P(S_j) \\
- & = \text{wpr} \cdot \frac{\sum_{j = 0}^{2^N - 1} \alpha_j \cdot w_j}{\prod_{i=1}^{i \leq N} (\nu_i + 1)} \\
- & = \text{wpr} \cdot \frac{\alpha_0 + \alpha_1 \cdot \nu_1 + \alpha_2 \cdot \nu_2 + \alpha_3 \cdot \nu_1 \cdot \nu_2}{(\nu_1 + 1) \cdot (\nu_2 + 1)} \\
+f(y_1, y_2) & = \text{xpr} \cdot \sum_{j = 0}^{2^N - 1} \alpha_j \cdot P(S_j) \\
+ & = \text{xpr} \cdot \frac{\sum_{j = 0}^{2^N - 1} \alpha_j \cdot w_j}{\prod_{i=1}^{i \leq N} (\nu_i + 1)} \\
+ & = \text{xpr} \cdot \frac{\alpha_0 + \alpha_1 \cdot \nu_1 + \alpha_2 \cdot \nu_2 + \alpha_3 \cdot \nu_1 \cdot \nu_2}{(\nu_1 + 1) \cdot (\nu_2 + 1)} \\
 \end{align}
 
 
@@ -595,8 +509,8 @@ P(S_j) & = \frac{w_j}{\sum_{j=0}^{j < 2^N} w_j} \\
 Substituting $P(S_j)$ into $f(.)$ yields:
 
 \begin{align}
-f(y_1, y_2, \ldots, y_N) & = \text{wpr} \cdot \sum_{j = 0}^{2^N - 1} \alpha_j \cdot P(S_j) \\
-& = \text{wpr} \cdot \frac{\sum_{j = 0}^{2^N - 1} \alpha_j \cdot w_j}{\prod_{i=1}^{i \leq N} (\nu_i + 1)} \label{eqn:prop2n}
+f(y_1, y_2, \ldots, y_N) & = \text{xpr} \cdot \sum_{j = 0}^{2^N - 1} \alpha_j \cdot P(S_j) \\
+& = \text{xpr} \cdot \frac{\sum_{j = 0}^{2^N - 1} \alpha_j \cdot w_j}{\prod_{i=1}^{i \leq N} (\nu_i + 1)} \label{eqn:prop2n}
 \end{align}
 
 
@@ -613,7 +527,7 @@ For large values of $N$, computing $f(.)$ is practically infeasible as it requir
 Substituting equation \ref{eqn:assalpha} into equation \ref{eqn:prop2n} and defining $R = \{1, 2, \ldots, N\}$ and $R^+ = \{i | H_i \text{ activates } G\}$ yields the simplified propensity function:
 
 \begin{align}
-f(y_1, y_2, \ldots, y_N) & = \text{wpr} \cdot \frac{\prod_{i \in R^+} (\nu_i + 1)}{\prod_{i \in R} (\nu_i + 1)}
+f(y_1, y_2, \ldots, y_N) & = \text{xpr} \cdot \frac{\prod_{i \in R^+} (\nu_i + 1)}{\prod_{i \in R} (\nu_i + 1)}
 \end{align}
 
 
@@ -623,7 +537,7 @@ The definition of $\alpha_j$ as in equation \ref{eqn:assalpha} presents two main
 Let $\text{ba} \in [0,1]$ denote the basal expression strength $G$ (i.e. how much will $G$ be expressed when no transcription factors are bound), and $\text{sy} \in [0,1]$ denote the synergism of regulators $H_i$ of $G$, the transcription propensity becomes:
 
 \begin{align}
-f(y_1, y_2, \ldots, y_N) & = \text{wpr} \cdot \frac{\text{ba} - \text{sy}^{|R^+|} + \prod_{i \in R^+} (\nu_i + \text{sy})}{\prod_{i \in R} (\nu_i + 1)}
+f(y_1, y_2, \ldots, y_N) & = \text{xpr} \cdot \frac{\text{ba} - \text{sy}^{|R^+|} + \prod_{i \in R^+} (\nu_i + \text{sy})}{\prod_{i \in R} (\nu_i + 1)}
 \end{align}
 
 ## Simulate single cells {#sec:dyngen-simcell}
@@ -647,7 +561,7 @@ In this step, $N$ cells are sampled the simulations. Two approaches are implemen
 
 \begin{figure}[htb!]
     \centering
-    \includegraphics[width=.6\linewidth]{fig/sample_cells.pdf}
+    \includegraphics[width=.6\linewidth]{result_files/sample_cells.pdf}
     \caption{
         \textbf{Two approaches can be used to sample cells from simulations: snapshot and time-series.}
     }
@@ -663,9 +577,43 @@ Molecules are sampled from the simulation to replicate how molecules are experim
 ## Determining the ground-truth trajectory {#sec:dyngen-groundtruth}
 To determine the state of a cell at any point in the simulation, we simulate the expression of the ground-truth trajectory. Subsequently, map the expression of the cell to the closest resembling state in the ground-truth trajectory by finding the point in the ground-truth trajectory with the highest Pearson correlation value w.r.t. the expression values. 
 
-To simulate the expression of the ground-truth expression, we iterate over the edges in the backbone state network starting from the root state. We assume the root state has no modules active and has no expression of any molecules. To transition to a next state, we activate or deactivate certain gene modules as defined by the backbone (Section\ \ref{sec:dyngen-backbone}) and perform a noiseless ODE simulation. For each time interval $t=0.01$ along the trajectory, the expression values are retained.
+To simulate the expression of the ground-truth expression, we iterate over the edges in the backbone state network starting from the root state. We assume the root state has no modules active and has no expression of any molecules. To transition to a next state, we activate or deactivate certain gene modules as defined by the backbone (Section\ \ref{sec:dyngen-modules}) and perform a noiseless ODE simulation. For each time interval $t=0.01$ along the trajectory, the expression values are retained.
 
 
+## Constructing backbones {#sec:dyngen-backbone}
+
+\begin{figure}[htb!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{result_files/example_backbones}
+    \caption{
+      TODO
+    }
+    \label{fig:example_backbones}
+\end{figure}
+
+### Backbone lego {#sec:dyngen-bbl}
+The backbone can make use of one or more "backbone lego" (BBL) pieces (Figure\ \ref{fig:backbone_lego}). A BBL consists of one or more modules which regulate each other such that the output modules present a specific behaviour, depending on the input module (Figure\ \ref{fig:backbone_lego}A). Parameters allow determining the number of modules involved in the process and the number of outputs. Multiple BBLs can be chained together in order to intuitively create module networks and corresponding state networks (Figure\ \ref{fig:backbone_lego}B). Note that not all dynamic processes can be represented by a combination of BBLs, but they can serve as common building blocks to aid the construction of the backbone.
+
+\begin{figure}[htb!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{result_files/backbone_lego}
+    \caption{
+      \textbf{Reusable regulatory building blocks that can be used to construct GRNs that result in dynamic processes following an expected pattern.}
+      \textbf{A:} Each building block contains genes which serve as inputs that can be regulated by external transcription factors. The connections inside the building block transform the input signal in a particular way and has one or more output interactions of which the targets are not yet determined.
+      \textbf{B:} By connecting multiple building blocks together, a backbone of regulatory modules can be formed.
+      \textbf{C:} dyngen offers several variations of linear building blocks which allow for differing regulatory mechanisms.
+      \textbf{D:} A branching module will upregulate the expression of just one of the output interactions. Two variations are given of which the simple variant is more prone to reprogramming events in comparison to the robust branching module.
+      \textbf{E,F:} These components allow to specify the beginning (no inputs) and end (no outputs) of the backbone.
+    }
+    \label{fig:backbone_lego}
+\end{figure}
+
+
+When the input node of a **linear BBL** (Figure\ \ref{fig:backbone_lego}C) is upregulated, the module the BBL is connected to will be upregulated. A _simple chain_ is a set of modules where a module upregulates the next. A _chain with double repression_ has an uneven number of modules forming a chain where each module downregulates the next but all modules (except the input) have basal expression. A _grid with double repression_ is similar; except that modules do not have basal expression but instead get upregulated by an upstream module in the chain. Finally, a _flip flop_} consists of a simple chain where first the modules (except the last) are upregulated. Once the second to last module is upregulated, that module upregulates itself and the first module is strongly repressed, causing all other modules to lose expression and finally the last module to be upregulated. The _flip flop_ retains this output state, even when the input changes.
+
+When the input node of a **branching BBL** (Figure\ \ref{fig:backbone_lego}D) is upregulated, a subset of its output modules will eventually be upregulated. A \emph{simple branching} uses reciprocal inhibition to drive the upregulation of one of the output modules. Due to its simplicity, however, multiple output modules might be upregulated simultaneously and over long periods of simulation time it might be possible that the choice of upregulated module changes. A _robust branching_ improves upon the simple branching by preventing upregulation of output modules until an internal branching decision has been made, and by repressing the decision mechanism to avoid other output modules being upregulated other than the one that has been chosen.
+
+A **leaf BBL** (Figure\ \ref{fig:backbone_lego}E) is a linear BBL that has either no inputs or no outputs. A _start_ BBL is a linear BBL where the first module has basal expression, and all modules in this module will be active during the burn-in phase of the simulation. An _end_ BBL is also a linear BBL with its output regulating one final module.
 
 ## Determining the cell-specific ground-truth regulatory network {#sec:dyngen-extractgrn}
 Calculating the regulatory effect of a regulator $R$ on a target $T$ (Figure\ \ref{fig:explain_methods}F) requires determining the contribution of $R$ in the propensity function of the transcription of $T$ (section\ \ref{sec:dyngen-reactions}) with respect to other regulators. This information is useful, amongst others, for benchmarking cell-specific network inference methods. 
@@ -673,14 +621,14 @@ Calculating the regulatory effect of a regulator $R$ on a target $T$ (Figure\ \r
 The regulatory effect of $R$ on $T$ at a particular state $S$ is defined as the change in the propensity of transcription when $R$ is set to zero, scaled by the inverse of the pre-mRNA production rate of $T$. More formally:
 
 \begin{eqnarray*}
-  \text{regeffect}_G & = \frac{\text{proptrans}_G(S) - \text{proptrans}_G(S[\y T \leftarrow 0])}{\wpr G}
+  \text{regeffect}_G & = \frac{\text{proptrans}_G(S) - \text{proptrans}_G(S[\z T \leftarrow 0])}{\xpr G}
 \end{eqnarray*}
 
 Determining the regulatory effect for all interactions and cells in the dataset yields the complete cell-specific ground-truth GRN (Figure\ \ref{fig:cell-specific_grn}). The regulatory effect lie between $[-1, 1]$, where -1 represents complete inhibition of $T$ by $R$, 1 represents maximal activation of $T$ by $R$, and 0 represents inactivity of the regulatory interaction between $R$ and $T$.
 
 \begin{figure}[htb!]
     \centering
-    \includegraphics[width=.8\linewidth]{fig/small_bifurc/scgrn.pdf}
+    \includegraphics[width=.8\linewidth]{result_files/fig1_showcase_functionality/scgrn.pdf}
     \caption{
         \textbf{The cell-specific regulatory effects of all interactions, computed on cells part of a bifurcation trajectory.} Negative values correspond to inhibitory interactions, positive values to activating interactions, and zero values correspond to inactive interactions. 
     }
@@ -694,9 +642,9 @@ Several datasets were generated using the different predefined backbones. For ev
 
 Several cell-specific NI methods were considered for comparison: SCENIC [@aibar_scenicsinglecellregulatory_2017], LIONESS [@kuijjer_estimatingsamplespecificregulatory_2015; @kuijjer_estimatingsamplespecificregulatory_2019], and SSN [@liu_personalizedcharacterizationdiseases_2016]. 
 
-LIONESS [@@kuijjer_estimatingsamplespecificregulatory_2019; @kuijjer_lionessrsinglesample_2019] uses the Pearson correlation to infer cell-specific GRNs. To do so, first the Pearson correlation is calculated between regulators and targets for all samples. Next, the Pearson correlation is again calculated for all samples excluding one sample. The difference between the two correlation matrices is considered a cell-specific GRN for that particular profile. This process is repeated for all profiles, resulting in a cell-specific GRN.
+LIONESS [@kuijjer_estimatingsamplespecificregulatory_2019] runs a NI method multiple times to construct cell-specific GRNs. LIONESS first infers a GRN with all of the samples. A second GRN is inferred with all samples except one particular profile. The cell-specific GRN for that particular profile is defined as the difference between the two GRN matrices. This process is repeated for all profiles, resulting in a cell-specific GRN. By default, LIONESS uses PANDA [@glass_passingmessagesbiological_2013] to infer GRNs, but since dyngen does not produce motif data and motif data is required by PANDA, PANDA is inapplicable in this context. Instead, we used the lionessR [@kuijjer_lionessrsinglesample_2019] implementation of LIONESS, which uses by default the Pearson correlation as a NI method. We marked results from this implementation as "LIONESS + Pearson".
 
-SSN [@liu_personalizedcharacterizationdiseases_2016] has, in essence, the exact same methodology as LIONESS. It is worth noting that the LIONESS preprint was released before the publication of SSN. Since no implementation was provided by the authors, we implemented SSN in R using basic R and tidyverse functions [@wickham_welcometidyverse_2019] and marked results from this implementation as "SSN*".
+SSN [@liu_personalizedcharacterizationdiseases_2016] follows, in essence, the exact same methodology as LIONESS except that it specifically only uses the Pearson correlation. It is worth noting that the LIONESS preprint was released before the publication of SSN. Since no implementation was provided by the authors, we implemented SSN in R using basic R and tidyverse functions [@wickham_welcometidyverse_2019] and marked results from this implementation as "SSN*".
 
 SCENIC [@aibar_scenicsinglecellregulatory_2017] is a pipeline that consists of four main steps. Step 1: classical network inference is performed with arboreto, which is similar to GENIE3 [@huynh-thu_inferringregulatorynetworks_2010]. Step 2: select the top 10 regulators per target. Interactions are grouped together in 'modules'; each module contains one regulator and all of its targets. Step 3: filter the modules using motif analysis. Step 4: for each cell, determine an activity score of each module using AUCell. As a post-processing of this output, all modules and the corresponding activity scores are combined back into a cell-specific GRN consisting of (cell, regulator, target, score) pairs. For this analysis, the Python implementation of SCENIC was used, namely pySCENIC. Since dyngen does not generate motif data, step 3 in this analysis is skipped.
 
@@ -714,22 +662,17 @@ To visualize the velocity on an embedding, we used the "velocity_embedding" func
 
 ## Comparison of trajectory alignment with added noise {#sec:dyngen-tacompare}
 
-2 datasets containing a trajectory were generated using dyngen. For each dataset, we shuffled 5\% to 75\% of the count matrix, with steps of 5\%. Next, we aligned (using DTW) all the base trajectories with all the noisy trajectories.
-
-Let the normalized alignment distance between base trajectory x and trajectory y with z\% noise be $dxy_z$.
-To calculate how well an alignment algorithm can distinguish the two trajectories, we define the discrimination power of DTW.
-
+We generated 10 base datasets that contain a linear trajectory using dyngen. For each dataset, we performed the cell generation and experiment generation twice. This results in 20 datasets, with 10 pairs of similar trajectories.
+For each of these pairs of datasets, we generated 10 progressively noisier pairs, in which we added noise to the complete count matrix.
+Let $q$ be the 75th quantile of the non-zero values in the count matrix. The noise added to the count matrix is calculated as follows, with $i$ being the noise parameter.
 \begin{equation}
-    \frac{d12_{z}}{d11_{z}} \quad \forall z \in \{0.05, 0.1, 0.15, ..., 0.75 \}
+ countmatrix + \frac{1}{\sqrt{2\pi}}qie^{\frac{x^2}{2(qi)^2}}  \quad \forall i \in \{0.1, 0.2, ... 1.0\}
 \end{equation}
 
-\begin{equation}
-    \frac{d21_{z}}{d22_{z}} \quad \forall z \in \{0.05, 0.1, 0.15, ..., 0.75 \}
-\end{equation}
+We aligned each of these 150 pairs of trajectories (the first trajectory in the pair with the second trajectory in the pair) in 3 different ways. Either we used the original count matrix, we used 1/10th of the cells (according to the ordering of the trajectory, so the 1st, 10th, 20th, ... cell of the trajectory) or we used the smoothed pseudocells.
+The pseudocells are generated at regular points across the pseudotime of the trajectory. The gene expression of each pseudocell is inferred using a Gaussian kernel with a window size of 0.05.
 
-If this ratio is high, it means that DTW is able to distinguish well between the two trajectories. If this ratio is 1, DTW is not able to distinguish between the two trajectories at all.
-
-These datasets and ratios were generated 10 times.
+Each of the cells or pseudocells received a pseudotime from dyngen. This time can be compared: cells from the first trajectory in the pair should be aligned closely to cells from the second trajectory with similar pseudotimes. We used the sum of differences between the pseudotimes of the aligned cells to determine the distance between the two trajectories, which should ideally be 0. In order to compare the alignments with 1000 cells per trajectory and the ones with 100 cells per trajectory, we divide the distance of those alignments by 10.
 
 # Availability
 dyngen is available as an R package on GitHub [github.com/dynverse/dyngen](https://github.com/dynverse/dyngen). The dyngen codebase is still under development and is thus likely subject to change, including the adding or removing of functionality, renaming functions or parameters, and changing default parameter values. The analyses performed in this manuscript are available on GitHub [github.com/dynverse/dyngen_manuscript](https://github.com/dynverse/dyngen_manuscript). 

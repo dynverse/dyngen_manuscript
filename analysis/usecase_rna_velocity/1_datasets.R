@@ -122,3 +122,13 @@ pwalk(design_datasets, function(id, seed, backbone_name, tr_rate_multiplier, ...
 #   gc()
 # })
 
+
+# # write counts
+# pwalk(design_datasets, function(id, ...) {
+#   cat(id, "\n", sep = "")
+#   dataset <- read_rds(exp$dataset_file(id))
+#   dataset$counts %>% as.matrix %>% as.data.frame() %>% rownames_to_column("cell_id") %>% write_tsv(exp$temporary(paste0("counts/", id, "_spliced.tsv")))
+#   dataset$counts_unspliced %>% as.matrix %>% as.data.frame() %>% rownames_to_column("cell_id") %>% write_tsv(exp$temporary(paste0("counts/", id, "_unspliced.tsv")))
+#   gc()
+# })
+

@@ -46,13 +46,49 @@ plot_part_A <-
   ggbeeswarm::geom_quasirandom(aes(color = difficulty), size = 2)  +
   theme_bw() +
   theme_common() +
-  labs(x = "", y = "Correlation (higher is better)", colour = "Difficulty") +
+  labs(x = "", y = "Score", colour = "Difficulty") +
   scale_y_continuous(limits = c(0, 1)) +
   guides(colour = guide_legend(nrow = 3), shape = guide_legend(nrow = 3)) +
   facet_wrap(~metric_label, ncol = 2) +
+  # facet_wrap(~metric_label, ncol = 2, scales = "free_y") +
   scale_colour_brewer(palette = "Dark2")
 
+# methods_info <- scores$summ %>% select(method_id, params_id) %>% unique() %>% mutate(id = paste0(method_id, "_", params_id))
+# stat_df <-
+#   crossing(
+#     id_x = methods_info$id,
+#     id_y = methods_info$id
+#   ) %>%
+#   filter(id_x != id_y) %>%
+#   inner_join(
+#     scores$summ %>%
+#       gather(metric, score, cor, mean_cosine) %>%
+#       transmute(id_x = paste0(method_id, "_", params_id), dataset_id, metric, score_x = score),
+#     by = c("id_x")
+#   ) %>%
+#   inner_join(
+#     scores$summ %>%
+#       gather(metric, score, cor, mean_cosine) %>%
+#       transmute(id_y = paste0(method_id, "_", params_id), dataset_id, metric, score_y = score),
+#     by = c("id_y", "dataset_id", "metric")
+#   ) %>%
+#   group_by(id_x, id_y, metric) %>%
+#   summarise(
+#     test = list(wilcox.test(score_x, score_y, paired = TRUE, alternative = "greater")),
+#     p.value = test[[1]]$p.value
+#   ) %>%
+#   ungroup() %>%
+#   mutate(p.value = p.adjust(p.value, "holm"))
+# stat_df %>% select(-test) %>% mutate(p.value = round(p.value, 2)) %>% spread(metric, p.value) %>% print(n = 30)
+# stat_df %>% select(-test) %>% mutate(p.value = round(p.value, 2)) %>% spread(metric, p.value) %>% reshape2::acast(id_x~id_y, value.var = "cor")
+# stat_df %>% select(-test) %>% mutate(p.value = round(p.value, 2)) %>% spread(metric, p.value) %>% reshape2::acast(id_x~id_y, value.var = "mean_cosine")
+#
+# kt <- pairwise.wilcox.test(scores$summ$cor, paste0(scores$summ$method_id, "_", scores$summ$params_id), paired = T, alternative = "greater")
+# kt
 plot_part_A
+
+
+
 
 # PART B: Illustration of velocity ----------------------------------------
 # dataset_id <- "bifurcating_hard_seed1"

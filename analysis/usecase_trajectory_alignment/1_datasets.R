@@ -14,7 +14,7 @@ backbone <- bblego(
 )
 
 noise_levels <- seq(from = 0.1, to = 1, by = 0.1)
-only_noise <- T
+only_noise <- TRUE
 
 # setup dataset design
 design_datasets <- exp$result("design_datasets.rds") %cache% {
@@ -23,10 +23,12 @@ design_datasets <- exp$result("design_datasets.rds") %cache% {
     backbone_name = "linear",
     noise = noise_levels
   ) %>%
-    mutate(base_id1 = paste0(backbone_name, seed, "_1")) %>%
-    mutate(base_id2 = paste0(backbone_name, seed, "_2")) %>%
-    mutate(id1 = paste0(base_id1, "_", noise)) %>%
-    mutate(id2 = paste0(base_id2, "_", noise))
+    mutate(
+      base_id1 = paste0(backbone_name, seed, "_1"),
+      base_id2 = paste0(backbone_name, seed, "_2"),
+      id1 = paste0(base_id1, "_", noise),
+      id2 = paste0(base_id2, "_", noise)
+    )
 }
 
 # Generates only the base models. The noise is added onto these base models
@@ -60,15 +62,15 @@ pwalk(design_datasets, function(base_id1, base_id2, id1, id2, seed, backbone_nam
       make_plots = TRUE
     )
 
-    dataset1 <- readRDS(paste0(exp$dataset_folder(base_id1), "dataset.rds"))
-    model1 <- readRDS(paste0(exp$dataset_folder(base_id1), "model.rds"))
+    dataset1 <- read_rds(paste0(exp$dataset_folder(base_id1), "dataset.rds"))
+    model1 <- read_rds(paste0(exp$dataset_folder(base_id1), "model.rds"))
 
     # Generate the second trajectory of the pair
     model2 <- model1 %>% generate_cells() %>% generate_experiment()
     dataset2 <- wrap_dataset(model2)
 
-    saveRDS(model2, file = paste0(exp$dataset_folder(base_id2), "model.rds"))
-    saveRDS(dataset2, file = paste0(exp$dataset_folder(base_id2), "dataset.rds"))
+    write_rds(model2, paste0(exp$dataset_folder(base_id2), "model.rds"), compress = "gz")
+    write_rds(dataset2, paste0(exp$dataset_folder(base_id2), "dataset.rds"), compress = "gz")
 
     max_dev1 <- dataset1$counts %>% as.vector() %>% Filter(f = function(x) x > 0) %>% quantile(0.75)
     max_dev2 <- dataset2$counts %>% as.vector() %>% Filter(f = function(x) x > 0) %>% quantile(0.75)
@@ -84,8 +86,8 @@ pwalk(design_datasets, function(base_id1, base_id2, id1, id2, seed, backbone_nam
       ds1$counts[ds1$counts<0] <- 0
       ds2$counts[ds2$counts<0] <- 0
 
-      saveRDS(ds1, file = paste0(exp$dataset_folder(name1), "dataset.rds"))
-      saveRDS(ds2, file = paste0(exp$dataset_folder(name2), "dataset.rds"))
+      write_rds(ds1, paste0(exp$dataset_folder(name1), "dataset.rds"), compress = "gz")
+      write_rds(ds2, paste0(exp$dataset_folder(name2), "dataset.rds"), compress = "gz")
 
     })
 

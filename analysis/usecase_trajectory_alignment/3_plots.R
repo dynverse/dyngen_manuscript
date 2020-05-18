@@ -1,36 +1,29 @@
+library(tidyverse)
 library(dyngen.manuscript)
-library(ggplot2)
-library(viridis)
-library(dtw)
-library(reshape2)
 library(patchwork)
-library(readr)
-library(dplyr)
 
 exp <- start_analysis("usecase_trajectory_alignment")
 
-result_smoothing <- read_rds(exp$result("result_smoothing.rds"))
+result_smoothing <- read_rds(exp$result("result_smoothing.rds")) %>%
+  mutate(
+    noise = ordered(as.factor(noise)),
+    smooth = factor(smooth, levels = c("smoothed", "original cells", "subsampled")),
+    score_scaled = ifelse(smooth == "original cells", score / 10, score)
+  )
 
-result_smoothing$noise <- ordered(as.factor(result_smoothing$noise))
-result_smoothing$smooth <- factor(result_smoothing$smooth, levels = c("smoothed", "original cells", "subsampled"))
-result_smoothing$result_scaled <-ifelse(result_smoothing$smooth == "original cells", result_smoothing$result / 10,  result_smoothing$result)
-
-g <- ggplot(data = result_smoothing, aes(x = ordered(as.factor(noise)), y = result_scaled, fill = smooth)) +
+g <-
+  ggplot(data = result_smoothing, aes(noise, score_scaled, fill = smooth)) +
   geom_boxplot(width = 0.5, size=0.45,outlier.size=0.5) +
-  # scale_fill_viridis_d(direction=-1) +
-  # scale_color_viridis(discrete = TRUE, alpha=0.8) +
-  labs(fill = "Processing method") +
-  xlab("Amount of added noise") +
-  ylab("Distance (lower is better)") +
-  theme_linedraw() +
-  theme(legend.position = "bottom")
+  theme_bw() +
+  theme_common() +
+  labs(x = "Amount of added noise", y = "Distance (lower is better)", fill = "Processing method")
 
 # Plot the three different alignments of a single pair of trajectories
 plot_density <- function(a1, title = "Distance matrix + warping path", subtitle = ""){
   x <- as_tibble(a1$index1)
   x$Y <- a1$index2
 
-  gga_1 <- melt(a1$costMatrix)
+  gga_1 <- reshape2::melt(a1$costMatrix)
   p_heat1 <- ggplot(gga_1, aes(Var1, Var2, fill= value)) +
     geom_raster(show.legend = FALSE) +
     scale_fill_distiller(palette = "RdYlGn") +
@@ -74,12 +67,10 @@ alignment_smooth <- dtw(res2_sm$expression, res1_sm$expression, step.pattern=sym
 a_sm <- plot_density(alignment_smooth, title = "Smoothed")
 
 # Combine all plots together
-library(cowplot)
+part1 <- cowplot::ggdraw() +
+  cowplot::draw_image(exp$result("dyngen_ta_plot_flat.svg"))
 
-part1 <- ggdraw() +
-  draw_image(exp$result("dyngen_ta_plot_flat.svg"))
-
-all_plots <- part1  / (ao + asubs + a_sm) / g
+all_plots <- part1 / (ao + asubs + a_sm) / g
 all_plots <- all_plots + plot_annotation(tag_levels = c('A')) + plot_layout(heights = c(1, 1.1, 1.5))
 
 ggsave(exp$result("usecase.pdf"), all_plots, height = 11, width = 11, useDingbats = FALSE)

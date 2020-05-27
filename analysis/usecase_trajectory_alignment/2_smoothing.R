@@ -26,8 +26,8 @@ result_smoothing <- exp$result("result_smoothing.rds") %cache% pmap_dfr(
       res1 <- get_waypoint_expression(dataset1, 100)
       res2 <- get_waypoint_expression(dataset2, 100)
     } else {
-      res1 <- get_cell_expression(dataset1)
-      res2 <- get_cell_expression(dataset2)
+      res1 <- get_cell_expression(dataset1, dataset1$milestone_network, "sA")
+      res2 <- get_cell_expression(dataset2, dataset2$milestone_network, "sA")
     }
 
     pt1 <- res1$pseudotime

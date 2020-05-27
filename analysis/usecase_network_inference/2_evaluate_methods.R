@@ -54,10 +54,10 @@ pwalk(
     try(
       exp$temporary("eval/evaluation_", id, ".rds") %cache% {
         out <- evaluate_ti_method(
-          dataset = datasets[1:2,],
+          dataset = datasets,
           method = fun,
           output_model = FALSE,
-          metrics = list(cni_auc),
+          metrics = list(cni_auc = cni_auc),
           parameters = NULL
         )
         out$summary %>% mutate(
@@ -70,9 +70,9 @@ pwalk(
 )
 
 summaries <-
-  map_df(list.files(exp$temporary("eval"), pattern = ".*\\.rds", full.names = TRUE), read_rds) # %>%
-  # filter(!cni_method_id %in% c("bred", "pySCENIC GBM")) %>%
-  # mutate(cni_method_id = ifelse(cni_method_id == "pySCENIC SGBM", "pySCENIC", cni_method_id))
+  map_df(list.files(exp$temporary("eval"), pattern = ".*\\.rds", full.names = TRUE), read_rds) %>%
+  filter(!cni_method_id %in% c("bred", "pyscenicgbm", "lionessspearman")) %>%
+  mutate(cni_method_name = ifelse(cni_method_id == "pyscenicsgbm", "pySCENIC", cni_method_name))
 
 summaries %>%
   mutate(pct_errored = (!is.na(error)) + 0) %>%

@@ -51,7 +51,7 @@ pwalk(grid, function(backbone_name, seed, id) {
     )
 
     dataset <- read_rds(exp$dataset_file(id))
-    dimred <- dyndimred::dimred_landmark_mds(dataset$expression, distance_method = "pearson")
+    dimred <- dyndimred::dimred_mds(dataset$expression, distance_method = "pearson")
     g <- plot_dimred(dataset, dimred = dimred)
     ggsave(plot_file, g, width = 4, height = 4)
 

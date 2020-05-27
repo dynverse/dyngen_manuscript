@@ -4,7 +4,7 @@
 \alias{calculate_correct_pseudotime}
 \title{Get corrected pseudotime}
 \usage{
-calculate_correct_pseudotime(dataset)
+calculate_correct_pseudotime(dataset, milestone_network, start)
 }
 \arguments{
 \item{dataset}{A dyngen dataset}

@@ -70,7 +70,7 @@ get_explanation_plot <- function(save = F){
       num_tfs = num_tfs,
       num_targets = 250,
       num_hks = 200,
-      num_cells = 5000,
+      num_cells = 1000,
       backbone = backbone,
       simulation_params = simulation_default(census_interval = 10),
       verbose = TRUE,
@@ -107,7 +107,7 @@ get_explanation_plot <- function(save = F){
   plota <- dtwPlotAlignment(align_normal)
   plotd <- dtwPlotDensity(align_normal)
 
-  plot_dens <- plot_density(align_normal)
+  plot_dens <- plot_density(align_normal, title = "", show_legend = T)
   plot_dens
 
   # ggsave(plot_dens, filename="ts_dtw.png", bg="transparent", width = 4, height = 4)
@@ -131,8 +131,8 @@ get_explanation_plot <- function(save = F){
   comb_traj <- rbind(traj1, traj2)
   comb_traj$ID <- seq.int(nrow(comb_traj))
 
-  comb_traj1 <- comb_traj[1:nrow(expr1),] %>% sample_frac(size = 0.7)
-  comb_traj2 <- comb_traj[nrow(expr1) + 1:5000,] %>% sample_frac(size = 0.7)
+  comb_traj1 <- comb_traj[1:nrow(expr1),] #%>% sample_frac(size = 0.7)
+  comb_traj2 <- comb_traj[nrow(expr1):5000,] #%>% sample_frac(size = 0.7)
   comb_traj_less <- rbind(comb_traj1, comb_traj2)
 
   ggplot() + geom_point(data = comb_traj_less, mapping = aes(x = color2, y = comp_1, colour = as.factor(color)), size = 2) +
@@ -154,21 +154,22 @@ get_explanation_plot <- function(save = F){
 
   cellmappings <- ggplot() + geom_point(data = comb_traj_less, mapping = aes(x = color2, y = comp_1, colour = as.factor(color)), size = 3.5, show.legend = F) +
     scale_colour_manual(values = c("#ff681c", "#3abbba"), label = "") +
-    geom_segment(data = segm_traj_test, mapping = aes(x = color2, y = comp_1, xend = color22, yend = comp_3), alpha = 0.05) +
-    geom_segment(aes(x = 0, y = -0.6, xend = 1, yend = -0.6), arrow = arrow(length = unit(0.5, "cm"))) +
-    annotate(geom = "text", color = "black", x = 0.5, y = -0.75, label = "Pseudotime", size = 5) +
+    geom_segment(data = segm_traj_test, mapping = aes(x = color2, y = comp_1, xend = color22, yend = comp_3), alpha = 0.25) +
+    geom_segment(aes(x = 0, y = -0.5, xend = 1, yend = -0.5), arrow = arrow(length = unit(0.25, "cm"))) +
+    annotate(geom = "text", color = "black", x = 0.5, y = -0.75, label = "Pseudotime", size = 4) +
     theme_void()
   cellmappings
 
 
-  result <- t2_pt | t1_pt | together | cellmappings | plot_dens
+  part1 <- t2_pt | t1_pt |plot_spacer()| cellmappings | plot_dens
 
   if(save){
-    saveRDS(result, file = exp$result("explanation_flat.rds"))
-    ggsave(result, filename = paste0(exp$result(), "/explanation_flat.png"), bg = 'transparent', width = 20, height = 4)
+    saveRDS(part1, file = exp$result("explanation_flat.rds"))
+    ggsave(part1, filename = paste0(exp$result(), "/explanation_flat.png"), bg = 'transparent', width = 20, height = 4)
   }
 
-  result
+  part1 <- part1 + plot_layout(widths = c(1,1,.2,1,1))
+  part1
 }
 
 part1 <- get_explanation_plot(save = T) #readRDS(exp$result("explanation_flat.rds"))

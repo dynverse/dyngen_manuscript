@@ -6,6 +6,7 @@ library(reshape2)
 library(dyngen)
 library(dynplot)
 library(gtools)
+library(dtw)
 
 exp <- start_analysis("usecase_trajectory_alignment")
 
@@ -71,8 +72,9 @@ get_explanation_plot <- function(save = F){
       num_hks = 200,
       num_cells = 5000,
       backbone = backbone,
+      simulation_params = simulation_default(census_interval = 10),
       verbose = TRUE,
-      num_cores = 8,
+      num_cores = 8
     ) %>%
       generate_tf_network() %>%
       generate_feature_network() %>%

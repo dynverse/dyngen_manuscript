@@ -7,7 +7,7 @@ library(ggraph)
 
 exp <- start_analysis("usecase_network_inference")
 
-dataset <- read_rds(exp$dataset_file("disconnected_1"))
+dataset <- read_rds(exp$dataset_file("bifurcating_loop_1"))
 
 # expression <- dataset$expression
 # priors <- list(regulators = dataset$regulators, targets = dataset$targets)
@@ -47,7 +47,7 @@ layout <- igraph::layout_with_fr(gr) %>%
 cell_wps <- do.call(dynwrap::select_waypoint_cells, c(dataset[c("milestone_ids", "milestone_network", "milestone_percentages", "progressions", "divergence_regions")], list(num_cells_selected = 1)))
 cells <- sample(cell_wps, 5) %>% {.[order(match(., dataset$cell_ids))]}
 
-node_df <- bind_cols(feature_info %>% select(-w:-y), layout)
+node_df <- bind_cols(feature_info %>% select(-mol_premrna:-mol_protein), layout)
 
 cap <- .015
 capend <- .02
@@ -91,7 +91,7 @@ g <- ggplot() +
   theme(
     plot.margin = margin(0, 0, 0, 0, "cm")
   )
-
+g
 ggsave(exp$result("casewise_grn.pdf"), g, width = 8, height = 5)
 write_rds(g, exp$result("casewise_grn.rds"), compress = "gz")
 

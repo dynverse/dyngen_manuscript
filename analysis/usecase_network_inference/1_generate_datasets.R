@@ -7,7 +7,7 @@ exp <- start_analysis("usecase_network_inference")
 # setup dataset design
 design_datasets <- exp$result("design_datasets.rds") %cache% {
   crossing(
-    seed = 1,
+    seed = 1:3,
     backbone_name = names(list_backbones())
   ) %>%
     mutate(id = paste0(backbone_name, "_", seed))
@@ -23,9 +23,9 @@ pwalk(design_datasets, function(id, seed, backbone_name) {
     set.seed(seed)
 
     backbone <- list_backbones()[[backbone_name]]()
-    wanted_genes <- 200
+    wanted_genes <- 150
 
-    num_tfs <- nrow(backbone$module_info) * 3
+    num_tfs <- nrow(backbone$module_info) * 2
     num_targets <- round((wanted_genes - num_tfs) / 2)
 
     model <-
@@ -37,7 +37,7 @@ pwalk(design_datasets, function(id, seed, backbone_name) {
         backbone = backbone,
         num_cells = 1000,
         simulation_params = simulation_default(
-          census_interval = 2.5,
+          census_interval = 10,
           experiment_params = bind_rows(
             simulation_type_wild_type(num_simulations = 50),
             simulation_type_knockdown(num_simulations = 100, num_genes = sample(1:10, 100, replace = TRUE))
@@ -45,15 +45,15 @@ pwalk(design_datasets, function(id, seed, backbone_name) {
           compute_cellwise_grn = TRUE,
           compute_dimred = TRUE
         ),
-        num_cores = 6,
+        experiment_params = experiment_synchronised(pct_between = 0),
+        num_cores = 8,
         download_cache_dir = "~/.cache/dyngen",
         verbose = TRUE
       )
     generate_dataset(
       model,
       output_dir = exp$dataset_folder(id),
-      make_plots = TRUE,
-      store_propensity_ratios = TRUE
+      make_plots = TRUE
     )
 
     gc()

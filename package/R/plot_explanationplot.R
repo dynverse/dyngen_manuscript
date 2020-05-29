@@ -1,17 +1,18 @@
 #' @export
-plot_density <- function(a1, title = "Distance matrix +\n warping path", subtitle = ""){
+plot_density <- function(a1, title = "Distance matrix +\n warping path", subtitle = "", show_legend = F){
   x <- as_tibble(a1$index1)
   x$Y <- a1$index2
 
   gga_1 <- melt(a1$costMatrix)
   p_heat1 <- ggplot(gga_1, aes(Var1, Var2, fill= value)) +
-    geom_raster(show.legend = FALSE) +
+    geom_raster(show.legend = show_legend) +
     scale_fill_distiller(palette = "RdYlGn") +
     scale_x_continuous(expand = c(0, 0)) + scale_y_continuous(expand = c(0, 0)) +
     geom_line(data=x, aes(x=value, y=Y)) +
     theme(panel.grid.major = element_blank(),
           panel.grid.minor = element_blank()) +
-    labs(title = title, subtitle = "Accumulated\ndistance", x = "Sample 2", y = "Sample 1")
+    theme(legend.position="bottom") +
+    labs(title = title, x = "Sample 2", y = "Sample 1", fill = "Distance")
 
   p_heat1
 }

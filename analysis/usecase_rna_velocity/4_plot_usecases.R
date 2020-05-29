@@ -40,17 +40,24 @@ plota_data <-
     metric_label = factor(metric_labels[metric], levels = metric_labels)
   )
 
+limits_tib <- tibble(
+  metric_label = forcats::fct_inorder(metric_labels),
+  x = 1,
+  y0 = c(0, .6),
+  y1 = c(1, 1)
+) %>% gather(l, y, y0, y1)
 plot_part_A <-
   ggplot(plota_data, aes(paste0(method_id, "\n", params_id), score)) +
   # ggbeeswarm::geom_quasirandom(aes(color = dataset_trajectory_type, shape = difficulty), size = 3)  +
   ggbeeswarm::geom_quasirandom(aes(color = difficulty), size = 2)  +
+  geom_point(aes(x, y), limits_tib, alpha = 0) +
   theme_bw() +
   theme_common() +
   labs(x = "", y = "Score", colour = "Difficulty") +
-  scale_y_continuous(limits = c(0, 1)) +
+  # scale_y_continuous(limits = c(0, 1)) +
   guides(colour = guide_legend(nrow = 3), shape = guide_legend(nrow = 3)) +
-  facet_wrap(~metric_label, ncol = 2) +
-  # facet_wrap(~metric_label, ncol = 2, scales = "free_y") +
+  # facet_wrap(~metric_label, ncol = 2) +
+  facet_wrap(~metric_label, ncol = 2, scales = "free_y") +
   scale_colour_brewer(palette = "Dark2")
 
 # methods_info <- scores$summ %>% select(method_id, params_id) %>% unique() %>% mutate(id = paste0(method_id, "_", params_id))

@@ -22,9 +22,9 @@ methods <- tribble(
   "SSN*", cni_ssn(),
   "pySCENIC GBM", cni_pyscenic_sgbm(subsample = 1, n_estimators = 500L),
   "pySCENIC SGBM", cni_pyscenic_sgbm(subsample = .9, n_estimators = 5000L),
-  "LIONESS + Pearson", cni_lioness(method = "pearson"),
-  "LIONESS + Spearman", cni_lioness(method = "spearman"),
-  "LIONESS + GRNBOOST2", cni_lioness(method = "grnboost2")
+  "LIONESS + Pearson", cni_lioness(method = "pearson")#,
+  # "LIONESS + Spearman", cni_lioness(method = "spearman")#,
+  # "LIONESS + GRNBOOST2", cni_lioness(method = "grnboost2")
 ) %>% mutate(
   id = name %>% tolower() %>% gsub("[^a-z]", "", .)
 )
@@ -70,8 +70,10 @@ pwalk(
 )
 
 summaries <-
-  map_df(list.files(exp$temporary("eval"), pattern = ".*\\.rds", full.names = TRUE), read_rds) %>%
-  filter(!cni_method_id %in% c("bred", "pyscenicgbm", "lionessspearman")) %>%
+  map_df(list.files(exp$temporary("eval"), pattern = ".*\\.rds", full.names = TRUE), read_rds)
+
+summaries <- summaries %>%
+  filter(!cni_method_id %in% c("bred", "pyscenicgbm", "lionessspearman", "lionessgrnboost")) %>%
   mutate(cni_method_name = ifelse(cni_method_id == "pyscenicsgbm", "pySCENIC", cni_method_name))
 
 summaries %>%

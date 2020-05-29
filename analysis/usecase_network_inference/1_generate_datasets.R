@@ -7,7 +7,7 @@ exp <- start_analysis("usecase_network_inference")
 # setup dataset design
 design_datasets <- exp$result("design_datasets.rds") %cache% {
   crossing(
-    seed = 1,
+    seed = 1:3,
     backbone_name = names(list_backbones())
   ) %>%
     mutate(id = paste0(backbone_name, "_", seed))

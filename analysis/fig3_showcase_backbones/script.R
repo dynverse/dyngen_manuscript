@@ -2,6 +2,7 @@ library(tidyverse)
 library(dyngen)
 library(dyngen.manuscript)
 library(dynplot)
+library(patchwork)
 
 exp <- start_analysis("fig3_showcase_backbones")
 
@@ -22,10 +23,17 @@ pwalk(grid, function(backbone_name, seed, id) {
   set.seed(seed)
 
   out_dir <- exp$dataset_folder(id)
-  plot_file <- exp$result("backbone_plots/", id, ".pdf")
+  plot_file <- exp$temporary("backbone_plots/", id, ".pdf")
 
   if (!file.exists(plot_file)) {
-    back <- backs[[backbone_name]]()
+    if (backbone_name == "disconnected") {
+      back <- backbone_disconnected(
+        left_backbone = backbone_cycle(),
+        right_backbone = backbone_linear()
+      )
+    } else {
+      back <- backs[[backbone_name]]()
+    }
     model <-
       initialise_model(
         num_tfs = nrow(back$module_info),
@@ -58,3 +66,19 @@ pwalk(grid, function(backbone_name, seed, id) {
     gc()
   }
 })
+
+
+ids <- c(
+  "bb_linear_1", "bb_bifurcating_1", "bb_converging_2",
+  "bb_cycle_1", "bb_bifurcating_loop_1", "bb_bifurcating_converging_3",
+  "bb_bifurcating_cycle_3", "bb_consecutive_bifurcating_3", "bb_disconnected_2"
+)
+all(ids %in% grid$id)
+plots <- map(ids, function(id) {
+  dataset <- read_rds(exp$dataset_file(id))
+  dimred <- dyndimred::dimred_mds(dataset$expression, distance_method = "pearson")
+  plot_dimred(dataset, dimred = dimred, size_milestones = 4, size_cells = 2)
+})
+g <- wrap_plots(plots, ncol = 3) + plot_annotation(tag_levels = "A")
+ggsave(exp$result("overview.pdf"), g, width = 8, height = 6, useDingbats = FALSE)
+ggsave(exp$result("overview.png"), g, width = 8, height = 6)

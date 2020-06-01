@@ -38,102 +38,37 @@ library(tidyverse)
 ```
 
 # Abstract
-**Purpose:** When developing new types of tools for single-cell analyses, there is often a lack of datasets on which to quantitatively assess the performance.  
-**Results:** We developed dyngen, a multi-modality simulator of single cells. In dyngen, the biomolecular state of an _in silico_ cell changes over time according to a predefined gene regulatory network.  We used dyngen to benchmark three emerging ways of analysing single-cell data: RNA velocity, cell-specific network inference and trajectory alignment methods.  
-**Conclusion:** dyngen lays the foundations for benchmarking a wide variety of computational single-cell tools and can be used to help kick-start the development of future types of analyses.
+**Purpose:** A recent breakthrough in single-cell omics is the ability to perform multi-modal measurements at single-cell level. However, in many cases insufficient metadata is available to accurately benchmark new types of algorithms. Existing generators of scRNA-seq are valuable in benchmarking novel computational tools more rigorously, but adding additional modalities or experimental conditions usually requires significant methodological alterations.  
+**Results:** We introduce dyngen, a simulator of synthetic single cells by simulating gene regulation, splicing and translation at a single molecule level. From a simulation many layers of information can be extracted, including molecule abundance, progression along a dynamic process, activation strength of individual regulatory interactions, and a ground-truth RNA velocity. We demonstrate dyngen by showcasing its use on three novel computational approaches where no benchmarking of tools have been described for up to date: RNA velocity, cell-specific gene regulatory network inference and trajectory alignment methods. In itself, each of these three application cases constitutes a novel result that has not yet been described in the literature so far, and which we believe will spearhead research on development of novel computational tools for single-cell data.  
+**Conclusion:** Ultimately, dyngen allows anticipating technological developments in single-cell multi-omics. It is thus possible to design and evaluate the performance and robustness of new types of computational analyses before experimental data becomes available. In addition, dyngen could also be used to compare which experimental protocol is the most cost-effective in producing qualitative and robust results in downstream analysis.
 
 
 # Introduction {#sec:dyngen-introduction}
 Continuous technological advancements to single-cells omics are having profound effects on how researchers can validate biological hypotheses. Early experimental technologies typically only allowed profiling a single modality (e.g. DNA sequence, RNA or protein expression). However, recent developments permit profiling multiple modalities simultaneously, and every modality added allows for new types of analyses that can be performed.
 
-This confronts method developers with several challenges. The majority of the 250+ peer-reviewed computational tools for analysing single-cell omics data were published without a quantitative assessment of the accuracy of the tool. This is partially due to low availability of suitable benchmarking datasets; even if there are sufficient suitable input datasets available, these are often not accompanied by the necessary metadata to serve as ground-truth for a benchmark.
+This confronts method developers with several challenges. The majority of the >250 peer-reviewed computational tools for analysing single-cell omics data were published without a quantitative assessment of the accuracy of the tool. This is partially due to low availability of suitable benchmarking datasets; even if there are sufficient suitable input datasets available, these are often not accompanied by the necessary metadata to serve as ground-truth for a benchmark.
 
-Here, synthetic data plays a crucial role in asserting minimum performance requirements for novel tools in anticipation of adequate real data. Generators of scRNA-seq data (e.g. splatter [@zappia_splattersimulationsinglecell_2017], powsimR [@vieth_powsimrpoweranalysis_2017], PROSSTT [@papadopoulos_prossttprobabilisticsimulation_2018] and SymSim [@zhang_simulatingmultiplefaceted_2019]) have already been widely used to explore the strengths and weaknesses of computational tools, both by method developers [@street_slingshotcelllineage_2018; @parra_reconstructingcomplexlineage_2018; @lummertzdarocha_reconstructioncomplexsinglecell_2018; @lin_scclassifyhierarchicalclassification_2019] and independent benchmarkers [@duo_systematicperformanceevaluation_2018; @saelens_comparisonsinglecelltrajectory_2019; @soneson_biasrobustnessscalability_2018].
+Here, synthetic data plays a crucial role in asserting minimum performance requirements for novel tools in anticipation of adequate real data. Generators of scRNA-seq data (e.g. splatter [@zappia_splattersimulationsinglecell_2017], powsimR [@vieth_powsimrpoweranalysis_2017], PROSSTT [@papadopoulos_prossttprobabilisticsimulation_2018] and SymSim [@zhang_simulatingmultiplefaceted_2019]) have already been used extensively to explore the strengths and weaknesses of computational tools, both by method developers [@street_slingshotcelllineage_2018; @parra_reconstructingcomplexlineage_2018; @lummertzdarocha_reconstructioncomplexsinglecell_2018; @lin_scclassifyhierarchicalclassification_2019] and independent benchmarkers [@duo_systematicperformanceevaluation_2018; @saelens_comparisonsinglecelltrajectory_2019; @soneson_biasrobustnessscalability_2018].
 However, a limitation of existing scRNA-seq profiles generators is that they would require significant methodological alterations to add additional modalities or experimental conditions.
-
-
-<!--
-\newcommand{\yes}{\ding{51}}
-\newcommand{\no}{}
-\newcommand{\grayline}{\arrayrulecolor{lightgray}\cline{3-7}}
-\newcommand{\blackline}{\arrayrulecolor{black}\cline{3-7}}
-\newcommand{\method}[1]{#1}
-
-\begin{table}[htb!]
-    \centering
-    \begin{tabular}{p{.25cm}l|*{5}{>{\centering\arraybackslash}p{1.25cm}|}}
-    \blackline
-    & \method{} & \method{splatter} & \method{powsimR} & \method{PROSSTT} & \method{SymSim} & \method{dyngen} \\
-    & & \cite{zappia_splattersimulationsinglecell_2017} & \cite{vieth_powsimrpoweranalysis_2017} & \cite{papadopoulos_prossttprobabilisticsimulation_2018} & \cite{zhang_simulatingmultiplefaceted_2019} & \\
-    \blackline
-    \multicolumn{7}{l}{\textbf{Available modality outputs}} \\
-    \blackline
-    - & mRNA expression & \yes & \yes & \yes & \yes & \yes \\ \grayline
-    - & Pre-mRNA expression & \no & \no & \no & \no & \yes \\ \grayline
-    - & Protein expression & \no & \no & \no & \no & \yes \\ \grayline
-    - & Promotor activity & \no & \no & \no & \yes & \yes \\ \grayline
-    - & Reaction activity & \no & \no & \no & \no & \yes \\
-    \blackline
-    \multicolumn{7}{l}{\textbf{Available ground-truth outputs}} \\
-    \blackline
-    - & True counts & \yes & \no & \no & \yes & \yes \\ \grayline
-    - & Cluster labels & \yes & \yes & \no & \yes & ? \\ \grayline
-    - & Trajectory & \yes & \no & \yes $ ^1$ & \yes & \yes \\ \grayline
-    - & Batch labels & \yes & \no & \no & \no & \yes $ ^1$ \\ \grayline
-    - & Differential expression & \no & \no & \no & \yes & \yes $^2$ \\ %\grayline
-    - & Knocked down regulators & \no & \no & \no & \no & \yes \\ \grayline
-- & Regulatory network & \no & \no & \no & \yes & \yes \\ \grayline
-- & Cell-specific regulatory network & \no & \no & \no & \no & \yes \\
-    \blackline
-    \multicolumn{7}{l}{\textbf{Emulate experimental effects}} \\
-    \blackline
-    - & Single-cell RNA sequencing & \yes & \yes & \yes & \yes & \yes \\ \grayline
-    - & Batch effects & \yes & \no & \no & \no & \yes $ ^1$ \\ \grayline
-    - & Knockdown experiment & \no & \no & \no & \no & \yes \\ \grayline
-    - & Time-series & ? & ? & ? & ? & \yes \\
-    - & Snapshot & ? & ? & ? & ? & \yes \\
-    \blackline
-    \multicolumn{7}{l}{\textbf{Possible applications}} \\
-    \blackline
-    - & Clustering & \yes & \yes & \no & \yes & ? \\ \grayline
-    - & Trajectory inference & \yes & \no & \yes & \yes & \yes \\ \grayline
-    - & Network inference & \no & \no & \no & \yes & \yes \\ \grayline
-    - & Cell-specific network inference & \no & \no & \no & \no & \yes \\ \grayline
-    - & Differential expression & \yes & \no & \no & \no & \yes $^2$ \\ \grayline
-    - & Batch effect correction & \yes & \no & \no & \no & \yes \\ \grayline
-    - & RNA Velocity & \no & \no & \no & \no & \yes \\ \grayline
-    - & Trajectory alignment & \no & \no & \no & \no & \yes \\
-    \blackline
-    \multicolumn{7}{l}{\textbf{Showcased dataset}} \\
-    \blackline
-    - & Number of cells &  &  &  &  & \\
-    - & Number of genes &  &  &  &  & \\
-    - & Execution time & & & & & \\
-    \blackline
-    \end{tabular}
-    \caption{
-    \textbf{Comparison of single-cell simulators.}
-    $ ^1$ Showcased by vignette. $^2$ Showcased by Van den Berge et al.  \cite{vandenberge_trajectorybaseddifferentialexpression_2019}.
-    }
-    \label{tab:compare}
-\end{table}
--->
 
 An ideal experiment would be able to observe all aspects of a cell, including a full history of its molecular states, spatial positions and environmental interactions [@stuart_integrativesinglecellanalysis_2019].
 While this falls outside the reach of current experimental technologies, generating synthetic data in anticipation of new experimental technologies would allow developing the next wave of computational tools.
 
-We developed a multi-modality simulator of single cells called dyngen (Figure\ \ref{fig:showcase}A). dyngen uses an optimized version of Gillespie's stochastic simulation algorithm [@gillespie_exactstochasticsimulation_1977]  to simulate gene regulation, splicing, and translation at a single-molecule level. Its methodology allows tracking of many layers of information throughout the simulation, including the abundance of any molecule in the cell, the progression of the cell along a dynamic process, and the activation strength of individual regulatory interactions. dyngen can simulate a large variety of dynamic processes (e.g. cyclic, branching, disconnected) as well as a broad range of experimental conditions (e.g. batch effects and time-series, perturbation and knockdown experiments). The fine-grained controls over simulation parameters allow dyngen to be applicable to a broad range of use-cases. We demonstrate this by performing the first quantitative evaluations of three types of novel computational approaches: RNA velocity, cell-specific network inference, and trajectory alignment methods.
+We developed a multi-modality simulator of single cells called dyngen (Figure\ \ref{fig:showcase}). dyngen uses an optimised version of Gillespie's stochastic simulation algorithm [@gillespie_exactstochasticsimulation_1977]  to simulate gene regulation, splicing, and translation at a single-molecule level. Its methodology allows tracking of many layers of information throughout the simulation, including the abundance of any molecule in the cell, the progression of the cell along a dynamic process, and the activation strength of individual regulatory interactions. dyngen can simulate a large variety of dynamic processes (e.g. cyclic, branching, disconnected) as well as a broad range of experimental conditions (e.g. batch effects and time-series, perturbation and knockdown experiments). The fine-grained controls over simulation parameters allow dyngen to be applicable to a broad range of use-cases. We demonstrate this by performing the first quantitative evaluations of three types of novel computational approaches: RNA velocity, cell-specific network inference, and trajectory alignment methods.
 
 \begin{figure}[htb!]
     \centering
-    \includegraphics[width=\linewidth]{result_files/fig1_showcase_functionality/overview_1.pdf}
+    \includegraphics[width=\linewidth]{result_files/summary/overview.pdf}
     \caption{
         \textbf{Showcase of dyngen functionality.}
-        \textbf{A:} The typical process of generating a dataset with dyngen.
-        \textbf{B:} Evaluating different types of computational tools requires simulating different types of experiments and extracting different layers of information from the simulation.
+        \textbf{A:} The typical process of generating a bifurcating dataset with dyngen. Step 1: generating a gene regulatory network. Step 2: simulating changes in expression over time. Step 3: combining multiple simulations and mapping to the ground-truth trajectory. Step 4: sampling cells and molecules.
+        \textbf{B:} dyngen includes different pre-defined trajectories, including converging, cyclic, bifurcating converging, and a binary tree.
+        \textbf{C:} From the different types of ground-truth information, dyngen allows -- amongst others -- suppleming quantitative benchmarks of trajectory alignment, RNA velocity, and cellwise network inference methods.
     }
     \label{fig:showcase}
 \end{figure}
+
+
 
 
 # Results {#sec:dyngen-results}
@@ -163,12 +98,12 @@ dyngen includes generators of GRNs which result in many different developmental 
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=0.6\textwidth]{result_files/fig3_showcase_backbones/overview_2.pdf}
+    \includegraphics[width=0.6\textwidth]{result_files/fig3_showcase_backbones/overview.pdf}
     \caption{
         \textbf{Multiple executions of dyngen with different predefined backbones.} From each simulation of about 200 genes, 1000 cells were sampled.
         \textbf{A:}~Linear. \textbf{B:}~Bifurcating. \textbf{C:}~Converging.
         \textbf{D:}~Cyclic. \textbf{E:}~Bifurcating loop. \textbf{F:}~Bifurcating converging.
-        \textbf{G:}~Consecutive branching. \textbf{H:}~Binary tree. \textbf{I:}~Disconnected.
+        \textbf{G:}~Bifurcating cycle. \textbf{H:}~Consecutive branching. \textbf{I:}~Disconnected.
     }
     \label{fig:example_runs}
 \end{figure}
@@ -193,7 +128,7 @@ We tested scvelo and velocyto on 8 datasets containing linear, bifurcating, disc
     \textbf{A:} An example bifurcating cycle dataset, with as illustration the expression and ground truth velocity of a gene D1\_TF1 that goes up and down in one branch of the trajectory. 
 \textbf{B:} The RNA velocity estimates of gene D1\_TF1 by the different methods.
 \textbf{C:} The velocity stream plots produced from the predictions of each method, as generated by scvelo.
-\textbf{D:} TODO: discuss new benchmark results
+\textbf{D:} The predictions scored by two different metrics, the velocity correlation and the vector cosine similarity. The velocity correlation is the correlation between the ground-truth velocity (A, right) and the predicted velocity (B). The vector cosine similarity is the cosine similarity between the direction of segments of the ground-truth trajectory (A, left) and the RNA velocity values calculated at those points (C). 
     }
     \label{fig:velocity}
 \end{figure}
@@ -206,9 +141,9 @@ We tested scvelo and velocyto on 8 datasets containing linear, bifurcating, disc
 Cell-specific network inference (CSNI) methods\footnote{Different terms are commonly used when dealing with data from a particular source. For example, single-cell NI when applied to single-cell transcriptomics data; sample-specific NI when applied to bulk transcriptomics; patient-derived NI when applied to bulk profiles of patients. A more generalised variant of CSNI is casewise NI, which does not specify the type of data which is being analysed.} predict not only which transcription factors regulate which target genes (Figure\ \ref{fig:scgrn}A, top left), but also how active each interaction is in every case (Figure\ \ref{fig:scgrn}A).
 
 
-While a few pioneering CSNI approaches have already been developed [@aibar_scenicsinglecellregulatory_2017; @kuijjer_estimatingsamplespecificregulatory_2019; @liu_personalizedcharacterizationdiseases_2016], a quantitative assessment of the performance is until now lacking. This is not surprising, as neither real nor in silico datasets of cell-specific or even cell-type-specific interactions exists that are large enough so that it can be used as a ground-truth for evaluating CSNI methods. Extracting the ground-truth dynamic network in dyngen is straightforward though, given that we can calculate how target gene expression would change without the regulator being present.
+While a few pioneering CSNI approaches have already been developed [@aibar_scenicsinglecellregulatory_2017; @kuijjer_estimatingsamplespecificregulatory_2019; @liu_personalizedcharacterizationdiseases_2016], a quantitative assessment of the performance is until now lacking. This is not surprising, as neither real nor in silico datasets of cell-specific or even cell-type-specific interactions exist that are large enough so that it can be used as a ground-truth for evaluating CSNI methods. Extracting the ground-truth dynamic network in dyngen is straightforward though, given that we can calculate how target gene expression would change without the regulator being present.
 
-We used this ground-truth to compare the performance of three CSNI methods (Figure\ \ref{fig:scgrn}B). We calculated the AUROC and AUPR score -- which are common metrics for NI benchmarking -- for each cell individually. Computing the mean AUROC and AUPR per dataset showed that pySCENIC significantly outperforms LIONESS and SSN.
+We used this ground-truth to compare the performance of three CSNI methods (Figure\ \ref{fig:scgrn}B). We calculated the AUROC and AUPR score -- which are common metrics for NI benchmarking -- for each cell individually. Computing the mean AUROC and AUPR per dataset showed that pySCENIC significantly outperforms LIONESS + Pearson, which in turn outperforms SSN*. 
 
 
 
@@ -296,7 +231,7 @@ A module network consists of modules connected together by regulatory interactio
 Several examples of module networks are given (Figure\ \ref{fig:example_backbones_onlymodules}).
 A simple chain of modules (where one module upregulates the next) results in a _linear_ process. By having the last module repress the first module, the process becomes _cyclic_. Two modules repressing each other is the basis of a _bifurcating_ process, though several chains of modules have to be attached in order to achieve progression before and after the bifurcation process. Finally, a _converging_ process has a bifurcation occurring during the burn phase, after which any differences in module regulation is removed.
 
-Note that these examples represent the bare minimum in terms of the number of modules used. Using longer chains of modules is typically desired. In addition, the fate decisions made in this example of a bifurcation is reversible, meaning cells can be reprogrammed to go down a different differentiation path. If this effect is undesirable, more safeguards need to be put in place to prevent reprogramming from occurring (Section \ref{sec:dyngen-bbl}).
+Note that these examples represent the bare minimum in terms of the number of modules used. Using longer chains of modules is typically desired. In addition, the fate decisions made in this example of a bifurcation is reversible, meaning cells can be reprogrammed to go down a different differentiation path. If this effect is undesirable, more safeguards need to be put in place to prevent reprogramming from occurring.
 
 \begin{figure}[htb!]
     \centering
@@ -575,45 +510,20 @@ Molecules are sampled from the simulation to replicate how molecules are experim
 
 
 ## Determining the ground-truth trajectory {#sec:dyngen-groundtruth}
-To determine the state of a cell at any point in the simulation, we simulate the expression of the ground-truth trajectory. Subsequently, map the expression of the cell to the closest resembling state in the ground-truth trajectory by finding the point in the ground-truth trajectory with the highest Pearson correlation value w.r.t. the expression values. 
+To construct the ground-truth trajectory, the user needs to provide the ground-truth state network alongside the initial module network (Figure~\ref{fig:example_backbones}). Each edge in the state network specifies which modules are allowed to change in expression in transitioning from one state to another. For each edge, a simulation is run using the end state of an upstream branch as the initial expression vector, and only allowing the modules as predefined by the attribute to change.
 
-To simulate the expression of the ground-truth expression, we iterate over the edges in the backbone state network starting from the root state. We assume the root state has no modules active and has no expression of any molecules. To transition to a next state, we activate or deactivate certain gene modules as defined by the backbone (Section\ \ref{sec:dyngen-modules}) and perform a noiseless ODE simulation. For each time interval $t=0.01$ along the trajectory, the expression values are retained.
-
-
-## Constructing backbones {#sec:dyngen-backbone}
 
 \begin{figure}[htb!]
     \centering
     \includegraphics[width=0.8\textwidth]{result_files/example_backbones}
-    \caption{
-      TODO
-    }
+    \caption{Examples of the ground-truth state networks which need to be provided alongside the module network.}
     \label{fig:example_backbones}
 \end{figure}
 
-### Backbone lego {#sec:dyngen-bbl}
-The backbone can make use of one or more "backbone lego" (BBL) pieces (Figure\ \ref{fig:backbone_lego}). A BBL consists of one or more modules which regulate each other such that the output modules present a specific behaviour, depending on the input module (Figure\ \ref{fig:backbone_lego}A). Parameters allow determining the number of modules involved in the process and the number of outputs. Multiple BBLs can be chained together in order to intuitively create module networks and corresponding state networks (Figure\ \ref{fig:backbone_lego}B). Note that not all dynamic processes can be represented by a combination of BBLs, but they can serve as common building blocks to aid the construction of the backbone.
+As an example, consider the cyclic trajectory shown in Figure~\ref{fig:example_backbones}. State S0 begins with an expression vector of all zero values. To simulate the transition from S0 to S1, regulation of the genes in modules A, B and C are turned on. After a predefined period of time, the end state of this transition is considered the expression vector of state S1. To simulate the transition from S1 to S2, regulation of the genes in modules D and E are turned on, while the regulation of genes in module C is turned off. During this simulation, the expression of genes in modules A, B, D, and E is thus allowed to change. The end state of the simulation is considered the expression vector of state S2. 
 
-\begin{figure}[htb!]
-    \centering
-    \includegraphics[width=0.8\textwidth]{result_files/backbone_lego}
-    \caption{
-      \textbf{Reusable regulatory building blocks that can be used to construct GRNs that result in dynamic processes following an expected pattern.}
-      \textbf{A:} Each building block contains genes which serve as inputs that can be regulated by external transcription factors. The connections inside the building block transform the input signal in a particular way and has one or more output interactions of which the targets are not yet determined.
-      \textbf{B:} By connecting multiple building blocks together, a backbone of regulatory modules can be formed.
-      \textbf{C:} dyngen offers several variations of linear building blocks which allow for differing regulatory mechanisms.
-      \textbf{D:} A branching module will upregulate the expression of just one of the output interactions. Two variations are given of which the simple variant is more prone to reprogramming events in comparison to the robust branching module.
-      \textbf{E,F:} These components allow to specify the beginning (no inputs) and end (no outputs) of the backbone.
-    }
-    \label{fig:backbone_lego}
-\end{figure}
+For each of the branches in the state network, an expression matrix and the corresponding progression time along that branch are retained. To map a simulated cell to the ground-truth, the correlation between its expression values and the expression matrix of the ground-truth trajectory is calculated, and the cell is mapped to the position in the ground-truth trajectory that has the highest correlation.
 
-
-When the input node of a **linear BBL** (Figure\ \ref{fig:backbone_lego}C) is upregulated, the module the BBL is connected to will be upregulated. A _simple chain_ is a set of modules where a module upregulates the next. A _chain with double repression_ has an uneven number of modules forming a chain where each module downregulates the next but all modules (except the input) have basal expression. A _grid with double repression_ is similar; except that modules do not have basal expression but instead get upregulated by an upstream module in the chain. Finally, a _flip flop_} consists of a simple chain where first the modules (except the last) are upregulated. Once the second to last module is upregulated, that module upregulates itself and the first module is strongly repressed, causing all other modules to lose expression and finally the last module to be upregulated. The _flip flop_ retains this output state, even when the input changes.
-
-When the input node of a **branching BBL** (Figure\ \ref{fig:backbone_lego}D) is upregulated, a subset of its output modules will eventually be upregulated. A \emph{simple branching} uses reciprocal inhibition to drive the upregulation of one of the output modules. Due to its simplicity, however, multiple output modules might be upregulated simultaneously and over long periods of simulation time it might be possible that the choice of upregulated module changes. A _robust branching_ improves upon the simple branching by preventing upregulation of output modules until an internal branching decision has been made, and by repressing the decision mechanism to avoid other output modules being upregulated other than the one that has been chosen.
-
-A **leaf BBL** (Figure\ \ref{fig:backbone_lego}E) is a linear BBL that has either no inputs or no outputs. A _start_ BBL is a linear BBL where the first module has basal expression, and all modules in this module will be active during the burn-in phase of the simulation. An _end_ BBL is also a linear BBL with its output regulating one final module.
 
 ## Determining the cell-specific ground-truth regulatory network {#sec:dyngen-extractgrn}
 Calculating the regulatory effect of a regulator $R$ on a target $T$ (Figure\ \ref{fig:explain_methods}F) requires determining the contribution of $R$ in the propensity function of the transcription of $T$ (section\ \ref{sec:dyngen-reactions}) with respect to other regulators. This information is useful, amongst others, for benchmarking cell-specific network inference methods. 
@@ -636,9 +546,8 @@ Determining the regulatory effect for all interactions and cells in the dataset 
 \end{figure}
 
 
-
 ## Comparison of cell-specific network inference methods {#sec:dyngen-nicompare}
-Several datasets were generated using the different predefined backbones. For every cell in the dataset, the transcriptomics profile and the corresponding cell-specific ground-truth regulatory network was determined (Section\ \ref{sec:dyngen-extractgrn}). 
+14 datasets were generated using the 14 different predefined backbones. For every cell in the dataset, the transcriptomics profile and the corresponding cell-specific ground-truth regulatory network was determined (Section\ \ref{sec:dyngen-extractgrn}). 
 
 Several cell-specific NI methods were considered for comparison: SCENIC [@aibar_scenicsinglecellregulatory_2017], LIONESS [@kuijjer_estimatingsamplespecificregulatory_2015; @kuijjer_estimatingsamplespecificregulatory_2019], and SSN [@liu_personalizedcharacterizationdiseases_2016]. 
 
@@ -653,9 +562,11 @@ The AUROC and AUPR metrics are common metrics for evaluating a predicted GRN wit
 
 ## Comparison of RNA velocity methods {#sec:dyngen-velcompare}
 
-15 datasets were generated with 5 different backbones: linear, linear simple, bifurcating, cyclic, and disconnected. We extracted a ground truth RNA velocity by subtracting for each mRNA molecule the propensity of its production by the propensity of its degradation. If the expression of an mRNA will increase in the future, this value is positive, while it is negative if it is going to decrease. For each gene, we compared the ground truth velocity with the observed velocity by calculating the Spearman rank correlation.
+For each of the 14 different predefined backbones, nine datasets were generated with three difficulty settings and three different seeds. The different difficulty settings were obtained by multiplying the transcription rate by a factor of 25 (easy), 5 (medium) and 1 (hard). After manual quality control, the easy and medium datasets for backbones "bifurcating_converging", "bifurcating_loop", "converging" and "disconnected" were removed, resulting in a final collection of 102 datasets.
 
-We compared two RNA velocity methods. The velocyto method [@lamanno_rnavelocitysingle_2018], as implemented in the velocyto.py package, in which we varied the "assumption" parameter between "constant_unspliced" and "constant_velocity". The scvelo method [@bergen_generalizingrnavelocity_2019], as implemented in the python scvelo package [scvelo.de](http://scvelo.de), in which we varied the "mode" parameter between "deterministic", "stochastic" and "dynamical". For both methods, we used the same normalized data as provided by dyngen, with no extra cell or feature filtering. We also matched the parameters between both methods as best as possible, i.e. the k parameter for smoothing was set to 20 for both methods.
+We extracted a ground truth RNA velocity by subtracting for each mRNA molecule the propensity of its production by the propensity of its degradation. If the expression of an mRNA will increase in the future, this value is positive, while it is negative if it is going to decrease. For each gene, we compared the ground truth velocity with the observed velocity by calculating the Spearman rank correlation.
+
+We compared two RNA velocity methods. The velocyto method [@lamanno_rnavelocitysingle_2018], as implemented in the velocyto.py package, in which we varied the "assumption" parameter between "constant_unspliced" and "constant_velocity". The scvelo method [@bergen_generalizingrnavelocity_2019], as implemented in the python scvelo package [scvelo.de](http://scvelo.de), in which we varied the "mode" parameter between "deterministic", "stochastic", "dynamical", "dynamical_residuals". For both methods, we used the same normalized data as provided by dyngen, with no extra cell or feature filtering, but otherwise matched the parameters to their respective tutorial vignettes as well as possible.
 
 To visualize the velocity on an embedding, we used the "velocity_embedding" function, implemented in the scvelo python package.
 

@@ -95,3 +95,18 @@ g
 ggsave(exp$result("casewise_grn.pdf"), g, width = 8, height = 5)
 write_rds(g, exp$result("casewise_grn.rds"), compress = "gz")
 
+
+gtiny <- ggplot() +
+  geom_point(aes(x, y), colour = "gray", node_df) +
+  geom_segment(aes(x = x, y = y, xend = xend, yend = yend, colour = effect), edge_df %>% filter(effect >= 0, group == "GRN of cell 1"), arrow = arrow_up) +
+  geom_segment(aes(x = x, y = y, xend = xend, yend = yend, colour = effect), edge_df %>% filter(effect < 0, group == "GRN of cell 1"), arrow = arrow_down) +
+  theme_graph(base_family = "Helvetica") +
+  coord_equal() +
+  labs(colour = "Regulatory\nactivity") +
+  scale_colour_gradientn(colours = c(rev(RColorBrewer::brewer.pal(5, "Reds")), RColorBrewer::brewer.pal(5, "Greens"))) +
+  theme(
+    plot.margin = margin(0, 0, 0, 0, "cm")
+  )
+write_rds(gtiny, exp$result("cell1.rds"), compress = "gz")
+
+

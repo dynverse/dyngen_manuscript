@@ -301,3 +301,4 @@ g <- patchwork::wrap_plots(
 )
 ggsave(exp$result("usecase.pdf"), g, height = 12, width = 12, useDingbats = FALSE)
 ggsave(exp$result("usecase.png"), g, height = 12, width = 12)
+write_rds(g[[3]][[1]] + labs(tag = NULL), exp$result("one_rna_velocity.rds"), compress = "gz")

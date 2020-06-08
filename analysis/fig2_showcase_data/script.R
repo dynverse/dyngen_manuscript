@@ -15,6 +15,9 @@ PostScriptTrace(exp$result("gene_regulation.eps"), outfilename = fil)
 g0a <- pictureGrob(readPicture(fil))
 
 # generate cyclic trajectory
+census_interval <- 5
+total_time <- 500
+time_breaks <- c(0, 500)
 model <- exp$temporary("model.rds") %cache% {
   backbone <- backbone(
     module_info = tribble(
@@ -41,9 +44,6 @@ model <- exp$temporary("model.rds") %cache% {
       "S3", "S1", "+A,+B,-D,-E", FALSE, FALSE, 120
     )
   )
-  census_interval <- 5
-  total_time <- 500
-  time_breaks <- c(0, 500)
   model <-
     initialise_model(
       num_tfs = nrow(backbone$module_info),
@@ -302,11 +302,13 @@ g5 <- ggplot(reg_df) +
   labs(x = "Simulation time", y = "Regulation", colour = "Interaction") +
   theme(
     text = element_text(family = "Helvetica"),
-    legend.margin = margin()
+    legend.margin = margin(),
+    axis.title.y = element_text(angle = 0, vjust = 0.5, hjust = 1),
+    legend.position = "bottom"
   ) +
   scale_x_continuous(breaks = time_breaks) +
   scale_y_continuous(breaks = c(0, .5, 1), limits = c(0, 1))
-
+g5
 
 #######
 # Prop diff
@@ -322,7 +324,8 @@ g6 <- ggplot(velocity, aes(time, value)) +
     text = element_text(family = "Helvetica"),
     strip.background = element_blank(),
     strip.text = element_blank(),
-    legend.margin = margin()
+    legend.margin = margin(),
+    legend.position = "bottom"
   ) +
   scale_x_continuous(breaks = time_breaks)
 
@@ -335,6 +338,7 @@ g7a <- read_rds(exp7a$result("explanation_flat.rds"))[[4]]
 exp7b <- start_analysis("usecase_rna_velocity")
 g7b <- read_rds(exp7b$result("one_rna_velocity.rds"))
 
+<<<<<<< HEAD
 exp7c <- start_analysis("usecase_network_inference")
 g7c <- read_rds(exp7c$result("cell1.rds")) + theme(legend.position = "none")
 
@@ -359,6 +363,16 @@ g <- wrap_plots(
     ncol = 1
   ),
   widths = c(7, 3)
+=======
+g <- patchwork::wrap_plots(
+  patchwork::wrap_plots(g0a, g0b, nrow = 1, widths = c(1, 1)),
+  g1,
+  g2,
+  g3,
+  g5,
+  heights = c(2, 3, 1, 3, 1.2),
+  ncol = 1
+>>>>>>> 09111ea44aa265d28e2194659e0ec00d1918565f
 ) +
   plot_annotation(tag_levels = c('A'))
 ggsave(exp$result("overview.pdf"), g, width = 10, height = 10, device = cairo_pdf)

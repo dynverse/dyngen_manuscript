@@ -305,11 +305,13 @@ g5 <- ggplot(reg_df) +
   labs(x = "Simulation time", y = "Regulation", colour = "Interaction") +
   theme(
     text = element_text(family = "Helvetica"),
-    legend.margin = margin()
+    legend.margin = margin(),
+    axis.title.y = element_text(angle = 0, vjust = 0.5, hjust = 1),
+    legend.position = "bottom"
   ) +
   scale_x_continuous(breaks = time_breaks) +
   scale_y_continuous(breaks = c(0, .5, 1), limits = c(0, 1))
-
+g5
 
 #######
 # Prop diff
@@ -325,7 +327,8 @@ g6 <- ggplot(velocity, aes(time, value)) +
     text = element_text(family = "Helvetica"),
     strip.background = element_blank(),
     strip.text = element_blank(),
-    legend.margin = margin()
+    legend.margin = margin(),
+    legend.position = "bottom"
   ) +
   scale_x_continuous(breaks = time_breaks)
 
@@ -337,7 +340,7 @@ g <- patchwork::wrap_plots(
   g2,
   g3,
   g5,
-  heights = c(2, 3, 1, 3, 1),
+  heights = c(2, 3, 1, 3, 1.2),
   ncol = 1
 ) +
   plot_annotation(tag_levels = c('A'))

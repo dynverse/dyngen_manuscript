@@ -182,11 +182,19 @@ g0b <-
   geom_node_point(aes(colour = name), size = 7) +
   geom_node_point(colour = "white", size = 6) +
   geom_node_text(aes(label = name)) +
-  theme_graph(base_family = 'Helvetica') +
   scale_edge_width_continuous(trans = "log10", range = c(.5, 3)) +
   scale_colour_brewer(palette = "Set1") +
-  theme(legend.position = "none") +
-  expand_limits(y = c(-.1, 1.1), x = c(-.05, 1.05))
+  expand_limits(y = c(-.2, 1.2), x = c(-.05, 1.05)) +
+  coord_cartesian() +
+  theme_classic() +
+  theme(
+    legend.position = "none",
+    text = element_text(family = "Helvetica"),
+    axis.title = element_blank(),
+    axis.line = element_blank(),
+    axis.ticks = element_blank(),
+    axis.text = element_blank()
+  )
 
 #######
 # ABUNDANCE LEVELS
@@ -198,16 +206,14 @@ g1 <- ggplot(expr_df, aes(time, value)) +
   labs(x = "Simulation time", y = "Molecule levels", colour = "Molecule") +
   scale_colour_brewer(palette = "Set1") +
   scale_y_continuous(n.breaks = 3, expand = c(0, 0)) +
-  # scale_colour_manual(values = c("pre-mRNA" = "#4daf4a", "mRNA" = "#377eb8", "protein" = "#e41a1c", "gene" = "black")) +
   theme(
     text = element_text(family = "Helvetica"),
-    # axis.title.y = element_text(angle = 0, vjust = 0.5, hjust = 0),
     strip.background = element_blank(),
     strip.text = element_blank(),
     legend.margin = margin(),
     legend.position = "none"
   ) +
-  scale_x_continuous(breaks = time_breaks, expand = c(0, 0)) +
+  scale_x_continuous(breaks = time_breaks, expand = c(0.02, 0.02)) +
   geom_text(aes(x = mean(time_breaks), y = max, label = molecule), expr_df %>% group_by(molecule) %>% summarise(max = max(value)), size = 3, hjust = 0.5, vjust = 1)
 
 #######
@@ -234,37 +240,35 @@ g2 <- ggplot(state_df) +
   theme(
     text = element_text(family = "Helvetica"),
     legend.margin = margin(),
-    # axis.title.y = element_text(angle = 0, vjust = 0.5, hjust = 0),
     legend.position = "none"
   ) +
-  scale_x_continuous(breaks = time_breaks, expand = c(0, 0)) +
+  scale_x_continuous(breaks = time_breaks, expand = c(0.02, 0.02)) +
   scale_y_continuous(breaks = c(0, 1), labels = scales::percent, expand = c(0, 0))
 g2
 
 #######
-# REACTION FIRINGS
+# REACTION PROPENSITIES
 #######
-firings_df_A <- firings_df %>% filter(gene == "Gene A")
-label_fir_df <- firings_df_A %>% group_by(reaction) %>% summarise(time = mean(time), value = max(value)*1.1) %>% mutate(reaction_text = paste0(reaction))
+prop_df_A <- prop_df %>% filter(gene == "Gene A")
+label_prop_df <- prop_df_A %>% group_by(reaction) %>% summarise(time = mean(time), value = max(value)*1.2) %>% mutate(reaction_text = paste0("Gene A ", reaction))
 
 g3 <-
-  ggplot(firings_df_A, aes(time, value)) +
+  ggplot(prop_df_A, aes(time, value)) +
   facet_wrap(~reaction, ncol = 1, scales = "free_y") +
   geom_area(aes(fill = forcats::fct_rev(reaction)), position = "stack") +
   theme_classic() +
   scale_fill_brewer(palette = "Set2") +
-  labs(x = "Simulation time", y = "Reacting firings\n(Gene A)", fill = "Reaction type") +
+  labs(x = "Simulation time", y = "Reaction propensity\n(Gene A)", fill = "Reaction type") +
   theme(
     text = element_text(family = "Helvetica"),
     strip.background = element_blank(),
     strip.text = element_blank(),
     legend.margin = margin(),
-    # axis.title.y = element_text(angle = 0, vjust = 0.5, hjust = 1),
     legend.position = "none"
   ) +
-  scale_x_continuous(breaks = time_breaks, expand = c(0, 0)) +
-  scale_y_continuous(breaks = scales::breaks_extended(n = 2), expand = c(0, 0)) +
-  geom_text(aes(label = reaction_text), label_fir_df, size = 3, hjust = 0.5, vjust = 1)
+  scale_x_continuous(breaks = time_breaks, expand = c(0.02, 0.02)) +
+  scale_y_continuous(breaks = scales::breaks_extended(n = 3)) +
+  geom_text(aes(label = reaction_text), label_prop_df, size = 3, hjust = 0.5, vjust = 1)
 
 
 #######
@@ -277,10 +281,9 @@ g5 <- ggplot(reg_df) +
   labs(x = "Simulation time", y = "Regulation", colour = "Interaction") +
   theme(
     text = element_text(family = "Helvetica"),
-    legend.margin = margin(),
-    # axis.title.y = element_text(angle = 0, vjust = 0.5, hjust = 1)
+    legend.margin = margin()
   ) +
-  scale_x_continuous(breaks = time_breaks, expand = c(0, 0)) +
+  scale_x_continuous(breaks = time_breaks, expand = c(0.02, 0.02)) +
   scale_y_continuous(breaks = c(0, .5, 1), limits = c(0, 1.2)) +
   theme(legend.position = c(.5, .95)) +
   guides(colour = guide_legend(direction = "horizontal"))
@@ -294,7 +297,18 @@ g5 <- ggplot(reg_df) +
 exp7d <- start_analysis("showcase_backbones")
 dataset <- read_rds(exp7d$dataset_file("bb_consecutive_bifurcating_3"))
 dimred <- dyndimred::dimred_mds(dataset$expression, distance_method = "pearson")
-g7d <- dynplot::plot_dimred(dataset, dimred = dimred, size_milestones = 3, size_cells = 1.5)
+g7d <- dynplot::plot_dimred(dataset, dimred = dimred, size_milestones = 3, size_cells = 1.5) +
+  coord_cartesian() +
+  theme_classic() +
+  theme(
+    legend.position = "none",
+    text = element_text(family = "Helvetica"),
+    axis.title = element_blank(),
+    axis.line = element_blank(),
+    axis.ticks = element_blank(),
+    axis.text = element_blank()
+  ) +
+  labs(title = "Trajectory inference")
 
 exp7a <- start_analysis("usecase_trajectory_alignment")
 li7a <- read_rds(exp7a$result("explanation_plot_data.rds"))
@@ -314,20 +328,40 @@ g7a <- ggplot() +
     axis.ticks.y = element_blank(),
     axis.text.y = element_blank()
   ) +
-  labs(x = "Simulation time") +
+  labs(x = "Simulation time", title = "Trajectory alignment") +
   coord_cartesian()
 g7a
 
 exp7b <- start_analysis("usecase_rna_velocity")
 g7b <- read_rds(exp7b$result("one_rna_velocity.rds")) +
-  coord_cartesian()
+  # plot_spacer() +
+  coord_cartesian() +
+  theme_classic() +
+  theme(
+    legend.position = "none",
+    text = element_text(family = "Helvetica"),
+    axis.title = element_blank(),
+    axis.line = element_blank(),
+    axis.ticks = element_blank(),
+    axis.text = element_blank()
+  ) +
+  labs(title = "RNA velocity", subtitle = NULL)
 
 exp7c <- start_analysis("usecase_network_inference")
 g7c <- read_rds(exp7c$result("cell1.rds")) +
-  theme(legend.position = "none") +
-  coord_cartesian()
+  coord_cartesian() +
+  theme_classic() +
+  theme(
+    legend.position = "none",
+    text = element_text(family = "Helvetica"),
+    axis.title = element_blank(),
+    axis.line = element_blank(),
+    axis.ticks = element_blank(),
+    axis.text = element_blank()
+  ) +
+  labs(title = "Cellwise network inference")
 
-such_great_heights <- c(2, 3, 2, 4, 3)
+such_great_heights <- c(2.5, 3, 2, 4, 3)
 g <- wrap_plots(
   wrap_plots(g0a, g0b, nrow = 1, widths = c(1, 1)),
   g1,
@@ -339,12 +373,18 @@ g <- wrap_plots(
   g7a,
   g7b,
   g7c,
+  # wrap_plots(g0a, g0b, nrow = 1, widths = c(1, 1)), plot_spacer(),
+  # g1, g7d,
+  # g2, g7a,
+  # g3, g7b,
+  # g5, g7c,
   heights = such_great_heights,
   ncol = 2,
   widths = c(7, 3),
   byrow = FALSE
 ) +
-  plot_annotation(tag_levels = c('A'))
+  plot_annotation(tag_levels = c('A')) &
+  theme(plot.tag.position = c(0, 1), plot.title = element_text(hjust = .5))
 ggsave(exp$result("overview.pdf"), g, width = 10, height = 10, device = cairo_pdf)
 
 

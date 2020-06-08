@@ -345,7 +345,7 @@ g <- wrap_plots(
   wrap_plots(
     wrap_plots(g0a, g0b, nrow = 1, widths = c(1, 1)),
     g1 + theme(legend.position = "none"),
-    g2 + theme(legend.position = "bottom"),
+    g2 + theme(legend.position = "none"),
     g3 + theme(legend.position = "none"),
     g5 + theme(legend.position = "bottom"),
     heights = c(2, 3, 1, 3, 1.5),
@@ -364,8 +364,6 @@ g <- wrap_plots(
 ) +
   plot_annotation(tag_levels = c('A'))
 ggsave(exp$result("overview.pdf"), g, width = 10, height = 10, device = cairo_pdf)
-write_rds(g, exp$result("overview.rds"), compress = "gz")
-
 
 
 

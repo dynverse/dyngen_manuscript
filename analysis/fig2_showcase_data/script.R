@@ -338,10 +338,8 @@ g7a <- read_rds(exp7a$result("explanation_flat.rds"))[[4]]
 exp7b <- start_analysis("usecase_rna_velocity")
 g7b <- read_rds(exp7b$result("one_rna_velocity.rds"))
 
-<<<<<<< HEAD
 exp7c <- start_analysis("usecase_network_inference")
 g7c <- read_rds(exp7c$result("cell1.rds")) + theme(legend.position = "none")
-
 
 g <- wrap_plots(
   wrap_plots(
@@ -363,16 +361,6 @@ g <- wrap_plots(
     ncol = 1
   ),
   widths = c(7, 3)
-=======
-g <- patchwork::wrap_plots(
-  patchwork::wrap_plots(g0a, g0b, nrow = 1, widths = c(1, 1)),
-  g1,
-  g2,
-  g3,
-  g5,
-  heights = c(2, 3, 1, 3, 1.2),
-  ncol = 1
->>>>>>> 09111ea44aa265d28e2194659e0ec00d1918565f
 ) +
   plot_annotation(tag_levels = c('A'))
 ggsave(exp$result("overview.pdf"), g, width = 10, height = 10, device = cairo_pdf)

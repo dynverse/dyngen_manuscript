@@ -23,8 +23,8 @@ knitr::opts_chunk$set(collapse=TRUE, results="hold")
 
 \newcommand{\yes}{\ding{51}}
 \newcommand{\no}{}
-<!--\newcommand{\grayline}{\arrayrulecolor{lightgray}\cline{3-7}}-->
-\newcommand{\grayline}{\arrayrulecolor{lightgray}\cline{3-7}\arrayrulecolor{black}}
+\definecolor{light-gray}{rgb}{.85,.85,.85}
+\newcommand{\grayline}{\arrayrulecolor{light-gray}\cline{3-7}\arrayrulecolor{black}}
 \newcommand{\blackline}{\arrayrulecolor{black}\cline{3-7}}
 \newcommand{\method}[1]{#1}
 
@@ -51,8 +51,8 @@ knitr::opts_chunk$set(collapse=TRUE, results="hold")
         - & Batch labels & \yes & \no & \no & \no & \yes\\ \grayline
         - & Differential expression & \no & \no & \no & \yes & \yes \\ \grayline
         - & Knocked down regulators & \no & \no & \no & \no & \yes \\ \grayline
-    - & Regulatory network & \no & \no & \no & \yes & \yes \\ \grayline
-    - & Cell-specific regulatory network & \no & \no & \no & \no & \yes \\
+        - & Regulatory network & \no & \no & \no & \yes & \yes \\ \grayline
+        - & Cell-specific regulatory network & \no & \no & \no & \no & \yes \\
         \blackline
         \multicolumn{7}{l}{\textbf{Emulate experimental effects}} \\
         \blackline
@@ -62,9 +62,9 @@ knitr::opts_chunk$set(collapse=TRUE, results="hold")
         - & Time-series & \no & \no & \no & \no & \yes \\
         - & Snapshot & \no & \no & \no & \no & \yes \\
         \blackline
-        \multicolumn{7}{l}{\textbf{Possible applications}} \\
+        \multicolumn{7}{l}{\textbf{Evaluation applications}} \\
         \blackline
-        - & Clustering & \yes & \yes & \no & \yes & ? \\ \grayline
+        - & Clustering & \yes & \yes & \no & \yes & \no \\ \grayline
         - & Trajectory inference & \yes & \no & \yes & \yes & \yes \\ \grayline
         - & Network inference & \no & \no & \no & \yes & \yes \\ \grayline
         - & Cell-specific network inference & \no & \no & \no & \no & \yes \\ \grayline
@@ -75,8 +75,8 @@ knitr::opts_chunk$set(collapse=TRUE, results="hold")
         \blackline
         \multicolumn{7}{l}{\textbf{Showcased dataset}} \\
         \blackline
-        - & Number of cells &  &  &  &  & \\
-        - & Number of genes &  &  &  &  & \\
+        - & Number of cells &  &  &  &  & \\ \grayline
+        - & Number of genes &  &  &  &  & \\ \grayline
         - & Execution time & & & & & \\
         \blackline
     \end{tabular}

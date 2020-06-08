@@ -212,6 +212,7 @@ plot_part_C <- pmap(design_velocity_oi, function(dataset_id, method_id, params_i
 }) %>% patchwork::wrap_plots(nrow = 1)
 
 
+#' design_velocity_oi %>% dynutils::extract_row_to_list(1) %>% list2env(.GlobalEnv)
 # PART D: Embedded RNA velocity estimates of different methods ------------
 plot_part_D <- pmap(design_velocity_oi, function(dataset_id, method_id, params_id, ...) {
   velocity_file <- exp$velocity_file(dataset_id, method_id, params_id)

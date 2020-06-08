@@ -1,3 +1,4 @@
+#' @importFrom pbapply bplapply
 #' @export
 cni_bred <- create_ti_method_r(
   package_required = c("bred"),

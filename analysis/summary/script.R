@@ -359,7 +359,7 @@ g7c <- read_rds(exp7c$result("cell1.rds")) +
     axis.ticks = element_blank(),
     axis.text = element_blank()
   ) +
-  labs(title = "Cellwise network inference")
+  labs(title = "Cell-specific network inference")
 
 such_great_heights <- c(2.5, 3, 2, 4, 3)
 g <- wrap_plots(

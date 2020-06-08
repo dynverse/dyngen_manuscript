@@ -47,9 +47,9 @@ knitr::opts_chunk$set(collapse=TRUE, results="hold")
         \blackline
         - & True counts & \yes & \no & \no & \yes & \yes \\ \grayline
         - & Cluster labels & \yes & \yes & \no & \yes & \yes \\ \grayline
-        - & Trajectory & \yes & \no & \yes & \yes & \yes \\ \grayline
-        - & Batch labels & \yes & \no & \no & \no & \yes\\ \grayline
-        - & Differential expression & \no & \no & \no & \yes & \yes \\ \grayline
+        - & Trajectory & \yes & \no & \yes $ ^1$ & \yes & \yes \\ \grayline
+        - & Batch labels & \yes & \no & \no & \no & \yes $ ^1$\\ \grayline
+        - & Differential expression & \no & \no & \no & \yes & \yes $ ^2$ \\ \grayline
         - & Knocked down regulators & \no & \no & \no & \no & \yes \\ \grayline
         - & Regulatory network & \no & \no & \no & \yes & \yes \\ \grayline
         - & Cell-specific regulatory network & \no & \no & \no & \no & \yes \\
@@ -57,7 +57,7 @@ knitr::opts_chunk$set(collapse=TRUE, results="hold")
         \multicolumn{7}{l}{\textbf{Emulate experimental effects}} \\
         \blackline
         - & Single-cell RNA sequencing & \yes & \yes & \yes & \yes & \yes \\ \grayline
-        - & Batch effects & \yes & \no & \no & \no & \yes \\ \grayline
+        - & Batch effects & \yes & \no & \no & \no & \yes $ ^1$ \\ \grayline
         - & Knockdown experiment & \no & \no & \no & \no & \yes \\ \grayline
         - & Time-series & \no & \no & \no & \no & \yes \\
         - & Snapshot & \no & \no & \no & \no & \yes \\
@@ -68,7 +68,7 @@ knitr::opts_chunk$set(collapse=TRUE, results="hold")
         - & Trajectory inference & \yes & \no & \yes & \yes & \yes \\ \grayline
         - & Network inference & \no & \no & \no & \yes & \yes \\ \grayline
         - & Cell-specific network inference & \no & \no & \no & \no & \yes \\ \grayline
-        - & Differential expression & \yes & \no & \no & \no & \yes \\ \grayline
+        - & Differential expression & \yes & \no & \no & \no & \yes $ ^2$ \\ \grayline
         - & Batch effect correction & \yes & \no & \no & \no & \yes \\ \grayline
         - & RNA Velocity & \no & \no & \no & \no & \yes \\ \grayline
         - & Trajectory alignment & \no & \no & \no & \no & \yes \\

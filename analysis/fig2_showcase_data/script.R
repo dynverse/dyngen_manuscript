@@ -287,7 +287,7 @@ g4 <-
     strip.text = element_blank(),
     legend.margin = margin()
   ) +
-  scale_x_continuous(breaks = time_breaks) +
+  scale_x_continuous(breaks = time_breaks, expand = c(0, 0)) +
   scale_y_continuous(breaks = scales::breaks_extended(n = 3)) +
   geom_text(aes(label = reaction_text), label_prop_df, size = 3, hjust = 0.5, vjust = 1)
 
@@ -306,7 +306,7 @@ g5 <- ggplot(reg_df) +
     axis.title.y = element_text(angle = 0, vjust = 0.5, hjust = 1),
     legend.position = "bottom"
   ) +
-  scale_x_continuous(breaks = time_breaks) +
+  scale_x_continuous(breaks = time_breaks, expand = c(0, 0)) +
   scale_y_continuous(breaks = c(0, .5, 1), limits = c(0, 1))
 g5
 
@@ -332,6 +332,14 @@ g6 <- ggplot(velocity, aes(time, value)) +
 #######
 # Applications
 #######
+
+
+exp7d <- start_analysis("fig3_showcase_backbones")
+dataset <- read_rds(exp7d$dataset_file("bb_consecutive_bifurcating_3"))
+dimred <- dyndimred::dimred_mds(dataset$expression, distance_method = "pearson")
+g7d <- dynplot::plot_dimred(dataset, dimred = dimred, size_milestones = 4, size_cells = 2)
+
+
 exp7a <- start_analysis("usecase_trajectory_alignment")
 g7a <- read_rds(exp7a$result("explanation_flat.rds"))[[4]]
 
@@ -353,7 +361,7 @@ g <- wrap_plots(
   ),
   wrap_plots(
     plot_spacer(),
-    plot_spacer(),
+    g7d,
     g7a,
     g7b,
     g7c,

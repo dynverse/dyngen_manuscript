@@ -201,7 +201,7 @@ g1 <- ggplot(expr_df, aes(time, value)) +
   # scale_colour_manual(values = c("pre-mRNA" = "#4daf4a", "mRNA" = "#377eb8", "protein" = "#e41a1c", "gene" = "black")) +
   theme(
     text = element_text(family = "Helvetica"),
-    axis.title.y = element_text(angle = 0, vjust = 0.5, hjust = 0),
+    # axis.title.y = element_text(angle = 0, vjust = 0.5, hjust = 0),
     strip.background = element_blank(),
     strip.text = element_blank(),
     legend.margin = margin(),
@@ -234,7 +234,7 @@ g2 <- ggplot(state_df) +
   theme(
     text = element_text(family = "Helvetica"),
     legend.margin = margin(),
-    axis.title.y = element_text(angle = 0, vjust = 0.5, hjust = 0),
+    # axis.title.y = element_text(angle = 0, vjust = 0.5, hjust = 0),
     legend.position = "none"
   ) +
   scale_x_continuous(breaks = time_breaks, expand = c(0, 0)) +
@@ -259,7 +259,7 @@ g3 <-
     strip.background = element_blank(),
     strip.text = element_blank(),
     legend.margin = margin(),
-    axis.title.y = element_text(angle = 0, vjust = 0.5, hjust = 1),
+    # axis.title.y = element_text(angle = 0, vjust = 0.5, hjust = 1),
     legend.position = "none"
   ) +
   scale_x_continuous(breaks = time_breaks, expand = c(0, 0)) +
@@ -278,12 +278,12 @@ g5 <- ggplot(reg_df) +
   theme(
     text = element_text(family = "Helvetica"),
     legend.margin = margin(),
-    axis.title.y = element_text(angle = 0, vjust = 0.5, hjust = 1),
-    legend.position = "bottom"
+    # axis.title.y = element_text(angle = 0, vjust = 0.5, hjust = 1)
   ) +
   scale_x_continuous(breaks = time_breaks, expand = c(0, 0)) +
-  scale_y_continuous(breaks = c(0, .5, 1), limits = c(0, 1))
-g5
+  scale_y_continuous(breaks = c(0, .5, 1), limits = c(0, 1.2)) +
+  theme(legend.position = c(.5, .95)) +
+  guides(colour = guide_legend(direction = "horizontal"))
 
 
 #######
@@ -294,38 +294,55 @@ g5
 exp7d <- start_analysis("fig3_showcase_backbones")
 dataset <- read_rds(exp7d$dataset_file("bb_consecutive_bifurcating_3"))
 dimred <- dyndimred::dimred_mds(dataset$expression, distance_method = "pearson")
-g7d <- dynplot::plot_dimred(dataset, dimred = dimred, size_milestones = 4, size_cells = 2)
-
+g7d <- dynplot::plot_dimred(dataset, dimred = dimred, size_milestones = 3, size_cells = 1.5)
 
 exp7a <- start_analysis("usecase_trajectory_alignment")
-g7a <- read_rds(exp7a$result("explanation_flat.rds"))[[4]]
+li7a <- read_rds(exp7a$result("explanation_plot_data.rds"))
+
+g7a <- ggplot() +
+  geom_segment(data = li7a$segm_traj_test, mapping = aes(x = color2, y = comp_1, xend = color22, yend = comp_3), alpha = 0.25) +
+  geom_point(data = li7a$comb_traj_less %>% filter(!is.na(color)), mapping = aes(x = color2, y = comp_1, colour = factor(color))) +
+  scale_colour_manual(values = c("#fd8d3c", "#6baed6")) +
+  scale_x_continuous(breaks = c(0, 1), labels = c("Start", "End")) +
+  scale_y_continuous(breaks = c(-.6, .6)) +
+  theme_classic() +
+  theme(
+    legend.position = "none",
+    text = element_text(family = "Helvetica"),
+    axis.title.y = element_blank(),
+    axis.line.y = element_blank(),
+    axis.ticks.y = element_blank(),
+    axis.text.y = element_blank()
+  ) +
+  labs(x = "Simulation time") +
+  coord_cartesian()
+g7a
 
 exp7b <- start_analysis("usecase_rna_velocity")
-g7b <- read_rds(exp7b$result("one_rna_velocity.rds"))
+g7b <- read_rds(exp7b$result("one_rna_velocity.rds")) +
+  coord_cartesian()
 
 exp7c <- start_analysis("usecase_network_inference")
-g7c <- read_rds(exp7c$result("cell1.rds")) + theme(legend.position = "none")
+g7c <- read_rds(exp7c$result("cell1.rds")) +
+  theme(legend.position = "none") +
+  coord_cartesian()
 
+such_great_heights <- c(2, 3, 2, 4, 3)
 g <- wrap_plots(
-  wrap_plots(
-    wrap_plots(g0a, g0b, nrow = 1, widths = c(1, 1)),
-    g1 + theme(legend.position = "none"),
-    g2 + theme(legend.position = "none"),
-    g3 + theme(legend.position = "none"),
-    g5 + theme(legend.position = "bottom"),
-    heights = c(2, 3, 1, 3, 1.5),
-    ncol = 1
-  ),
-  wrap_plots(
-    plot_spacer(),
-    g7d,
-    g7a,
-    g7b,
-    g7c,
-    heights = c(2, 3, 1, 3, 1.5),
-    ncol = 1
-  ),
-  widths = c(7, 3)
+  wrap_plots(g0a, g0b, nrow = 1, widths = c(1, 1)),
+  g1,
+  g2,
+  g3,
+  g5,
+  plot_spacer(),
+  g7d,
+  g7a,
+  g7b,
+  g7c,
+  heights = such_great_heights,
+  ncol = 2,
+  widths = c(7, 3),
+  byrow = FALSE
 ) +
   plot_annotation(tag_levels = c('A'))
 ggsave(exp$result("overview.pdf"), g, width = 10, height = 10, device = cairo_pdf)

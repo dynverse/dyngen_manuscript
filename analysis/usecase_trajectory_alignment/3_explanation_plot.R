@@ -106,12 +106,23 @@ comp2t <- comb_traj_less$comp_2
 segm_traj_test <- segm_traj %>% filter(comp_1 %in% comp1t & comp_2 %in% comp2t & comp_3 %in% comp1t & comp_4 %in% comp2t)
 
 cellmappings <- ggplot() +
+  geom_segment(data = segm_traj_test, mapping = aes(x = color2, y = comp_1, xend = color22, yend = comp_3), alpha = 0.25) +
   geom_point(data = comb_traj_less, mapping = aes(x = color2, y = comp_1, colour = as.factor(color)), size = 3.5, show.legend = F) +
   scale_colour_manual(values = c("#fd8d3c", "#6baed6"), label = "") +
-  geom_segment(data = segm_traj_test, mapping = aes(x = color2, y = comp_1, xend = color22, yend = comp_3), alpha = 0.25) +
-  geom_segment(aes(x = 0, y = -0.5, xend = 1, yend = -0.5), arrow = arrow(length = unit(0.25, "cm"))) +
-  annotate(geom = "text", color = "black", x = 0.5, y = -0.75, label = "Pseudotime", size = 4) +
-  theme_void()
+  scale_x_continuous(breaks = c(0, 1), labels = c("Start", "End")) +
+  theme_void() +
+  theme(
+    axis.title = element_text(),
+    axis.title.y = element_blank(),
+    axis.line = element_line(),
+    axis.line.y = element_blank(),
+    axis.ticks = element_line(),
+    axis.ticks.y = element_blank(),
+    axis.text = element_text(),
+    axis.text.y = element_blank()
+  ) +
+  labs(x = "Pseudotime")
+write_rds(lst(segm_traj_test, comb_traj_less), exp$result("explanation_plot_data.rds"), compress = "gz")
 cellmappings
 
 

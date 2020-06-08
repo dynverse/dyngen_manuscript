@@ -15,84 +15,80 @@ PostScriptTrace(exp$result("gene_regulation.eps"), outfilename = fil)
 g0a <- pictureGrob(readPicture(fil))
 
 # generate cyclic trajectory
-backbone <- backbone(
-  module_info = tribble(
-    ~module_id, ~basal, ~burn, ~independence,
-    "A", 1, TRUE, 1,
-    "B", 1, TRUE, 1,
-    "C", 1, TRUE, 1,
-    "D", 0, TRUE, 1,
-    "E", 0, TRUE, 1
-  ),
-  module_network = tribble(
-    ~from, ~to, ~effect, ~strength, ~hill,
-    "A", "B", -1L, 4, 2,
-    "B", "C", -1L, 4, 2,
-    "C", "D", 1L, 1, 2,
-    "D", "E", 1L, 1, 2,
-    "E", "A", -1L, 4, 2
-  ),
-  expression_patterns = tribble(
-    ~from, ~to, ~module_progression, ~start, ~burn, ~time,
-    "Burn0", "S1", "+A,+B,+C", TRUE, TRUE, 150,
-    "S1", "S2", "+D,+E,-C", FALSE, FALSE, 120,
-    "S2", "S3", "+C,-A,-B", FALSE, FALSE, 120,
-    "S3", "S1", "+A,+B,-D,-E", FALSE, FALSE, 120
-  )
-)
-census_interval <- 5
-total_time <- 500
-time_breaks <- c(0, 250, 500)
-model <-
-  initialise_model(
-    num_tfs = nrow(backbone$module_info),
-    num_targets = 0,
-    num_hks = 0,
-    num_cells = 300,
-    backbone = backbone,
-    verbose = TRUE,
-    download_cache_dir = "~/.cache/dyngen",
-    num_cores = 8,
-    # kinetics_params = kinetics_default(
-    #   sample_wpr = function(n) 50,
-    #   sample_wsr = function(n) 5,
-    #   sample_ypr = function(n) 2.5,
-    #   sample_whl = function(n) .25,
-    #   sample_xhl = function(n) .25,
-    #   sample_yhl = function(n) .25
-    # ),
-    simulation_params = simulation_default(
-      burn_time = 240,
-      total_time = total_time,
-      experiment_params = simulation_type_wild_type(num_simulations = 1),
-      census_interval = census_interval,
-      store_reaction_firings = TRUE,
-      store_reaction_propensities = TRUE,
-      compute_cellwise_grn = TRUE,
-      compute_rna_velocity = TRUE
+model <- exp$temporary("model.rds") %cache% {
+  backbone <- backbone(
+    module_info = tribble(
+      ~module_id, ~basal, ~burn, ~independence,
+      "A", 1, TRUE, 1,
+      "B", 1, TRUE, 1,
+      "C", 1, TRUE, 1,
+      "D", 0, TRUE, 1,
+      "E", 0, TRUE, 1
+    ),
+    module_network = tribble(
+      ~from, ~to, ~effect, ~strength, ~hill,
+      "A", "B", -1L, 4, 2,
+      "B", "C", -1L, 4, 2,
+      "C", "D", 1L, 1, 2,
+      "D", "E", 1L, 1, 2,
+      "E", "A", -1L, 4, 2
+    ),
+    expression_patterns = tribble(
+      ~from, ~to, ~module_progression, ~start, ~burn, ~time,
+      "Burn0", "S1", "+A,+B,+C", TRUE, TRUE, 150,
+      "S1", "S2", "+D,+E,-C", FALSE, FALSE, 120,
+      "S2", "S3", "+C,-A,-B", FALSE, FALSE, 120,
+      "S3", "S1", "+A,+B,-D,-E", FALSE, FALSE, 120
     )
   )
+  census_interval <- 5
+  total_time <- 500
+  time_breaks <- c(0, 250, 500)
+  model <-
+    initialise_model(
+      num_tfs = nrow(backbone$module_info),
+      num_targets = 0,
+      num_hks = 0,
+      num_cells = 300,
+      backbone = backbone,
+      verbose = TRUE,
+      download_cache_dir = "~/.cache/dyngen",
+      num_cores = 8,
+      simulation_params = simulation_default(
+        burn_time = 240,
+        total_time = total_time,
+        experiment_params = simulation_type_wild_type(num_simulations = 1),
+        census_interval = census_interval,
+        store_reaction_firings = TRUE,
+        store_reaction_propensities = TRUE,
+        compute_cellwise_grn = TRUE,
+        compute_rna_velocity = TRUE
+      )
+    )
 
-model <- model %>%
-  generate_tf_network() %>%
-  generate_feature_network()
+  model <- model %>%
+    generate_tf_network() %>%
+    generate_feature_network()
 
-notf <- function(x) gsub("_TF1$", "", x)
-model$feature_info <- model$feature_info %>% mutate_at(vars(feature_id), notf)
-model$feature_network <- model$feature_network %>% mutate_at(vars(from, to), notf)
+  notf <- function(x) gsub("_TF1$", "", x)
+  model$feature_info <- model$feature_info %>% mutate_at(vars(feature_id), notf)
+  model$feature_network <- model$feature_network %>% mutate_at(vars(from, to), notf)
 
-model <- model %>%
-  generate_kinetics() %>%
-  generate_gold_standard() %>%
-  generate_cells()
+  model <- model %>%
+    generate_kinetics() %>%
+    generate_gold_standard() %>%
+    generate_cells()
 
-plot_gold_expression(model)
-plot_simulations(model)
-plot_gold_mappings(model, do_facet = FALSE)
+  plot_gold_expression(model)
+  plot_simulations(model)
+  plot_gold_mappings(model, do_facet = FALSE)
 
-# floor to nearest census
-model$simulations$meta$sim_time <- floor(model$simulations$meta$sim_time / census_interval) * census_interval
-time <- model$simulations$meta$sim_time
+  # floor to nearest census
+  model$simulations$meta$sim_time <- floor(model$simulations$meta$sim_time / census_interval) * census_interval
+
+
+  model
+}
 
 mol_map <- c(mol_premrna = "pre-mRNA", mol_mrna = "mRNA", mol_protein = "protein")
 reac_map <- c(
@@ -100,6 +96,7 @@ reac_map <- c(
   "premrna_degradation" = "pre-mRNA degradation", "mrna_degradation" = "mRNA degradation", "protein_degradation" = "Protein degradation"
 )
 
+time <- model$simulations$meta$sim_time
 expr_df <- data.frame(time = time, model$simulations$counts %>% as.matrix()) %>%
   gather(var, value, -time) %>%
   mutate(
@@ -213,7 +210,8 @@ g1 <- ggplot(expr_df, aes(time, value)) +
 #######
 # CELL STATE
 #######
-g2 <- ggplot(state_df) +
+g2 <-
+  ggplot(state_df) +
   geom_line(aes(sim_time, percentage, colour = milestone_id), size = 1.5) +
   theme_classic() +
   scale_colour_brewer(palette = "Accent") +
@@ -246,7 +244,7 @@ g3 <-
     legend.margin = margin()
   ) +
   scale_x_continuous(breaks = time_breaks) +
-  scale_y_continuous(breaks = scales::breaks_extended(n = 3)) +
+  scale_y_continuous(breaks = scales::breaks_extended(n = 2)) +
   geom_text(aes(label = reaction_text), label_fir_df, size = 3, hjust = 0.5, vjust = 1)
 
 
@@ -309,20 +307,42 @@ g6 <- ggplot(velocity, aes(time, value)) +
   ) +
   scale_x_continuous(breaks = time_breaks)
 
+#######
+# Applications
+#######
+exp7a <- start_analysis("usecase_trajectory_alignment")
+g7a <- read_rds(exp7a$result("explanation_flat.rds"))[[4]]
+
+exp7b <- start_analysis("usecase_rna_velocity")
+g7b <- read_rds(exp7b$result("one_rna_velocity.rds"))
+
+exp7c <- start_analysis("usecase_network_inference")
+g7c <- read_rds(exp7c$result("cell1.rds")) + theme(legend.position = "none")
 
 
-g <- patchwork::wrap_plots(
-  patchwork::wrap_plots(g0a, g0b, nrow = 1, widths = c(1, 1)),
-  g1,
-  g2,
-  g3,
-  g5,
-  heights = c(2, 3, 1, 3, 1),
-  ncol = 1
+g <- wrap_plots(
+  wrap_plots(
+    wrap_plots(g0a, g0b, nrow = 1, widths = c(1, 1)),
+    g1 + theme(legend.position = "none"),
+    g2 + theme(legend.position = "bottom"),
+    g3 + theme(legend.position = "none"),
+    g5 + theme(legend.position = "bottom"),
+    heights = c(2, 3, 1, 3, 1.5),
+    ncol = 1
+  ),
+  wrap_plots(
+    plot_spacer(),
+    plot_spacer(),
+    g7a,
+    g7b,
+    g7c,
+    heights = c(2, 3, 1, 3, 1.5),
+    ncol = 1
+  ),
+  widths = c(7, 3)
 ) +
   plot_annotation(tag_levels = c('A'))
-g
-ggsave(exp$result("overview.pdf"), g, width = 8, height = 10, device = cairo_pdf)
+ggsave(exp$result("overview.pdf"), g, width = 10, height = 10, device = cairo_pdf)
 write_rds(g, exp$result("overview.rds"), compress = "gz")
 
 

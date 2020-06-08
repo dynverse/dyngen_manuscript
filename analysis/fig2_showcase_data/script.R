@@ -42,7 +42,7 @@ backbone <- backbone(
 )
 census_interval <- 5
 total_time <- 500
-time_breaks <- c(0, 250, 500)
+time_breaks <- c(0, 500)
 model <-
   initialise_model(
     num_tfs = nrow(backbone$module_info),
@@ -198,39 +198,57 @@ g1 <- ggplot(expr_df, aes(time, value)) +
   geom_step(aes(colour = gene)) +
   facet_wrap(~molecule, ncol = 1, scales = "free_y") +
   theme_classic() +
-  labs(x = "Simulation time", y = "Expression", colour = "Molecule") +
+  labs(x = "Simulation time", y = "Molecule levels", colour = "Molecule") +
   scale_colour_brewer(palette = "Set1") +
+  scale_y_continuous(n.breaks = 3, expand = c(0, 0)) +
   # scale_colour_manual(values = c("pre-mRNA" = "#4daf4a", "mRNA" = "#377eb8", "protein" = "#e41a1c", "gene" = "black")) +
   theme(
     text = element_text(family = "Helvetica"),
+    axis.title.y = element_text(angle = 0, vjust = 0.5, hjust = 0),
     strip.background = element_blank(),
     strip.text = element_blank(),
-    legend.margin = margin()
+    legend.margin = margin(),
+    legend.position = "none"
   ) +
-  scale_x_continuous(breaks = time_breaks) +
-  geom_text(aes(x = time_breaks[[2]], y = max, label = molecule), expr_df %>% group_by(molecule) %>% summarise(max = max(value)), size = 3, hjust = 0.5, vjust = 1)
+  scale_x_continuous(breaks = time_breaks, expand = c(0, 0)) +
+  geom_text(aes(x = mean(time_breaks), y = max, label = molecule), expr_df %>% group_by(molecule) %>% summarise(max = max(value)), size = 3, hjust = 0.5, vjust = 1)
 
 #######
 # CELL STATE
 #######
+labels_df <- state_df %>%
+  group_by(sim_time) %>%
+  arrange(milestone_id) %>%
+  mutate(
+    y2 = cumsum(percentage),
+    y1 = lag(y2, 1, 0)
+  ) %>%
+  group_by(milestone_id) %>%
+  slice(
+    first(which(y2 - y1 > 0.8 & sim_time > 30))
+  )
+
 g2 <- ggplot(state_df) +
-  geom_line(aes(sim_time, percentage, colour = milestone_id), size = 1.5) +
+  geom_area(aes(sim_time, percentage, fill = milestone_id)) +
+  geom_text(aes(sim_time, 1 - (y1 + (y2 - y1)/2), label = milestone_id), data = labels_df) +
   theme_classic() +
-  scale_colour_brewer(palette = "Accent") +
-  labs(x = "Simulation time", y = "Percentage", colour = "Cell state") +
+  scale_fill_brewer(palette = "Accent") +
+  labs(x = "Simulation time", y = "Cell state", colour = "Cell state") +
   theme(
     text = element_text(family = "Helvetica"),
-    legend.margin = margin()
+    legend.margin = margin(),
+    axis.title.y = element_text(angle = 0, vjust = 0.5, hjust = 0),
+    legend.position = "none"
   ) +
-  scale_x_continuous(breaks = time_breaks) +
-  scale_y_continuous(breaks = c(0, .5, 1))
-
+  scale_x_continuous(breaks = time_breaks, expand = c(0, 0)) +
+  scale_y_continuous(breaks = c(0, 1), labels = scales::percent, expand = c(0, 0))
+g2
 
 #######
 # REACTION FIRINGS
 #######
 firings_df_A <- firings_df %>% filter(gene == "Gene A")
-label_fir_df <- firings_df_A %>% group_by(reaction) %>% summarise(time = mean(time), value = max(value)*1.1) %>% mutate(reaction_text = paste0("Gene A ", reaction))
+label_fir_df <- firings_df_A %>% group_by(reaction) %>% summarise(time = mean(time), value = max(value)*1.1) %>% mutate(reaction_text = paste0(reaction))
 
 g3 <-
   ggplot(firings_df_A, aes(time, value)) +
@@ -238,15 +256,17 @@ g3 <-
   geom_area(aes(fill = forcats::fct_rev(reaction)), position = "stack") +
   theme_classic() +
   scale_fill_brewer(palette = "Set2") +
-  labs(x = "Simulation time", y = "Number of reactions", fill = "Reaction type") +
+  labs(x = "Simulation time", y = "Reacting firings\n(Gene A)", fill = "Reaction type") +
   theme(
     text = element_text(family = "Helvetica"),
     strip.background = element_blank(),
     strip.text = element_blank(),
-    legend.margin = margin()
+    legend.margin = margin(),
+    axis.title.y = element_text(angle = 0, vjust = 0.5, hjust = 1),
+    legend.position = "none"
   ) +
-  scale_x_continuous(breaks = time_breaks) +
-  scale_y_continuous(breaks = scales::breaks_extended(n = 3)) +
+  scale_x_continuous(breaks = time_breaks, expand = c(0, 0)) +
+  scale_y_continuous(breaks = scales::breaks_extended(n = 3), expand = c(0, 0)) +
   geom_text(aes(label = reaction_text), label_fir_df, size = 3, hjust = 0.5, vjust = 1)
 
 

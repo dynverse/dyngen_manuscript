@@ -267,31 +267,6 @@ g3 <-
   geom_text(aes(label = reaction_text), label_fir_df, size = 3, hjust = 0.5, vjust = 1)
 
 
-
-#######
-# REACTION PROPENSITIES
-#######
-prop_df_A <- prop_df %>% filter(gene == "Gene A")
-label_prop_df <- prop_df_A %>% group_by(reaction) %>% summarise(time = mean(time), value = max(value)*1.2) %>% mutate(reaction_text = paste0("Gene A ", reaction))
-
-g4 <-
-  ggplot(prop_df_A, aes(time, value)) +
-  facet_wrap(~reaction, ncol = 1, scales = "free_y") +
-  geom_area(aes(fill = forcats::fct_rev(reaction)), position = "stack") +
-  theme_classic() +
-  scale_fill_brewer(palette = "Set2") +
-  labs(x = "Simulation time", y = "Propensity", fill = "Reaction type") +
-  theme(
-    text = element_text(family = "Helvetica"),
-    strip.background = element_blank(),
-    strip.text = element_blank(),
-    legend.margin = margin()
-  ) +
-  scale_x_continuous(breaks = time_breaks, expand = c(0, 0)) +
-  scale_y_continuous(breaks = scales::breaks_extended(n = 3)) +
-  geom_text(aes(label = reaction_text), label_prop_df, size = 3, hjust = 0.5, vjust = 1)
-
-
 #######
 # REGULATION
 #######
@@ -310,24 +285,6 @@ g5 <- ggplot(reg_df) +
   scale_y_continuous(breaks = c(0, .5, 1), limits = c(0, 1))
 g5
 
-#######
-# Prop diff
-#######
-g6 <- ggplot(velocity, aes(time, value)) +
-  geom_step(aes(colour = gene)) +
-  # facet_wrap(~gene, ncol = 1, scales = "free_y") +
-  theme_classic() +
-  labs(x = "Simulation time", y = "Velocity ground-truth", colour = "Molecule") +
-  scale_colour_brewer(palette = "Set1") +
-  # scale_colour_manual(values = c("pre-mRNA" = "#4daf4a", "mRNA" = "#377eb8", "protein" = "#e41a1c", "gene" = "black")) +
-  theme(
-    text = element_text(family = "Helvetica"),
-    strip.background = element_blank(),
-    strip.text = element_blank(),
-    legend.margin = margin(),
-    legend.position = "bottom"
-  ) +
-  scale_x_continuous(breaks = time_breaks)
 
 #######
 # Applications
@@ -373,20 +330,5 @@ g <- wrap_plots(
   plot_annotation(tag_levels = c('A'))
 ggsave(exp$result("overview.pdf"), g, width = 10, height = 10, device = cairo_pdf)
 
-
-
-g <- patchwork::wrap_plots(
-  g1 + labs(title = "Expression"),
-  g2 + labs(title = "State"),
-  g3 + labs(title = "Reaction firings"),
-  g4 + labs(title = "Propensity"),
-  g5 + labs(title = "Regulation"),
-  g6 + labs(title = "Velocity ground-truth"),
-  heights = c(3, 1, 3),
-  ncol = 2,
-  byrow = FALSE
-)
-
-ggsave(exp$result("overview_alldata.pdf"), g, width = 16, height = 6, device = cairo_pdf)
 
 

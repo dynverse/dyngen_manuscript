@@ -1,11 +1,20 @@
 library(tidyverse)
 library(dyngen)
 library(dyngen.manuscript)
+library(grImport)
+library(patchwork)
 
 set.seed(1)
 
 exp <- start_analysis("fig2_showcase_data")
 
+# Read regulation svg from file
+fil <- tempfile()
+on.exit(file.remove(fil))
+PostScriptTrace(exp$result("gene_regulation.eps"), outfilename = fil)
+g0a <- pictureGrob(readPicture(fil))
+
+# generate cyclic trajectory
 backbone <- backbone(
   module_info = tribble(
     ~module_id, ~basal, ~burn, ~independence,
@@ -81,7 +90,6 @@ plot_gold_expression(model)
 plot_simulations(model)
 plot_gold_mappings(model, do_facet = FALSE)
 
-plot_backbone_modulenet(model)
 # floor to nearest census
 model$simulations$meta$sim_time <- floor(model$simulations$meta$sim_time / census_interval) * census_interval
 time <- model$simulations$meta$sim_time
@@ -145,6 +153,43 @@ state_df <- state_df %>%
   left_join(dummy$milestone_percentages, by = "cell_id") %>%
   full_join(crossing(sim_time = state_df$sim_time, milestone_id = dummy$milestone_ids), by = c("milestone_id", "sim_time")) %>%
   mutate(percentage = ifelse(is.na(percentage), 0, percentage))
+
+#######
+# BACKBONE PLOT
+#######
+library(ggraph)
+set.seed(2)
+
+nodes <- model$backbone$module_info %>% rename(name = module_id)
+edges <- model$backbone$module_network %>% arrange(from == to)
+
+gr <- tidygraph::tbl_graph(nodes = nodes, edges = edges)
+layout <-
+  gr %>%
+  igraph::layout.graphopt(charge = .01, niter = 10000) %>%
+  dynutils::scale_minmax() %>%
+  magrittr::set_rownames(nodes$name) %>%
+  magrittr::set_colnames(c("x", "y")) %>%
+  as.data.frame()
+
+r <- .1
+cap <- ggraph::circle(4, "mm")
+str <- .2
+arrow_up <- grid::arrow(type = "closed", angle = 30, length = grid::unit(3, "mm"))
+arrow_down <- grid::arrow(type = "closed", angle = 89, length = grid::unit(3, "mm"))
+
+g0b <-
+  ggraph(gr, layout = "manual", x = layout$x, y = layout$y) +
+  geom_edge_fan(aes(filter = effect >= 0), arrow = arrow_up, start_cap = cap, end_cap = cap) +
+  geom_edge_fan(aes(filter = effect < 0), arrow = arrow_down, start_cap = cap, end_cap = cap) +
+  geom_node_point(aes(colour = name), size = 7) +
+  geom_node_point(colour = "white", size = 6) +
+  geom_node_text(aes(label = name)) +
+  theme_graph(base_family = 'Helvetica') +
+  scale_edge_width_continuous(trans = "log10", range = c(.5, 3)) +
+  scale_colour_brewer(palette = "Set1") +
+  theme(legend.position = "none") +
+  expand_limits(y = c(-.1, 1.1), x = c(-.05, 1.05))
 
 #######
 # ABUNDANCE LEVELS
@@ -267,15 +312,18 @@ g6 <- ggplot(velocity, aes(time, value)) +
 
 
 g <- patchwork::wrap_plots(
+  patchwork::wrap_plots(g0a, g0b, nrow = 1, widths = c(1, 1)),
   g1,
   g2,
   g3,
   g5,
-  heights = c(3, 1, 3, 1),
+  heights = c(2, 3, 1, 3, 1),
   ncol = 1
-)
-
-ggsave(exp$result("overview_unedited.pdf"), g, width = 8, height = 8, device = cairo_pdf)
+) +
+  plot_annotation(tag_levels = c('A'))
+g
+ggsave(exp$result("overview.pdf"), g, width = 8, height = 10, device = cairo_pdf)
+write_rds(g, exp$result("overview.rds"), compress = "gz")
 
 
 

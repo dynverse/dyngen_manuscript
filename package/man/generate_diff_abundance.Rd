@@ -4,8 +4,17 @@
 \alias{generate_diff_abundance}
 \title{Generate difference in abundance}
 \usage{
-generate_diff_abundance(model, froms, tos, ratios, normalise_gs = T)
+generate_diff_abundance(model, froms, tos, ratios)
+}
+\arguments{
+\item{model}{A dyngen model for which to alter the abundance in generated cells}
+
+\item{froms}{The start milestone of each edge to alter}
+
+\item{tos}{The end milestone of each edge to alter}
+
+\item{ratios}{The ratio by which to alter the abundances}
 }
 \description{
-Generate difference in abundance
+Multiplies the abundance of cells on particular edges by a given ratio
 }

@@ -19,31 +19,42 @@ backbone <- bblego(
   bblego_end("D", type = "simple", num_modules = 4)
 )
 
-runmodel <- function(backbone, num_tfs = 50){
-  model <- initialise_model(
-    num_tfs = num_tfs,
-    num_targets = 250,
-    num_hks = 200,
-    num_cells = 1000,
-    backbone = backbone,
-    simulation_params = simulation_default(census_interval = 10),
-    verbose = TRUE,
-    num_cores = 8
-  ) %>%
-    generate_tf_network() %>%
-    generate_feature_network() %>%
-    generate_kinetics() %>%
-    generate_gold_standard()
-  }
-model1 <- runmodel(backbone) %>% normalise_goldstandard() %>% generate_cells()
-model2D <- generate_diff_abundance(model1, c("sC", "sD"), c("sD", "sEndD"), c(0, 0))
-model2D <- generate_cells(model2D)
-modelD <- combine_models(model1, model2D)
-datasetD <- wrap_dataset(modelD)
+healthy_model <- initialise_model(
+  num_tfs = nrow(backbone$module_info),
+  num_targets = 0,
+  num_hks = 0,
+  num_cells = 1000,
+  backbone = backbone,
+  simulation_params = simulation_default(census_interval = 10),
+  verbose = TRUE,
+  num_cores = 8,
+  download_cache_dir = "~/.cache/dyngen/"
+) %>%
+  generate_tf_network() %>%
+  generate_feature_network() %>%
+  generate_kinetics() %>%
+  generate_gold_standard()
+
+model1_control <-
+  healthy_model %>% normalise_goldstandard() %>% generate_cells()
+
+model2_diseased <-
+  healthy_model %>%
+  generate_diff_abundance(
+    froms = c("sC", "sD"),
+    tos = c("sD", "sEndD"),
+    ratios = c(0, 0)
+  ) %>% generate_cells()
+
+combined_model <-
+  combine_models(model1_control, model2_diseased) %>%
+  generate_experiment()
+
+datasetD <- wrap_dataset(combined_model)
 plot_dimred(datasetD)
 
-dataset1 <- model1 %>% generate_experiment() %>% wrap_dataset()
-dataset2D <- model2D %>% generate_experiment() %>% wrap_dataset()
+dataset1 <- model1_control %>% generate_experiment() %>% wrap_dataset()
+dataset2D <- model2_diseased %>% generate_experiment() %>% wrap_dataset()
 
 ## Save all 3 datasets
 write_rds(datasetD, paste0(exp$dataset_folder("expplot"), "datasetD.rds"), compress = "gz")
@@ -114,7 +125,7 @@ write_rds(lst(leftover_combinatie, alles, combinatie), exp$result("cell_mappings
 # For each 50th cell -> 26
 # For each 30th cell -> 41
 # For each 20th cell -> 63
-demarcation_line <- 58
+demarcation_line <- 67
 
 straight_part <- leftover_combinatie[1:demarcation_line,]
 straight_part$x2 <- straight_part$x
@@ -144,128 +155,6 @@ ground_truth_mappings <- ggplot() +
 ground_truth_mappings
 
 write_rds(lst(ground_truth, alles, combinatie), exp$result("ground_truth_mappings_data.rds"), compress = "gz")
-#
-#
-# # segm_traj <- traj1_warped
-# # segm_traj$comp_3 <- traj2_warped$comp_1
-# # segm_traj$comp_4 <- traj2_warped$comp_2
-# # segm_traj$x_pt2 <- traj2_warped$x
-# # segm_traj$x_pt1 <-segm_traj$x
-#
-# comb_traj1 <- comb_traj1[seq(1, nrow(comb_traj1), 20), ]
-# comb_traj_part <- rbind(comb_traj1, comb_traj2)
-#
-#
-# comp1t <- comb_traj_part$comp_1
-# comp2t <- comb_traj_part$comp_2
-# segm_traj_test <- segm_traj %>% filter(comp_1 %in% comp1t & comp_2 %in% comp2t & comp_3 %in% comp1t & comp_4 %in% comp2t)
-# segm_traj_test$fake_val <- segm_traj_test$comp_1 - 0.5
-# segm_traj_test$fake_x <- segm_traj_test$x_pt1
-#
-# st2 <- rbind(segm_traj_test, segm_traj_test)
-# st2$fake_val
-#
-#
-#
-# cell_mappings <- ggplot() +
-#   geom_segment(data = segments, mapping = aes(x = x, y = y1, xend = x2, yend = y2), alpha = 1) +
-#   geom_point(data = comb_traj_less, mapping = aes(x = x, y = comp_1, colour = as.factor(color)), size = 3.5, show.legend = F) +
-#   scale_colour_manual(values = c("#fd8d3c", "#6baed6"), label = "") +
-#   scale_x_continuous(breaks = c(0, 1), labels = c("Start", "End")) +
-#   theme_void() +
-#   theme(
-#     axis.title = element_text(),
-#     axis.title.y = element_blank(),
-#     axis.line = element_line(),
-#     axis.line.y = element_blank(),
-#     axis.ticks = element_line(),
-#     axis.ticks.y = element_blank(),
-#     axis.text = element_text(),
-#     axis.text.y = element_blank()
-#   ) +
-#   labs(x = "Simulation time")
-#
-# cell_mappings
-#
-#
-#
-# ############
-# #
-# # ds <- datasetD
-# #
-# # expr2 <- get_cell_expression(ds, ds$milestone_network[1:4,], "left_sA")$expression
-# # expr1 <- get_cell_expression(ds, ds$milestone_network[5:8,], "right_sA")$expression
-# # align_normal <- dtw(expr2, expr1, keep.internals = T, open.end = F)
-# # plota <- dtwPlotAlignment(align_normal)
-# # plotd <- dtwPlotDensity(align_normal)
-# #
-# # plot_dens <- plot_density(align_normal, show_legend = TRUE) + labs(title = NULL, subtitle = NULL)
-# # plot_dens
-# #
-# # # ggsave(plot_dens, filename="ts_dtw.png", bg="transparent", width = 4, height = 4)
-# #
-# # dataset <- ds
-# # a <- align_normal
-# # dr2 <- dynwrap::get_dimred(dataset, dyndimred::dimred_landmark_mds)
-# # dr2 <- data.frame(dr2)
-# #
-# # e2 <- calculate_correct_pseudotime(dataset, dataset$milestone_network[1:4,], "left_sA")
-# # e1 <- calculate_correct_pseudotime(dataset, dataset$milestone_network[5:8,], "right_sA")
-# #
-# # traj1 <- dr2[rownames(expr1),]
-# # traj2 <- dr2[rownames(expr2),]
-# # traj1$color <- 1
-# # traj2$color <- 2
-# # traj1$color2 <- sort(e1)
-# # traj2$color2 <- sort(e2)
-# #
-# # traj2$comp_1 <- traj2$comp_1 + 1.1
-# # comb_traj <- rbind(traj1, traj2)
-# # comb_traj$ID <- seq.int(nrow(comb_traj))
-# #
-# # comb_traj1 <- comb_traj[1:nrow(expr1),] #%>% sample_frac(size = 0.7)
-# # comb_traj2 <- comb_traj[nrow(expr1):1000,] #%>% sample_frac(size = 0.7)
-# # comb_traj_less <- rbind(comb_traj1, comb_traj2)
-# #
-# # ggplot() + geom_point(data = comb_traj_less, mapping = aes(x = color2, y = comp_1, colour = as.factor(color)), size = 2) +
-# #   scale_colour_manual(values = c("#3abbba", "#ff681c")) +
-# #   theme_void()
-# #
-# # traj1_warped <- traj1[a$index2,]
-# # traj2_warped <- traj2[a$index1,]
-# #
-# # segm_traj <- traj1_warped
-# # segm_traj$comp_3 <- traj2_warped$comp_1
-# # segm_traj$comp_4 <- traj2_warped$comp_2
-# # segm_traj$color22 <- traj2_warped$color2
-# # segm_traj$color <- as.factor(segm_traj$color)
-# #
-# # comp1t <- comb_traj_less$comp_1
-# # comp2t <- comb_traj_less$comp_2
-# # segm_traj_test <- segm_traj %>% filter(comp_1 %in% comp1t & comp_2 %in% comp2t & comp_3 %in% comp1t & comp_4 %in% comp2t)
-# #
-# # cellmappings <- ggplot() +
-# #   geom_segment(data = segm_traj_test, mapping = aes(x = color2, y = comp_1, xend = color22, yend = comp_3), alpha = 0.25) +
-# #   geom_point(data = comb_traj_less, mapping = aes(x = color2, y = comp_1, colour = as.factor(color)), size = 3.5, show.legend = F) +
-# #   scale_colour_manual(values = c("#fd8d3c", "#6baed6"), label = "") +
-# #   scale_x_continuous(breaks = c(0, 1), labels = c("Start", "End")) +
-# #   theme_void() +
-# #   theme(
-# #     axis.title = element_text(),
-# #     axis.title.y = element_blank(),
-# #     axis.line = element_line(),
-# #     axis.line.y = element_blank(),
-# #     axis.ticks = element_line(),
-# #     axis.ticks.y = element_blank(),
-# #     axis.text = element_text(),
-# #     axis.text.y = element_blank()
-# #   ) +
-# #   labs(x = "Simulation time")
-# ###############
-#
-# write_rds(lst(segm_traj_test, comb_traj_less), exp$result("explanation_plot_data.rds"), compress = "gz")
-# cellmappings
-
 
 part1 <-
   patchwork::wrap_plots(

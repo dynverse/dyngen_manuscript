@@ -15,30 +15,6 @@ get_waypoint_expression <- function(dataset, amount, ws = 0.05){
   return(list(pseudotime = pt, expression = t(wexpr1)))
 }
 
-# get_waypoint_pseudotime <- function(dataset, amount){
-#   wpp1 <- get_waypoint_progression(dataset, amount)
-#   # mst_perc <- dynwrap::convert_progressions_to_milestone_percentages(cell_id, dataset$milestone_ids, dataset$milestone_network, wpp1)
-#
-#   ids <- c()
-#   percentages <- c()
-#   milestone <- "sA"
-#   prev_val <- 0
-#   toadd <- 0
-#   for(i in seq(1, dim(wpp1)[1])){
-#     print(i)
-#     row <- mst_perc[i,]
-#     if(row$from != milestone){
-#       toadd <- toadd+1
-#       milestone <- row$from
-#     }
-#
-#     percentages <- c(percentages, row$percentage + toadd)
-#     ids <- c(ids, row$cell_id)
-#   }
-#   names(percentages) <- ids
-#   percentages
-# }
-
 get_waypoint_progression <- function(dataset, nr){
   cell_id <- character()
   froms <- character()

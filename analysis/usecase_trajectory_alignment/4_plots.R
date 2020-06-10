@@ -11,19 +11,29 @@ library(dtw)
 exp <- start_analysis("usecase_trajectory_alignment")
 
 # PART 3: Scores ----------------------------------------------------------
-result_smoothing <- read_rds(exp$result("result_smoothing.rds")) %>%
-  mutate(
-    noise = ordered(as.factor(noise)),
-    smooth = factor(smooth, levels = c("smoothed", "original cells", "subsampled")),
-    score_scaled = ifelse(smooth == "original cells", score / 10, score)
-  )
+results <- read_rds(exp$result("results.rds")) %>%
+  mutate(noise = factor(noise))
 
-g <- ggplot(data = result_smoothing, aes(noise, score_scaled, fill = smooth)) +
-  geom_boxplot(width = 0.5, size=0.45,outlier.size=0.5) +
+g <-
+  results %>%
+  group_by(method, noise) %>%
+  summarise_at(vars(score), list(
+    min = ~quantile(., .05),
+    lower = ~quantile(., .25),
+    mean = ~mean(.),
+    upper = ~quantile(., .75),
+    max = ~quantile(., .95)
+  )) %>%
+  ggplot() +
+  geom_boxplot(
+    aes(noise, ymin = min, lower = lower, middle = mean, upper = upper, max = max, fill = method),
+    stat = "identity", width = 0.5, size = 0.45
+  ) +
   theme_bw() +
   theme_common() +
-  labs(x = "Amount of added noise", y = "Distance (lower is better)", fill = "Processing method")
-
+  labs(x = "Amount of added noise", y = "Distance (lower is better)", fill = "Processing method") +
+  scale_fill_brewer(palette = "Set2")
+g
 
 # PART 2: dtw heatmaps ----------------------------------------------------
 d1 <- readRDS(exp$dataset_file("linear1_1_0.5"))

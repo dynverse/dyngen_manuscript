@@ -19,28 +19,40 @@ backbone <- bblego(
   bblego_end("D", type = "simple", num_modules = 4)
 )
 
-runmodel <- function(backbone, num_tfs = 50){
-  model <- initialise_model(
-    num_tfs = num_tfs,
-    num_targets = 250,
-    num_hks = 200,
-    num_cells = 1000,
-    backbone = backbone,
-    simulation_params = simulation_default(census_interval = 10),
-    verbose = TRUE,
-    num_cores = 8
+healthy_model <- initialise_model(
+  num_tfs = nrow(backbone$module_info),
+  num_targets = 0,
+  num_hks = 0,
+  num_cells = 1000,
+  backbone = backbone,
+  simulation_params = simulation_default(census_interval = 10),
+  verbose = TRUE,
+  num_cores = 8,
+  download_cache_dir = "~/.cache/dyngen/"
+) %>%
+  generate_tf_network() %>%
+  generate_feature_network() %>%
+  generate_kinetics() %>%
+  generate_gold_standard()
+
+model1_control <-
+  healthy_model %>%
+  generate_cells()
+
+model2_diseased <-
+  healthy_model %>%
+  generate_diff_abundance(
+    froms = c("sC", "sD"),
+    tos = c("sD", "sEndD"),
+    ratios = c(0, 0)
   ) %>%
-    generate_tf_network() %>%
-    generate_feature_network() %>%
-    generate_kinetics() %>%
-    generate_gold_standard() %>%
-    generate_cells()
-}
-model1 <- runmodel(backbone) %>% normalise_goldstandard() %>% generate_cells()
-model2D <- generate_diff_abundance(model1, c("sC", "sD"), c("sD", "sEndD"), c(0, 0))
-model2D <- generate_cells(model2D)
-modelD <- combine_models(model1, model2D)
-datasetD <- wrap_dataset(modelD)
+  generate_cells()
+
+combined_model <-
+  combine_models(model1_control, model2_diseased) %>%
+  generate_experiment()
+
+datasetD <- wrap_dataset(combined_model)
 plot_dimred(datasetD)
 
 milestone_colors <- c("#ff681c", "#ff681c", "#ff681c", "#ff681c", "#3abbba","#3abbba", "#3abbba", "#3abbba", "#ff681c", "#3abbba")

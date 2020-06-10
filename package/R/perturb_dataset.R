@@ -1,48 +1,51 @@
 
 #' Generate difference in abundance
+#'
+#' Multiplies the abundance of cells on particular edges by a given ratio
+#'
+#' @param model A dyngen model for which to alter the abundance in generated cells
+#' @param froms The start milestone of each edge to alter
+#' @param tos The end milestone of each edge to alter
+#' @param ratios The ratio by which to alter the abundances
+#'
 #' @export
-generate_diff_abundance <- function(model, froms, tos, ratios, normalise_gs = T){
-  m <- model
-  if(normalise_gs){
-    m <- normalise_goldstandard(m)
-  }
-  for(i in seq(from = 1, to = length(froms))){
-    print(froms[i])
-    m <- adapt_gold_standard_network(m, froms[i], tos[i], ratios[i])
-  }
+generate_diff_abundance <- function(model, froms, tos, ratios) {
+  tib <- tibble(
+    from = froms,
+    to = tos,
+    ratio = ratios
+  )
 
-  m <- m %>% dyngen:::generate_cells()
+  model$gold_standard$network <-
+    model$gold_standard$network %>%
+    full_join(tib, by = c("from", "to")) %>%
+    mutate(
+      ratio = ratio %|% 1,
+      length = length * ratio
+    ) %>%
+    select(-ratio)
 
-}
 
-#' @export
-normalise_goldstandard <- function(model){
-  model$gold_standard$network <- model$gold_standard$network %>% mutate_at("length", ~sapply(model$gold_standard$network$length, function(z) z / sum(model$gold_standard$network$length)))
   model
 }
 
-#' @export
-adapt_gold_standard_network <- function(model, from, to, ratio){
-  netw <- model$gold_standard$network
-  id1 <- which((to == netw$to & from == netw$from))
-  id2 <- which((to == netw$to & from == netw$from))
-  sq <- seq(from = id1, to = id2)
-
-  old <- netw$length[id1:id2]
-  newl <- sapply(seq(from = 1, to = length(netw$length)), function(i) ifelse(is.element(i, sq), netw$length[[i]] * ratio, netw$length[[i]]))
-
-  model$gold_standard$network$length <- newl
-  model
-}
-
+#' Combine two dyngen models
+#'
+#' @param model1 the first model
+#' @param model2 the second model
+#'
 #' @export
 combine_models <- function(model1, model2){
   model12 <- model1
 
+  # combine gold standard
   m1gs <- model1$gold_standard
   m2gs <- model2$gold_standard
-  # No need to normalize to 100% here --> if stuff breaks, this may be why though.
   model12$gold_standard <- list(
+    mod_changes = bind_rows(
+      m1gs$mod_changes %>% mutate_at(c("from", "to", "from_", "to_"), ~paste0("left_", .)),
+      m2gs$mod_changes %>% mutate_at(c("from", "to", "from_", "to_"), ~paste0("right_", .))
+    ),
     meta = bind_rows(
       m1gs$meta %>% mutate_at(c("from", "to", "from_", "to_"), ~paste0("left_", .)),
       m2gs$meta %>% mutate_at(c("from", "to", "from_", "to_"), ~paste0("right_", .))
@@ -54,9 +57,10 @@ combine_models <- function(model1, model2){
     network = bind_rows(
       m1gs$network %>% mutate_at(c("from", "to"), ~paste0("left_", .)),
       m2gs$network %>% mutate_at(c("from", "to"), ~paste0("right_", .))
-
     )
   )
+
+  # combine simulations
   m1sim <- model1$simulations
   m2sim <- model2$simulations
   num_m1sim <- max(m1sim$meta$simulation_i)
@@ -68,48 +72,13 @@ combine_models <- function(model1, model2){
     counts = rbind(
       m1sim$counts,
       m2sim$counts
-    ),
-    regulation = rbind(
-      m1sim$regulation,
-      m2sim$regulation
-    ),
-    reaction_firings = rbind(
-      m1sim$reaction_firings,
-      m2sim$reaction_firings
-    ),
-    reaction_propensities = rbind(
-      m1sim$reaction_propensities,
-      m2sim$reaction_propensities
     )
-  )
-  m1simsys <- model1$simulation_system
-  m2simsys <- model2$simulation_system
-  model12$simulation_system <- list(
-    reactions = rbind(
-      m1simsys$reactions,
-      m2simsys$reactions
-    ),
-    molecule_ids = rbind(
-      m1simsys$molecule_ids,
-      m2simsys$molecule_ids
-    ),
-    initial_state = rbind(
-      m1simsys$initial_state,
-      m2simsys$initial_state
-    ),
-    parameters = rbind(
-      m1simsys$parameters,
-      m2simsys$parameters
-    ),
-    burn_variables = rbind(
-      m1simsys$burn_variables,
-      m2simsys$burn_variables
-    )
-
+    # could also propensities, rna velocity, etc
   )
 
+  # recalculate the dimred
   model12 <- model12 %>%
-    dyngen:::calculate_dimred()  %>%
-    dyngen:::generate_experiment()
+    dyngen:::calculate_dimred()
+
   model12
 }

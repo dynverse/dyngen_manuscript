@@ -57,7 +57,8 @@ cni_pyscenic_sgbm <- create_ti_method_r(
     regressor_type <- "GBM"
     regressor_kwargs <- parameters[c("learning_rate", "n_estimators", "max_features", "subsample")]
 
-    arboreto <- reticulate::import("arboreto")
+    # arboreto <- reticulate::import("arboreto")
+    algo <- reticulate::import("arboreto.algo")
     pyscenic <- reticulate::import("pyscenic")
     builtins <- reticulate::import_builtins()
 
@@ -67,7 +68,7 @@ cni_pyscenic_sgbm <- create_ti_method_r(
     exprm <- as.matrix(expression)
     exprdf <- as.data.frame(exprm)
 
-    adjacencies <- arboreto$algo$diy(
+    adjacencies <- algo$diy(
       expression_data = exprm,
       regressor_type = regressor_type,
       regressor_kwargs = regressor_kwargs,

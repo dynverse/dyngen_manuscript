@@ -334,7 +334,7 @@ g7a <- ggplot() +
 g7a
 
 exp7b <- start_analysis("usecase_rna_velocity")
-g7b <- read_rds(exp7b$result("one_rna_velocity.rds")) +
+g7b <- read_rds(exp7b$result("usecase_separateplots.rds"))$prediction +
   # plot_spacer() +
   coord_cartesian() +
   theme_classic() +
@@ -349,7 +349,7 @@ g7b <- read_rds(exp7b$result("one_rna_velocity.rds")) +
   labs(title = "RNA velocity", subtitle = NULL)
 
 exp7c <- start_analysis("usecase_network_inference")
-g7c <- read_rds(exp7c$result("cell1.rds")) +
+g7c <- read_rds(exp7c$result("usecase_separateplots.rds"))$groundtruth +
   coord_cartesian() +
   theme_classic() +
   theme(

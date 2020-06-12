@@ -1,4 +1,5 @@
 ---
+knit: (function(inputFile, encoding) { rmarkdown::render(input = inputFile, encoding = encoding); fn <- basename(tools::file_path_sans_ext(inputFile)); knitr::plot_crop(paste0(fn, '.pdf')); pdftools::pdf_convert(pdf = paste0(fn, '.pdf'), filenames = paste0(fn, '.png'), dpi = 150) } )
 output:
   pdf_document:
     keep_tex: no
@@ -17,9 +18,14 @@ header-includes: |
   ]{MuseoSans}
 ---
 
+
 ```{r setup, include=FALSE}
+# need to have imagemagick and pdfcrop installed
+# under fedora: `sudo dnf install poppler-cpp-devel texlive-pdfcrop`
 knitr::opts_chunk$set(collapse=TRUE, results="hold")
 ```
+
+\pagestyle{empty}
 
 \newcommand{\yes}{\ding{51}}
 \newcommand{\no}{}
@@ -73,11 +79,11 @@ knitr::opts_chunk$set(collapse=TRUE, results="hold")
         - & RNA Velocity & \no & \no & \no & \no & \yes \\ \grayline
         - & Trajectory alignment & \no & \no & \no & \no & \yes \\
         \blackline
-        \multicolumn{7}{l}{\textbf{Showcased dataset}} \\
-        \blackline
-        - & Number of cells &  &  &  &  & \\ \grayline
-        - & Number of genes &  &  &  &  & \\ \grayline
-        - & Execution time & & & & & \\
+        %\multicolumn{7}{l}{\textbf{Showcased dataset}} \\
+        %\blackline
+        %- & Number of cells &  &  &  &  & \\ \grayline
+        %- & Number of genes &  &  &  &  & \\ \grayline
+        %- & Execution time & & & & & \\
         \blackline
     \end{tabular}
 \end{table}

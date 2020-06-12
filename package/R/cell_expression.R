@@ -29,8 +29,12 @@ get_cell_expression <- function(dataset, milestone_network, start){
 #' @importFrom gtools mixedorder
 #'
 #' @export
-calculate_correct_pseudotime <- function(dataset, milestone_network, start){
-  length_pieces <- milestone_network$length/sum(milestone_network$length)
+calculate_correct_pseudotime <- function(dataset, milestone_network, start, normalized = T){
+  if(normalized){
+    length_pieces <- milestone_network$length/sum(milestone_network$length)
+  } else {
+    length_pieces <- milestone_network$length
+  }
   nr_piece <- 0
   traj <- numeric()
   names_traj <- list()
@@ -40,7 +44,12 @@ calculate_correct_pseudotime <- function(dataset, milestone_network, start){
     end <- milestone_network[["to"]][idx]
     to_add <- sum(length_pieces[0:nr_piece])
 
-    perc <-(dataset[["progressions"]] %>% filter(from == start & to == end))$percentage * length_pieces[nr_piece + 1] + to_add
+    if(normalized){
+      perc <-(dataset[["progressions"]] %>% filter(from == start & to == end))$percentage * length_pieces[nr_piece + 1] + to_add
+    } else {
+      perc <-(dataset[["progressions"]] %>% filter(from == start & to == end))$percentage * length_pieces[nr_piece + 1] + to_add
+
+    }
     nams <-(dataset[["progressions"]] %>% filter(from == start & to == end))$cell_id
 
     traj <- c(traj, perc)
@@ -55,3 +64,38 @@ calculate_correct_pseudotime <- function(dataset, milestone_network, start){
   traj <- traj[mixedorder(names(traj))]
   traj
 }
+
+#' Get uncorrected pseudotime
+#'
+#' @param dataset A dyngen dataset
+#'
+#' @importFrom gtools mixedorder
+#'
+#' @export
+calculate_pseudotime <- function(dataset, milestone_network, start){
+  length_pieces <- milestone_network$length/sum(milestone_network$length)
+  nr_piece <- 0
+  traj <- numeric()
+  names_traj <- list()
+  # TODO convert to for for each piece
+  while(start %in% milestone_network[["from"]]){
+    idx <- which(start == milestone_network[["from"]])[[1]]
+    end <- milestone_network[["to"]][idx]
+    to_add <- sum(length_pieces[0:nr_piece])
+
+    perc <-(dataset[["progressions"]] %>% filter(from == start & to == end))$percentage + to_add
+    nams <-(dataset[["progressions"]] %>% filter(from == start & to == end))$cell_id
+
+    traj <- c(traj, perc)
+    names_traj <- c(names_traj, nams)
+
+    start <- end
+    nr_piece <- nr_piece + 1
+
+  }
+
+  names(traj) <- names_traj
+  traj <- traj[mixedorder(names(traj))]
+  traj
+}
+

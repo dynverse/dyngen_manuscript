@@ -8,7 +8,7 @@ library(dynplot)
 library(gtools)
 library(dtw)
 
-set.seed(42)
+set.seed(1)
 exp <- start_analysis("usecase_trajectory_alignment")
 
 backbone <- bblego(
@@ -36,8 +36,7 @@ healthy_model <- initialise_model(
   generate_gold_standard()
 
 model1_control <-
-  healthy_model %>%
-  generate_cells()
+  healthy_model %>% normalise_goldstandard() %>% generate_cells()
 
 model2_diseased <-
   healthy_model %>%
@@ -45,8 +44,7 @@ model2_diseased <-
     froms = c("sC", "sD"),
     tos = c("sD", "sEndD"),
     ratios = c(0, 0)
-  ) %>%
-  generate_cells()
+  ) %>% generate_cells()
 
 combined_model <-
   combine_models(model1_control, model2_diseased) %>%
@@ -55,71 +53,55 @@ combined_model <-
 datasetD <- wrap_dataset(combined_model)
 plot_dimred(datasetD)
 
+dataset1 <- model1_control %>% generate_experiment() %>% wrap_dataset()
+dataset2D <- model2_diseased %>% generate_experiment() %>% wrap_dataset()
+
+## Save all 3 datasets
+write_rds(datasetD, paste0(exp$dataset_folder("expplot"), "datasetD.rds"), compress = "gz")
+write_rds(dataset1, paste0(exp$dataset_folder("expplot"), "dataset1.rds"), compress = "gz")
+write_rds(dataset2D, paste0(exp$dataset_folder("expplot"), "dataset2D.rds"), compress = "gz")
+
 milestone_colors <- c("#ff681c", "#ff681c", "#ff681c", "#ff681c", "#3abbba","#3abbba", "#3abbba", "#3abbba", "#ff681c", "#3abbba")
 together <- plot_trajectory_in_color(datasetD, milestone_colors, c("sample 1", "sample 2"), c("#3abbba", "#ff681c"), plot_sd = 0.11)
-
-dataset1 <- model1 %>% generate_experiment() %>% wrap_dataset()
-dataset2D <- model2D %>% generate_experiment() %>% wrap_dataset()
 
 t1_pt <- plot_pseudotime(dataset1, palette = "Oranges", trajectory_projection_sd = 0.11, plot_trajectory = T)
 t2_pt <- plot_pseudotime(dataset2D, palette = "Blues", trajectory_projection_sd = 0.11, plot_trajectory = T)
 
-ds <- datasetD
+expr1 <- get_cell_expression(dataset1, dataset1$milestone_network, "sA")$expression
+expr2 <- get_cell_expression(dataset2D, dataset2D$milestone_network, "sA")$expression
+a <- dtw(expr2, expr1, keep.internals = T, open.end = F)
+dtwPlotAlignment(a)
 
-expr2 <- get_cell_expression(ds, ds$milestone_network[1:4,], "left_sA")$expression
-expr1 <- get_cell_expression(ds, ds$milestone_network[5:8,], "right_sA")$expression
-align_normal <- dtw(expr2, expr1, keep.internals = T, open.end = F)
-plota <- dtwPlotAlignment(align_normal)
-plotd <- dtwPlotDensity(align_normal)
-
-plot_dens <- plot_density(align_normal, show_legend = TRUE) + labs(title = NULL, subtitle = NULL)
+plot_dens <- plot_density(a, show_legend = TRUE) + labs(title = NULL, subtitle = NULL)
 plot_dens
 
-# ggsave(plot_dens, filename="ts_dtw.png", bg="transparent", width = 4, height = 4)
 
-dataset <- ds
-a <- align_normal
-dr2 <- dynwrap::get_dimred(dataset, dyndimred::dimred_landmark_mds)
-dr2 <- data.frame(dr2)
+e1 <- calculate_correct_pseudotime(dataset1, dataset1$milestone_network, "sA", normalized = F)
+e2 <- calculate_correct_pseudotime(dataset2D, dataset2D$milestone_network, "sA", normalized = F)
 
-e2 <- calculate_correct_pseudotime(dataset, dataset$milestone_network[1:4,], "left_sA")
-e1 <- calculate_correct_pseudotime(dataset, dataset$milestone_network[5:8,], "right_sA")
-
-traj1 <- dr2[rownames(expr1),]
-traj2 <- dr2[rownames(expr2),]
+# warped segmenten
+traj1 <- data.frame(x = sort(e1))
+traj2 <- data.frame(x = sort(e2))
 traj1$color <- 1
 traj2$color <- 2
-traj1$color2 <- sort(e1)
-traj2$color2 <- sort(e2)
-
-traj2$comp_1 <- traj2$comp_1 + 1.1
-comb_traj <- rbind(traj1, traj2)
-comb_traj$ID <- seq.int(nrow(comb_traj))
-
-comb_traj1 <- comb_traj[1:nrow(expr1),] #%>% sample_frac(size = 0.7)
-comb_traj2 <- comb_traj[nrow(expr1):5000,] #%>% sample_frac(size = 0.7)
-comb_traj_less <- rbind(comb_traj1, comb_traj2)
-
-ggplot() + geom_point(data = comb_traj_less, mapping = aes(x = color2, y = comp_1, colour = as.factor(color)), size = 2) +
-  scale_colour_manual(values = c("#3abbba", "#ff681c")) +
-  theme_void()
+traj1$y <- 0
+traj2$y <- 1
 
 traj1_warped <- traj1[a$index2,]
 traj2_warped <- traj2[a$index1,]
 
-segm_traj <- traj1_warped
-segm_traj$comp_3 <- traj2_warped$comp_1
-segm_traj$comp_4 <- traj2_warped$comp_2
-segm_traj$color22 <- traj2_warped$color2
-segm_traj$color <- as.factor(segm_traj$color)
+combinatie <- traj1_warped
+combinatie$x2 <- traj2_warped$x
+combinatie$y2 <- traj2_warped$y
+leftover_combinatie <- combinatie[seq(1, nrow(combinatie), 20), ]
 
-comp1t <- comb_traj_less$comp_1
-comp2t <- comb_traj_less$comp_2
-segm_traj_test <- segm_traj %>% filter(comp_1 %in% comp1t & comp_2 %in% comp2t & comp_3 %in% comp1t & comp_4 %in% comp2t)
+alles <- data.frame(x1 = c(leftover_combinatie$x, leftover_combinatie$x2))
+alles$y <- c(leftover_combinatie$y, leftover_combinatie$y2)
+alles$color <- c(rep(1, nrow(leftover_combinatie)), rep(2, nrow(leftover_combinatie)))
 
-cellmappings <- ggplot() +
-  geom_segment(data = segm_traj_test, mapping = aes(x = color2, y = comp_1, xend = color22, yend = comp_3), alpha = 0.25) +
-  geom_point(data = comb_traj_less, mapping = aes(x = color2, y = comp_1, colour = as.factor(color)), size = 3.5, show.legend = F) +
+cell_mappings <- ggplot() +
+  geom_segment(data = leftover_combinatie, mapping = aes(x = x, y = y, xend = x2, yend = y2), alpha = 1) +
+  geom_point(data = alles, mapping = aes(x = x1, y = y, colour = as.factor(color)), size = 3.5, show.legend = F) +
   scale_colour_manual(values = c("#fd8d3c", "#6baed6"), label = "") +
   scale_x_continuous(breaks = c(0, 1), labels = c("Start", "End")) +
   theme_void() +
@@ -133,17 +115,53 @@ cellmappings <- ggplot() +
     axis.text = element_text(),
     axis.text.y = element_blank()
   ) +
-  labs(x = "Pseudotime")
-write_rds(lst(segm_traj_test, comb_traj_less), exp$result("explanation_plot_data.rds"), compress = "gz")
-cellmappings
+  labs(x = "Simulation time")
 
+cell_mappings
+
+write_rds(lst(leftover_combinatie, alles, combinatie), exp$result("cell_mappings_data.rds"), compress = "gz")
+
+
+# For each 50th cell -> 26
+# For each 30th cell -> 41
+# For each 20th cell -> 63
+demarcation_line <- 67
+
+straight_part <- leftover_combinatie[1:demarcation_line,]
+straight_part$x2 <- straight_part$x
+partial_part <- leftover_combinatie[demarcation_line+1:nrow(leftover_combinatie),]
+partial_part$x2 <- partial_part$x
+partial_part$y2 <- 0.5
+ground_truth <- rbind(straight_part, partial_part)
+
+ground_truth_mappings <- ggplot() +
+  geom_segment(data = ground_truth, mapping = aes(x = x, y = y, xend = x2, yend = y2), alpha = 1) +
+  geom_point(data = alles, mapping = aes(x = x1, y = y, colour = as.factor(color)), size = 3.5, show.legend = F) +
+  scale_colour_manual(values = c("#fd8d3c", "#6baed6"), label = "") +
+  scale_x_continuous(breaks = c(0, 1), labels = c("Start", "End")) +
+  theme_void() +
+  theme(
+    axis.title = element_text(),
+    axis.title.y = element_blank(),
+    axis.line = element_line(),
+    axis.line.y = element_blank(),
+    axis.ticks = element_line(),
+    axis.ticks.y = element_blank(),
+    axis.text = element_text(),
+    axis.text.y = element_blank()
+  ) +
+  labs(x = "Simulation time")
+
+ground_truth_mappings
+
+write_rds(lst(ground_truth, alles, combinatie), exp$result("ground_truth_mappings_data.rds"), compress = "gz")
 
 part1 <-
   patchwork::wrap_plots(
     t2_pt,
     t1_pt,
     plot_spacer(),
-    cellmappings,
+    cell_mappings,
     plot_dens,
     widths = c(1, 1, .2, 1, 1)
   )

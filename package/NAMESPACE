@@ -3,6 +3,7 @@
 export("%cache%")
 export(bw_mean)
 export(calculate_correct_pseudotime)
+export(calculate_pseudotime)
 export(cni_auc)
 export(cni_bred)
 export(cni_lioness)

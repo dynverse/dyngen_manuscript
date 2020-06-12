@@ -6,32 +6,66 @@ library(patchwork)
 set.seed(1)
 
 exp <- start_analysis("summary")
-#
-# #################
-# # TRAJECTORY ALIGNMENT
-# #################
-# exp_a <- start_analysis("usecase_trajectory_alignment")
-# data_a2 <- read_rds(exp_a$result("explanation_plot_data.rds"))
-#
-# g7a <- ggplot() +
-#   geom_segment(data = li7a$segm_traj_test, mapping = aes(x = color2, y = comp_1, xend = color22, yend = comp_3), alpha = 0.25) +
-#   geom_point(data = li7a$comb_traj_less %>% filter(!is.na(color)), mapping = aes(x = color2, y = comp_1, colour = factor(color))) +
-#   scale_colour_manual(values = c("#fd8d3c", "#6baed6")) +
-#   scale_x_continuous(breaks = c(0, 1), labels = c("Start", "End")) +
-#   scale_y_continuous(breaks = c(-.6, .6)) +
-#   theme_classic() +
-#   theme(
-#     legend.position = "none",
-#     text = element_text(family = "Helvetica"),
-#     axis.title.y = element_blank(),
-#     axis.line.y = element_blank(),
-#     axis.ticks.y = element_blank(),
-#     axis.text.y = element_blank()
-#   ) +
-#   labs(x = "Simulation time", title = "Trajectory alignment") +
-#   coord_cartesian()
-# g7a
-ga1 <- ga2 <- ga3 <- plot_spacer()
+
+#################
+# TRAJECTORY ALIGNMENT
+#################
+exp_a <- start_analysis("usecase_trajectory_alignment")
+plots_a <- read_rds(exp_a$result("usecase_separateplots.rds"))
+
+ga1 <- plots_a$ground_truth +
+  coord_cartesian() +
+  theme_classic() +
+  theme(
+    legend.position = "none",
+    text = element_text(family = "Helvetica"),
+    axis.title = element_blank(),
+    axis.line = element_blank(),
+    axis.ticks = element_blank(),
+    axis.text = element_blank()
+  ) +
+  labs(title = NULL, subtitle = NULL, tag = NULL)
+
+ga2 <- plots_a$prediction +
+  coord_cartesian() +
+  theme_classic() +
+  theme(
+    legend.position = "none",
+    text = element_text(family = "Helvetica"),
+    axis.title = element_blank(),
+    axis.line = element_blank(),
+    axis.ticks = element_blank(),
+    axis.text = element_blank()
+  ) +
+  labs(title = NULL, subtitle = NULL, tag = NULL)
+
+scores_a <-
+  read_rds(exp_a$result("results.rds")) %>%
+  mutate(noise = factor(noise))
+
+plota_data <-
+  scores_a %>%
+  group_by(method, noise) %>%
+  summarise_at(vars(score), list(
+    min = ~quantile(., .05, na.rm = TRUE),
+    lower = ~quantile(., .25, na.rm = TRUE),
+    mean = ~mean(., na.rm = TRUE),
+    upper = ~quantile(., .75, na.rm = TRUE),
+    max = ~quantile(., .95, na.rm = TRUE)
+  )) %>%
+  ungroup()
+
+ga3 <-
+  ggplot(plota_data) +
+  geom_boxplot(
+    aes(noise, ymin = min, lower = lower, middle = mean, upper = upper, max = max, fill = method, group = paste0(noise, method)),
+    stat = "identity", width = 0.5, size = 0.45
+  ) +
+  theme_classic() +
+  theme_common() +
+  labs(x = "Noise levels", y = "Distance (lower is better)", colour = "Method") +
+  scale_fill_brewer(palette = "Dark2") +
+  theme(legend.position = "right")
 
 #################
 # RNA VELOCITY
@@ -95,7 +129,7 @@ gb3 <-
     list = map(metric_labels_b, function(met_lab) {
       g <- ggplot(plotb_data %>% filter(metric_label == met_lab)) +
         geom_boxplot(
-          aes(paste0(method_id, " ", params_id), ymin = min, lower = lower, middle = mean, upper = upper, max = max, fill = group),
+          aes(forcats::fct_rev(group), ymin = min, lower = lower, middle = mean, upper = upper, max = max, fill = group),
           stat = "identity", width = 0.5, size = 0.45
         ) +
         geom_point(aes(x, y), limits_tib %>% filter(metric_label == met_lab), alpha = 0) +
@@ -124,6 +158,7 @@ plots_c <- read_rds(exp_c$result("usecase_separateplots.rds"))
 gc1 <- plots_c$groundtruth +
   coord_cartesian() +
   theme_classic() +
+  labs(colour = "Regulation strength\nof cell 1") +
   theme(
     legend.position = "bottom",
     text = element_text(family = "Helvetica"),
@@ -137,6 +172,7 @@ gc1 <- plots_c$groundtruth +
 gc2 <- plots_c$prediction +
   coord_cartesian() +
   theme_classic() +
+  labs(colour = "Regulation strength\nof cell 1") +
   theme(
     legend.position = "bottom",
     text = element_text(family = "Helvetica"),
@@ -171,7 +207,7 @@ gc3 <-
     list = map(metric_labels_c, function(met_lab) {
       g <- ggplot(plotc_data %>% filter(metric_label == met_lab)) +
         geom_boxplot(
-          aes(cni_method_name, ymin = min, lower = lower, middle = mean, upper = upper, max = max, fill = cni_method_name),
+          aes(forcats::fct_rev(cni_method_name), ymin = min, lower = lower, middle = mean, upper = upper, max = max, fill = cni_method_name),
           stat = "identity", width = 0.5, size = 0.45
         ) +
         theme_classic() +
@@ -211,6 +247,7 @@ g <- wrap_plots(
 g
 
 ggsave(exp$result("figure_2.pdf"), g, width = 12, height = 9, useDingbats = FALSE)
+ggsave(exp$result("figure_2.png"), g, width = 12, height = 9)
 
 
 

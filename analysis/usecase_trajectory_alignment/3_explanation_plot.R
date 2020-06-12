@@ -36,7 +36,8 @@ healthy_model <- initialise_model(
   generate_gold_standard()
 
 model1_control <-
-  healthy_model %>% normalise_goldstandard() %>% generate_cells()
+  healthy_model %>%
+  generate_cells()
 
 model2_diseased <-
   healthy_model %>%
@@ -80,28 +81,28 @@ e1 <- calculate_correct_pseudotime(dataset1, dataset1$milestone_network, "sA", n
 e2 <- calculate_correct_pseudotime(dataset2D, dataset2D$milestone_network, "sA", normalized = F)
 
 # warped segmenten
-traj1 <- data.frame(x = sort(e1))
-traj2 <- data.frame(x = sort(e2))
-traj1$color <- 1
-traj2$color <- 2
-traj1$y <- 0
-traj2$y <- 1
+traj1 <- tibble(x = sort(e1), color = 1, y = 0)
+traj2 <- tibble(x = sort(e2), color = 2, y = 1)
 
 traj1_warped <- traj1[a$index2,]
 traj2_warped <- traj2[a$index1,]
 
-combinatie <- traj1_warped
-combinatie$x2 <- traj2_warped$x
-combinatie$y2 <- traj2_warped$y
+combinatie <- bind_cols(
+  traj1_warped %>% select(x, y),
+  traj2_warped %>% select(x2 = x, y2 = y)
+)
 leftover_combinatie <- combinatie[seq(1, nrow(combinatie), 20), ]
 
-alles <- data.frame(x1 = c(leftover_combinatie$x, leftover_combinatie$x2))
-alles$y <- c(leftover_combinatie$y, leftover_combinatie$y2)
-alles$color <- c(rep(1, nrow(leftover_combinatie)), rep(2, nrow(leftover_combinatie)))
+alles <- tibble(
+  x1 = c(leftover_combinatie$x, leftover_combinatie$x2),
+  y = c(leftover_combinatie$y, leftover_combinatie$y2),
+  color = c(rep(1, nrow(leftover_combinatie)), rep(2, nrow(leftover_combinatie)))
+)
 
-cell_mappings <- ggplot() +
+cell_mappings <-
+  ggplot() +
   geom_segment(data = leftover_combinatie, mapping = aes(x = x, y = y, xend = x2, yend = y2), alpha = 1) +
-  geom_point(data = alles, mapping = aes(x = x1, y = y, colour = as.factor(color)), size = 3.5, show.legend = F) +
+  geom_point(data = alles, mapping = aes(x = x1, y = y, colour = as.factor(color)), size = 3.5, show.legend = FALSE) +
   scale_colour_manual(values = c("#fd8d3c", "#6baed6"), label = "") +
   scale_x_continuous(breaks = c(0, 1), labels = c("Start", "End")) +
   theme_void() +
@@ -127,16 +128,20 @@ write_rds(lst(leftover_combinatie, alles, combinatie), exp$result("cell_mappings
 # For each 20th cell -> 63
 demarcation_line <- 67
 
-straight_part <- leftover_combinatie[1:demarcation_line,]
-straight_part$x2 <- straight_part$x
-partial_part <- leftover_combinatie[demarcation_line+1:nrow(leftover_combinatie),]
-partial_part$x2 <- partial_part$x
-partial_part$y2 <- 0.5
+
+straight_part <-
+  leftover_combinatie[seq_len(demarcation_line),] %>%
+  mutate(x2 = x)
+partial_part <-
+  leftover_combinatie[-seq_len(demarcation_line),] %>%
+  mutate(x2 = x, y2 = .5)
+
 ground_truth <- rbind(straight_part, partial_part)
 
-ground_truth_mappings <- ggplot() +
-  geom_segment(data = ground_truth, mapping = aes(x = x, y = y, xend = x2, yend = y2), alpha = 1) +
-  geom_point(data = alles, mapping = aes(x = x1, y = y, colour = as.factor(color)), size = 3.5, show.legend = F) +
+ground_truth_mappings <-
+  ggplot() +
+  geom_segment(aes(x = x, y = y, xend = x2, yend = y2), ground_truth, alpha = 1) +
+  geom_point(aes(x = x1, y = y, colour = as.factor(color)), alles, size = 3.5, show.legend = FALSE) +
   scale_colour_manual(values = c("#fd8d3c", "#6baed6"), label = "") +
   scale_x_continuous(breaks = c(0, 1), labels = c("Start", "End")) +
   theme_void() +
@@ -155,6 +160,7 @@ ground_truth_mappings <- ggplot() +
 ground_truth_mappings
 
 write_rds(lst(ground_truth, alles, combinatie), exp$result("ground_truth_mappings_data.rds"), compress = "gz")
+write_rds(lst(ground_truth = ground_truth_mappings, prediction = cell_mappings), exp$result("usecase_separateplots.rds"), compress = "gz")
 
 part1 <-
   patchwork::wrap_plots(

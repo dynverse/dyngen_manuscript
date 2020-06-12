@@ -1,7 +1,6 @@
 library(tidyverse)
 library(dyngen)
 library(dyngen.manuscript)
-library(grImport)
 library(patchwork)
 
 set.seed(1)
@@ -67,12 +66,12 @@ gb2 <- plots_b$prediction +
 
 scores_b <- read_rds(exp_b$result("scores.rds"))
 
-metric_labels <- c(cor = "Velocity correlation", mean_cosine = "Velocity arrow cosine")
-plota_data <-
+metric_labels_b <- c(cor = "Velocity correlation", mean_cosine = "Velocity arrow cosine")
+plotb_data <-
   scores_b$summ %>%
   gather(metric, score, cor, mean_cosine) %>%
   mutate(
-    metric_label = factor(metric_labels[metric], levels = metric_labels),
+    metric_label = factor(metric_labels_b[metric], levels = metric_labels_b),
     group = paste0(method_id, " ", params_id)
   ) %>%
   group_by(group, method_id, params_id, metric_label) %>%
@@ -85,7 +84,7 @@ plota_data <-
   ))
 
 limits_tib <- tibble(
-  metric_label = forcats::fct_inorder(metric_labels),
+  metric_label = forcats::fct_inorder(metric_labels_b),
   x = 1,
   y0 = c(0, .75),
   y1 = c(1, 1)
@@ -93,10 +92,10 @@ limits_tib <- tibble(
 
 gb3 <-
   patchwork::wrap_plots(
-    list = map(unique(limits_tib$metric_label), function(met_lab) {
-      g <- ggplot(plota_data %>% filter(metric_label == met_lab)) +
+    list = map(metric_labels_b, function(met_lab) {
+      g <- ggplot(plotb_data %>% filter(metric_label == met_lab)) +
         geom_boxplot(
-          aes(paste0(method_id, "\n", params_id), ymin = min, lower = lower, middle = mean, upper = upper, max = max, fill = group),
+          aes(paste0(method_id, " ", params_id), ymin = min, lower = lower, middle = mean, upper = upper, max = max, fill = group),
           stat = "identity", width = 0.5, size = 0.45
         ) +
         geom_point(aes(x, y), limits_tib %>% filter(metric_label == met_lab), alpha = 0) +
@@ -106,7 +105,7 @@ gb3 <-
         labs(x = "", y = met_lab, colour = "Method") +
         scale_fill_brewer(palette = "Dark2") +
         theme(legend.position = "none")
-      if (met_lab != "Velocity correlation") {
+      if (met_lab != metric_labels_b[[1]]) {
         g <- g + theme(
           axis.text.y = element_blank(),
           axis.ticks.y = element_blank()
@@ -148,7 +147,49 @@ gc2 <- plots_c$prediction +
   ) +
   labs(title = NULL, subtitle = NULL, tag = NULL)
 
-gc3 <- plot_spacer()
+scores_c <- read_rds(exp_c$result("scores.rds"))
+
+metric_labels_c <- c(auroc = "mean AUROC", aupr = "mean AUPR")
+plotc_data <-
+  scores_c$summ %>%
+  filter(method == "casewise_casewise") %>%
+  gather(metric, score, auroc, aupr) %>%
+  mutate(
+    metric_label = factor(metric_labels_c[metric], levels = metric_labels_c)
+  ) %>%
+  group_by(cni_method_name, metric, metric_label) %>%
+  summarise_at(vars(score), list(
+    min = ~quantile(., .05, na.rm = TRUE),
+    lower = ~quantile(., .25, na.rm = TRUE),
+    mean = ~mean(., na.rm = TRUE),
+    upper = ~quantile(., .75, na.rm = TRUE),
+    max = ~quantile(., .95, na.rm = TRUE)
+  ))
+
+gc3 <-
+  patchwork::wrap_plots(
+    list = map(metric_labels_c, function(met_lab) {
+      g <- ggplot(plotc_data %>% filter(metric_label == met_lab)) +
+        geom_boxplot(
+          aes(cni_method_name, ymin = min, lower = lower, middle = mean, upper = upper, max = max, fill = cni_method_name),
+          stat = "identity", width = 0.5, size = 0.45
+        ) +
+        theme_classic() +
+        theme_common() +
+        coord_flip() +
+        labs(x = "", y = met_lab, colour = "Method") +
+        scale_fill_brewer(palette = "Dark2") +
+        theme(legend.position = "none")
+      if (met_lab != metric_labels_c[[1]]) {
+        g <- g + theme(
+          axis.text.y = element_blank(),
+          axis.ticks.y = element_blank()
+        )
+      }
+      g
+    }),
+    nrow = 1
+  )
 
 #################
 # COMBINE
@@ -160,7 +201,7 @@ g <- wrap_plots(
   grid::textGrob("Evaluation"),
   grid::textGrob("Trajectory alignment", rot = 90), ga1, ga2, ga3,
   grid::textGrob("RNA velocity", rot = 90), gb1, gb2, gb3,
-  grid::textGrob("Cell-specific network inference", rot = 90), gc1, gc2, gc3,
+  grid::textGrob("Cell-specific\nnetwork inference", rot = 90), gc1, gc2, gc3,
   ncol = 4,
   heights = c(.25, 1, 1, 1.2),
   widths = c(.25, 1, 1, 2),
@@ -169,7 +210,7 @@ g <- wrap_plots(
 
 g
 
-ggsave(exp$result("figure_2.pdf"), g, width = 10, height = 10, useDingbats = FALSE)
+ggsave(exp$result("figure_2.pdf"), g, width = 12, height = 9, useDingbats = FALSE)
 
 
 

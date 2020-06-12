@@ -95,6 +95,7 @@ summ <- aucs %>%
   group_by(method, method_label, dataset_id, cni_method_id, cni_method_name) %>%
   summarise_if(is.numeric, mean) %>%
   ungroup()
+write_rds(list(aucs = aucs, summ = summ), exp$result("scores.rds"), compress = "gz")
 
 nam <- unique(summ$method)
 summplots <- map(nam, function(meth) {

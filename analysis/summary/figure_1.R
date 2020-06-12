@@ -385,7 +385,7 @@ g <- wrap_plots(
 ) +
   plot_annotation(tag_levels = c('A')) &
   theme(plot.tag.position = c(0, 1), plot.title = element_text(hjust = .5))
-ggsave(exp$result("overview.pdf"), g, width = 10, height = 10, device = cairo_pdf)
+ggsave(exp$result("figure_1.pdf"), g, width = 10, height = 10, device = cairo_pdf)
 
 
 

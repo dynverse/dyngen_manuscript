@@ -98,22 +98,12 @@ plot_part_A
 
 
 # PART B: Illustration of velocity ----------------------------------------
-# dataset_id <- "bifurcating_hard_seed1"
-# dataset_id <- "consecutive_bifurcating_hard_seed1"
-# dataset_id <- "disconnected_hard_seed1"
-# dataset_id <- "trifurcating_hard_seed1"
-# dataset_id <- "cycle_hard_seed1"
-# dataset_id <- "bifurcating_cycle_medium_seed1"
-# dataset_id <- "linear_simple_easy_seed1"
-# dataset_id <- "bifurcating_cycle_easy_seed1"
-# dataset_id <- "bifurcating_cycle_medium_seed1"
 dataset_id <- "bifurcating_cycle_hard_seed3"
-# dataset_id <- "bifurcating_loop_hard_seed1"
-# dataset_id <- "bifurcating_converging_hard_seed1"
 
 dataset <- read_rds(exp$dataset_file(dataset_id))
 model <- read_rds(exp$model_file(dataset_id))
 
+## choosing a good rotation from 3D to 2D
 # mil_cols <- dynplot2::define_milestone_colors(milestone_colors = NULL, milestone_ids = dataset$milestone_ids)
 # mil_pct_mat <- dataset$milestone_percentages %>% reshape2::acast(cell_id~milestone_id, value.var = "percentage", fill = 0) %>% .[rownames(dataset$dimred), dataset$milestone_ids]
 # mil_rgb <- mil_pct_mat %*% mil_cols
@@ -122,6 +112,7 @@ model <- read_rds(exp$model_file(dataset_id))
 # userMatrix <- rgl::par3d()$userMatrix[1:3,1:3]
 # userMatrix %>% as.vector %>% paste0(collapse = ", ")
 
+## apply previous rotation
 if (dataset_id == "bifurcating_cycle_hard_seed1") {
   userVec <- c(0.0203961916267872, -0.740907371044159, -0.671227753162384, -0.0408603921532631, -0.671426177024841, 0.739882826805115, -0.99891185760498, 0.012335604056716, -0.0439676493406296)
 } else if (dataset_id == "bifurcating_cycle_hard_seed3") {
@@ -152,22 +143,7 @@ plot_trajectory <- dynplot_dimred(dataset) +
   ggtitle("Trajectory")
 
 # Plot 2, expression of a gene that goes up and down
-# feature_oi <- "C1_TF1"
 feature_oi <- "D1_TF1"
-  # model$feature_network %>%
-  # group_by(to) %>%
-  # summarise(both = any(effect == -1) && any(effect == 1)) %>%
-  # filter(both) %>%
-  # pull(to) %>%
-  # first()
-
-# feature_oi <-
-#   model$feature_network %>%
-#   group_by(to) %>%
-#   summarise(both = any(effect == -1) && any(effect == 1)) %>%
-#   filter(both) %>%
-#   pull(to) %>%
-#   first()
 
 expression_plot <- dynplot_dimred(dataset) +
   geom_cell_point(aes(color = select_feature_expression(feature_oi, .data)), size = 1) +
@@ -182,7 +158,6 @@ transform_groundtruth_velocity <- function(x) {
 }
 RdGyBu <- RColorBrewer::brewer.pal(9, "RdBu")
 RdGyBu <- c(RdGyBu[1:3], "lightgray", RdGyBu[7:9])
-# RdGyBu[5] <- "lightgray"
 
 gs_plot <- dynplot_dimred(dataset) +
   geom_cell_point(aes(color = transform_groundtruth_velocity(dataset$rna_velocity[,feature_oi])), size = 1) +
@@ -214,7 +189,7 @@ plot_part_C <- pmap(design_velocity_oi, function(dataset_id, method_id, params_i
 
 #' design_velocity_oi %>% dynutils::extract_row_to_list(1) %>% list2env(.GlobalEnv)
 # PART D: Embedded RNA velocity estimates of different methods ------------
-plot_part_D <- pmap(design_velocity_oi, function(dataset_id, method_id, params_id, ...) {
+plot_part_D <- pmap(design_velocity_oi, function(dataset_id, method_id, params_id, params, ...) {
   velocity_file <- exp$velocity_file(dataset_id, method_id, params_id)
   velocity <- read_rds(velocity_file)
   if (method_id == "scvelo") {
@@ -229,12 +204,6 @@ plot_part_D <- pmap(design_velocity_oi, function(dataset_id, method_id, params_i
   dynplot_dimred(dataset2) +
     geom_cell_point(aes(color = milestone_percentages), size = 1) +
     scale_milestones_colour() +
-    # geom_velocity_arrow(
-    #   size = 1.2,
-    #   color = "#333333",
-    #   stat = stat_velocity_grid(grid_bandwidth = 1, filter = rlang::quo(mass > max(mass) * 0.05)),
-    #   arrow = arrow(length = unit(0.2, "cm"))
-    # ) +
     geom_velocity_stream(
       size = .8,
       color = "#333333",
@@ -247,32 +216,8 @@ plot_part_D <- pmap(design_velocity_oi, function(dataset_id, method_id, params_i
 }) %>%
   patchwork::wrap_plots(nrow = 1)
 
+pl1 <- plot_part_D[[1]]
 
-
-# PART E: RNA velocity estimates of different methods ---------------------
-#' design_velocity_oi %>% dynutils::extract_row_to_list(1) %>% list2env(.GlobalEnv)
-#' i <- 1
-plot_part_E <- pmap(design_velocity_oi %>% mutate(i = row_number()), function(i, dataset_id, method_id, params_id, ...) {
-  velocity <- read_rds(exp$velocity_file(dataset_id, method_id, params_id))
-  wps <- scores$per_waypoint %>% filter(dataset_id == !!dataset_id, method_id == !!method_id, params_id == !!params_id)
-  pl <- dynplot_dimred(dataset) +
-    geom_cell_point(size = 1) +
-    geom_segment(aes(x = from_comp_1, xend = to_comp_1, y = from_comp_2, yend = to_comp_2, colour = scales::squish(simil, c(.9, 1))), wps, size = 2) +
-    ggtitle(method_id, subtitle = params_id) +
-    theme_common() +
-    viridis::scale_color_viridis(name = "Cosine", limits = c(.9, 1))
-
-  if (i != 1) {
-    pl <- pl + theme(legend.position = "none")
-  }
-
-  pl
-}) %>% patchwork::wrap_plots(nrow = 1)
-
-wps <- pmap_df(design_velocity_oi %>% mutate(i = row_number()), function(i, dataset_id, method_id, params_id, ...) {
-  velocity <- read_rds(exp$velocity_file(dataset_id, method_id, params_id))
-  wps <- scores$per_waypoint
-})
 
 # COMBINE ALL PARTS -------------------------------------------------------
 tag_first <- function(x, tag) {
@@ -296,7 +241,6 @@ g <- patchwork::wrap_plots(
   plot_part_C,
   (plot_part_D & theme(plot.title = element_blank(), plot.subtitle = element_blank())),
   plot_part_A,
-  # (plot_part_E & theme(plot.title = element_blank(), plot.subtitle = element_blank())),
   ncol = 1,
   heights = c(1, .6, .6, .8)
 )

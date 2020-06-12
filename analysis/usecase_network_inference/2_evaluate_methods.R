@@ -4,9 +4,6 @@ library(dyneval)
 library(dynutils)
 library(dyngen.manuscript)
 
-
-# install genie3bis or fetch function
-
 exp <- start_analysis("usecase_network_inference")
 
 dataset_files <- list.files(exp$dataset_folder(""), pattern = "dataset.rds", full.names = TRUE, recursive = TRUE)
@@ -42,6 +39,7 @@ methods <- tribble(
 
 # # see https://github.com/aertslab/pySCENIC/issues/147#issuecomment-597686104
 # reticulate::py_install("git+https://github.com/aertslab/pySCENIC.git", pip = TRUE)
+# reticulate::py_install("git+https://github.com/tmoerman/arboreto.git", pip = TRUE)
 # reticulate::py_install("fsspec>=0.3.3", pip = TRUE)
 # reticulate::py_install("dask[dataframe]", pip = TRUE, upgrade = TRUE)
 # reticulate::py_install("distributed", pip = TRUE, upgrade = TRUE)

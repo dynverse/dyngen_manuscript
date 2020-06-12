@@ -9,9 +9,6 @@ exp <- start_analysis("usecase_network_inference")
 
 dataset <- read_rds(exp$dataset_file("bifurcating_loop_1"))
 
-# expression <- dataset$expression
-# priors <- list(regulators = dataset$regulators, targets = dataset$targets)
-# parameters <- list(num_int_per_cell = 10000L)
 
 set.seed(1)
 
@@ -86,27 +83,72 @@ g <- ggplot() +
   theme_graph(base_family = "Helvetica") +
   coord_equal() +
   labs(colour = "Regulatory\nactivity") +
-  scale_colour_gradientn(colours = c(rev(RColorBrewer::brewer.pal(5, "Reds")), RColorBrewer::brewer.pal(5, "Greens"))) +
+  scale_colour_gradientn(colours = c(rev(RColorBrewer::brewer.pal(5, "Reds")), RColorBrewer::brewer.pal(5, "Greens")), limits = c(-1, 1)) +
   facet_wrap(~group) +
   theme(
     plot.margin = margin(0, 0, 0, 0, "cm")
   )
 g
 ggsave(exp$result("casewise_grn.pdf"), g, width = 8, height = 5)
-write_rds(g, exp$result("casewise_grn.rds"), compress = "gz")
+# write_rds(g, exp$result("casewise_grn.rds"), compress = "gz")
 
 
-gtiny <- ggplot() +
+# make plot of ground truth
+g1 <- ggplot() +
   geom_point(aes(x, y), colour = "gray", node_df) +
   geom_segment(aes(x = x, y = y, xend = xend, yend = yend, colour = effect), edge_df %>% filter(effect >= 0, group == "GRN of cell 1"), arrow = arrow_up) +
   geom_segment(aes(x = x, y = y, xend = xend, yend = yend, colour = effect), edge_df %>% filter(effect < 0, group == "GRN of cell 1"), arrow = arrow_down) +
   theme_graph(base_family = "Helvetica") +
   coord_equal() +
   labs(colour = "Regulatory\nactivity") +
-  scale_colour_gradientn(colours = c(rev(RColorBrewer::brewer.pal(5, "Reds")), RColorBrewer::brewer.pal(5, "Greens"))) +
+  scale_colour_gradientn(colours = c(rev(RColorBrewer::brewer.pal(5, "Reds")), RColorBrewer::brewer.pal(5, "Greens")), limits = c(-1, 1)) +
   theme(
     plot.margin = margin(0, 0, 0, 0, "cm")
   )
-write_rds(gtiny, exp$result("cell1.rds"), compress = "gz")
 
+# make plot of prediction
+dataset$prior_information$regulators <- dataset$regulators
+dataset$prior_information$targets <- dataset$targets
+pred4 <- dynwrap::infer_trajectory(dataset, cni_bred())
+
+edge_pred_df <-
+  pred4$regulatory_network_sc %>%
+  filter(cell_id %in% cells[[1]]) %>%
+  arrange(desc(abs(strength))) %>%
+  head(nrow(feature_network)) %>%
+  arrange(as.character(regulator) == as.character(target)) %>%
+  mutate(
+    effect = pmin(strength / quantile(abs(strength), .8), 1),
+    group = paste0("GRN of cell ", match(cell_id, cells)),
+    regulator = as.character(regulator),
+    target = as.character(target),
+    x_ = layout[regulator, "x"],
+    y_ = layout[regulator, "y"],
+    xend_ = layout[target, "x"],
+    yend_ = layout[target, "y"],
+    len = sqrt( (x_ - xend_)^2 + (y_ - yend_)^2 ),
+    al = (len - cap) / len,
+    alend = (len - capend) / len,
+    x = al * x_ + (1 - al) * xend_,
+    y = al * y_ + (1 - al) * yend_,
+    xend = alend * xend_ + (1 - alend) * x_,
+    yend = alend * yend_ + (1 - alend) * y_
+  )
+
+g2 <- ggplot() +
+  geom_point(aes(x, y), colour = "gray", node_df) +
+  geom_segment(aes(x = x, y = y, xend = xend, yend = yend, colour = effect), edge_pred_df %>% filter(effect >= 0), arrow = arrow_up) +
+  geom_segment(aes(x = x, y = y, xend = xend, yend = yend, colour = effect), edge_pred_df %>% filter(effect < 0), arrow = arrow_down) +
+  theme_graph(base_family = "Helvetica") +
+  coord_equal() +
+  labs(colour = "Regulatory\nactivity") +
+  scale_colour_gradientn(
+    colours = c(rev(RColorBrewer::brewer.pal(5, "Reds")), RColorBrewer::brewer.pal(5, "Greens")),
+    limits = c(-1, 1)
+  ) +
+  theme(
+    plot.margin = margin(0, 0, 0, 0, "cm")
+  )
+
+write_rds(list(groundtruth = g1, prediction = g2), exp$result("usecase_separateplots.rds"), compress = "gz")
 

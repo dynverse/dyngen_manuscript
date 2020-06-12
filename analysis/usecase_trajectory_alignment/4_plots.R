@@ -69,9 +69,9 @@ a_sm <- plot_density(alignment_smooth) + labs(title = "Smoothed", subtitle = NUL
 # PART 1: Explanation plot ------------------------------------------------
 
 part1 <- readRDS(exp$result("explanation_flat.rds"))
-
-all_plots <- part1 / (ao + asubs + a_sm) / g
-all_plots <- all_plots + plot_annotation(tag_levels = c('A')) + plot_layout(heights = c(1, 1.1, 1.5))
+part2 <- (ao + plot_spacer() + a_sm) + plot_layout(widths = c(0.35, 0.3, 0.35))
+all_plots <- part1 / part2 / g
+all_plots <- all_plots + plot_annotation(tag_levels = c('A')) + plot_layout(heights = c(0.5, 1.5, 2))
 
 ggsave(exp$result("usecase.pdf"), all_plots, height = 11, width = 11, useDingbats = FALSE)
 ggsave(exp$result("usecase.png"), all_plots, height = 11, width = 11)

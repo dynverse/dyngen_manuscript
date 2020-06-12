@@ -311,21 +311,22 @@ g7d <- dynplot::plot_dimred(dataset, dimred = dimred, size_milestones = 3, size_
   labs(title = "Trajectory inference")
 
 exp7a <- start_analysis("usecase_trajectory_alignment")
-li7a <- read_rds(exp7a$result("explanation_plot_data.rds"))
+li7a <- read_rds(exp7a$result("cell_mappings_data.rds"))
 
 g7a <- ggplot() +
-  geom_segment(data = li7a$segm_traj_test, mapping = aes(x = color2, y = comp_1, xend = color22, yend = comp_3), alpha = 0.25) +
-  geom_point(data = li7a$comb_traj_less %>% filter(!is.na(color)), mapping = aes(x = color2, y = comp_1, colour = factor(color))) +
-  scale_colour_manual(values = c("#fd8d3c", "#6baed6")) +
+  geom_segment(data = li7a$leftover_combinatie, mapping = aes(x = x, y = y, xend = x2, yend = y2), alpha = 1) +
+  geom_point(data = li7a$alles, mapping = aes(x = x1, y = y, colour = as.factor(color)), size = 3.5, show.legend = F) +
+  scale_colour_manual(values = c("#fd8d3c", "#6baed6"), label = "") +
   scale_x_continuous(breaks = c(0, 1), labels = c("Start", "End")) +
-  scale_y_continuous(breaks = c(-.6, .6)) +
-  theme_classic() +
+  theme_void() +
   theme(
-    legend.position = "none",
-    text = element_text(family = "Helvetica"),
+    axis.title = element_text(),
     axis.title.y = element_blank(),
+    axis.line = element_line(),
     axis.line.y = element_blank(),
+    axis.ticks = element_line(),
     axis.ticks.y = element_blank(),
+    axis.text = element_text(),
     axis.text.y = element_blank()
   ) +
   labs(x = "Simulation time", title = "Trajectory alignment") +

@@ -51,7 +51,7 @@ expr1 <- res1$expression
 expr2 <- res2$expression
 
 alignment_original <- dtw(expr2, expr1, step.pattern=symmetric2, keep.internals=T)
-ao <- plot_density(alignment_original) + labs(title = "Original cells", subtitle = NULL)
+ao <- plot_density(alignment_original, title = "DTW")
 
 smp1 <- seq(from = 1, to = 1000, by = 10) #sample(1000, size = 100, replace = FALSE)
 pt1_smp <- pt1[seq(from = 1, to = 1000, by = 10)]
@@ -59,19 +59,29 @@ pt2_smp <- pt2[seq(from = 1, to = 1000, by = 10)]
 expr1_smp <- expr1[names(pt1_smp),]
 expr2_smp <- expr2[names(pt2_smp),]
 
-alignment_subsample <- dtw(expr2_smp, expr1_smp, step.pattern=symmetric2, keep.internals=T)
-asubs <- plot_density(alignment_subsample) + labs(title = "Subsampled", subtitle = NULL)
-
 alignment_smooth <- dtw(res2_sm$expression, res1_sm$expression, step.pattern=symmetric2, keep.internals=T)
-a_sm <- plot_density(alignment_smooth) + labs(title = "Smoothed", subtitle = NULL)
+a_sm <- plot_density(alignment_smooth, title = "DTW+smoothing")
 
 
 # PART 1: Explanation plot ------------------------------------------------
+part1plots <- read_rds(exp$result("usecase_separateplots.rds"))
 
-part1 <- readRDS(exp$result("explanation_flat.rds"))
-part2 <- (ao + plot_spacer() + a_sm) + plot_layout(widths = c(0.35, 0.3, 0.35))
-all_plots <- part1 / part2 / g
-all_plots <- all_plots + plot_annotation(tag_levels = c('A')) + plot_layout(heights = c(0.5, 1.5, 2))
+all_plots <- wrap_plots(
+  wrap_plots(
+    part1plots$t2_pt + labs(tag = "A", colour = "Healthy\nprogression   "),
+    part1plots$t1_pt + labs(tag = "B", colour = "Diseased\nprogression   "),
+    part1plots$prediction + theme(legend.position = "bottom") + labs(tag = "C")
+  ),
+  wrap_plots(
+    part1plots$plot_dens + labs(tag = "D") + theme(legend.position = "none"),
+    ao + theme(legend.position = "none") + labs(tag = "E"),
+    a_sm + theme(legend.position = "none") + labs(tag = "F"),
+    ggpubr::as_ggplot(ggpubr::get_legend(ao + theme(legend.position = "right") + labs(fill = "Alignment\ndistance"))),
+    widths = c(1, 1, 1, .5)
+  ),
+  g + labs(tag = "G", y = "Alignment distance"),
+  heights = c(.5, 1.4, 1.5)
+)
 
-ggsave(exp$result("usecase.pdf"), all_plots, height = 11, width = 11, useDingbats = FALSE)
-ggsave(exp$result("usecase.png"), all_plots, height = 11, width = 11)
+ggsave(exp$result("usecase.pdf"), all_plots, height = 9, width = 10, useDingbats = FALSE)
+ggsave(exp$result("usecase.png"), all_plots, height = 9, width = 10)

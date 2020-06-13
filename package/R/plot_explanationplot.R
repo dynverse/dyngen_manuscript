@@ -1,35 +1,34 @@
 #' @export
-plot_density <- function(a1, title = "Distance matrix +\n warping path", subtitle = "", show_legend = F){
-  x <- as_tibble(a1$index1)
-  x$Y <- a1$index2
-
-  gga_1 <- melt(a1$costMatrix)
-  p_heat1 <- ggplot(gga_1, aes(Var1, Var2, fill= value)) +
-    geom_raster(show.legend = show_legend) +
-    scale_fill_distiller(palette = "RdYlGn", breaks = range(gga_1$value), labels = c("min", "max"), name = "Accumulated\ndistance") +
-    scale_x_continuous(expand = c(0, 0)) + scale_y_continuous(expand = c(0, 0)) +
-    geom_line(data=x, aes(x=value, y=Y)) +
-    theme(panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank()) +
-    theme(legend.position="bottom") +
-    labs(title = title, x = "Sample 2", y = "Sample 1", fill = "Distance")
-
-  p_heat1
+plot_density <- function(a1, title = "Distance matrix +\n warping path", subtitle = NULL){
+  linedf <- tibble(
+    x = a1$index1,
+    y = a1$index2
+  )
+  rasterdf <- melt(a1$costMatrix, varnames = c("x", "y"), value.name = "distance")
+  ggplot() +
+    geom_raster(aes(x, y, fill = distance), rasterdf) +
+    geom_line(aes(x, y), linedf) +
+    scale_fill_distiller(palette = "RdYlGn", breaks = range(rasterdf$distance), labels = c("min", "max")) +
+    scale_x_continuous(expand = c(0, 0), breaks = range(linedf$x), labels = c("start", "end")) +
+    scale_y_continuous(expand = c(0, 0), breaks = range(linedf$y), labels = c("start", "end")) +
+    theme(
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      legend.position = "bottom"
+    ) +
+    labs(title = title, x = "Sample 2", y = "Sample 1", fill = "Accumulated\ndistance")
 }
 
 #' @export
 plot_pseudotime <- function(ds, palette = "Blues", ...){
-  p_traj1 <- plot_dimred(ds, color_cells = "pseudotime", size_cells = 3, ...)
-  p_traj1 <- p_traj1 +
+  plot_dimred(ds, color_cells = "pseudotime", size_cells = 3, ...) +
     scale_color_distiller(
       palette = palette,
-      limits = c(0, 1),
-      breaks = c(0, 0.25, 0.5, 0.75, 1),
-      labels = c("0", "0.25", "0.5", "0.75", "1"),
-      guide = guide_colorbar(title = "Pseudotime", title.vjust = 0.75, title.hjust = 0.75, barwidth = 5, draw.ulim = T)
-    )
-    # theme(legend.key.width = unit(2, "cm"))
-  p_traj1
+      breaks = function(x) range(x),
+      labels = c("begin", "end"),
+      # guide = guide_colorbar(title.vjust = 0.75, title.hjust = 0.75, barwidth = 5, draw.ulim = TRUE)
+    ) +
+    labs(colour = "Pseudotime")
 }
 
 #' @export

@@ -65,45 +65,42 @@ write_rds(dataset2D, paste0(exp$dataset_folder("expplot"), "dataset2D.rds"), com
 milestone_colors <- c("#ff681c", "#ff681c", "#ff681c", "#ff681c", "#3abbba","#3abbba", "#3abbba", "#3abbba", "#ff681c", "#3abbba")
 together <- plot_trajectory_in_color(datasetD, milestone_colors, c("sample 1", "sample 2"), c("#3abbba", "#ff681c"), plot_sd = 0.11)
 
-t1_pt <- plot_pseudotime(dataset1, palette = "Oranges", trajectory_projection_sd = 0.11, plot_trajectory = T)
-t2_pt <- plot_pseudotime(dataset2D, palette = "Blues", trajectory_projection_sd = 0.11, plot_trajectory = T)
+t1_pt <- plot_pseudotime(dataset1, palette = "Oranges", trajectory_projection_sd = 0.11, plot_trajectory = TRUE)
+t2_pt <- plot_pseudotime(dataset2D, palette = "Blues", trajectory_projection_sd = 0.11, plot_trajectory = TRUE)
 
 expr1 <- get_cell_expression(dataset1, dataset1$milestone_network, "sA")$expression
 expr2 <- get_cell_expression(dataset2D, dataset2D$milestone_network, "sA")$expression
-a <- dtw(expr2, expr1, keep.internals = T, open.end = F)
+a <- dtw(expr2, expr1, keep.internals = TRUE, open.end = FALSE)
 dtwPlotAlignment(a)
 
-plot_dens <- plot_density(a, show_legend = TRUE) + labs(title = NULL, subtitle = NULL)
-plot_dens
+plot_dens <- plot_density(a, title = "Alignment between\ndiseased/healthy")
 
-
-e1 <- calculate_correct_pseudotime(dataset1, dataset1$milestone_network, "sA", normalized = F)
-e2 <- calculate_correct_pseudotime(dataset2D, dataset2D$milestone_network, "sA", normalized = F)
+e1 <- calculate_correct_pseudotime(dataset1, "sA", normalized = FALSE)
+e2 <- calculate_correct_pseudotime(dataset2D, "sA", normalized = FALSE)
+maxe12 <- max(c(e1, e2))
+e1 <- e1 / maxe12
+e2 <- e2 / maxe12
 
 # warped segmenten
-traj1 <- tibble(x = sort(e1), color = 1, y = 0)
-traj2 <- tibble(x = sort(e2), color = 2, y = 1)
+traj1 <- tibble(x = sort(e1), y = 0, traji = 1, traj = "Healthy")
+traj2 <- tibble(x = sort(e2), y = 1, traji = 2, traj = "Diseased")
 
-traj1_warped <- traj1[a$index2,]
-traj2_warped <- traj2[a$index1,]
+ix <- seq(1, length(a$index1), by = 20)
+traj1_warped <- traj1[a$index2[ix],]
+traj2_warped <- traj2[a$index1[ix],]
 
-combinatie <- bind_cols(
+alles <- bind_rows(traj1, traj2)
+
+leftover_combinatie <- bind_cols(
   traj1_warped %>% select(x, y),
   traj2_warped %>% select(x2 = x, y2 = y)
-)
-leftover_combinatie <- combinatie[seq(1, nrow(combinatie), 20), ]
-
-alles <- tibble(
-  x1 = c(leftover_combinatie$x, leftover_combinatie$x2),
-  y = c(leftover_combinatie$y, leftover_combinatie$y2),
-  color = c(rep(1, nrow(leftover_combinatie)), rep(2, nrow(leftover_combinatie)))
 )
 
 cell_mappings <-
   ggplot() +
   geom_segment(data = leftover_combinatie, mapping = aes(x = x, y = y, xend = x2, yend = y2), alpha = 1) +
-  geom_point(data = alles, mapping = aes(x = x1, y = y, colour = as.factor(color)), size = 3.5, show.legend = FALSE) +
-  scale_colour_manual(values = c("#fd8d3c", "#6baed6"), label = "") +
+  geom_point(data = alles, mapping = aes(x = x, y = y, colour = traj), size = 3.5) +
+  scale_colour_manual(values = c("#fd8d3c", "#6baed6")) +
   scale_x_continuous(breaks = c(0, 1), labels = c("Start", "End")) +
   theme_void() +
   theme(
@@ -116,18 +113,14 @@ cell_mappings <-
     axis.text = element_text(),
     axis.text.y = element_blank()
   ) +
-  labs(x = "Simulation time")
+  labs(x = "Simulation time", colour = "Sample")
 
 cell_mappings
-
-write_rds(lst(leftover_combinatie, alles, combinatie), exp$result("cell_mappings_data.rds"), compress = "gz")
-
 
 # For each 50th cell -> 26
 # For each 30th cell -> 41
 # For each 20th cell -> 63
 demarcation_line <- 67
-
 
 straight_part <-
   leftover_combinatie[seq_len(demarcation_line),] %>%
@@ -141,8 +134,8 @@ ground_truth <- rbind(straight_part, partial_part)
 ground_truth_mappings <-
   ggplot() +
   geom_segment(aes(x = x, y = y, xend = x2, yend = y2), ground_truth, alpha = 1) +
-  geom_point(aes(x = x1, y = y, colour = as.factor(color)), alles, size = 3.5, show.legend = FALSE) +
-  scale_colour_manual(values = c("#fd8d3c", "#6baed6"), label = "") +
+  geom_point(aes(x = x, y = y, colour = traj), alles, size = 3.5) +
+  scale_colour_manual(values = c("#fd8d3c", "#6baed6")) +
   scale_x_continuous(breaks = c(0, 1), labels = c("Start", "End")) +
   theme_void() +
   theme(
@@ -155,22 +148,13 @@ ground_truth_mappings <-
     axis.text = element_text(),
     axis.text.y = element_blank()
   ) +
-  labs(x = "Simulation time")
+  labs(x = "Simulation time", colour = "Sample")
 
 ground_truth_mappings
 
-write_rds(lst(ground_truth, alles, combinatie), exp$result("ground_truth_mappings_data.rds"), compress = "gz")
-write_rds(lst(ground_truth = ground_truth_mappings, prediction = cell_mappings), exp$result("usecase_separateplots.rds"), compress = "gz")
+write_rds(
+  lst(t1_pt, t2_pt, ground_truth = ground_truth_mappings, prediction = cell_mappings, plot_dens),
+  exp$result("usecase_separateplots.rds"),
+  compress = "gz"
+)
 
-part1 <-
-  patchwork::wrap_plots(
-    t2_pt,
-    t1_pt,
-    plot_spacer(),
-    cell_mappings,
-    plot_dens,
-    widths = c(1, 1, .2, 1, 1)
-  )
-
-saveRDS(part1, file = exp$result("explanation_flat.rds"))
-ggsave(part1, filename = exp$result("explanation_flat.png"), bg = 'transparent', width = 20, height = 4)

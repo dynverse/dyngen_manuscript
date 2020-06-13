@@ -4,7 +4,7 @@
 #'
 #' @export
 get_cell_expression <- function(dataset, milestone_network, start){
-  pseudotime <- sort(calculate_correct_pseudotime(dataset, milestone_network, start))
+  pseudotime <- sort(calculate_correct_pseudotime(dataset, start))
   nor2 <- names(pseudotime)
   volg2 <- sapply(nor2, function(i) strtoi(substr(i, 5, nchar(i))))
   cnt2 <- as.matrix(dataset$counts)
@@ -25,44 +25,25 @@ get_cell_expression <- function(dataset, milestone_network, start){
 #' Get corrected pseudotime
 #'
 #' @param dataset A dyngen dataset
+#' @param start The start milestone
 #'
 #' @importFrom gtools mixedorder
 #'
 #' @export
-calculate_correct_pseudotime <- function(dataset, milestone_network, start, normalized = T){
-  if(normalized){
-    length_pieces <- milestone_network$length/sum(milestone_network$length)
-  } else {
-    length_pieces <- milestone_network$length
+calculate_correct_pseudotime <- function(dataset, start, normalized = TRUE){
+  if (normalized) {
+    dataset$milestone_network <-
+      dataset$milestone_network %>%
+      mutate(length = length / sum(length))
   }
-  nr_piece <- 0
-  traj <- numeric()
-  names_traj <- list()
-  # TODO convert to for for each piece
-  while(start %in% milestone_network[["from"]]){
-    idx <- which(start == milestone_network[["from"]])[[1]]
-    end <- milestone_network[["to"]][idx]
-    to_add <- sum(length_pieces[0:nr_piece])
-
-    if(normalized){
-      perc <-(dataset[["progressions"]] %>% filter(from == start & to == end))$percentage * length_pieces[nr_piece + 1] + to_add
-    } else {
-      perc <-(dataset[["progressions"]] %>% filter(from == start & to == end))$percentage * length_pieces[nr_piece + 1] + to_add
-
-    }
-    nams <-(dataset[["progressions"]] %>% filter(from == start & to == end))$cell_id
-
-    traj <- c(traj, perc)
-    names_traj <- c(names_traj, nams)
-
-    start <- end
-    nr_piece <- nr_piece + 1
-
-  }
-
-  names(traj) <- names_traj
-  traj <- traj[mixedorder(names(traj))]
-  traj
+  pct <- dynwrap::calculate_geodesic_distances(
+    dataset,
+    waypoint_milestone_percentages = tibble(
+      waypoint_id = "wp",
+      milestone_id = start,
+      percentage = 1
+    )
+  )[1,]
 }
 
 #' Get uncorrected pseudotime

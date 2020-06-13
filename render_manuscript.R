@@ -3,11 +3,6 @@ library(googledrive)
 library(rmarkdown)
 library(textreadr)
 
-# copy zotero library if on rcannood's computer
-if (Sys.info()[["user"]] == "rcannood") {
-  file.copy("~/Workspace/library.bib", "library.bib", overwrite = TRUE)
-}
-
 # download as docx instead of txt, because otherwise comments get pushed into the document
 httr::set_config(httr::config(http_version = 0)) # avoid http2 framing layer bug
 drive <- drive_download(as_id("15ZkzzB-XSYFfZutO4YPkUIw6iUvxJS92fSPfzqR1cLA"), type = "docx", overwrite = TRUE, path = tempfile())

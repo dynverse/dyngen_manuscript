@@ -38,7 +38,7 @@ bibliography: library.bib
 knitr::opts_chunk$set(collapse=TRUE, results="hold")
 library(tidyverse)
 ```
-<!-- link naar de oude tekst: https://docs.google.com/document/d/15ZkzzB-XSYFfZutO4YPkUIw6iUvxJS92fSPfzqR1cLA/edit -->
+
 
 # Abstract 
 <!-- format: max. 70 words -->
@@ -99,14 +99,8 @@ Here, we highlight the novel functionality of dyngen by evaluating three novel t
 **Cell-specific network inference** (CSNI) methods predict not only which transcription factors regulate which target genes, but also aim to identify how active each interaction is in each of the cells, since interactions can be turned off and on depending on the cellular state. While a few pioneering CSNI approaches have already been developed [@aibar_scenicsinglecellregulatory_2017; @kuijjer_estimatingsamplespecificregulatory_2019; @liu_personalizedcharacterizationdiseases_2016], a quantitative assessment of the performance is until now lacking. This is not surprising, as neither real nor in silico datasets of cell-specific or even cell-type-specific interactions exist that are large enough so that it can be used as a ground-truth for evaluating CSNI methods. Extracting the ground-truth dynamic network in dyngen is straightforward though, given that we can calculate how target gene expression would change without the regulator being present. We used this ground-truth to compare the performance of three CSNI methods: LIONESS [@kuijjer_estimatingsamplespecificregulatory_2019], SSN [@liu_personalizedcharacterizationdiseases_2016] and SCENIC [@aibar_scenicsinglecellregulatory_2017]. We calculated the AUROC and AUPR score for each cell individually. Computing the mean AUROC and AUPR per dataset showed that pySCENIC significantly outperforms LIONESS + Pearson, which in turn outperforms SSN*.
 
 <!-- DISCUSSION -->
-As is, dyngen's single-cell simulations can be used to evaluate common single-cell omics computational methods such as clustering, batch correction, trajectory inference, and network inference.
-However, the framework is flexible enough to be adaptable to a broad range of applications, including methods that integrate clustering, network inference, and trajectory inference. In this respect, dyngen may promote the development of new tools in the single-cell field similarly as other simulators have done in the past [@schaffter_genenetweaversilicobenchmark_2011; @ewing_combiningtumorgenome_2015].
-
-dyngen ultimately allows anticipating technological developments in single-cell multi-omics. In this way, it is possible to design and evaluate the performance and robustness of new types of computational analyses before experimental data becomes available.
-In addition, it could also be used to compare which experimental protocol is the most cost-effective in producing qualitative and robust results in downstream analysis.
-
-Currently, dyngen focuses on simulating cells as standalone entities that are well mixed.
-Splitting up the simulation space into separate subvolumes could pave the way to better study key cellular processes such as cell division, intercellular communication, and migration [@smith_spatialstochasticintracellular_2019].
+In summary, dyngen's single-cell simulations can be used to evaluate common single-cell omics computational methods such as clustering, batch correction, trajectory inference, and network inference.
+However, the framework is flexible enough to be adaptable to a broad range of applications, including methods that integrate clustering, network inference, and trajectory inference. In this respect, dyngen may promote the development of new tools in the single-cell field similarly as other simulators have done in the past [@schaffter_genenetweaversilicobenchmark_2011; @ewing_combiningtumorgenome_2015]. Additionally, one could anticipate technological developments in single-cell multi-omics. In this way, dyngen allows designing and evaluating the performance and robustness of new types of computational analyses before experimental data becomes available, comparing which experimental protocol is the most cost-effective in producing qualitative and robust results in downstream analysis. One major assumption of dyngen is that cells are regarded as standalone entities that are well mixed. Splitting up the simulation space into separate subvolumes could pave the way to better study key cellular processes such as cell division, intercellular communication, and migration [@smith_spatialstochasticintracellular_2019].
 
 # Availability
 dyngen is available as an R package on GitHub at [github.com/dynverse/dyngen](https://github.com/dynverse/dyngen). The analyses performed in this manuscript are available on GitHub at [github.com/dynverse/dyngen_manuscript](https://github.com/dynverse/dyngen_manuscript). 

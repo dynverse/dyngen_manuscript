@@ -96,7 +96,7 @@ Here, we highlight the novel functionality of dyngen by evaluating three novel t
 
 **RNA velocity** methods use the relative ratio between pre-mRNA and mature mRNA reads to predict the velocity at which the RNA expression of genes is increasing or decreasing [@zeisel_coupledpremrnamrna_2011;@lamanno_rnavelocitysingle_2018]. Already two algorithms are currently available for estimating the RNA velocity vector from spliced and unspliced counts: velocyto [@lamanno_rnavelocitysingle_2018] and scvelo [@bergen_generalizingrnavelocity_2019]. Yet, to date, no quantitative assessment of their accuracy has been performed, mainly due to the difficulty in obtaining real ground-truth data to do so. In contrast, the ground-truth RNA velocity can be easily extracted from a dyngen, as it is possible to store the rate at which mRNA molecules are being transcribed and degraded (called the propensity) at any particular point in time. We executed scvelo and velocyto (with 6 different parameter settings in total) on 102 datasets with varying degrees of difficulty (easy, medium, hard) and a variety of backbones (including linear, bifurcating, cyclic, disconnected). We evaluated the predictions using two metrics (Figure\ \ref{fig:velocity}), one which directly compares the predicted RNA velocity of each gene with the ground-truth RNA velocity (called the "velocity correlation"), and one which compares the direction of the ground-truth trajectory embedded in a dimensionality reduction with the average RNA velocity of cells in that neighbourhood (called the "velocity arrow cosine"). We found that in almost all cases, both velocyto and scvelo obtained high velocity arrow cosine, meaning that the overview obtained by embedding RNA velocity arrows in a 2D or 3D dimensionality reduction allows users to correctly identify the general progression of cells. However, depending on the difficulty of the dataset, the correlation between the predicted RNA velocity and the ground-truth RNA velocity varies between high (>0.75) to low (<0.25). For this particular metric, the dynamic estimation of velocyto performs significantly worse than any of the other prediction methods. 
 
-**Cell-specific network inference** (CSNI) methods predict not only which transcription factors regulate which target genes, but also aim to identify how active each interaction is in each of the cells, since interactions can be turned off and on depending on the cellular state. While a few pioneering CSNI approaches have already been developed [@aibar_scenicsinglecellregulatory_2017; @kuijjer_estimatingsamplespecificregulatory_2019; @liu_personalizedcharacterizationdiseases_2016], a quantitative assessment of the performance is until now lacking. This is not surprising, as neither real nor in silico datasets of cell-specific or even cell-type-specific interactions exist that are large enough so that it can be used as a ground-truth for evaluating CSNI methods. Extracting the ground-truth dynamic network in dyngen is straightforward though, given that we can calculate how target gene expression would change without the regulator being present. We used this ground-truth to compare the performance of three CSNI methods: LIONESS [@kuijjer_estimatingsamplespecificregulatory_2019], SSN [@liu_personalizedcharacterizationdiseases_2016] and SCENIC [@aibar_scenicsinglecellregulatory_2017]. We calculated the AUROC and AUPR score for each cell individually. Computing the mean AUROC and AUPR per dataset showed that pySCENIC significantly outperforms LIONESS + Pearson, which in turn outperforms SSN*.
+**Cell-specific network inference** (CSNI) methods predict not only which transcription factors regulate which target genes, but also aim to identify how active each interaction is in each of the cells, since interactions can be turned off and on depending on the cellular state. While a few pioneering CSNI approaches have already been developed [@aibar_scenicsinglecellregulatory_2017; @kuijjer_estimatingsamplespecificregulatory_2019; @liu_personalizedcharacterizationdiseases_2016], a quantitative assessment of the performance is until now lacking. This is not surprising, as neither real nor in silico datasets of cell-specific or even cell-type-specific interactions exist that are large enough so that it can be used as a ground-truth for evaluating CSNI methods. Extracting the ground-truth dynamic network in dyngen is straightforward though, given that we can calculate how target gene expression would change without the regulator being present. We used this ground-truth to compare the performance of three CSNI methods (Figure\ \ref{fig:scgrn}): LIONESS [@kuijjer_estimatingsamplespecificregulatory_2019], SSN [@liu_personalizedcharacterizationdiseases_2016] and SCENIC [@aibar_scenicsinglecellregulatory_2017]. We calculated the AUROC and AUPR score for each cell individually. Computing the mean AUROC and AUPR per dataset showed that pySCENIC significantly outperforms LIONESS + Pearson, which in turn outperforms SSN*.
 
 <!-- DISCUSSION -->
 In summary, dyngen's single-cell simulations can be used to evaluate common single-cell omics computational methods such as clustering, batch correction, trajectory inference, and network inference.
@@ -192,6 +192,21 @@ dyngen is available as an R package on GitHub at [github.com/dynverse/dyngen](ht
 
 
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=.8\linewidth]{result_files/usecase_trajectory_alignment/usecase.pdf}
+    \caption{
+    \textbf{dyngen allows benchmarking of trajectory alignment methods.} 
+ \textbf{A, B}: Two samples containing a linear trajectory, generated by dyngen.
+  \textbf{C, D}: Result of the DTW alignment on the samples in \textbf{A} and \textbf{B}. In \textbf{C}, the individual mappings of the alignment between cells are shown. In \textbf{D}, the accumulated distance matrix between the two trajectories is shown, including the black warping path, corresponding to these cell to cell alignments in \textbf{C}.
+  \textbf{E, F}: Shows the accumulated distance matrices obtained after using DTW on two trajectories where noise (noise level of 0.4) was added to the count matrix. In E the complete count matrices were used to perform the alignment. In F, smoothed pseudocells were used.
+  \textbf{G:} Shows the influence of added noise to the different processing methods. We can see that DTW + smoothing performs best in noisy circumstances.
+    }
+    \label{fig:traj_align}
+\end{figure}
+
+
+
 
 
 
@@ -220,21 +235,6 @@ dyngen is available as an R package on GitHub at [github.com/dynverse/dyngen](ht
     \textbf{B:} CSNI methods were executed to predict the regulatory interactions that are active in each cell specifically. Using the ground-truth cell-specific GRN, the performance of each method was quantified on 14 dyngen datasets. 
     }
     \label{fig:scgrn}
-\end{figure}
-
-
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=.8\linewidth]{result_files/usecase_trajectory_alignment/usecase.pdf}
-    \caption{
-    \textbf{dyngen allows benchmarking of trajectory alignment methods.} 
- \textbf{A, B}: Two samples containing a linear trajectory, generated by dyngen.
-  \textbf{C, D}: Result of the DTW alignment on the samples in \textbf{A} and \textbf{B}. In \textbf{C}, the individual mappings of the alignment between cells are shown. In \textbf{D}, the accumulated distance matrix between the two trajectories is shown, including the black warping path, corresponding to these cell to cell alignments in \textbf{C}.
-  \textbf{E, F}: Shows the accumulated distance matrices obtained after using DTW on two trajectories where noise (noise level of 0.4) was added to the count matrix. In E the complete count matrices were used to perform the alignment. In F, smoothed pseudocells were used.
-  \textbf{G:} Shows the influence of added noise to the different processing methods. We can see that DTW + smoothing performs best in noisy circumstances.
-    }
-    \label{fig:traj_align}
 \end{figure}
 
 # Methods {#sec:dyngen-methods}

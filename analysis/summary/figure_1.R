@@ -311,15 +311,11 @@ g7d <- dynplot::plot_dimred(dataset, dimred = dimred, size_milestones = 3, size_
   labs(title = "Trajectory inference")
 
 exp7a <- start_analysis("usecase_trajectory_alignment")
-li7a <- read_rds(exp7a$result("cell_mappings_data.rds"))
-
-g7a <- ggplot() +
-  geom_segment(data = li7a$leftover_combinatie, mapping = aes(x = x, y = y, xend = x2, yend = y2), alpha = 1) +
-  geom_point(data = li7a$alles, mapping = aes(x = x1, y = y, colour = as.factor(color)), size = 3.5, show.legend = F) +
-  scale_colour_manual(values = c("#fd8d3c", "#6baed6"), label = "") +
-  scale_x_continuous(breaks = c(0, 1), labels = c("Start", "End")) +
-  theme_void() +
+g7a <- read_rds(exp7a$result("usecase_separateplots.rds"))$prediction +
+  theme_classic() +
   theme(
+    legend.position = "none",
+    text = element_text(family = "Helvetica"),
     axis.title = element_text(),
     axis.title.y = element_blank(),
     axis.line = element_line(),
@@ -331,7 +327,6 @@ g7a <- ggplot() +
   ) +
   labs(x = "Simulation time", title = "Trajectory alignment") +
   coord_cartesian()
-g7a
 
 exp7b <- start_analysis("usecase_rna_velocity")
 g7b <- read_rds(exp7b$result("usecase_separateplots.rds"))$prediction +

@@ -18,7 +18,8 @@ inspiration
 .Rproj.user
 .Rhistory
 content.tex
-manuscript.tex
+render.tex
+render.pdf
 derived_files
 dask-worker-space
 derived

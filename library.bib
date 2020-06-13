@@ -8256,6 +8256,29 @@ Video Abstract},
   abstract = {Background: Single-cell RNA sequencing (scRNA-seq) is an enabling technology for the study of cellular differentiation and heterogeneity. From snapshots of the transcriptomic profiles of differentiating single cells, the cellular lineage tree that leads from a progenitor population to multiple types of differentiated cells can be derived. The underlying lineage trees of most published datasets are linear or have a single branchpoint, but many studies with more complex lineage trees will soon become available. To test and further develop tools for lineage tree reconstruction, we need test datasets with known trees. Results: PROSSTT can simulate scRNA-seq datasets for differentiation processes with lineage trees of any desired complexity, noise level, noise model, and size. PROSSTT also provides scripts to quantify the quality of predicted lineage trees.}
 }
 
+@article{papadopoulos_prossttprobabilisticsimulation_2019,
+  title = {{{PROSSTT}}: Probabilistic Simulation of Single-Cell {{RNA}}-Seq Data for Complex Differentiation Processes},
+  shorttitle = {{{PROSSTT}}},
+  author = {Papadopoulos, Nikolaos and Gonzalo, Parra R. and Söding, Johannes},
+  date = {2019-09-15},
+  journaltitle = {Bioinformatics (Oxford, England)},
+  shortjournal = {Bioinformatics},
+  volume = {35},
+  pages = {3517--3519},
+  issn = {1367-4811},
+  doi = {10.1093/bioinformatics/btz078},
+  abstract = {SUMMARY: Cellular lineage trees can be derived from single-cell RNA sequencing snapshots of differentiating cells. Currently, only datasets with simple topologies are available. To test and further develop tools for lineage tree reconstruction, we need test datasets with known complex topologies. PROSSTT can simulate scRNA-seq datasets for differentiation processes with lineage trees of any desired complexity, noise level, noise model and size. PROSSTT also provides scripts to quantify the quality of predicted lineage trees.
+AVAILABILITY AND IMPLEMENTATION: https://github.com/soedinglab/prosstt.
+SUPPLEMENTARY INFORMATION: Supplementary data are available at Bioinformatics online.},
+  eprint = {30715210},
+  eprinttype = {pmid},
+  file = {/home/rcannood/Zotero/storage/UERERPJX/Papadopoulos et al. - 2019 - PROSSTT probabilistic simulation of single-cell R.pdf},
+  keywords = {Cell Differentiation,Gene Expression Profiling,RNA-Seq,Single-Cell Analysis,Software},
+  langid = {english},
+  number = {18},
+  pmcid = {PMC6748774}
+}
+
 @article{papp_genomewideanalysiscontextdependence_2005,
   title = {Genome-Wide Analysis of the Context-Dependence of Regulatory Networks},
   author = {Papp, Balázs and Oliver, Stephen},
@@ -8288,6 +8311,26 @@ Video Abstract},
   pages = {261768},
   doi = {10.1101/261768},
   abstract = {Advances in single-cell transcriptomics techniques are revolutionising studies of cellular differentiation and heterogeneity. However, reconstruction of cellular lineage trees with more than a few cell fates has proved challenging. We present MERLoT (https://github.com/soedinglab/merlot), a tool to reconstruct complex lineage trees from single-cell transcriptomics data. We demonstrate MERLoT's robustness, flexibility and capabilities on various real and simulated datasets.}
+}
+
+@article{parra_reconstructingcomplexlineage_2019,
+  title = {Reconstructing Complex Lineage Trees from {{scRNA}}-Seq Data Using {{MERLoT}}},
+  author = {Parra, R. Gonzalo and Papadopoulos, Nikolaos and Ahumada-Arranz, Laura and Kholtei, Jakob El and Mottelson, Noah and Horokhovsky, Yehor and Treutlein, Barbara and Soeding, Johannes},
+  date = {2019-09-26},
+  journaltitle = {Nucleic Acids Research},
+  shortjournal = {Nucleic Acids Res.},
+  volume = {47},
+  pages = {8961--8974},
+  issn = {1362-4962},
+  doi = {10.1093/nar/gkz706},
+  abstract = {Advances in single-cell transcriptomics techniques are revolutionizing studies of cellular differentiation and heterogeneity. It has become possible to track the trajectory of thousands of genes across the cellular lineage trees that represent the temporal emergence of cell types during dynamic processes. However, reconstruction of cellular lineage trees with more than a few cell fates has proved challenging. We present MERLoT (https://github.com/soedinglab/merlot), a flexible and user-friendly tool to reconstruct complex lineage trees from single-cell transcriptomics data. It can impute temporal gene expression profiles along the reconstructed tree. We show MERLoT's capabilities on various real cases and hundreds of simulated datasets.},
+  eprint = {31428793},
+  eprinttype = {pmid},
+  file = {/home/rcannood/Zotero/storage/86VN2MRY/Parra et al. - 2019 - Reconstructing complex lineage trees from scRNA-se.pdf},
+  keywords = {Algorithms,Animals,Cell Differentiation,Cell Lineage,Cluster Analysis,Gene Expression Profiling,Hematopoietic Stem Cells,Humans,Mice,Mouse Embryonic Stem Cells,Sequence Analysis; RNA,Single-Cell Analysis,Software,Time Factors,Transcriptome},
+  langid = {english},
+  number = {17},
+  pmcid = {PMC6755101}
 }
 
 @article{patel_singlecellrnaseqhighlights_2014,
@@ -11039,6 +11082,21 @@ Naive CD4+ T~cells differentiate into functionally diverse T helper (Th) cell su
   url = {http://biorxiv.org/content/early/2019/05/02/623397.abstract},
   abstract = {Trajectory inference has radically enhanced single-cell RNA-seq research by enabling the study of dynamic changes in gene expression levels during biological processes such as the cell cycle, cell type differentiation, and cellular activation. Downstream of trajectory inference, it is vital to discover genes that are associated with the lineages in the trajectory to illuminate the underlying biological processes. Furthermore, genes that are differentially expressed between developmental/activational lineages might be highly relevant to further unravel the system under study. Current data analysis procedures, however, typically cluster cells and assess differential expression between the clusters, which fails to exploit the continuous resolution provided by trajectory inference to its full potential. The few available non-cluster-based methods only assess broad differences in gene expression between lineages, hence failing to pinpoint the exact types of divergence. We introduce a powerful generalized additive model framework based on the negative binomial distribution that allows flexible inference of (i) within-lineage differential expression by detecting associations between gene expression and pseudotime over an entire lineage or by comparing gene expression between points/regions within the lineage and (ii) between-lineage differential expression by comparing gene expression between lineages over the entire lineages or at specific points/regions. By incorporating observation-level weights, the model additionally allows to account for zero inflation, commonly observed in single-cell RNA-seq data from full-length protocols. We evaluate the method on simulated and real datasets from droplet-based and full-length protocols, and show that the flexible inference framework is capable of yielding biological insights through a clear interpretation of the data.},
   options = {useprefix=true}
+}
+
+@article{vandenberge_trajectorybaseddifferentialexpression_2020,
+  title = {Trajectory-Based Differential Expression Analysis for Single-Cell Sequencing Data},
+  author = {Van den Berge, Koen and Roux de Bézieux, Hector and Street, Kelly and Saelens, Wouter and Cannoodt, Robrecht and Saeys, Yvan and Dudoit, Sandrine and Clement, Lieven},
+  date = {2020-03-05},
+  journaltitle = {Nature Communications},
+  shortjournal = {Nature Communications},
+  volume = {11},
+  pages = {1201},
+  issn = {2041-1723},
+  doi = {10.1038/s41467-020-14766-3},
+  url = {https://doi.org/10.1038/s41467-020-14766-3},
+  abstract = {Trajectory inference has radically enhanced single-cell RNA-seq research by enabling the study of dynamic changes in gene expression. Downstream of trajectory inference, it is vital to discover genes that are (i) associated with the lineages in the trajectory, or (ii) differentially expressed between lineages, to illuminate the underlying biological processes. Current data analysis procedures, however, either fail to exploit the continuous resolution provided by trajectory inference, or fail to pinpoint the exact types of differential expression. We introduce tradeSeq, a powerful generalized additive model framework based on the negative binomial distribution that allows flexible inference of both within-lineage and between-lineage differential expression. By incorporating observation-level weights, the model additionally allows to account for zero inflation. We evaluate the method on simulated datasets and on real datasets from droplet-based and full-length protocols, and show that it yields biological insights through a clear interpretation of the data.},
+  number = {1}
 }
 
 @article{vanderlugt_transcriptionalprogrammingdendritic_2014,

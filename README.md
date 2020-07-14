@@ -4,7 +4,7 @@ This repo contains all code necessary to reproduce the dyngen manuscript.
 
 ## Install dependencies
 Clone the repository as follows.
-```
+```bash
 # clone the repo
 git clone https://github.com/dynverse/dyngen_manuscript
 cd dyngen_manuscript

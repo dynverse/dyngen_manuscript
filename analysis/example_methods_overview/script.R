@@ -1,9 +1,10 @@
 library(tidyverse)
 library(dyngen)
+library(dyngen.manuscript)
+
+exp <- start_analysis("example_methods")
 
 set.seed(4)
-
-dir.create("fig/example_methods", showWarnings = FALSE, recursive = TRUE)
 
 backbone <- backbone(
   module_info = tribble(
@@ -49,16 +50,16 @@ model <-
   generate_kinetics()
 
 ## grn
-plot_backbone_statenet(model) %>% ggsave(filename = "fig/example_methods/statenet.pdf", width = 6, height = 6)
-plot_backbone_modulenet(model) %>% ggsave(filename = "fig/example_methods/modulenet.pdf", width = 8, height = 6)
+plot_backbone_statenet(model) %>% ggsave(filename = exp$result("statenet.pdf"), width = 6, height = 6)
+plot_backbone_modulenet(model) %>% ggsave(filename = exp$result("modulenet.pdf"), width = 8, height = 6)
 
 plot_feature_network(model, show_targets = FALSE)
 
 plot_feature_network(model)
 plot_feature_network(model, show_hks = TRUE)
 plot_feature_network(model)
-plot_feature_network(model, show_hks = TRUE) %>% ggsave(filename = "fig/example_methods/featnet.pdf", width = 8, height = 6)
-plot_feature_network(model, show_targets = FALSE) %>% ggsave(filename = "fig/example_methods/featnet_onlytfs.pdf", width = 8, height = 6)
+plot_feature_network(model, show_hks = TRUE) %>% ggsave(filename = exp$result("featnet.pdf"), width = 8, height = 6)
+plot_feature_network(model, show_targets = FALSE) %>% ggsave(filename = exp$result("featnet_onlytfs.pdf"), width = 8, height = 6)
 
 
 ## simulate
@@ -68,13 +69,13 @@ model2 <- model %>%
   generate_experiment()
 
 model2 <- dyngen:::calculate_dimred(model2, dimred_premrna = FALSE)
-write_rds(model2, "fig/example_methods/model.rds", compress = "gz")
+write_rds(model2, exp$result("model.rds"), compress = "gz")
 
 g <- plot_gold_simulations(model2) + scale_colour_brewer(palette = "Dark2") + theme_classic() + theme(legend.position = "none") + labs(x = "Comp1", y = "Comp2") +
   scale_x_continuous(breaks = 1000) +
   scale_y_continuous(breaks = 1000) +
   coord_equal()
-ggsave("fig/example_methods/gold_simulations.pdf", g, width = 2, height = 2)
+ggsave(exp$result("gold_simulations.pdf"), g, width = 2, height = 2)
 
 g <- plot_gold_expression(model2, what = "x", label_changing = FALSE) + facet_wrap(~edge, nrow = 1) +
   theme_classic() + theme(legend.position = "none") + labs(x = "Simulation time", y = "mRNA expression") +
@@ -82,18 +83,18 @@ g <- plot_gold_expression(model2, what = "x", label_changing = FALSE) + facet_wr
 maxy <- max(g$data$value)
 maxy <- ceiling(maxy / 2.5) * 2.5
 g <- g + scale_y_continuous(breaks = c(0, maxy), limits = c(0, maxy))
-ggsave("fig/example_methods/gold_mrna.pdf", g, width = 6, height = 2)
+ggsave(exp$result("gold_mrna.pdf"), g, width = 6, height = 2)
 
 plot_gold_expression(model2, what = "x")
 
 g <- plot_gold_expression(model2, label_changing = FALSE) # premrna, mrna, and protein
-ggsave("fig/example_methods/gold_expression.pdf", g, width = 8, height = 6)
+ggsave(exp$result("gold_expression.pdf"), g, width = 8, height = 6)
 
 g <- plot_simulations(model2) + theme_classic() + theme(axis.ticks = element_blank(), axis.line = element_blank(), axis.text = element_blank(), axis.title = element_blank()) + labs(colour = "Simulation\ntime")
-ggsave("fig/example_methods/simulations.pdf", g, width = 8, height = 6)
+ggsave(exp$result("simulations.pdf"), g, width = 8, height = 6)
 
 g <- plot_gold_mappings(model2, do_facet = FALSE) + scale_colour_brewer(palette = "Dark2")
-ggsave("fig/example_methods/simulations_mapping.pdf", g, width = 8, height = 6)
+ggsave(exp$result("simulations_mapping.pdf"), g, width = 8, height = 6)
 
 g <- plot_simulation_expression(model2, c(7), what = "x") +
   facet_wrap(~simulation_i, ncol = 1) +
@@ -103,7 +104,7 @@ g <- plot_simulation_expression(model2, c(7), what = "x") +
 maxy <- max(g$data$value)
 maxy <- ceiling(maxy / 5) * 5
 g <- g + scale_y_continuous(breaks = c(0, maxy), limits = c(0, maxy))
-ggsave("fig/example_methods/simulation_expression.pdf", g, width = 6, height = 2)
+ggsave(exp$result("simulation_expression.pdf"), g, width = 6, height = 2)
 
 
 
@@ -114,18 +115,18 @@ g <- plot_simulation_expression(model2, 1:6, what = "x") +
   labs(x = NULL, y = NULL) +
   scale_x_continuous(breaks = 1000, limits = c(0, 10)) +
   scale_y_continuous(breaks = 1000)
-ggsave("fig/example_methods/simulation_expression_many.pdf", g, width = 5, height = 2)
+ggsave(exp$result("simulation_expression_many.pdf"), g, width = 5, height = 2)
 
 
 dataset <- wrap_dataset(model2)
 
 library(dynplot)
 g <- plot_dimred(dataset)
-ggsave("fig/example_methods/traj_dimred.pdf", g, width = 8, height = 6)
+ggsave(exp$result("traj_dimred.pdf"), g, width = 8, height = 6)
 g <- plot_graph(dataset)
-ggsave("fig/example_methods/traj_graph.pdf", g, width = 8, height = 6)
+ggsave(exp$result("traj_graph.pdf"), g, width = 8, height = 6)
 g <- plot_heatmap(dataset, features_oi = 40)
-ggsave("fig/example_methods/traj_heatmap.pdf", g, width = 8, height = 6)
+ggsave(exp$result("traj_heatmap.pdf"), g, width = 8, height = 6)
 
 
 gold_counts <- model2$simulations$counts[model2$experiment$cell_info$step_ix, paste0("x_", colnames(dataset$expression))]
@@ -133,7 +134,7 @@ colnames(gold_counts) <- colnames(dataset$expression)
 
 ph <- pheatmap::pheatmap(
   t(as.matrix(gold_counts)),
-  filename = "fig/example_methods/heatmap_orig.pdf",
+  filename = exp$result("heatmap_orig.pdf"),
   width = 10,
   height = 8,
   border_color = NA,
@@ -145,7 +146,7 @@ ph <- pheatmap::pheatmap(
 
 pheatmap::pheatmap(
   t(as.matrix(dataset$counts)),
-  filename = "fig/example_methods/heatmap_sampled.pdf",
+  filename = exp$result("heatmap_sampled.pdf"),
   # cluster_rows = ph$tree_row,
   # cluster_cols = ph$tree_col,
   width = 10,
@@ -161,7 +162,7 @@ pheatmap::pheatmap(
 library(dyno)
 pred <- infer_trajectory(dataset, ti_slingshot())
 g <- plot_dimred(pred)
-ggsave("fig/example_methods/slingshot.pdf", g, width = 8, height = 6)
+ggsave(exp$result("slingshot.pdf"), g, width = 8, height = 6)
 
 
 regs <- unique(model$feature_network$from)
@@ -189,13 +190,13 @@ g <- ggraph(gr, layout = "manual", x = layout$x, y = layout$y) +
   theme_graph(base_family = "Helvetica") +
   coord_equal()
 
-ggsave("fig/example_methods/genie3.pdf", g, width = 8, height = 6)
+ggsave(exp$result("genie3.pdf"), g, width = 8, height = 6)
 
 dimred <- dyndimred::dimred_umap(dataset$expression, n_neighbors = 70)
 g <- ggplot(as.data.frame(dimred)) + geom_point(aes(comp_1, comp_2)) + coord_equal() + theme_classic() +
   theme(axis.text = element_blank(), axis.ticks = element_blank()) +
   labs(x = "Comp 1", y = "Comp 2")
-ggsave("fig/example_methods/dimred.pdf", g, width = 8, height = 6)
+ggsave(exp$result("dimred.pdf"), g, width = 8, height = 6)
 
 
 
@@ -372,6 +373,6 @@ g4 <-
 g <- patchwork::wrap_plots(
   g1, g2, g3, g4, nrow = 1
 )
-ggsave("fig/example_methods/gen_feature_network.pdf", g, width = 15, height = 3)
+ggsave(exp$result("gen_feature_network.pdf"), g, width = 15, height = 3)
 
 

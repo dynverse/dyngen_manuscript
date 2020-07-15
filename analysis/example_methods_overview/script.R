@@ -8,33 +8,33 @@ set.seed(4)
 
 backbone <- backbone(
   module_info = tribble(
-    ~module_id, ~ba, ~burn,
-    "A", 1, TRUE,
-    "B", 0, FALSE,
-    "C", 0, FALSE,
-    "D", 0, FALSE,
+    ~module_id, ~basal, ~burn, ~independence,
+    "A", 1, TRUE, 0,
+    "B", 0, FALSE, 0,
+    "C", 0, FALSE, 0,
+    "D", 0, FALSE, 0,
   ),
   module_network = tribble(
-    ~from, ~to, ~effect, ~strength, ~cooperativity,
-    "A", "B", 1, 1, 2,
-    "B", "C", 1, 1, 2,
-    "B", "D", 1, 1, 2,
-    "C", "D", -1, 10, 2,
-    "D", "C", -1, 10, 2
+    ~from, ~to, ~effect, ~strength, ~hill,
+    "A", "B", 1L, 1, 2,
+    "B", "C", 1L, 1, 2,
+    "B", "D", 1L, 1, 2,
+    "C", "D", -1L, 100, 2,
+    "D", "C", -1L, 100, 2
   ),
   expression_patterns = tribble(
     ~from, ~to, ~module_progression, ~start, ~burn, ~time,
-    "Burn0", "S1", "+A", TRUE, TRUE, .5,
-    "S1", "S2", "+B", FALSE, FALSE, .5,
-    "S2", "S3", "+C", FALSE, FALSE, 1,
-    "S2", "S4", "+D", FALSE, FALSE, 1,
+    "Burn0", "S1", "+A", TRUE, TRUE, 20,
+    "S1", "S2", "+B", FALSE, FALSE, 10,
+    "S2", "S3", "+C", FALSE, FALSE, 30,
+    "S2", "S4", "+D", FALSE, FALSE, 30,
   )
 )
 backbone$module_info$color <- c("#e41a1c", "#377eb8", "#4daf4a", "#984ea3")
 model <-
   initialise_model(
     num_tfs = 8,
-    num_targets = 10,
+    num_targets = 16,
     num_hks = 0,
     num_cells = 100,
     backbone = backbone,
@@ -43,7 +43,11 @@ model <-
     num_cores = 8,
     distance_metric = "euclidean",
     tf_network_params = tf_network_default(min_tfs_per_module = 2, sample_num_regulators = function() 1),
-    simulation_params = simulation_default(ssa_algorithm = GillespieSSA2::ssa_exact(), num_simulations = 8, census_interval = .01)
+    simulation_params = simulation_default(
+      ssa_algorithm = GillespieSSA2::ssa_etl(tau = .1),
+      experiment_params = simulation_type_wild_type(num_simulations = 8),
+      census_interval = 1
+    )
   ) %>%
   generate_tf_network() %>%
   generate_feature_network() %>%
@@ -67,17 +71,17 @@ model2 <- model %>%
   generate_gold_standard() %>%
   generate_cells() %>%
   generate_experiment()
-
-model2 <- dyngen:::calculate_dimred(model2, dimred_premrna = FALSE)
 write_rds(model2, exp$result("model.rds"), compress = "gz")
 
-g <- plot_gold_simulations(model2) + scale_colour_brewer(palette = "Dark2") + theme_classic() + theme(legend.position = "none") + labs(x = "Comp1", y = "Comp2") +
+g <- plot_gold_simulations(model2) +
+  scale_colour_brewer(palette = "Dark2") +
+  theme_classic() + theme(legend.position = "none") + labs(x = "Comp1", y = "Comp2") +
   scale_x_continuous(breaks = 1000) +
   scale_y_continuous(breaks = 1000) +
   coord_equal()
 ggsave(exp$result("gold_simulations.pdf"), g, width = 2, height = 2)
 
-g <- plot_gold_expression(model2, what = "x", label_changing = FALSE) + facet_wrap(~edge, nrow = 1) +
+g <- plot_gold_expression(model2, what = "mol_mrna", label_changing = FALSE) + facet_wrap(~edge, nrow = 1) +
   theme_classic() + theme(legend.position = "none") + labs(x = "Simulation time", y = "mRNA expression") +
   scale_x_continuous(breaks = c(0, 1))
 maxy <- max(g$data$value)
@@ -85,9 +89,9 @@ maxy <- ceiling(maxy / 2.5) * 2.5
 g <- g + scale_y_continuous(breaks = c(0, maxy), limits = c(0, maxy))
 ggsave(exp$result("gold_mrna.pdf"), g, width = 6, height = 2)
 
-plot_gold_expression(model2, what = "x")
+plot_gold_expression(model2, what = "mol_mrna")
 
-g <- plot_gold_expression(model2, label_changing = FALSE) # premrna, mrna, and protein
+g <- plot_gold_expression(model2, what = "mol_mrna", label_changing = FALSE) # premrna, mrna, and protein
 ggsave(exp$result("gold_expression.pdf"), g, width = 8, height = 6)
 
 g <- plot_simulations(model2) + theme_classic() + theme(axis.ticks = element_blank(), axis.line = element_blank(), axis.text = element_blank(), axis.title = element_blank()) + labs(colour = "Simulation\ntime")
@@ -96,24 +100,20 @@ ggsave(exp$result("simulations.pdf"), g, width = 8, height = 6)
 g <- plot_gold_mappings(model2, do_facet = FALSE) + scale_colour_brewer(palette = "Dark2")
 ggsave(exp$result("simulations_mapping.pdf"), g, width = 8, height = 6)
 
-g <- plot_simulation_expression(model2, c(7), what = "x") +
+g <- plot_simulation_expression(model2, c(7), what = "mol_mrna") +
   facet_wrap(~simulation_i, ncol = 1) +
   theme_classic() + theme(legend.position = "none") +
-  labs(x = "Simulation time", y = "mRNA expression") +
-  scale_x_continuous(breaks = c(0, 10), limits = c(0, 10))
-maxy <- max(g$data$value)
-maxy <- ceiling(maxy / 5) * 5
-g <- g + scale_y_continuous(breaks = c(0, maxy), limits = c(0, maxy))
+  labs(x = "Simulation time", y = "mRNA expression")
 ggsave(exp$result("simulation_expression.pdf"), g, width = 6, height = 2)
 
 
 
 
-g <- plot_simulation_expression(model2, 1:6, what = "x") +
+g <- plot_simulation_expression(model2, 1:6, what = "mol_mrna") +
   facet_wrap(~simulation_i, ncol = 3) +
   theme_classic() + theme(legend.position = "none", strip.background = element_blank(), strip.text = element_blank()) +
   labs(x = NULL, y = NULL) +
-  scale_x_continuous(breaks = 1000, limits = c(0, 10)) +
+  scale_x_continuous(breaks = 1000) +
   scale_y_continuous(breaks = 1000)
 ggsave(exp$result("simulation_expression_many.pdf"), g, width = 5, height = 2)
 
@@ -129,7 +129,7 @@ g <- plot_heatmap(dataset, features_oi = 40)
 ggsave(exp$result("traj_heatmap.pdf"), g, width = 8, height = 6)
 
 
-gold_counts <- model2$simulations$counts[model2$experiment$cell_info$step_ix, paste0("x_", colnames(dataset$expression))]
+gold_counts <- model2$simulations$counts[model2$experiment$cell_info$step_ix, model2$feature_info$mol_mrna]
 colnames(gold_counts) <- colnames(dataset$expression)
 
 ph <- pheatmap::pheatmap(
@@ -167,7 +167,7 @@ ggsave(exp$result("slingshot.pdf"), g, width = 8, height = 6)
 
 regs <- unique(model$feature_network$from)
 tars <- model$feature_info$feature_id
-g3 <- GENIE3::run_genie3(
+g3 <- GENIE3bis::run_genie3(
   data = as.matrix(dataset$expression),
   regulators = regs,
   targets = tars,
@@ -176,7 +176,7 @@ g3 <- GENIE3::run_genie3(
 
 library(tidygraph)
 library(ggraph)
-gr <- tbl_graph(edges = g3 %>% head(200))
+gr <- tbl_graph(edges = g3 %>% head(50))
 layout <- igraph::layout_with_fr(gr) %>%
   dynutils::scale_minmax() %>%
   magrittr::set_rownames(names(igraph::V(gr))) %>%
@@ -192,7 +192,7 @@ g <- ggraph(gr, layout = "manual", x = layout$x, y = layout$y) +
 
 ggsave(exp$result("genie3.pdf"), g, width = 8, height = 6)
 
-dimred <- dyndimred::dimred_umap(dataset$expression, n_neighbors = 70)
+dimred <- dyndimred::dimred_knn_fr(dataset$expression)
 g <- ggplot(as.data.frame(dimred)) + geom_point(aes(comp_1, comp_2)) + coord_equal() + theme_classic() +
   theme(axis.text = element_blank(), axis.ticks = element_blank()) +
   labs(x = "Comp 1", y = "Comp 2")
@@ -216,7 +216,11 @@ model2 <-
     num_cores = 8,
     distance_metric = "euclidean",
     tf_network_params = tf_network_default(min_tfs_per_module = 2, sample_num_regulators = function() 1),
-    simulation_params = simulation_default(ssa_algorithm = GillespieSSA2::ssa_exact(), num_simulations = 8, census_interval = .01)
+    simulation_params = simulation_default(
+      ssa_algorithm = GillespieSSA2::ssa_etl(tau = 300 / 3600),
+      experiment_params = simulation_type_wild_type(num_simulations = 8),
+      census_interval = .01
+    )
   ) %>%
   generate_tf_network() %>%
   generate_feature_network() %>%
@@ -276,18 +280,15 @@ gr <- tbl_graph(nodes = feature_info, edges = feature_network)
 #   magrittr::set_colnames(c("x", "y")) %>%
 #   as.data.frame()
 
-ggplot(layout %>% rownames_to_column("id")) +
-  geom_text(aes(x, y, label = id))
-
 layout <- tribble(
   ~id, ~x, ~y,
-  "A_TF2", 107, 150,
   "A_TF1", 115, 150,
-  "B_TF1", 107, 130,
-  "B_TF2", 115, 130,
-  "C_TF3", 91, 111,
-  "C_TF2", 96, 105,
-  "C_TF1", 101, 100,
+  "A_TF2", 107, 150,
+  "B_TF1", 103, 130,
+  "B_TF2", 111, 130,
+  "B_TF3", 119, 130,
+  "C_TF1", 96, 105,
+  "C_TF2", 101, 100,
   "D_TF1", 121, 100,
   "D_TF2", 126, 105,
   "D_TF3", 131, 110,

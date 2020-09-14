@@ -17,7 +17,7 @@ if (Sys.info()[["user"]] == "rcannood") {
 # render the manuscript
 render("manuscript/render.Rmd", output_dir = "manuscript/")
 
-system("pdftk manuscript/render.pdf cat 1-17 output manuscript/manuscript.pdf")
-system("pdftk manuscript/render.pdf cat 18-25 output manuscript/supplementary_files.pdf")
+system("pdftk manuscript/render.pdf cat 1-18 output manuscript/manuscript.pdf")
+system("pdftk manuscript/render.pdf cat 19-26 output manuscript/supplementary_files.pdf")
 
 file.remove("manuscript/render.pdf")

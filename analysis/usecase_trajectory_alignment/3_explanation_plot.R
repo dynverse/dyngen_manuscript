@@ -48,7 +48,7 @@ model2_diseased <-
   ) %>% generate_cells()
 
 combined_model <-
-  combine_models(model1_control, model2_diseased) %>%
+  combine_models(list("control" = model1_control, "diseased" = model2_diseased)) %>%
   generate_experiment()
 
 datasetD <- wrap_dataset(combined_model)

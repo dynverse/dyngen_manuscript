@@ -122,9 +122,9 @@ In summary, dyngen's single-cell simulations can be used to evaluate common sing
 However, the framework is flexible enough to be adaptable to a broad range of applications, including methods that integrate clustering, network inference, and trajectory inference. In this respect, dyngen may promote the development of new tools in the single-cell field similarly as other simulators have done in the past [@schaffter_genenetweaversilicobenchmark_2011; @ewing_combiningtumorgenome_2015]. Additionally, one could anticipate technological developments in single-cell multi-omics. In this way, dyngen allows designing and evaluating the performance and robustness of new types of computational analyses before experimental data becomes available, comparing which experimental protocol is the most cost-effective in producing qualitative and robust results in downstream analysis. One major assumption of dyngen is that cells are regarded as standalone entities that are well mixed. Splitting up the simulation space into separate subvolumes could pave the way to better study key cellular processes such as cell division, intercellular communication, and migration [@smith_spatialstochasticintracellular_2019].
 
 # Availability
-dyngen is available as an R package on GitHub at [github.com/dynverse/dyngen](https://github.com/dynverse/dyngen). The analyses performed in this manuscript are available on GitHub at [github.com/dynverse/dyngen_manuscript](https://github.com/dynverse/dyngen_manuscript). 
+dyngen is available as an open-source R package on CRAN at [cran.r-project.org/package=dyngen](https://cran.r-project.org/package=dyngen). The analyses performed in this manuscript are available on GitHub at [github.com/dynverse/dyngen_manuscript](https://github.com/dynverse/dyngen_manuscript). 
 
-# Author contributions[a]
+# Author contributions
 
 
 * W.S. and R.C. designed the study.
@@ -489,7 +489,7 @@ Let $q$ be the 75th quantile of the non-zero values in the count matrix. The noi
 We aligned each of these 100 pairs of trajectories (the first trajectory in the pair with the second trajectory in the pair) using Dynamic Time Warping (DTW) [@giorgino_computingvisualizingdynamic_2009]. DTW is designed to align temporal sequences by dilating or contracting the sequences to best match each other. We compared the alignment of DTW with the alignment of DTW after first smoothing the expression along the trajectory using a Gaussian kernel with window size 0.05.
 
 
-To evaluate a trajectory alignment method on a paired dataset we computed the geodesic distances of each cell from the start of the trajectory. The geodesic distances between the pair of datasets are directly comparable to each other, and thus cells from the first trajectory should align relatively closely to cells from the second trajectory. We after aligning the cells, we calculate the mean absolute difference between the geodesic distances of the pairs of cells, which should ideally be 0.
+To evaluate a trajectory alignment method on a paired dataset we computed the geodesic distances of each cell from the start of the trajectory. The geodesic distances between the pair of datasets are directly comparable to each other, and thus cells from the first trajectory should align relatively closely to cells from the second trajectory. After aligning the cells, we calculate the mean absolute difference between the geodesic distances of the pairs of cells, which should ideally be 0.
 
 
 \printbibliography
@@ -748,6 +748,3 @@ To evaluate a trajectory alignment method on a paired dataset we computed the ge
     \caption{\textbf{Examples of the ground-truth state networks which need to be provided alongside the module network.}}
     \label{fig:example_backbones}
 \end{figure}
-
-
-[a]TODO: forgot to mention projects

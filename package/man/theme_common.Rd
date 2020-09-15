@@ -15,10 +15,10 @@ theme_common(
 \item{legend.position}{the position of legends ("none", "left", "right",
 "bottom", "top", or two-element numeric vector)}
 
-\item{plot.title}{plot title (text appearance) (\code{\link[ggplot2:element_text]{element_text()}}; inherits
+\item{plot.title}{plot title (text appearance) (\code{\link[ggplot2:element]{element_text()}}; inherits
 from \code{title}) left-aligned by default}
 
-\item{plot.subtitle}{plot subtitle (text appearance) (\code{\link[ggplot2:element_text]{element_text()}};
+\item{plot.subtitle}{plot subtitle (text appearance) (\code{\link[ggplot2:element]{element_text()}};
 inherits from \code{title}) left-aligned by default}
 
 \item{...}{additional element specifications not part of base ggplot2. In general,

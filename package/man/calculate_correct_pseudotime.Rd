@@ -4,10 +4,12 @@
 \alias{calculate_correct_pseudotime}
 \title{Get corrected pseudotime}
 \usage{
-calculate_correct_pseudotime(dataset, milestone_network, start, normalized = T)
+calculate_correct_pseudotime(dataset, start, normalized = TRUE)
 }
 \arguments{
 \item{dataset}{A dyngen dataset}
+
+\item{start}{The start milestone}
 }
 \description{
 Get corrected pseudotime

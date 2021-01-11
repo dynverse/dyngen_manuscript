@@ -65,8 +65,6 @@ pwalk(design_datasets, function(id, seed, backbone_name, tr_rate_multiplier, ...
             num_simulations = 100
           )
         ),
-        num_cores = 7,
-        download_cache_dir = "~/.cache/dyngen",
         verbose = TRUE
       )
     generate_dataset(

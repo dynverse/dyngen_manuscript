@@ -46,8 +46,6 @@ pwalk(design_datasets, function(id, seed, backbone_name) {
           compute_dimred = TRUE
         ),
         experiment_params = experiment_synchronised(pct_between = 0),
-        num_cores = 8,
-        download_cache_dir = "~/.cache/dyngen",
         verbose = TRUE
       )
     generate_dataset(

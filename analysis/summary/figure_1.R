@@ -52,8 +52,6 @@ model <- exp$temporary("model.rds") %cache% {
       num_cells = 300,
       backbone = backbone,
       verbose = TRUE,
-      download_cache_dir = "~/.cache/dyngen",
-      num_cores = 8,
       simulation_params = simulation_default(
         burn_time = 240,
         total_time = total_time,

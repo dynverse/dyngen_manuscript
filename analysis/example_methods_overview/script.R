@@ -39,8 +39,6 @@ model <-
     num_cells = 100,
     backbone = backbone,
     verbose = TRUE,
-    download_cache_dir = "~/.cache/dyngen",
-    num_cores = 8,
     distance_metric = "euclidean",
     tf_network_params = tf_network_default(min_tfs_per_module = 2, sample_num_regulators = function() 1),
     simulation_params = simulation_default(
@@ -212,8 +210,6 @@ model2 <-
     num_cells = 100,
     backbone = backbone,
     verbose = TRUE,
-    download_cache_dir = "~/.cache/dyngen",
-    num_cores = 8,
     distance_metric = "euclidean",
     tf_network_params = tf_network_default(min_tfs_per_module = 2, sample_num_regulators = function() 1),
     simulation_params = simulation_default(

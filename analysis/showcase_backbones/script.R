@@ -42,8 +42,6 @@ pwalk(grid, function(backbone_name, seed, id) {
         num_cells = 1000,
         backbone = back,
         verbose = TRUE,
-        download_cache_dir = "~/.cache/dyngen",
-        num_cores = 7,
         simulation_params = simulation_default(
           census_interval = 10,
           experiment_params = simulation_type_wild_type(

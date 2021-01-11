@@ -26,9 +26,7 @@ healthy_model <- initialise_model(
   num_cells = 1000,
   backbone = backbone,
   simulation_params = simulation_default(census_interval = 10),
-  verbose = TRUE,
-  num_cores = 8,
-  download_cache_dir = "~/.cache/dyngen/"
+  verbose = TRUE
 ) %>%
   generate_tf_network() %>%
   generate_feature_network() %>%

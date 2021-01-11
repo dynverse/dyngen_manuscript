@@ -28,11 +28,7 @@ init_config <- initialise_model(
     census_interval = 1,
     ssa_algorithm = ssa_etl(tau = 0.05),
     experiment_params = simulation_type_wild_type(num_simulations = 40)
-  ),
-  # set this to the number of cores in your system
-  num_cores = 8,
-  # set this to a directory where dyngen can cache some files
-  download_cache_dir = "~/.cache/dyngen"
+  )
 )
 
 # generate the genes and their kinetics

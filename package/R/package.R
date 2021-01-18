@@ -12,5 +12,5 @@
 #' @importFrom Matrix t Matrix sparseMatrix summary
 #'
 #' @docType package
-#' @name dyngenanalysis
+#' @name dyngen.manuscript
 NULL

@@ -49,7 +49,7 @@ design_grouped <-
 
 pwalk(design_grouped, function(seed, backbone_name, total_time, group, base1, base2, id, alpha) {
 
-  if (!file.exists(exp$dataset_file(base_id1))) {
+  if (!file.exists(exp$dataset_file(group))) {
 
     # generating common settings
     set.seed(seed)

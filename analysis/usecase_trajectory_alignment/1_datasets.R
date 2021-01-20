@@ -6,90 +6,141 @@ library(rlang)
 
 exp <- start_analysis("usecase_trajectory_alignment")
 
-backbone <- bblego(
-  bblego_start("A", type = "simple", num_modules = 4),
-  bblego_linear("A", "B", type = "simple", num_modules = 6),
-  bblego_linear("B", "C", type = "simple", num_modules = 6),
-  bblego_end("C", type = "simple", num_modules = 4)
+selected_backbones <- list(
+  list(
+    name = "custom_linear",
+    total_time = 300, # this backbone reaches endstate in about 300 time units
+    backbone = bblego(
+      bblego_start("A", type = "simple", num_modules = 4),
+      bblego_linear("A", "B", type = "simple", num_modules = 6),
+      bblego_linear("B", "C", type = "simple", num_modules = 6),
+      bblego_end("C", type = "simple", num_modules = 4)
+    )
+  )
 )
+names(selected_backbones) <- map_chr(selected_backbones, "name")
 
-noise_levels <- seq(from = 0.1, to = 1, by = 0.1)
-only_noise <- TRUE
+alphas <- seq(0, 1, by = 0.1)
 
 # setup dataset design
 design_datasets <- exp$result("design_datasets.rds") %cache% {
   crossing(
     seed = 1:10,
-    backbone_name = "linear",
-    noise = noise_levels
+    backbone_name = names(selected_backbones),
+    alpha = alphas
   ) %>%
     mutate(
-      base_id1 = paste0(backbone_name, seed, "_1"),
-      base_id2 = paste0(backbone_name, seed, "_2"),
-      id1 = paste0(base_id1, "_", noise),
-      id2 = paste0(base_id2, "_", noise)
+      group = paste0(backbone_name, "_seed", seed),
+      base1 = paste0(group, "_base1"),
+      base2 = paste0(group, "_base2"),
+      id = sprintf("%s_alpha%.1f", group, alpha),
     )
 }
 
-# Generates only the base models. The noise is added onto these base models
-pwalk(design_datasets, function(base_id1, base_id2, id1, id2, seed, backbone_name, noise) {
+
+# generate all datasets per base id
+design_grouped <-
+  design_datasets %>%
+  group_by(group) %>%
+  chop(c(id, alpha)) %>%
+  ungroup()
+
+# design_grouped %>% dynutils::extract_row_to_list(1) %>% list2env(.GlobalEnv)
+
+pwalk(design_grouped, function(seed, backbone_name, total_time, group, base1, base2, id, alpha) {
 
   if (!file.exists(exp$dataset_file(base_id1))) {
 
-    cat("## Generating ", base_id1, "\n", sep = "")
+    # generating common settings
     set.seed(seed)
+
+    backbone <- selected_backbones[[backbone_name]]$backbone
+    total_time <- selected_backbones[[backbone_name]]$total_time
+
     model <-
       initialise_model(
-        id = base_id1,
-        num_tfs = 50,
-        num_targets = 70,
-        num_hks = 30,
         backbone = backbone,
+        num_tfs = 50,
+        num_targets = 300,
+        num_hks = 200,
         num_cells = 1000,
         simulation_params = simulation_default(
           census_interval = 10,
+          total_time = total_time,
           experiment_params = simulation_type_wild_type(
             num_simulations = 100
           )
         ),
-        num_cores = 6,
-        download_cache_dir = "~/.cache/dyngen",
         verbose = TRUE
-      )
-    generate_dataset(
-      model,
-      output_dir = exp$dataset_folder(base_id1),
-      make_plots = TRUE
-    )
+      ) %>%
+      generate_tf_network() %>%
+      generate_feature_network()
 
-    dataset1 <- read_rds(paste0(exp$dataset_folder(base_id1), "dataset.rds"))
-    model1 <- read_rds(paste0(exp$dataset_folder(base_id1), "model.rds"))
+    # generate kinetics for two bases
+    cat("## Generating ", base1, "\n", sep = "")
+    model1 <- model %>%
+      generate_kinetics() %>%
+      generate_gold_standard() %>%
+      generate_cells() %>%
+      generate_experiment()
+    model1$id <- base1
 
-    # Generate the second trajectory of the pair
-    model2 <- model1 %>% generate_cells() %>% generate_experiment()
-    dataset2 <- wrap_dataset(model2)
+    # plot_simulations(model1)
 
-    write_rds(model2, paste0(exp$dataset_folder(base_id2), "model.rds"), compress = "gz")
-    write_rds(dataset2, paste0(exp$dataset_folder(base_id2), "dataset.rds"), compress = "gz")
+    # generate model2 with different kinetics
+    model2 <- model %>%
+      generate_kinetics()
+    model2$id <- base2
 
-    max_dev1 <- dataset1$counts %>% as.vector() %>% Filter(f = function(x) x > 0) %>% quantile(0.75)
-    max_dev2 <- dataset2$counts %>% as.vector() %>% Filter(f = function(x) x > 0) %>% quantile(0.75)
+    # generate
+    modelis <- map(seq_along(alpha), function(i) {
+      alpha_ <- alpha[[i]]
+      id_ <- id[[i]]
 
-    # Add noise gradually to the datasets, according to the noiselevels
-    walk(noise_levels, function(noise_perc, ds1=dataset1, ds2=dataset2){
-      name1 <- paste0(base_id1, "_", noise_perc)
-      name2 <- paste0(base_id2, "_", noise_perc)
+      cat("## Generating ", id_, "\n", sep = "")
 
-      ds1$counts <- ds1$counts + rnorm(length(ds1$counts), mean = 0, sd = max_dev1 * noise_perc)
-      ds2$counts <- ds2$counts + rnorm(length(ds2$counts), mean = 0, sd = max_dev2 * noise_perc)
+      modeli <- model2
+      modeli$id <- id_
 
-      ds1$counts[ds1$counts<0] <- 0
-      ds2$counts[ds2$counts<0] <- 0
+      fii <- model2$feature_info
+      fni <- model2$feature_network
+      for (col in colnames(fii)) {
+        if (is.numeric(model1$feature_info[[col]]) && !all(model1$feature_info[[col]] == model2$feature_info[[col]])) {
+          fii[[col]] <- model1$feature_info[[col]] * (1-alpha_) + model2$feature_info[[col]] * alpha_
+        }
+      }
+      for (col in colnames(fni)) {
+        if (is.numeric(model1$feature_network[[col]]) && !all(model1$feature_network[[col]] == model2$feature_network[[col]])) {
+          fni[[col]] <- model1$feature_network[[col]] * (1-alpha_) + model2$feature_network[[col]] * alpha_
+        }
+      }
+      modeli$feature_info <- fii
+      modeli$feature_network <- fni
 
-      write_rds(ds1, paste0(exp$dataset_folder(name1), "dataset.rds"), compress = "gz")
-      write_rds(ds2, paste0(exp$dataset_folder(name2), "dataset.rds"), compress = "gz")
+      modeli <- modeli %>%
+        generate_gold_standard() %>%
+        generate_cells() %>%
+        generate_experiment()
 
+      # plot_gold_simulations(combine_models(list(model1 = model1, modeli = modeli)))
+      # plot_simulations(combine_models(list(model1 = model1, modeli = modeli)))
+
+      modeli
     })
+
+    models <- lst(
+      model1,
+      model2,
+      modelis,
+    )
+    write_rds(models, exp$dataset_file(group) %>% gsub("dataset.rds$", "model.rds", .), compress = "gz")
+
+    datasets <- lst(
+      dataset1 = as_dyno(model1),
+      dataset2 = as_dyno(model2),
+      dataseti = map(modelis, as_dyno)
+    )
+    write_rds(datasets, exp$dataset_file(group), compress = "gz")
 
     gc()
   }

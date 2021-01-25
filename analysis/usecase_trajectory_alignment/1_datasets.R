@@ -49,9 +49,6 @@ design_grouped <- exp$result("design_grouped.rds") %cache% {
 
 # design_grouped %>% dynutils::extract_row_to_list(1) %>% list2env(.GlobalEnv)
 
-# for testing purposes
-design_grouped <- design_grouped[1,]
-
 pwalk(design_grouped, function(seed, backbone_name, total_time, group, base1, base2, id, alpha) {
 
   if (!file.exists(exp$dataset_file(group))) {
@@ -73,7 +70,7 @@ pwalk(design_grouped, function(seed, backbone_name, total_time, group, base1, ba
           census_interval = 10,
           total_time = total_time,
           experiment_params = simulation_type_wild_type(
-            num_simulations = 10 # testing purposes
+            num_simulations = 100
           )
         ),
         verbose = TRUE

@@ -291,9 +291,29 @@ g5 <- ggplot(reg_df) +
 # Applications
 #######
 
+set.seed(1)
+bb_app <- backbone_consecutive_bifurcating()
+mod_app <-
+  initialise_model(
+    num_tfs = nrow(bb_app$module_info),
+    num_targets = 20,
+    num_hks = 0,
+    num_cells = 1000,
+    backbone = bb_app,
+    verbose = TRUE,
+    simulation_params = simulation_default(
+      census_interval = 10,
+      experiment_params = simulation_type_wild_type(
+        num_simulations = 100
+      )
+    )
+  )
+out_app <- generate_dataset(
+  mod_app,
+  make_plots = TRUE
+)
 
-exp7d <- start_analysis("showcase_backbones")
-dataset <- read_rds(exp7d$dataset_file("bb_consecutive_bifurcating_3"))
+dataset <- out_app$dataset
 dimred <- dyndimred::dimred_mds(dataset$expression, distance_method = "pearson")
 g7d <- dynplot::plot_dimred(dataset, dimred = dimred, size_milestones = 3, size_cells = 1.5) +
   coord_cartesian() +

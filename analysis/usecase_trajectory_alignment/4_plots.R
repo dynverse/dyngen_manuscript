@@ -11,13 +11,14 @@ library(dtw)
 exp <- start_analysis("usecase_trajectory_alignment")
 
 # PART 3: Scores ----------------------------------------------------------
-results <- read_rds(exp$result("results.rds")) %>%
-  mutate(noise = factor(noise))
+results <- read_rds(exp$result("results.rds"))  %>%
+  separate_rows(id, alpha, scores, sep = " ", convert = T) %>%
+  mutate(noise = factor(alpha))
 
 g <-
   results %>%
   group_by(method, noise) %>%
-  summarise_at(vars(score), list(
+  summarise_at(vars(scores), list(
     min = ~quantile(., .05),
     lower = ~quantile(., .25),
     mean = ~mean(.),

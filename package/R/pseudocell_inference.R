@@ -5,10 +5,11 @@
 #' @param ws The windowsize of the Gaussian kernel
 #'
 #' @export
-get_waypoint_expression <- function(dataset, amount, ws = 0.05){
+get_waypoint_expression <- function(dataset, amount, ws = 0.125){
   wpp1 <- get_waypoint_progression(dataset, amount)
   gd1 <- get_geodesic_distances_from_progressions(dataset, wpp1)
-  wexpr1 <- interpolate_expression(dataset, wpp1$percentage, gd1, ws)
+  gd1_scaled <- gd1 / sum(dataset$milestone_network$length)
+  wexpr1 <- interpolate_expression(dataset, wpp1$percentage, gd1, ws) # changed perc to cumperc
   pt <- wpp1$cumulative_percentages
   names(pt) <- wpp1$cell_id
 
@@ -55,11 +56,11 @@ get_geodesic_distances_from_progressions <- function(dataset, waypoint_progressi
   geodesic_distances
 }
 
-interpolate_expression <- function(dataset, wps, gds, ws = 0.05){
+interpolate_expression <- function(dataset, wps, gds, ws = 0.125){
   dc <- t(as.matrix(dataset$counts))
   weighted_expr <- do.call('cbind', lapply(seq_along(wps), function(idx){
-    dist <- gds[idx,]
-    weighted <- exp(-(dist^2)/(ws)^2)
+    dist <- gds[idx,] #gds - wps[idx] #
+    weighted <- exp(-(dist^2)/(ws^2))
     weighted <- weighted/sum(weighted)
     weighted_exp <- dc %*% weighted
     weighted_exp

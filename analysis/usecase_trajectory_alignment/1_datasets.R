@@ -137,7 +137,6 @@ pwalk(design_grouped, function(seed, backbone_name, total_time, group, base1, ba
 
     datasets <- lst(
       dataset1 = as_dyno(model1),
-      dataset2 = as_dyno(model2),
       dataseti = map(modelis, as_dyno)
     )
     write_rds(datasets, exp$dataset_file(group), compress = "gz")

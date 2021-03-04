@@ -4,7 +4,7 @@
 \alias{get_waypoint_expression}
 \title{Get gene expression of inferred waypoints}
 \usage{
-get_waypoint_expression(dataset, amount, ws = 0.05)
+get_waypoint_expression(dataset, amount, ws = 0.125)
 }
 \arguments{
 \item{dataset}{A dyngen dataset}

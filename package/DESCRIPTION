@@ -32,3 +32,8 @@ Imports:
   rlang,
   tibble,
   tidyr
+Suggests:
+  cellAlign,
+  dtw
+Remotes:
+  shenorrLab/cellAlign

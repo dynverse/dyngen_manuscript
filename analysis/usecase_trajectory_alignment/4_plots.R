@@ -11,17 +11,19 @@ library(dtw)
 exp <- start_analysis("usecase_trajectory_alignment")
 
 # PART 3: Scores ----------------------------------------------------------
-results <- read_rds(exp$result("results.rds"))  %>%
-  separate_rows(id, alpha, scores, sep = " ", convert = T) %>%
-  mutate(noise = factor(alpha))
+results <- read_rds(exp$result("results.rds")) %>%
+  mutate(
+    noise = factor(alpha),
+    method = factor(as.character(method), c("DTW", "cellAlign", "DTW+smoothing"))
+  )
 
 g <-
   results %>%
   group_by(method, noise) %>%
-  summarise_at(vars(scores), list(
+  summarise_at(vars(distance), list(
     min = ~quantile(., .05),
     lower = ~quantile(., .25),
-    mean = ~mean(.),
+    mean = ~median(.),
     upper = ~quantile(., .75),
     max = ~quantile(., .95)
   )) %>%
@@ -35,6 +37,30 @@ g <-
   labs(x = "Amount of added noise", y = "Distance (lower is better)", fill = "Processing method") +
   scale_fill_brewer(palette = "Set2")
 g
+
+ggstatsplot::ggbetweenstats(
+  results,
+  x = method,
+  y = distance,
+  type = "np",
+  pairwise.comparisons = TRUE,
+  pairwise.display = TRUE
+)
+
+results %>%
+  ggplot() +
+  geom_path(
+    aes(noise, score, colour = method, group = paste0(method, "_", seed))
+  ) +
+  theme_bw() +
+  theme_common() +
+  labs(x = "Amount of added noise", y = "Distance (lower is better)", fill = "Processing method") +
+  scale_colour_brewer(palette = "Set2")
+
+results %>% spread(method, score) %>%
+  ggplot() + geom_point(aes(DTW, `DTW+smoothing`)) + geom_abline(intercept = 0, slope = 1)
+results %>% spread(method, score) %>%
+  ggplot() + geom_point(aes(`DTW+smoothing`, `cellAlign`)) + geom_abline(intercept = 0, slope = 1)
 
 # PART 2: dtw heatmaps ----------------------------------------------------
 d1 <- readRDS(exp$dataset_file("linear1_1_0.5"))
@@ -51,7 +77,7 @@ pt2 <- res2$pseudotime
 expr1 <- res1$expression
 expr2 <- res2$expression
 
-alignment_original <- dtw(expr2, expr1, step.pattern=symmetric2, keep.internals=T)
+alignment_original <- dtw::dtw(expr2, expr1, step.pattern = dtw::symmetric2, keep.internals = TRUE)
 ao <- plot_density(alignment_original, title = "DTW")
 
 smp1 <- seq(from = 1, to = 1000, by = 10) #sample(1000, size = 100, replace = FALSE)
@@ -60,7 +86,7 @@ pt2_smp <- pt2[seq(from = 1, to = 1000, by = 10)]
 expr1_smp <- expr1[names(pt1_smp),]
 expr2_smp <- expr2[names(pt2_smp),]
 
-alignment_smooth <- dtw(res2_sm$expression, res1_sm$expression, step.pattern=symmetric2, keep.internals=T)
+alignment_smooth <- dtw::dtw(res2_sm$expression, res1_sm$expression, step.pattern = dtw::symmetric2, keep.internals = TRUE)
 a_sm <- plot_density(alignment_smooth, title = "DTW+smoothing")
 
 

@@ -1,5 +1,5 @@
 #' @importFrom cellAlign interWeights globalAlign
-#' @importFrom dtw dtw
+#' @importFrom dtw dtw symmetric2
 #'
 #' @export
 ta_methods <- list(
@@ -38,7 +38,7 @@ ta_methods <- list(
     res1 <- get_cell_expression(dataset1, dataset1$milestone_network, "sA")
     res2 <- get_cell_expression(dataset2, dataset2$milestone_network, "sA")
 
-    dtw_alignment <- dtw::dtw(res2$expression, res1$expression, step.pattern = symmetric2, keep.internals = TRUE)
+    dtw_alignment <- dtw::dtw(res2$expression, res1$expression, step.pattern = dtw::symmetric2, keep.internals = TRUE)
     # dtwPlotDensity(dtw_alignment)
 
     pt1_aligned <- res1$pseudotime[dtw_alignment$index2]
@@ -50,7 +50,7 @@ ta_methods <- list(
     res1 <- get_waypoint_expression(dataset1, 100, ws = 0.125)
     res2 <- get_waypoint_expression(dataset2, 100, ws = 0.125)
 
-    dtw_alignment <- dtw::dtw(res2$expression, res1$expression, step.pattern = symmetric2, keep.internals = TRUE)
+    dtw_alignment <- dtw::dtw(res2$expression, res1$expression, step.pattern = dtw::symmetric2, keep.internals = TRUE)
     # dtwPlotDensity(dtw_alignment)
 
     pt1_aligned <- res1$pseudotime[dtw_alignment$index2]

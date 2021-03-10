@@ -4,7 +4,7 @@
 \alias{get_cell_expression}
 \title{Get cell expression, but sorted according to pseudotime}
 \usage{
-get_cell_expression(dataset, milestone_network, start)
+get_cell_expression(dataset)
 }
 \arguments{
 \item{dataset}{A dyngen dataset}

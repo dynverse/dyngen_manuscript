@@ -13,7 +13,6 @@ exp <- start_analysis("usecase_trajectory_alignment")
 # PART 3: Scores ----------------------------------------------------------
 results <- read_rds(exp$result("results.rds")) %>%
   mutate(
-    noise = factor(alpha),
     method = factor(as.character(method), c("DTW", "cellAlign", "DTW+smoothing"))
   )
 
@@ -38,14 +37,9 @@ g <-
   scale_fill_brewer(palette = "Set2")
 g
 
-ggstatsplot::ggbetweenstats(
-  results,
-  x = method,
-  y = distance,
-  type = "np",
-  pairwise.comparisons = TRUE,
-  pairwise.display = TRUE
-)
+# normalized minimum global distance computed
+
+
 
 results %>%
   ggplot() +
@@ -66,8 +60,8 @@ results %>% spread(method, score) %>%
 d1 <- readRDS(exp$dataset_file("linear1_1_0.5"))
 d2 <- readRDS(exp$dataset_file("linear1_2_0.5"))
 
-res1 <- get_cell_expression(d1, d1$milestone_network, "sA")
-res2 <- get_cell_expression(d2, d2$milestone_network, "sA")
+res1 <- get_cell_expression(d1)
+res2 <- get_cell_expression(d2)
 
 res1_sm <- get_waypoint_expression(d1, 100)
 res2_sm <- get_waypoint_expression(d2, 100)

@@ -3,47 +3,44 @@
 #' @param dataset A dyngen dataset
 #'
 #' @export
-get_cell_expression <- function(dataset, milestone_network, start){
-  pseudotime <- sort(calculate_correct_pseudotime(dataset, start))
-  nor2 <- names(pseudotime)
-  volg2 <- sapply(nor2, function(i) strtoi(substr(i, 5, nchar(i))))
-  cnt2 <- as.matrix(dataset$counts)
-  cnts2 <- cnt2[volg2,]
-  return(list(pseudotime = pseudotime, expression = cnts2))
+get_cell_expression <- function(dataset) {
+  pseudotime <- sort(compute_pseudotime_from_root(dataset))
+  list(
+    pseudotime = pseudotime,
+    counts = as.matrix(dataset$counts)[names(pseudotime),],
+    expression = as.matrix(dataset$expression)[names(pseudotime),]
+  )
 }
-
-#   function(dataset){
-#   pseudotime <- sort(calculate_correct_pseudotime(dataset))
-#   nor2 <- names(pseudotime)
-#   volg2 <- sapply(nor2, function(i) strtoi(substr(i, 5, nchar(i))))
-#   cnt2 <- as.matrix(dataset$counts)
-#   cnts2 <- cnt2[volg2,]
-#
-#   return(list(pseudotime = pseudotime, expression = cnts2))
-# }
 
 #' Get corrected pseudotime
 #'
 #' @param dataset A dyngen dataset
-#' @param start The start milestone
+#' @param root The root milestone to compute the pseudotime from.
 #'
 #' @importFrom gtools mixedorder
 #'
 #' @export
-calculate_correct_pseudotime <- function(dataset, start, normalized = TRUE){
-  if (normalized) {
-    dataset$milestone_network <-
-      dataset$milestone_network %>%
-      mutate(length = length / sum(length))
-  }
-  pct <- dynwrap::calculate_geodesic_distances(
+compute_pseudotime_from_root <- function(
+  dataset,
+  root = unique(setdiff(dataset$milestone_network$from, dataset$milestone_network$to)),
+  normalized = TRUE
+) {
+  root_pct <- tibble(
+    waypoint_id = "wp",
+    milestone_id = root,
+    percentage = 1
+  )
+
+  pseudotime <- dynwrap::calculate_geodesic_distances(
     dataset,
-    waypoint_milestone_percentages = tibble(
-      waypoint_id = "wp",
-      milestone_id = start,
-      percentage = 1
-    )
+    waypoint_milestone_percentages = root_pct
   )[1,]
+
+  if (normalized) {
+    pseudotime <- pseudotime / sum(dataset$milestone_network$length)
+  }
+
+  pseudotime
 }
 
 #' Get uncorrected pseudotime

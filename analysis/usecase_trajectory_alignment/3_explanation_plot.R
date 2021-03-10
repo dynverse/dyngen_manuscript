@@ -66,15 +66,15 @@ together <- plot_trajectory_in_color(datasetD, milestone_colors, c("sample 1", "
 t1_pt <- plot_pseudotime(dataset1, palette = "Oranges", trajectory_projection_sd = 0.11, plot_trajectory = TRUE)
 t2_pt <- plot_pseudotime(dataset2D, palette = "Blues", trajectory_projection_sd = 0.11, plot_trajectory = TRUE)
 
-expr1 <- get_cell_expression(dataset1, dataset1$milestone_network, "sA")$expression
-expr2 <- get_cell_expression(dataset2D, dataset2D$milestone_network, "sA")$expression
+expr1 <- get_cell_expression(dataset1)$expression
+expr2 <- get_cell_expression(dataset2D)$expression
 a <- dtw(expr2, expr1, keep.internals = TRUE, open.end = FALSE)
 dtwPlotAlignment(a)
 
 plot_dens <- plot_density(a, title = "Alignment between\ndiseased/healthy")
 
-e1 <- calculate_correct_pseudotime(dataset1, "sA", normalized = FALSE)
-e2 <- calculate_correct_pseudotime(dataset2D, "sA", normalized = FALSE)
+e1 <- compute_pseudotime_from_root(dataset1, normalized = FALSE)
+e2 <- compute_pseudotime_from_root(dataset2D, normalized = FALSE)
 maxe12 <- max(c(e1, e2))
 e1 <- e1 / maxe12
 e2 <- e2 / maxe12

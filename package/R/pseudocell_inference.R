@@ -26,7 +26,7 @@ get_waypoint_progression <- function(dataset, nr){
   length_pieces <- dataset$milestone_network$length/sum(dataset$milestone_network$length)
   idx <- 1
   toadd <- 0
-  for(piece in length_pieces){
+  for (piece in length_pieces){
     amount <- round(nr * piece)
     wps <- lapply(list(1:amount), function(x){x/amount})[[1]]
     cumulative_perc <- lapply(list(1:amount), function(x){(x/nr) + toadd})[[1]]
@@ -48,15 +48,20 @@ get_waypoint_progression <- function(dataset, nr){
   waypoint_progressions
 }
 
-get_geodesic_distances_from_progressions <- function(dataset, waypoint_progressions){
-  waypoint_milestone_percentages <- dynwrap::convert_progressions_to_milestone_percentages(cell_id, dataset$milestone_ids, dataset$milestone_network, waypoint_progressions)
+get_geodesic_distances_from_progressions <- function(dataset, waypoint_progressions) {
+  waypoint_milestone_percentages <- dynwrap::convert_progressions_to_milestone_percentages(
+    cell_id,
+    dataset$milestone_ids,
+    dataset$milestone_network,
+    waypoint_progressions
+  )
   waypoint_milestone_percentages <- dplyr::rename(waypoint_milestone_percentages, waypoint_id = cell_id)
 
   geodesic_distances <- dynwrap::calculate_geodesic_distances(dataset, waypoint_milestone_percentages = waypoint_milestone_percentages, directed=FALSE)
   geodesic_distances
 }
 
-interpolate_expression <- function(dataset, wps, gds, ws = 0.125){
+interpolate_expression <- function(dataset, wps, gds, ws = 0.125) {
   dc <- t(as.matrix(dataset$counts))
   weighted_expr <- do.call('cbind', lapply(seq_along(wps), function(idx){
     dist <- gds[idx,] #gds - wps[idx] #

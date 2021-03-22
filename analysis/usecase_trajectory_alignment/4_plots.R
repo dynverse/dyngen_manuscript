@@ -13,12 +13,12 @@ exp <- start_analysis("usecase_trajectory_alignment")
 # PART 3: Scores ----------------------------------------------------------
 results <- read_rds(exp$result("results.rds")) %>%
   mutate(
-    method = factor(as.character(method), c("DTW", "cellAlign", "DTW+smoothing"))
+    method = factor(as.character(method), c("DTW", "cellAlign"))
   )
 
 g <-
   results %>%
-  group_by(method, noise) %>%
+  group_by(method) %>%
   summarise_at(vars(distance), list(
     min = ~quantile(., .05),
     lower = ~quantile(., .25),
@@ -28,7 +28,7 @@ g <-
   )) %>%
   ggplot() +
   geom_boxplot(
-    aes(noise, ymin = min, lower = lower, middle = mean, upper = upper, max = max, fill = method),
+    aes(1, ymin = min, lower = lower, middle = mean, upper = upper, max = max, fill = method),
     stat = "identity", width = 0.5, size = 0.45
   ) +
   theme_bw() +

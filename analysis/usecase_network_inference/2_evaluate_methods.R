@@ -6,7 +6,17 @@ library(dyngen.manuscript)
 
 exp <- start_analysis("usecase_network_inference")
 
+## might need to install an older version of miniconda because the latest version doesn't seem to want to work
+# path = reticulate::miniconda_path()
+# url <- "https://repo.anaconda.com/miniconda/Miniconda3-py38_4.8.3-Linux-x86_64.sh"
+# installer <- reticulate:::miniconda_installer_download(url)
+# reticulate:::miniconda_installer_run(installer, path)
+# reticulate::py_install("pyscenic", pip = TRUE)
+# reticulate::py_install("tbb", pip = TRUE)
+
+## Load all datasets as a tibble
 dataset_files <- list.files(exp$dataset_folder(""), pattern = "dataset.rds", full.names = TRUE, recursive = TRUE)
+
 datasets <- list_as_tibble(map(dataset_files, function(dataset_file) {
   dataset <- read_rds(dataset_file) %>% add_cell_waypoints()
   dataset$prior_information$regulators <- dataset$regulators
@@ -14,14 +24,13 @@ datasets <- list_as_tibble(map(dataset_files, function(dataset_file) {
   dataset
 }))
 
+## Load methods as a tibble
 methods <- tribble(
   ~name, ~fun,
   "SSN*", cni_ssn(),
-  "pySCENIC GBM", cni_pyscenic_sgbm(subsample = 1, n_estimators = 500L),
-  "pySCENIC SGBM", cni_pyscenic_sgbm(subsample = .9, n_estimators = 5000L),
-  "LIONESS + Pearson", cni_lioness(method = "pearson")#,
-  # "LIONESS + Spearman", cni_lioness(method = "spearman")#,
-  # "LIONESS + GRNBOOST2", cni_lioness(method = "grnboost2")
+  # "pySCENIC GBM", cni_pyscenic_sgbm(subsample = 1, n_estimators = 500L),
+  "pySCENIC", cni_pyscenic_sgbm(subsample = .9, n_estimators = 5000L),
+  "LIONESS + Pearson", cni_lioness(method = "pearson")
 ) %>% mutate(
   id = name %>% tolower() %>% gsub("[^a-z]", "", .)
 )
@@ -30,50 +39,43 @@ methods <- tribble(
 #' dataset <- datasets %>% extract_row_to_list(1)
 #' priors <- dataset$prior_information
 #' expression <- dataset$expression
+#' parameters <- dynwrap::get_default_parameters(methods$fun[[2]])
 #' parameters <- dynwrap::get_default_parameters(methods$fun[[3]])
-#' parameters <- dynwrap::get_default_parameters(methods$fun[[4]])
 
+## Run methods on all datasets
 
-# if needed, install pyscenic:
-# reticulate::py_install("pyscenic", pip = TRUE)
-
-# # see https://github.com/aertslab/pySCENIC/issues/147#issuecomment-597686104
-# reticulate::py_install("git+https://github.com/aertslab/pySCENIC.git", pip = TRUE)
-# reticulate::py_install("git+https://github.com/tmoerman/arboreto.git", pip = TRUE)
-# reticulate::py_install("fsspec>=0.3.3", pip = TRUE)
-# reticulate::py_install("dask[dataframe]", pip = TRUE, upgrade = TRUE)
-# reticulate::py_install("distributed", pip = TRUE, upgrade = TRUE)
-
+#' @examples
+#' methods %>% mutate(i = row_number()) %>% dynutils::extract_row_to_list(2) %>% list2env(.GlobalEnv)
 pwalk(
   methods %>% mutate(i = row_number()),
   function(name, fun, id, i) {
     cat("Evaluating ", i, "/", nrow(methods), ": ", name, "\n", sep = "")
 
-    try(
-      exp$temporary("eval/evaluation_", id, ".rds") %cache% {
-        out <- evaluate_ti_method(
-          dataset = datasets,
-          method = fun,
-          output_model = FALSE,
-          metrics = list(cni_auc = cni_auc),
-          parameters = NULL
-        )
-        out$summary %>% mutate(
-          cni_method_id = id,
-          cni_method_name = name
-        )
-      }
-    )
+    exp$temporary("eval/evaluation_", id, ".rds") %cache% {
+      out <- evaluate_ti_method(
+        dataset = datasets,
+        method = fun,
+        output_model = FALSE,
+        metrics = list(cni_auc = cni_auc),
+        parameters = NULL
+      )
+      out$summary %>% mutate(
+        cni_method_id = id,
+        cni_method_name = name
+      )
+    }
   }
 )
 
+## Summarise results
 summaries <-
-  map_df(list.files(exp$temporary("eval"), pattern = ".*\\.rds", full.names = TRUE), read_rds)
+  map_df(list.files(exp$temporary("eval"), pattern = ".*\\.rds", full.names = TRUE), read_rds) %>%
+  mutate(
+    cni_method_name = factor(cni_method_name, levels = c("SSN*", "LIONESS + Pearson", "pySCENIC"))
+  )
 
-summaries <- summaries %>%
-  filter(!cni_method_id %in% c("bred", "pyscenicgbm", "lionessspearman", "lionessgrnboost")) %>%
-  mutate(cni_method_name = ifelse(cni_method_id == "pyscenicsgbm", "pySCENIC", cni_method_name))
 
+# check percentage errored
 summaries %>%
   mutate(pct_errored = (!is.na(error)) + 0) %>%
   group_by(cni_method_name) %>%
@@ -97,6 +99,15 @@ summ <- aucs %>%
   ungroup()
 write_rds(list(aucs = aucs, summ = summ), exp$result("scores.rds"), compress = "gz")
 
+ggstatsplot::grouped_ggwithinstats(
+  summ %>% filter(method == "casewise_casewise") %>% gather(metric, score, auroc, aupr, F1) %>% mutate(metric = factor(metric, levels = c("auroc", "aupr", "F1"))),
+  cni_method_name,
+  score,
+  grouping.var = metric,
+  type = "np"
+)
+
+
 nam <- unique(summ$method)
 summplots <- map(nam, function(meth) {
   s <- summ %>% filter(method == meth)
@@ -114,3 +125,4 @@ ggsave(exp$result("score_summary.pdf"), patchwork::wrap_plots(summplots, ncol = 
 
 write_rds(summplots, exp$result("score_summary.rds"), compress = "gz")
 
+summplots$casewise_casewise

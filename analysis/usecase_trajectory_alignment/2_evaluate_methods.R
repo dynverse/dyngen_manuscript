@@ -10,30 +10,6 @@ design_smoothing <-
     method = forcats::fct_inorder(c("DTW", "cellAlign"))
   )
 
-filter_cells <- function(dataset, ...) {
-  df <-
-    dataset$cell_info %>%
-    left_join(dataset$progressions, by = "cell_id")
-
-  df <- df %>% filter(...)
-
-  cids <- df$cell_id
-
-  dataset$cell_ids <- cids
-  dataset$cell_info <- dataset$cell_info %>% slice(match(cids, .data$cell_id))
-  dataset$counts_spliced <- dataset$counts_spliced[cids, , drop = FALSE]
-  dataset$counts_protein <- dataset$counts_protein[cids, , drop = FALSE]
-  dataset$counts_unspliced <- dataset$counts_unspliced[cids, , drop = FALSE]
-  dataset$counts <- dataset$counts[cids, , drop = FALSE]
-  dataset$expression <- dataset$expression[cids, , drop = FALSE]
-  dataset$milestone_percentages <- dataset$milestone_percentages %>% filter(.data$cell_id %in% cids)
-  dataset$progressions <- dataset$progressions %>% slice(match(cids, .data$cell_id))
-  dataset$milestone_network <- dataset$milestone_network %>%
-    inner_join(dataset$progressions %>% select(from, to) %>% unique, by = c("from", "to"))
-
-  dataset
-}
-
 #' design_smoothing %>% mutate(rn = row_number()) %>% dynutils::extract_row_to_list(1) %>% list2env(.GlobalEnv)
 results <- exp$result("results.rds") %cache% pmap_dfr(
   design_smoothing %>% mutate(rn = row_number()),
@@ -58,10 +34,47 @@ results <- exp$result("results.rds") %cache% pmap_dfr(
   }
 )
 
-ggstatsplot::ggwithinstats(
-  results %>% filter(method != "DTW+smoothing"),
+z <- ggstatsplot::ggwithinstats(
+  results,
   x = method,
   y = distance,
   type = "np",
   pairwise.display = "all"
 )
+z$labels$subtitle
+
+# PART 3: Scores ----------------------------------------------------------
+results <- read_rds(exp$result("results.rds")) %>%
+  mutate(
+    method = factor(as.character(method), c("DTW", "cellAlign"))
+  )
+
+quants <- results %>%
+  group_by(method) %>%
+  summarise_at(vars(distance), list(
+    min = ~quantile(., 0),
+    lower = ~quantile(., .25),
+    mean = ~median(.),
+    upper = ~quantile(., .75),
+    max = ~quantile(., 1)
+  ))
+
+g <- ggplot() +
+  geom_violin(aes(method, distance), results) +
+  geom_path(aes(method, distance, group = id), results, linetype = "dashed", colour = "gray") +
+  geom_boxplot(
+    aes(method, ymin = min, lower = lower, middle = mean, upper = upper, max = max),
+    quants,
+    stat = "identity", width = 0.35, size = 0.45, fill = NA
+  ) +
+  geom_point(aes(method, distance, colour = method), results) +
+  theme_classic() +
+  theme_common() +
+  labs(
+    x = NULL, y = "Distance (lower is better)",
+    colour = "Method", subtitle = z$labels$subtitle) +
+  scale_colour_brewer(palette = "Set2")
+
+ggsave(exp$result("score_summary.pdf"), g, width = 6, height = 6)
+
+write_rds(g, exp$result("score_summary.rds"), compress = "gz")

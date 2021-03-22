@@ -97,3 +97,17 @@ scores <- exp$result("scores.rds") %cache% {
     summ = map_dfr(outs, "summ")
   )
 }
+
+ggstatsplot::ggwithinstats(
+  scores$summ %>% mutate(group = paste0(method_id, " ", params_id)),
+  group,
+  cor,
+  type = "np"
+)
+ggstatsplot::grouped_ggwithinstats(
+  scores$summ %>% mutate(group = paste0(method_id, " ", params_id)),
+  group,
+  cor,
+  type = "np",
+  grouping.var = difficulty
+)

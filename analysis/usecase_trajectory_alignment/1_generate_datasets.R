@@ -1,6 +1,8 @@
 library(tidyverse)
 library(dyngen)
 library(dyngen.manuscript)
+library(furrr)
+plan(multisession, workers = 10)
 
 exp <- start_analysis("usecase_trajectory_alignment")
 
@@ -47,11 +49,11 @@ design_datasets <-
     backbone_name = names(backbone_funs)
   ) %>%
     mutate(id = paste0(backbone_name, "_", seed))
-write_rds(design_datasets, exp$result("design_datasets.rds"))
+write_rds(design_datasets, exp$result("design_datasets.rds"), compress = "xz")
 
 #' @examples
 #' design_datasets %>% dynutils::extract_row_to_list(1) %>% list2env(.GlobalEnv)
-pwalk(design_datasets, function(id, seed, backbone_name) {
+future_pwalk(design_datasets, function(id, seed, backbone_name) {
   if (!file.exists(exp$dataset_file(id))) {
 
     cat("## Generating ", id, "\n", sep = "")
@@ -64,7 +66,7 @@ pwalk(design_datasets, function(id, seed, backbone_name) {
 
     # divide up genes between tfs, targets and hks
     wanted_genes <- 500
-    num_tfs <- nrow(backbone$module_info) * 2
+    num_tfs <- nrow(backbone$module_info)
     num_targets <- round((wanted_genes - num_tfs) / 2)
     num_hks <- wanted_genes - num_tfs - num_targets
 
@@ -93,7 +95,8 @@ pwalk(design_datasets, function(id, seed, backbone_name) {
           # add extra noise to kinetics per simulation
           kinetics_noise_function = kinetics_noise_simple(sd = .1)
         ),
-        verbose = TRUE
+        verbose = TRUE,
+        num_cores = 3
       ) %>%
       generate_tf_network() %>%
       generate_feature_network()
@@ -103,6 +106,8 @@ pwalk(design_datasets, function(id, seed, backbone_name) {
       generate_kinetics() %>%
       generate_gold_standard() %>%
       generate_cells()
+
+    # dyngen:::plot_timings(model1)
 
     # generate another model with different kinetics
     model2 <- model %>%

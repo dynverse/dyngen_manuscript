@@ -1,22 +1,24 @@
 library(tidyverse)
 library(dyngen)
 library(dyngen.manuscript)
+library(furrr)
+plan(multisession, workers = 10)
 
 exp <- start_analysis("usecase_network_inference")
 
 # setup dataset design
-design_datasets <- exp$result("design_datasets.rds") %cache% {
+design_datasets <-
   crossing(
     seed = 1:3,
     backbone_name = names(list_backbones())
   ) %>%
     mutate(id = paste0(backbone_name, "_", seed))
-}
+write_rds(design_datasets, exp$result("design_datasets.rds"), compress = "xz")
 
 #' @examples
 #' design_datasets %>% dynutils::extract_row_to_list(1) %>% list2env(.GlobalEnv)
 
-pwalk(design_datasets, function(id, seed, backbone_name) {
+future_pwalk(design_datasets, function(id, seed, backbone_name) {
   if (!file.exists(exp$dataset_file(id))) {
 
     cat("## Generating ", id, "\n", sep = "")
@@ -51,7 +53,8 @@ pwalk(design_datasets, function(id, seed, backbone_name) {
     generate_dataset(
       model,
       output_dir = exp$dataset_folder(id),
-      make_plots = TRUE
+      make_plots = TRUE,
+      format = "dyno"
     )
 
     gc()

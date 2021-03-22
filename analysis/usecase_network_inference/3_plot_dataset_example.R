@@ -9,7 +9,6 @@ exp <- start_analysis("usecase_network_inference")
 
 dataset <- read_rds(exp$dataset_file("bifurcating_loop_1"))
 
-
 set.seed(1)
 
 feature_info <- dataset$feature_info
@@ -90,7 +89,7 @@ g <- ggplot() +
   )
 g
 ggsave(exp$result("casewise_grn.pdf"), g, width = 8, height = 5)
-# write_rds(g, exp$result("casewise_grn.rds"), compress = "gz")
+write_rds(g, exp$result("casewise_grn.rds"), compress = "gz")
 
 
 # make plot of ground truth
@@ -109,7 +108,7 @@ g1 <- ggplot() +
 # make plot of prediction
 dataset$prior_information$regulators <- dataset$regulators
 dataset$prior_information$targets <- dataset$targets
-pred4 <- dynwrap::infer_trajectory(dataset, cni_bred())
+pred4 <- dynwrap::infer_trajectory(dataset, cni_pyscenic_sgbm())
 
 edge_pred_df <-
   pred4$regulatory_network_sc %>%

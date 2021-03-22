@@ -81,6 +81,7 @@ summaries %>%
   group_by(cni_method_name) %>%
   summarise_if(is.numeric, mean, na.rm = TRUE)
 
+# compute metrics
 aucs <-
   summaries %>%
   select(cni_method_id, cni_method_name, dataset_id, evals) %>%
@@ -90,8 +91,8 @@ aucs <-
   ) %>%
   filter(method != "static_casewise")
 
+# compute summaries
 summaries %>% select(cni_method_name, dataset_id, starts_with("cc_"), starts_with("sc_"))
-
 
 summ <- aucs %>%
   group_by(method, method_label, dataset_id, cni_method_id, cni_method_name) %>%
@@ -107,7 +108,7 @@ ggstatsplot::grouped_ggwithinstats(
   type = "np"
 )
 
-
+# create pairwise plots
 nam <- unique(summ$method)
 summplots <- map(nam, function(meth) {
   s <- summ %>% filter(method == meth)

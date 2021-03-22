@@ -10,15 +10,12 @@ grnh <- 5
 bch <- 2.5
 g <- patchwork::wrap_plots(
   explots + labs(tag = "A"),
-  summplots$casewise_casewise +
-    scale_x_continuous(limits = c(.4, .7)) +
-    scale_y_continuous(limits = c(0, .06)) +
-    labs(tag = "B", title = NULL) +
-    # theme_classic() +
-    theme(strip.background = element_blank(), strip.text = element_text(face = "bold")),
+  summplots$ggstatsplot +
+    labs(tag = "B", x = NULL),
   heights = c(grnh, bch),
   ncol = 1
 ) & theme(plot.tag.position = c(0,1))
 
+g
 ggsave(exp$result("cni.pdf"), g, width = 8, height = grnh + 1 * bch)
 

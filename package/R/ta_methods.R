@@ -28,22 +28,28 @@ ta_methods <- list(
       sigCalc = FALSE
     )
 
-    pt1_aligned <- interp1$traj[alignment$align[[1]]$index1]
-    pt2_aligned <- interp2$traj[alignment$align[[1]]$index2]
+    align <- alignment$align[[1]]
+    align$pt1_aligned <- interp1$traj[align$index1]
+    align$pt2_aligned <- interp2$traj[align$index2]
 
-    lst(pt1_aligned, pt2_aligned)
+    align
   },
   "DTW" = function(dataset1, dataset2) {
     res1 <- get_cell_expression(dataset1)
     res2 <- get_cell_expression(dataset2)
 
-    dtw_alignment <- dtw::dtw(res2$expression, res1$expression, step.pattern = dtw::symmetric2, keep.internals = TRUE)
-    # dtwPlotDensity(dtw_alignment)
+    dtw_alignment <- dtw::dtw(
+      res2$expression,
+      res1$expression,
+      step.pattern = dtw::symmetric2,
+      keep.internals = TRUE
+    )
 
-    pt1_aligned <- res1$pseudotime[dtw_alignment$index2]
-    pt2_aligned <- res2$pseudotime[dtw_alignment$index1]
+    align <- dtw_alignment[c("index1", "index2", "index1s", "index2s", "stepsTaken")]
+    align$pt1_aligned <- res1$pseudotime[align$index2]
+    align$pt2_aligned <- res2$pseudotime[align$index1]
 
-    lst(pt1_aligned, pt2_aligned)
+    align
   },
   "DTW+smoothing" = function(dataset1, dataset2) {
     res1 <- get_waypoint_expression(dataset1, 100, ws = 0.125)
@@ -52,9 +58,10 @@ ta_methods <- list(
     dtw_alignment <- dtw::dtw(res2$expression, res1$expression, step.pattern = dtw::symmetric2, keep.internals = TRUE)
     # dtwPlotDensity(dtw_alignment)
 
-    pt1_aligned <- res1$pseudotime[dtw_alignment$index2]
-    pt2_aligned <- res2$pseudotime[dtw_alignment$index1]
+    align <- dtw_alignment[c("index1", "index2", "index1s", "index2s", "stepsTaken")]
+    align$pt1_aligned <- res1$pseudotime[align$index2]
+    align$pt2_aligned <- res2$pseudotime[align$index1]
 
-    lst(pt1_aligned, pt2_aligned)
+    align
   }
 )

@@ -54,10 +54,6 @@ cni_pyscenic_sgbm <- create_ti_method_r(
     targets <- priors$targets
     samples <- rownames(expression)
 
-    regressor_type <- "GBM"
-    regressor_kwargs <- parameters[c("learning_rate", "n_estimators", "max_features", "subsample")]
-
-    # arboreto <- reticulate::import("arboreto")
     algo <- reticulate::import("arboreto.algo")
     pyscenic <- reticulate::import("pyscenic")
     builtins <- reticulate::import_builtins()
@@ -65,13 +61,12 @@ cni_pyscenic_sgbm <- create_ti_method_r(
     # TIMING: done with preproc
     checkpoints <- list(method_afterpreproc = as.numeric(Sys.time()))
 
-    exprm <- as.matrix(expression)
-    exprdf <- as.data.frame(exprm)
+    exprdf <- as.data.frame(as.matrix(expression))
 
     adjacencies <- algo$diy(
-      expression_data = exprm,
-      regressor_type = regressor_type,
-      regressor_kwargs = regressor_kwargs,
+      expression_data = expression,
+      regressor_type = "GBM",
+      regressor_kwargs = parameters[c("learning_rate", "n_estimators", "max_features", "subsample")],
       tf_names = regulators,
       verbose = FALSE,
       gene_names = colnames(expression)
@@ -133,8 +128,7 @@ cni_pyscenic_sgbm <- create_ti_method_r(
             transmute(cell_id = sample, regulator = from, target = to, strength = score) %>%
             unnest(target) %>%
             group_by(cell_id, regulator, target) %>%
-            summarise(strength = max(strength)) %>%
-            ungroup() %>%
+            summarise(strength = max(strength), .groups = "drop") %>%
             mutate(target = factor(targets[target], levels = targets)) %>%
             head(parameters$num_int_per_cell)
         }

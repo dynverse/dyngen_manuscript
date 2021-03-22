@@ -67,3 +67,12 @@ rnav_run_velocyto <- function(
     vlm
   )
 }
+
+
+#' @importFrom scvelo get_velocity
+#'
+#' @export
+rnav_methods <- list(
+  "scvelo" = scvelo::get_velocity,
+  "velocyto" = rnav_run_velocyto
+)

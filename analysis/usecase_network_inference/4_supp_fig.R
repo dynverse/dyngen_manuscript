@@ -20,7 +20,7 @@ ggstatsplot::grouped_ggwithinstats(
   cni_method_name,
   score,
   grouping.var = metric,
-  type = "np"
+  type = "nonparametric"
 )
 
 # compute statistics
@@ -42,7 +42,7 @@ pairwise <-
       data = .,
       x = cni_method_name,
       y = score,
-      type = "np",
+      type = "nonparametric",
       paired = TRUE
     )
   }) %>%
@@ -105,7 +105,6 @@ g_pairwise <-
   scale_color_brewer(palette = "Set1")
 
 
-
 grnh <- 3.5
 bch <- 3.5
 g <- patchwork::wrap_plots(
@@ -121,6 +120,11 @@ g <- patchwork::wrap_plots(
   ncol = 1
 ) & theme(plot.tag.position = c(0,1))
 
-# g
 ggsave(exp$result("supp_fig.pdf"), g, width = 10, height = (grnh + bch) * .9)
 
+# convert for previewing in gdoc
+# pdftools::pdf_convert(
+#   pdf = exp$result("supp_fig.pdf"),
+#   filenames = exp$result("supp_fig.png"),
+#   dpi = 120
+# )

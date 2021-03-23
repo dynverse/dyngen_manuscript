@@ -113,7 +113,7 @@ g <- patchwork::wrap_plots(
   patchwork::wrap_plots(
     g_metrics$auroc + labs(tag = "B"),
     g_metrics$aupr,
-    g_pairwise,
+    g_pairwise + theme(axis.title.x = element_text(margin = margin(t = -35, unit = "pt"))), # perform some manual alignment
     nrow = 1,
     guides = "collect"
   ),

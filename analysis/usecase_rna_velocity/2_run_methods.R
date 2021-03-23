@@ -17,20 +17,35 @@ exp <- start_analysis("usecase_rna_velocity")
 #   reticulate::py_install("scvelo", pip = TRUE)
 #   scvelo:::install_scvelo()
 # })
+#
+# design_velocity <-
+#   tribble(
+#     ~method_id, ~params, ~params_id,
+#     "velocyto", list(assumption = "constant_velocity"), "constant_velocity",
+#     "velocyto", list(assumption = "constant_unspliced"), "constant_unspliced",
+#     "scvelo", list(mode = "deterministic"), "deterministic",
+#     "scvelo", list(mode = "dynamical", var_names = "all"), "dynamical",
+#     "scvelo", list(mode = "dynamical_residuals", var_names = "all"), "dynamical_residuals",
+#     "scvelo", list(mode = "stochastic"), "stochastic"
+#   ) %>%
+#     crossing(
+#       read_rds(exp$result("design_datasets.rds")) %>% select(dataset_id = id)
+#     )
+
 
 design_velocity <-
   tribble(
     ~method_id, ~params, ~params_id,
     "velocyto", list(assumption = "constant_velocity"), "constant_velocity",
     "velocyto", list(assumption = "constant_unspliced"), "constant_unspliced",
-    "scvelo", list(mode = "deterministic"), "deterministic",
+    "scvelo", list(mode = "stochastic"), "stochastic",
+    "scvelo", list(mode = "deterministic"), "deterministic", # deterministic should be more or less same as stochastic
     "scvelo", list(mode = "dynamical", var_names = "all"), "dynamical",
-    "scvelo", list(mode = "dynamical_residuals", var_names = "all"), "dynamical_residuals",
-    "scvelo", list(mode = "stochastic"), "stochastic"
+    "scvelo", list(mode = "dynamical_residuals", var_names = "all"), "dynamical_residuals"
   ) %>%
-    crossing(
-      read_rds(exp$result("design_datasets.rds")) %>% select(dataset_id = id)
-    )
+  crossing(
+    read_rds(exp$result("design_datasets.rds")) %>% select(dataset_id = id)
+  )
 write_rds(design_velocity, exp$result("design_velocity.rds"), compress = "gz")
 
 #' @examples
@@ -42,14 +57,14 @@ pwalk(
 # future_pwalk(
   design_velocity %>% mutate(rn = row_number()),
   function(dataset_id, method_id, params, params_id, rn) {
-    if (!file.exists(exp$dataset_file(dataset_id))) return(NULL)
-
-    cat(rn, "/", nrow(design_velocity), ": ", method_id, " ", params_id, " on ", dataset_id, "\n", sep = "")
-
-    dataset <- read_rds(exp$dataset_file(dataset_id))
-
     try({
       exp$velocity_file(dataset_id, method_id, params_id) %cache% {
+        if (!file.exists(exp$dataset_file(dataset_id))) return(NULL)
+
+        cat(rn, "/", nrow(design_velocity), ": ", method_id, " ", params_id, " on ", dataset_id, "\n", sep = "")
+
+        dataset <- read_rds(exp$dataset_file(dataset_id))
+
         params$spliced <- dataset$counts
         params$unspliced <- dataset$counts_unspliced
         velocity <- do.call(rnav_methods[[method_id]], params)

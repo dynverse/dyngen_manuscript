@@ -2,7 +2,7 @@ library(tidyverse)
 library(dyngen)
 library(dyngen.manuscript)
 library(furrr)
-plan(multisession, workers = 10)
+# plan(multisession, workers = 10)
 
 exp <- start_analysis("usecase_network_inference")
 
@@ -18,7 +18,8 @@ write_rds(design_datasets, exp$result("design_datasets.rds"), compress = "xz")
 #' @examples
 #' design_datasets %>% dynutils::extract_row_to_list(1) %>% list2env(.GlobalEnv)
 
-future_pwalk(design_datasets, function(id, seed, backbone_name) {
+# future_pwalk(design_datasets, function(id, seed, backbone_name) {
+pwalk(design_datasets, function(id, seed, backbone_name) {
   if (!file.exists(exp$dataset_file(id))) {
 
     cat("## Generating ", id, "\n", sep = "")

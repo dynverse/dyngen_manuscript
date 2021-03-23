@@ -7,6 +7,10 @@ library(ggraph)
 
 exp <- start_analysis("usecase_network_inference")
 
+##################################################
+###              Load in example               ###
+##################################################
+
 dataset <- read_rds(exp$dataset_file("bifurcating_loop_1"))
 
 set.seed(1)
@@ -41,7 +45,7 @@ layout <- igraph::layout_with_fr(gr) %>%
 
 
 cell_wps <- do.call(dynwrap::select_waypoint_cells, c(dataset[c("milestone_ids", "milestone_network", "milestone_percentages", "progressions", "divergence_regions")], list(num_cells_selected = 1)))
-cells <- sample(cell_wps, 5) %>% {.[order(match(., dataset$cell_ids))]}
+cells <- sample(cell_wps, 2) %>% {.[order(match(., dataset$cell_ids))]}
 
 node_df <- bind_cols(feature_info %>% select(-mol_premrna:-mol_protein), layout)
 
@@ -72,10 +76,13 @@ edge_df <-
     yend = alend * yend_ + (1 - alend) * y_
   )
 
+##################################################
+###              Supp Fig subplot              ###
+##################################################
+
 arrow_up <- grid::arrow(type = "closed", angle = 30, length = grid::unit(1.3, "mm"))
 arrow_down <- grid::arrow(type = "closed", angle = 89, length = grid::unit(1.3, "mm"))
 g <- ggplot() +
-  # geom_segment(aes(x = x, y = y, xend = xend, yend = yend), edge_df %>% filter(is.na(cell_id)) %>% select(-group), colour = "lightgray") +
   geom_point(aes(x, y), colour = "gray", node_df) +
   geom_segment(aes(x = x, y = y, xend = xend, yend = yend, colour = effect), edge_df %>% filter(effect >= 0), arrow = arrow_up) +
   geom_segment(aes(x = x, y = y, xend = xend, yend = yend, colour = effect), edge_df %>% filter(effect < 0), arrow = arrow_down) +
@@ -88,10 +95,11 @@ g <- ggplot() +
     plot.margin = margin(0, 0, 0, 0, "cm")
   )
 g
-ggsave(exp$result("casewise_grn.pdf"), g, width = 8, height = 5)
 write_rds(g, exp$result("casewise_grn.rds"), compress = "gz")
 
-
+##################################################
+###              Figure 2 subplot              ###
+##################################################
 # make plot of ground truth
 g1 <- ggplot() +
   geom_point(aes(x, y), colour = "gray", node_df) +

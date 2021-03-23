@@ -6,14 +6,6 @@ library(dyngen.manuscript)
 
 exp <- start_analysis("usecase_network_inference")
 
-## might need to install an older version of miniconda because the latest version doesn't seem to want to work
-# path = reticulate::miniconda_path()
-# url <- "https://repo.anaconda.com/miniconda/Miniconda3-py38_4.8.3-Linux-x86_64.sh"
-# installer <- reticulate:::miniconda_installer_download(url)
-# reticulate:::miniconda_installer_run(installer, path)
-# reticulate::py_install("pyscenic", pip = TRUE)
-# reticulate::py_install("tbb", pip = TRUE)
-
 ## Load all datasets as a tibble
 dataset_files <- list.files(exp$dataset_folder(""), pattern = "dataset.rds", full.names = TRUE, recursive = TRUE)
 
@@ -74,7 +66,6 @@ summaries <-
     cni_method_name = factor(cni_method_name, levels = c("SSN*", "LIONESS + Pearson", "pySCENIC"))
   )
 
-
 # check percentage errored
 summaries %>%
   mutate(pct_errored = (!is.na(error)) + 0) %>%
@@ -98,8 +89,11 @@ summ <- aucs %>%
   group_by(method, method_label, dataset_id, cni_method_id, cni_method_name) %>%
   summarise_if(is.numeric, mean) %>%
   ungroup()
+
+# write results to file
 write_rds(list(aucs = aucs, summ = summ), exp$result("scores.rds"), compress = "gz")
 
+# preview results
 ggstatsplot::grouped_ggwithinstats(
   summ %>% filter(method == "casewise_casewise") %>% gather(metric, score, auroc, aupr, F1) %>% mutate(metric = factor(metric, levels = c("auroc", "aupr", "F1"))),
   cni_method_name,
@@ -107,23 +101,3 @@ ggstatsplot::grouped_ggwithinstats(
   grouping.var = metric,
   type = "np"
 )
-
-# create pairwise plots
-nam <- unique(summ$method)
-summplots <- map(nam, function(meth) {
-  s <- summ %>% filter(method == meth)
-  meth_lab <- s$method_label[[1]]
-  ggplot(s) +
-    geom_point(aes(auroc, aupr), colour = "gray", function(df) df %>% select(-cni_method_id, -cni_method_name)) +
-    geom_point(aes(auroc, aupr, colour = cni_method_name)) +
-    theme_bw() +
-    facet_wrap(~cni_method_name, nrow = 1) +
-    labs(title = meth_lab, x = "mean AUROC", y = "mean AUPR", colour = "Method") +
-    scale_color_brewer(palette = "Set1")
-})
-names(summplots) <- nam
-ggsave(exp$result("score_summary.pdf"), patchwork::wrap_plots(summplots, ncol = 1), width = 10, height = 5)
-
-write_rds(summplots, exp$result("score_summary.rds"), compress = "gz")
-
-summplots$casewise_casewise

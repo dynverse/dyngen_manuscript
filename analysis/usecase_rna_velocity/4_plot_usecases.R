@@ -17,14 +17,11 @@ design_names <-
   mutate(method_label = forcats::fct_inorder(method_label))
 
 # PART A: Illustration of velocity ----------------------------------------
-# dataset_id <- "bifurcating_cycle_hard_seed3"
-# dataset_id <- "trifurcating_easy_seed1"
-# dataset_id <- "converging_hard_seed2"
-dataset_id <- "bifurcating_loop_hard_seed1"
+dataset_id <- "bifurcating_seed3"
 
 dataset <- read_rds(exp$dataset_file(dataset_id))
 model <- read_rds(exp$model_file(dataset_id))
-
+dyngen::plot_backbone_modulenet(model)
 # # choosing a good rotation from 3D to 2D
 # mil_cols <- dynplot2::define_milestone_colors(milestone_colors = NULL, milestone_ids = dataset$milestone_ids)
 # mil_pct_mat <- dataset$milestone_percentages %>% reshape2::acast(cell_id~milestone_id, value.var = "percentage", fill = 0) %>% .[rownames(dataset$dimred), dataset$milestone_ids]
@@ -35,21 +32,9 @@ model <- read_rds(exp$model_file(dataset_id))
 # userMatrix %>% as.vector %>% paste0(collapse = ", ")
 
 ## apply previous rotation
-if (dataset_id == "bifurcating_cycle_hard_seed1") {
-  userVec <- c(0.0203961916267872, -0.740907371044159, -0.671227753162384, -0.0408603921532631, -0.671426177024841, 0.739882826805115, -0.99891185760498, 0.012335604056716, -0.0439676493406296)
-  feature_oi <- "D1_TF1"
-} else if (dataset_id == "bifurcating_cycle_hard_seed3") {
-  userVec <- c(-0.700981974601746, -0.500725984573364, -0.507759869098663, -0.630953311920166, 0.767287373542786, 0.114417120814323, 0.332326680421829, 0.400592744350433, -0.853821098804474)
-  feature_oi <- "D1_TF1"
-} else if (dataset_id == "trifurcating_easy_seed1") {
-  userVec <- stop("missing")
-  feature_oi <- "C2_TF1"
-} else if (dataset_id == "converging_hard_seed2") {
-  userVec <- c(0.972736299037933, -0.122289605438709, -0.197052627801895, 0.182912290096283, 0.926906108856201, 0.327701270580292, 0.142574816942215, -0.354810178279877, 0.92400336265564)
-  feature_oi <- "B3_TF1"
-} else if (dataset_id == "bifurcating_loop_hard_seed1") {
-  userVec <- c(0.995196223258972, -0.0978969931602478, 0.0010247491300106, -0.0954008400440216, -0.972066164016724, -0.21444308757782, 0.0219892524182796, 0.213315114378929, -0.976735889911652)
-  feature_oi <- "C1_TF1"
+if (dataset_id == "bifurcating_seed3") {
+  userVec <- c(-0.0365856438875198, -0.96261727809906, -0.268382370471954, -0.998166739940643, 0.0222430042922497, 0.0562904588878155, -0.0482163727283478, 0.269949942827225, -0.961666285991669)
+  feature_oi <- "B5_TF1"
 }
 userMatrix <- matrix(userVec, nrow = 3)
 
@@ -59,22 +44,22 @@ dataset <- dataset %>% dynwrap::add_dimred(dimred = dimred)
 
 # Plot 1, trajectory
 plot_trajectory <- {dynplot_dimred(dataset) +
-  geom_cell_point(aes(color = milestone_percentages), size = 1) +
-  scale_milestones_colour() +
-  geom_trajectory_segments(size = 1, color = "#333333") +
-  geom_milestone_label(aes(label = gsub("^s", "", label)), color = "black", fill = "#EEEEEE") +
-  theme_common(legend.position = "none") +
-  ggtitle("Trajectory")} %>%
+    geom_cell_point(aes(color = milestone_percentages), size = 1) +
+    scale_milestones_colour() +
+    geom_trajectory_segments(size = 1, color = "#333333") +
+    geom_milestone_label(aes(label = gsub("^s", "", label)), color = "black", fill = "#EEEEEE") +
+    theme_common(legend.position = "none") +
+    ggtitle("Trajectory")} %>%
   reduce_size()
 
 # Plot 2, expression of a gene that goes up and down
 expression_plot <- {dynplot_dimred(dataset) +
-  geom_cell_point(aes(color = select_feature_expression(feature_oi, .data)), size = 1) +
-  geom_trajectory_segments(size = 1, color = "#333333") +
-  scale_expression_color(breaks = c(0, 1), labels = c("min", "max")) +
-  theme_common() +
-  ggtitle(paste0("Expression of gene ", feature_oi))}# %>%
-  # reduce_size()
+    geom_cell_point(aes(color = select_feature_expression(feature_oi, .data)), size = 1) +
+    geom_trajectory_segments(size = 1, color = "#333333") +
+    scale_expression_color(breaks = c(0, 1), labels = c("min", "max")) +
+    theme_common() +
+    ggtitle(paste0("Expression of gene ", feature_oi))}# %>%
+# reduce_size()
 
 # Plot 3, ground truth velocity
 transform_groundtruth_velocity <- function(x) {
@@ -84,10 +69,10 @@ RdGyBu <- RColorBrewer::brewer.pal(9, "RdBu")
 RdGyBu <- c(RdGyBu[1:3], "lightgray", RdGyBu[7:9])
 
 gs_plot <- {dynplot_dimred(dataset) +
-  geom_cell_point(aes(color = transform_groundtruth_velocity(dataset$rna_velocity[,feature_oi])), size = 1) +
-  scale_colour_gradientn(colours = RdGyBu, limits = c(-1, 1), name = "Velocity", guide = dynplot2:::common_colorbar_legend) +
-  ggtitle(paste0("Ground truth velocity of ", feature_oi)) +
-  theme_common()} %>%
+    geom_cell_point(aes(color = transform_groundtruth_velocity(dataset$rna_velocity[,feature_oi])), size = 1) +
+    scale_colour_gradientn(colours = RdGyBu, limits = c(-1, 1), name = "Velocity", guide = dynplot2:::common_colorbar_legend) +
+    ggtitle(paste0("Ground truth velocity of ", feature_oi)) +
+    theme_common()} %>%
   reduce_size()
 
 
@@ -132,17 +117,17 @@ plot_part_C <- pmap(design_velocity_oi, function(dataset_id, method_id, params_i
     scvelo::add_dimred_future()
 
   g <- {dynplot_dimred(dataset2) +
-    geom_cell_point(aes(color = milestone_percentages), size = 1) +
-    scale_milestones_colour() +
-    geom_velocity_stream(
-      size = .8,
-      color = "#333333",
-      stat = stat_velocity_stream(grid_bandwidth = 1, filter = rlang::quo(mass > max(mass) * 0.05)),
-      arrow = arrow(length = unit(0.3, "cm"), type = "closed")
-    ) +
-    ggtitle(method_label) +
-    theme_common() +
-    theme(legend.position = "none")} %>%
+      geom_cell_point(aes(color = milestone_percentages), size = 1) +
+      scale_milestones_colour() +
+      geom_velocity_stream(
+        size = .8,
+        color = "#333333",
+        stat = stat_velocity_stream(grid_bandwidth = 1, filter = rlang::quo(mass > max(mass) * 0.07)),
+        arrow = arrow(length = unit(0.3, "cm"), type = "closed")
+      ) +
+      ggtitle(method_label) +
+      theme_common() +
+      theme(legend.position = "none")} %>%
     reduce_size()
 
   rm(velocity, dataset2)
@@ -157,8 +142,7 @@ metric_labels <- c(cor = "Velocity correlation", mean_cosine = "Velocity arrow c
 
 # create boxplots
 summ <- scores$summ %>%
-  inner_join(design_names, by = c("method_id", "params_id")) %>%
-  filter(difficulty == "hard")
+  inner_join(design_names, by = c("method_id", "params_id"))
 results <- summ %>%
   gather(metric, score, cor, mean_cosine) %>%
   mutate(
@@ -207,11 +191,11 @@ g_metrics <- map2(names(metric_labels), metric_labels, function(metric, metric_n
   df_pairwise <- pairwise %>%
     filter(metric == !!metric) %>%
     mutate(groups = pmap(.l = list(group1, group2), .f = c)) %>%
-    filter(p.value < 0.05) %>%
     arrange(group1, group2)
-  stat_y_pos <- ggstatsplot:::ggsignif_xy(data$method_label, data$score)
+  df_pairwise$stat_y_pos <- ggstatsplot:::ggsignif_xy(data$method_label, data$score)
+  df_pairwise <- df_pairwise %>% filter(p.value < .05)
 
-  ggplot(data, aes(method_label, score)) +
+  g <- ggplot(data, aes(method_label, score)) +
     # geom_violin() +
     geom_violin(colour = NA, aes(fill = method_label), alpha = .3) +
     # geom_violin(aes(colour = cni_method_name, fill = cni_method_name), alpha = .2) +
@@ -221,15 +205,6 @@ g_metrics <- map2(names(metric_labels), metric_labels, function(metric, metric_n
       stat = "identity", width = 0.35, size = 0.45, fill = NA
     ) +
     geom_point(aes(colour = method_label), size = 1) +
-    ggsignif::geom_signif(
-      comparisons = df_pairwise$groups,
-      map_signif_level = TRUE,
-      y_position = stat_y_pos,
-      annotations = df_pairwise$label,
-      test = NULL,
-      parse = TRUE,
-      textsize = 2.5
-    ) +
     # expand_limits(y = c(auroc = .95, aupr = 0.26)[[metric]]) +
     theme_classic() +
     theme_common(legend.position = "none") +
@@ -241,6 +216,18 @@ g_metrics <- map2(names(metric_labels), metric_labels, function(metric, metric_n
     ) +
     scale_colour_brewer(palette = "Set1") +
     scale_fill_brewer(palette = "Set1")
+  if (nrow(df_pairwise) > 0) {
+    g <- g + ggsignif::geom_signif(
+      comparisons = df_pairwise$groups,
+      map_signif_level = TRUE,
+      y_position = df_pairwise$stat_y_pos,
+      annotations = df_pairwise$label,
+      test = NULL,
+      parse = TRUE,
+      textsize = 2.5
+    )
+  }
+  g
 })
 names(g_metrics) <- names(metric_labels)
 g_metrics$cor
@@ -264,10 +251,6 @@ plot_part_D <- patchwork::wrap_plots(
   nrow = 1,
   guides = "collect"
 )
-
-
-
-
 
 
 

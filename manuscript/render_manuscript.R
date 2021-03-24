@@ -4,8 +4,8 @@ library(rmarkdown)
 library(textreadr)
 
 if (Sys.info()[["user"]] == "rcannood") {
-  httr::set_config(httr::config(http_version = 0)) # avoid http2 framing layer bug
-  drive <- drive_download(as_id("15ZkzzB-XSYFfZutO4YPkUIw6iUvxJS92fSPfzqR1cLA"), type = "text", overwrite = TRUE, path = tempfile())
+  # httr::set_config(httr::config(http_version = 0)) # avoid http2 framing layer bug
+  drive <- drive_download(as_id("1gU6--vq988dQS3qYQRlIqC1QO96A4XM81s54K6YJKIk"), type = "text", overwrite = TRUE, path = tempfile())
 
   # read docx
   readr::read_lines(drive$local_path) %>%
@@ -15,9 +15,9 @@ if (Sys.info()[["user"]] == "rcannood") {
 }
 
 # render the manuscript
-render("manuscript/render.Rmd", output_dir = "manuscript/")
+render("manuscript/render.Rmd")
 
-system("pdftk manuscript/render.pdf cat 1-18 output manuscript/manuscript.pdf")
-system("pdftk manuscript/render.pdf cat 19-26 output manuscript/supplementary_files.pdf")
+system("pdftk manuscript/render.pdf cat 1-19 output manuscript/manuscript.pdf")
+system("pdftk manuscript/render.pdf cat 20-27 output manuscript/supplementary_files.pdf")
 
 file.remove("manuscript/render.pdf")

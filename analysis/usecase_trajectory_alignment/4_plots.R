@@ -1,70 +1,15 @@
 library(tidyverse)
 library(dyngen.manuscript)
 library(patchwork)
-library(tidyr)
-library(reshape2)
-library(dyngen)
 library(dynplot)
-library(gtools)
-library(dtw)
-library(ggstatsplot)
 
 exp <- start_analysis("usecase_trajectory_alignment")
 
-# PART 3: Scores ----------------------------------------------------------
-results <- read_rds(exp$result("results.rds")) %>%
-  mutate(
-    method = factor(as.character(method), c("DTW", "cellAlign"))
-  )
+# PART 1: Explanation plot ------------------------------------------------
+part1plots <- read_rds(exp$result("usecase_separateplots.rds"))
 
-g <-
-  results %>%
-  group_by(method) %>%
-  summarise_at(vars(distance), list(
-    min = ~quantile(., .05),
-    lower = ~quantile(., .25),
-    mean = ~median(.),
-    upper = ~quantile(., .75),
-    max = ~quantile(., .95)
-  )) %>%
-  ggplot() +
-  geom_boxplot(
-    aes(1, ymin = min, lower = lower, middle = mean, upper = upper, max = max, fill = method),
-    stat = "identity", width = 0.5, size = 0.45
-  ) +
-  theme_bw() +
-  theme_common() +
-  labs(x = "Amount of added noise", y = "Distance (lower is better)", fill = "Processing method") +
-  scale_fill_brewer(palette = "Set2")
-g
+# PART 2: heatmaps --------------------------------------------------------
 
-# normalized minimum global distance computed
-results <- ggstatsplot::ggwithinstats(
-  results,
-  x = method,
-  y = distance,
-  type = "np",
-  pairwise.comparisons = TRUE,
-  pairwise.display = TRUE
-)
-results
-
-# results %>%
-#   ggplot() +
-#   geom_path(
-#     aes(noise, score, colour = method, group = paste0(method, "_", seed))
-#   ) +
-#   theme_bw() +
-#   theme_common() +
-#   labs(x = "Amount of added noise", y = "Distance (lower is better)", fill = "Processing method") +
-#   scale_colour_brewer(palette = "Set2")
-#
-# results %>% spread(method, score) %>%
-#   ggplot() + geom_point(aes(DTW, `DTW+smoothing`)) + geom_abline(intercept = 0, slope = 1)
-# results %>% spread(method, score) %>%
-#   ggplot() + geom_point(aes(`DTW+smoothing`, `cellAlign`)) + geom_abline(intercept = 0, slope = 1)
-
-# PART 2: dtw heatmaps
 # read dataset
 design_dataset <- read_rds(exp$result("design_datasets.rds"))
 file <- exp$dataset_file(design_dataset$id[[1]])
@@ -82,56 +27,126 @@ cal_dens
 dtw_dens <- plot_density(dtw_alignment)
 dtw_dens
 
-# PART 2: dtw heatmaps ----------------------------------------------------
-# d1 <- readRDS(exp$dataset_file("linear1_1_0.5"))
-# d2 <- readRDS(exp$dataset_file("linear1_2_0.5"))
-#
-# res1 <- get_cell_expression(d1)
-# res2 <- get_cell_expressio#n(d2)
-#
-# res1_sm <- get_waypoint_expression(d1, 100)
-# res2_sm <- get_waypoint_expression(d2, 100)
-#
-# pt1 <- res1$pseudotime
-# pt2 <- res2$pseudotime
-# expr1 <- res1$expression
-# expr2 <- res2$expression
-#
-# alignment_original <- dtw::dtw(expr2, expr1, step.pattern = dtw::symmetric2, keep.internals = TRUE)
-# ao <- plot_density(alignment_original, title = "DTW")
-#
-# smp1 <- seq(from = 1, to = 1000, by = 10) #sample(1000, size = 100, replace = FALSE)
-# pt1_smp <- pt1[seq(from = 1, to = 1000, by = 10)]
-# pt2_smp <- pt2[seq(from = 1, to = 1000, by = 10)]
-# expr1_smp <- expr1[names(pt1_smp),]
-# expr2_smp <- expr2[names(pt2_smp),]
-#
-# alignment_smooth <- dtw::dtw(res2_sm$expression, res1_sm$expression, step.pattern = dtw::symmetric2, keep.internals = TRUE)
-# a_sm <- plot_density(alignment_smooth, title = "DTW+smoothing")
-t1 <- (ground_truth + prediction) / (dtw_dens + cal_dens + results)
-t2 <- (ground_truth + prediction) / (dtw_dens + results)
-t2
-ggsave(exp$result("usecase1.pdf"), t1, height = 9, width = 9)
 
-# PART 1: Explanation plot ------------------------------------------------
-part1plots <- read_rds(exp$result("usecase_separateplots.rds"))
+# PART 3: scores ----------------------------------------------------------
+results <- read_rds(exp$result("results.rds")) %>%
+  mutate(
+    metric = "score",
+    method = factor(as.character(method), c("DTW", "cellAlign"))
+  )
 
-all_plots <- wrap_plots(
-  wrap_plots(
-    part1plots$t2_pt + labs(tag = "A", colour = "Healthy\nprogression   "),
-    part1plots$t1_pt + labs(tag = "B", colour = "Diseased\nprogression   "),
-    part1plots$prediction + theme(legend.position = "bottom") + labs(tag = "C")
-  ),
-  wrap_plots(
-    part1plots$plot_dens + labs(tag = "D") + theme(legend.position = "none"),
-    ao + theme(legend.position = "none") + labs(tag = "E"),
-    a_sm + theme(legend.position = "none") + labs(tag = "F"),
-    ggpubr::as_ggplot(ggpubr::get_legend(ao + theme(legend.position = "right") + labs(fill = "Alignment\ndistance"))),
-    widths = c(1, 1, 1, .5)
-  ),
-  g + labs(tag = "G", y = "Alignment distance"),
-  heights = c(.5, 1.4, 1.5)
+# preview
+ggstatsplot::ggwithinstats(
+  results,
+  method,
+  score,
+  type = "nonparametric"
 )
 
-ggsave(exp$result("usecase.pdf"), all_plots, height = 9, width = 10, useDingbats = FALSE)
-ggsave(exp$result("usecase.png"), all_plots, height = 9, width = 10)
+# compute statistics
+quants <- results %>%
+  group_by(method) %>%
+  summarise_at(vars(score), list(
+    min = ~quantile(., 0),
+    lower = ~quantile(., .25),
+    median = ~median(.),
+    upper = ~quantile(., .75),
+    max = ~quantile(., 1)
+  ))
+
+pairwise <-
+  results %>%
+  group_by(metric) %>%
+  do({
+    pairwiseComparisons::pairwise_comparisons(
+      data = .,
+      x = method,
+      y = score,
+      type = "nonparametric",
+      paired = TRUE
+    )
+  }) %>%
+  ungroup() %>%
+  mutate(label = gsub("\\[Holm-corrected\\]", "", label))
+
+metric_labels <- c(score = "Score")
+
+# create metric plots
+g_metrics <- map2(names(metric_labels), metric_labels, function(metric, metric_name) {
+  data <- results %>% filter(metric == !!metric)
+
+  df_pairwise <- pairwise %>%
+    filter(metric == !!metric) %>%
+    mutate(groups = pmap(.l = list(group1, group2), .f = c)) %>%
+    arrange(group1, group2)
+  df_pairwise$stat_y_pos <- ggstatsplot:::ggsignif_xy(data$method, data$score)
+  df_pairwise <- df_pairwise %>% filter(p.value < .05)
+
+  g <- ggplot(data, aes(method, score)) +
+    # geom_violin() +
+    geom_violin(colour = NA, aes(fill = method), alpha = .3) +
+    # geom_violin(aes(colour = cni_method_name, fill = cni_method_name), alpha = .2) +
+    geom_boxplot(
+      aes(x = method, y = NULL, ymin = min, lower = lower, middle = median, upper = upper, ymax = max),
+      quants %>% filter(metric == !!metric),
+      stat = "identity", width = 0.35, size = 0.45, fill = NA
+    ) +
+    geom_point(aes(colour = method), size = 1) +
+    # expand_limits(y = c(auroc = .95, aupr = 0.26)[[metric]]) +
+    theme_classic() +
+    theme_common(legend.position = "none") +
+    theme(axis.text.x = element_text(angle = 20, hjust = 1)) +
+    labs(
+      x = NULL,
+      y = metric_name,
+      colour = "Method"
+    ) +
+    scale_colour_brewer(palette = "Set1") +
+    scale_fill_brewer(palette = "Set1")
+  if (nrow(df_pairwise) > 0) {
+    g <- g + ggsignif::geom_signif(
+      comparisons = df_pairwise$groups,
+      map_signif_level = TRUE,
+      y_position = df_pairwise$stat_y_pos,
+      annotations = df_pairwise$label,
+      test = NULL,
+      parse = TRUE,
+      textsize = 2.5
+    )
+  }
+  g
+})
+names(g_metrics) <- names(metric_labels)
+g_metrics$score
+# g_metrics$cor
+# g_metrics$mean_cosine <- g_metrics$mean_cosine + scale_y_continuous(breaks = c(0, .25, .5, .75, 1)) + expand_limits(y = 1.28)
+
+
+
+# FINAL: Combine plots ----------------------------------------------------
+g <- wrap_plots(
+  wrap_plots(
+    plot_spacer(),
+    part1plots$ground_truth + theme(legend.position = "right") + labs(tag = "A"),
+    plot_spacer(),
+    part1plots$prediction + theme(legend.position = "right") + labs(tag = "B"),
+    plot_spacer(),
+    nrow = 1,
+    widths = c(1, 2, 1, 2, 1),
+    guides = "collect"
+  ),
+  wrap_plots(
+    dtw_dens + theme(legend.position = "right", panel.background = element_blank()) + expand_limits(x = 1000 * 1.01) + labs(tag = "C", title = NULL),
+    cal_dens + theme(legend.position = "right", panel.background = element_blank()) + expand_limits(x = 200 * 1.01) + labs(tag = "D", title = NULL),
+    g_metrics$score + expand_limits(y = 1.05) + scale_y_continuous(breaks = c(0, .25, .5, .75, 1)) + labs(tag = "E"),
+    guides = "collect"
+  ),
+  ncol = 1
+)
+
+ggsave(exp$result("supp_fig.pdf"), g, height = 6, width = 10, useDingbats = FALSE)
+pdftools::pdf_convert(
+  pdf = exp$result("supp_fig.pdf"),
+  filenames = exp$result("supp_fig.png"),
+  dpi = 120
+)

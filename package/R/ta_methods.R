@@ -31,6 +31,7 @@ ta_methods <- list(
     align <- alignment$align[[1]]
     align$pt1_aligned <- interp1$traj[align$index1]
     align$pt2_aligned <- interp2$traj[align$index2]
+    align$costMatrix <- alignment$costMatrix
 
     align
   },
@@ -45,7 +46,7 @@ ta_methods <- list(
       keep.internals = TRUE
     )
 
-    align <- dtw_alignment[c("index1", "index2", "index1s", "index2s", "stepsTaken")]
+    align <- dtw_alignment[c("index1", "index2", "index1s", "index2s", "stepsTaken", "costMatrix")]
     align$pt1_aligned <- res1$pseudotime[align$index2]
     align$pt2_aligned <- res2$pseudotime[align$index1]
 
@@ -58,7 +59,7 @@ ta_methods <- list(
     dtw_alignment <- dtw::dtw(res2$expression, res1$expression, step.pattern = dtw::symmetric2, keep.internals = TRUE)
     # dtwPlotDensity(dtw_alignment)
 
-    align <- dtw_alignment[c("index1", "index2", "index1s", "index2s", "stepsTaken")]
+    align <- dtw_alignment[c("index1", "index2", "index1s", "index2s", "stepsTaken", "costMatrix")]
     align$pt1_aligned <- res1$pseudotime[align$index2]
     align$pt2_aligned <- res2$pseudotime[align$index1]
 

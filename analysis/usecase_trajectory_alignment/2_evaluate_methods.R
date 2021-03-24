@@ -29,9 +29,28 @@ results <- exp$result("results.rds") %cache% pmap_dfr(
 
       distance <- mean(abs(pt1_aligned - pt2_aligned))
 
-      design_smoothing[rn, ] %>% mutate(distance)
+      aupt <- pracma::trapz(
+        pt1_aligned + pt2_aligned,
+        abs(pt1_aligned - pt2_aligned)
+      )
+
+      score <- 1 - aupt
+
+      design_smoothing[rn, ] %>% mutate(
+        distance,
+        aupt,
+        score
+      )
     }
   }
+)
+
+ggstatsplot::ggwithinstats(
+  results,
+  x = method,
+  y = score,
+  type = "np",
+  pairwise.display = "all"
 )
 
 z <- ggstatsplot::ggwithinstats(

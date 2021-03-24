@@ -217,8 +217,8 @@ g_metrics <- map2(names(metric_labels), metric_labels, function(metric, metric_n
       y = metric_name,
       colour = "Method"
     ) +
-    scale_colour_brewer(palette = "Set1") +
-    scale_fill_brewer(palette = "Set1")
+    scale_colour_brewer(palette = "Set2") +
+    scale_fill_brewer(palette = "Set2")
   if (nrow(df_pairwise) > 0) {
     g <- g + ggsignif::geom_signif(
       comparisons = df_pairwise$groups,
@@ -244,7 +244,7 @@ g_pairwise <-
   theme_classic() +
   theme_common(legend.position = "right") +
   labs(x = metric_labels[["cor"]], y = metric_labels[["mean_cosine"]], colour = "Method") +
-  scale_color_brewer(palette = "Set1")
+  scale_color_brewer(palette = "Set2")
 
 
 plot_part_D <- patchwork::wrap_plots(

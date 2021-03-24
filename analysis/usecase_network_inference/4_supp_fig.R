@@ -88,8 +88,8 @@ g_metrics <- map2(c("auroc", "aupr"), c("mean AUROC", "mean AUPR"), function(met
       y = metric_name,
       colour = "Method"
     ) +
-    scale_colour_brewer(palette = "Set1") +
-    scale_fill_brewer(palette = "Set1")
+    scale_colour_brewer(palette = "Set2") +
+    scale_fill_brewer(palette = "Set2")
 })
 names(g_metrics) <- c("auroc", "aupr")
 g_metrics$aupr
@@ -102,7 +102,7 @@ g_pairwise <-
   theme_classic() +
   theme_common(legend.position = "right") +
   labs(x = "mean AUROC", y = "mean AUPR", colour = "Method") +
-  scale_color_brewer(palette = "Set1")
+  scale_color_brewer(palette = "Set2")
 
 
 grnh <- 3.5
@@ -123,8 +123,8 @@ g <- patchwork::wrap_plots(
 ggsave(exp$result("supp_fig.pdf"), g, width = 10, height = (grnh + bch) * .9)
 
 # convert for previewing in gdoc
-# pdftools::pdf_convert(
-#   pdf = exp$result("supp_fig.pdf"),
-#   filenames = exp$result("supp_fig.png"),
-#   dpi = 120
-# )
+pdftools::pdf_convert(
+  pdf = exp$result("supp_fig.pdf"),
+  filenames = exp$result("supp_fig.png"),
+  dpi = 120
+)

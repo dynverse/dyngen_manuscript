@@ -16,16 +16,37 @@ file <- exp$dataset_file(design_dataset$id[[1]])
 dataset <- read_rds(file) %>% dynwrap::add_dimred(dimred = dyndimred::dimred_landmark_mds)
 
 # split up in two
-dataset1 <- dataset %>% filter_cells(model == "left", keep_dimred = TRUE)
+dataPastel2 <- dataset %>% filter_cells(model == "left", keep_dimred = TRUE)
 dataset2 <- dataset %>% filter_cells(model == "right", keep_dimred = TRUE)
 
-cal_alignment <- ta_methods$cellAlign(dataset1, dataset2)
-dtw_alignment <- ta_methods$DTW(dataset1, dataset2)
+cal_alignment <- ta_methods$cellAlign(dataPastel2, dataset2)
+dtw_alignment <- ta_methods$DTW(dataPastel2, dataset2)
 
-cal_dens <- plot_density(cal_alignment)
+cal_dens <- plot_density(cal_alignment, title = NULL)
 cal_dens
-dtw_dens <- plot_density(dtw_alignment)
+dtw_dens <- plot_density(dtw_alignment, title = NULL)
 dtw_dens
+
+
+# PART 2bis: naupa explanation --------------------------------------------
+
+# run method
+paths <- bind_rows(
+  tibble(pt1_aligned = cal_alignment$pt1_aligned, pt2_aligned = cal_alignment$pt2_aligned, method = "cellAlign"),
+  tibble(pt1_aligned = dtw_alignment$pt1_aligned, pt2_aligned = dtw_alignment$pt2_aligned, method = "DTW"),
+  tibble(pt1_aligned = c(0, 1, 1), pt2_aligned = c(0, 0, 1), method = "Worst possible"),
+  tibble(pt1_aligned = c(0, 1), pt2_aligned = c(0, 1), method = "Best possible")
+) %>%
+  mutate(method = factor(method, levels = c("cellAlign", "DTW", "Best possible", "Worst possible")))
+g_naupa <-
+  ggplot(paths) +
+  geom_path(aes(pt1_aligned + pt2_aligned, abs(pt1_aligned - pt2_aligned), colour = method)) +
+  scale_colour_brewer(palette = "Set2") +
+  theme_classic() +
+  coord_equal() +
+  labs(x = "pt1 + pt2", y = "|pt1 - pt2|", colour = "Method")
+
+
 
 
 # PART 3: scores ----------------------------------------------------------
@@ -69,7 +90,7 @@ pairwise <-
   ungroup() %>%
   mutate(label = gsub("\\[Holm-corrected\\]", "", label))
 
-metric_labels <- c(score = "Score")
+metric_labels <- c(score = "NAUPA score")
 
 # create metric plots
 g_metrics <- map2(names(metric_labels), metric_labels, function(metric, metric_name) {
@@ -101,8 +122,8 @@ g_metrics <- map2(names(metric_labels), metric_labels, function(metric, metric_n
       y = metric_name,
       colour = "Method"
     ) +
-    scale_colour_brewer(palette = "Set1") +
-    scale_fill_brewer(palette = "Set1")
+    scale_colour_brewer(palette = "Set2") +
+    scale_fill_brewer(palette = "Set2")
   if (nrow(df_pairwise) > 0) {
     g <- g + ggsignif::geom_signif(
       comparisons = df_pairwise$groups,
@@ -145,6 +166,25 @@ g <- wrap_plots(
 )
 
 ggsave(exp$result("supp_fig.pdf"), g, height = 6, width = 10, useDingbats = FALSE)
+
+# alternative layout, to be discussed
+galt <- wrap_plots(
+  wrap_plots(
+    part1plots$ground_truth + coord_flip() + theme(legend.position = "right") + labs(tag = "A"),
+    part1plots$prediction + coord_flip() + theme(legend.position = "right") + labs(tag = "B"),
+    nrow = 1,
+    guides = "collect"
+  ),
+  wrap_plots(
+    g_naupa + labs(tag = "C"),
+    g_metrics$score + coord_flip() + expand_limits(y = 1.05) + scale_y_continuous(breaks = c(0, .25, .5, .75, 1)) + labs(tag = "D"),
+    guides = "collect"
+  ),
+  heights = c(1, 1.3),
+  ncol = 1
+)
+ggsave(exp$result("supp_fig.pdf"), galt, height = 6, width = 10, useDingbats = FALSE)
+
 pdftools::pdf_convert(
   pdf = exp$result("supp_fig.pdf"),
   filenames = exp$result("supp_fig.png"),

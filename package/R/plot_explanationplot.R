@@ -1,10 +1,11 @@
+#' @importFrom reshape2 melt
 #' @export
 plot_density <- function(a1, title = "Distance matrix +\n warping path", subtitle = NULL){
   linedf <- tibble(
     x = a1$index1,
     y = a1$index2
   )
-  rasterdf <- melt(a1$costMatrix, varnames = c("x", "y"), value.name = "distance")
+  rasterdf <- reshape2::melt(a1$costMatrix, varnames = c("x", "y"), value.name = "distance")
   ggplot() +
     geom_raster(aes(x, y, fill = distance), rasterdf) +
     geom_line(aes(x, y), linedf) +

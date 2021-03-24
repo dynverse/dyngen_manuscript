@@ -12,15 +12,9 @@ exp <- start_analysis("usecase_rna_velocity")
 design_datasets <-
   crossing(
     seed = 1:3,
-    backbone_name = names(list_backbones()),
-    difficulty = forcats::fct_inorder(c("easy", "medium", "hard"))
-  ) %>%
+    backbone_name = names(list_backbones())) %>%
     mutate(
-      tr_rate_multiplier = c(easy = 25, medium = 5, hard = 1)[difficulty],
-      id = paste0(backbone_name, "_", difficulty, "_seed", seed)
-    ) %>%
-    filter(
-      difficulty == "hard" | !backbone_name %in% c("bifurcating_converging", "bifurcating_loop", "converging", "disconnected")
+      id = paste0(backbone_name, "_seed", seed)
     )
 write_rds(design_datasets, exp$result("design_datasets.rds"), compress = "gz")
 
@@ -30,7 +24,7 @@ write_rds(design_datasets, exp$result("design_datasets.rds"), compress = "gz")
 backbones <- dyngen::list_backbones()
 backbones$disconnected <- function() dyngen::backbone_disconnected("linear", "cycle")
 
-pwalk(design_datasets, function(id, seed, backbone_name, tr_rate_multiplier, ...) {
+pwalk(design_datasets, function(id, seed, backbone_name, ...) {
   dataset_file <- exp$dataset_file(id)
   plot_file <- gsub("\\.rds$", ".pdf", dataset_file)
 
@@ -38,13 +32,6 @@ pwalk(design_datasets, function(id, seed, backbone_name, tr_rate_multiplier, ...
 
     cat("## Generating ", id, "\n", sep = "")
     set.seed(seed)
-
-    kinetic_params <- kinetics_default()
-    kinetic_params$sampler_tfs <- function(...) {
-      x <- kinetics_default()$sampler_tfs(...)
-      x$transcription_rate <- x$transcription_rate * tr_rate_multiplier
-      x
-    }
 
     backbone <- backbones[[backbone_name]]()
     model <-
@@ -55,7 +42,6 @@ pwalk(design_datasets, function(id, seed, backbone_name, tr_rate_multiplier, ...
         num_hks = 0,
         backbone = backbone,
         num_cells = 2500,
-        kinetics_params = kinetic_params,
         simulation_params = simulation_default(
           burn_time = simtime_from_backbone(backbone, burn = TRUE) * 1.5,
           census_interval = ifelse(!backbone_name %in% c("linear_simple"), 10, 1),

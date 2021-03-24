@@ -231,7 +231,7 @@ g_metrics <- map2(names(metric_labels), metric_labels, function(metric, metric_n
 })
 names(g_metrics) <- names(metric_labels)
 g_metrics$cor
-g_metrics$mean_cosine
+g_metrics$mean_cosine <- g_metrics$mean_cosine + scale_y_continuous(breaks = c(0, .25, .5, .75, 1))
 
 
 # create pairwise plots

@@ -110,11 +110,22 @@ prediction <- dynplot_dimred(dataset) +
   theme_common()
 prediction
 
+prediction_small <- dynplot_dimred(dataset) +
+  geom_path(aes(comp_1, comp_2, group = pos), linetype = "dashed", colour = "darkgray", pred_df) +
+  geom_cell_point(colour = "black", size = 3) +
+  geom_cell_point(aes(colour = group), size = 2.5) +
+  geom_trajectory_segments(size = 1, arrow_size = .2, grid::arrow(type = "closed", length = unit(0.06, "inches"))) +
+  geom_milestone_point(size = 2, colour = "black") +
+  labs(colour = "Sample") +
+  scale_colour_manual(values = group_palette) +
+  theme_common()
+
 
 # save plots
 plots <- lst(
   ground_truth,
-  prediction
+  prediction,
+  prediction_small
 )
 
 write_rds(plots, exp$result("usecase_separateplots.rds"), compress = "xz")

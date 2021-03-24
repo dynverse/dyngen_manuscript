@@ -19,9 +19,12 @@ design_names <-
 # PART A: Illustration of velocity ----------------------------------------
 dataset_id <- "bifurcating_seed3"
 
-dataset <- read_rds(exp$dataset_file(dataset_id))
-model <- read_rds(exp$model_file(dataset_id))
-dyngen::plot_backbone_modulenet(model)
+dataset <- read_rds(exp$dataset_file(dataset_id)) %>% dynwrap::simplify_trajectory()
+dataset$waypoints <- NULL
+dataset <- dataset %>% dynwrap::add_waypoints()
+# model <- read_rds(exp$model_file(dataset_id))
+# dyngen::plot_backbone_modulenet(model)
+
 # # choosing a good rotation from 3D to 2D
 # mil_cols <- dynplot2::define_milestone_colors(milestone_colors = NULL, milestone_ids = dataset$milestone_ids)
 # mil_pct_mat <- dataset$milestone_percentages %>% reshape2::acast(cell_id~milestone_id, value.var = "percentage", fill = 0) %>% .[rownames(dataset$dimred), dataset$milestone_ids]

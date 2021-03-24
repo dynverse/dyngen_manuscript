@@ -35,4 +35,4 @@ out$CSNI_percell <- scores_c$aucs %>% filter(method == "casewise_casewise") %>% 
 out$CSNI_summary <- scores_c$summ %>% filter(method == "casewise_casewise") %>% select(-method, -method_label, cni_method_id) %>% rename(method_id = cni_method_name)
 
 # write output
-openxlsx::write.xlsx(out, exp$result("scores.xlsx"))
+openxlsx::write.xlsx(out, exp$result("Source Data.xlsx"))

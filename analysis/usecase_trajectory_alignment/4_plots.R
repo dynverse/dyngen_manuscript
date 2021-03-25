@@ -55,7 +55,6 @@ cal_dens
 dtw_dens <- plot_density(dtw_alignment, title = NULL)
 dtw_dens
 
-<<<<<<< HEAD
 # PART 2: dtw heatmaps ----------------------------------------------------
 # d1 <- readRDS(exp$dataset_file("linear1_1_0.5"))
 # d2 <- readRDS(exp$dataset_file("linear1_2_0.5"))
@@ -87,8 +86,7 @@ t1
 t2 <- (ground_truth + prediction) / (dtw_dens + results)
 t2
 ggsave(exp$result("usecase1.pdf"), t1, height = 7, width = 9)
-=======
->>>>>>> dd81428b6598c8e698684bb87ce30442b59030b8
+
 
 # PART 2bis: naupa explanation --------------------------------------------
 

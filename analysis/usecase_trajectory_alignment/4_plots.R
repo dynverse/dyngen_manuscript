@@ -39,7 +39,7 @@ g <-
 g
 
 # normalized minimum global distance computed
-results <- ggstatsplot::ggwithinstats(
+res_plot <- ggstatsplot::ggwithinstats(
   results,
   x = method,
   y = distance,
@@ -47,7 +47,7 @@ results <- ggstatsplot::ggwithinstats(
   pairwise.comparisons = TRUE,
   pairwise.display = TRUE
 )
-results
+res_plot
 
 # results %>%
 #   ggplot() +
@@ -108,10 +108,11 @@ dtw_dens
 #
 # alignment_smooth <- dtw::dtw(res2_sm$expression, res1_sm$expression, step.pattern = dtw::symmetric2, keep.internals = TRUE)
 # a_sm <- plot_density(alignment_smooth, title = "DTW+smoothing")
-t1 <- (ground_truth + prediction) / (dtw_dens + cal_dens + results)
+t1 <- (plot_spacer() + ground_truth + plot_spacer() + prediction + plot_spacer() + plot_layout(nrow = 1, widths = c(1, 2, 1, 2, 1))) / (dtw_dens + cal_dens + results)
+t1
 t2 <- (ground_truth + prediction) / (dtw_dens + results)
 t2
-ggsave(exp$result("usecase1.pdf"), t1, height = 9, width = 9)
+ggsave(exp$result("usecase1.pdf"), t1, height = 7, width = 9)
 
 # PART 1: Explanation plot ------------------------------------------------
 part1plots <- read_rds(exp$result("usecase_separateplots.rds"))

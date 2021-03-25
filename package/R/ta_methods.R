@@ -40,15 +40,15 @@ ta_methods <- list(
     res2 <- get_cell_expression(dataset2)
 
     dtw_alignment <- dtw::dtw(
-      res2$expression,
       res1$expression,
+      res2$expression,
       step.pattern = dtw::symmetric2,
       keep.internals = TRUE
     )
 
     align <- dtw_alignment[c("index1", "index2", "index1s", "index2s", "stepsTaken", "costMatrix")]
-    align$pt1_aligned <- res1$pseudotime[align$index2]
-    align$pt2_aligned <- res2$pseudotime[align$index1]
+    align$pt1_aligned <- res1$pseudotime[align$index1]
+    align$pt2_aligned <- res2$pseudotime[align$index2]
 
     align
   },

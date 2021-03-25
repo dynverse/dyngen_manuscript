@@ -56,12 +56,12 @@ ta_methods <- list(
     res1 <- get_waypoint_expression(dataset1, 100, ws = 0.125)
     res2 <- get_waypoint_expression(dataset2, 100, ws = 0.125)
 
-    dtw_alignment <- dtw::dtw(res2$expression, res1$expression, step.pattern = dtw::symmetric2, keep.internals = TRUE)
+    dtw_alignment <- dtw::dtw(res1$expression, res2$expression, step.pattern = dtw::symmetric2, keep.internals = TRUE)
     # dtwPlotDensity(dtw_alignment)
 
     align <- dtw_alignment[c("index1", "index2", "index1s", "index2s", "stepsTaken", "costMatrix")]
-    align$pt1_aligned <- res1$pseudotime[align$index2]
-    align$pt2_aligned <- res2$pseudotime[align$index1]
+    align$pt1_aligned <- res1$pseudotime[align$index1]
+    align$pt2_aligned <- res2$pseudotime[align$index2]
 
     align
   }

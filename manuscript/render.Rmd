@@ -1,11 +1,5 @@
 ---
-title: "dyngen: a multi-modal simulator for spearheading new single-cell omics analyses"
-author:
-- Robrecht Cannoodt*
-- Wouter Saelens*
-- Louise Deconinck
-- Yvan Saeys
-date: "`r format(Sys.time(), '%d %B %Y')`"
+title: "Response to reviewers' comments"
 output:
   pdf_document:
     keep_tex: yes
@@ -36,736 +30,894 @@ header-includes: |
 
 bibliography: library.bib
 ---
+<!-- Notes (remove this before submitting)
+dyngen manuscript v4  
+github.com/dynverse/dyngen  
+github.com/dynverse/dyngen_manuscript
+dyngen.dynverse.org
 
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(collapse=TRUE, results="hold")
+Antwoord naar editor: wordt gebruikt in dynverse, tradeseq, cellrank, BEELINE
+-->
+
+# dyngen rebuttal
+
+
+
+
+We would like to thank the reviewer for the constructive comments, which has motivated us to greatly improve the experiments performed in this work and the documentation provided for the tool. Notable changes are:
+
+
+ * We created a documentation website available at [dyngen.dynverse.org](https://dyngen.dynverse.org). [a]Several insights 
+ * We simplified and reran all use-case experiments, which allowed us to add some interpretation of the results for each of the use cases.
+ * We performed new experiments assessing the scalability of dyngen and the similarity in output in comparison to a reference (real) dataset. The results are included in the supplementary material.
+ As we think that several of the remarks raised by the reviewer are also interesting for the target audience of the paper, we not only include our responses to these remarks here, but in addition have created several tutorials that can be used to perform these experiments with dyngen.  These tutorials now also allow users to reproduce some of the additional analyses requested by the reviewer, and they have been added to a new website that we created for our method, with a lot more documentation website ([dyngen.dynverse.org](https://dyngen.dynverse.org)).
+* … todo, add more ...[b]
+
+## Comment 1
+> Bioinformatics has been looking into GRNs, their simulation and estimation for more than a decade (in bulk at the time), and I miss some important references and insights from then. Such as alternate definitions of what a GRN is - eg does logic play a role, should you use boolean networks (see Albert&Othma, JTB 2003) -, do old-school bulk simulators such as GeneNetWeaver (Bioinformatics 2011) be used, can one use transformation methods (eg Wittmann et al, BMC Sysbio 2009) and how is this different from what has been introduced here (what is novelty here).
+
+
+Certainly simulating expression datasets using GRNs has been around for a long time and dyngen is inspired heavily by such software (GeneNetWeaver in particular).  Nevertheless, there are great differences between bulk and single-cell simulators:  the data characteristics of single-cell omics are vastly different from bulk omics, typically having much lower library sizes and a higher dropout rate, but also a high number of profiles. The low library sizes, in particular, are problematic as ODEs are ill-suited for performing low-molecule simulations. This necessitates the development of new single-cell simulators.
+
+
+We have added paragraph §3 to the introduction to discuss the relevance of bulk simulators and why they are not suitable for simulating single-cell expression data:
+
+
+> Simulating realistic data requires that the underlying biology is recapitulated as best as possible, and in the case of transcriptomics data this typically involves modelling the underlying gene regulatory networks. Simulators of "bulk" microarray or RNA-sequencing profiles simulate biological processes (e.g. transcription, translation) by translating a database of known regulatory interactions into a set of ordinary differential equations (ODE) [@roy_systemgeneratingtranscription_2008; @hache_gengesystematicgeneration_2009; @schaffter_genenetweaversilicobenchmark_2011; @vandenbulcke_syntrengeneratorsynthetic_2006]. These methods have been instrumental in performing benchmarking studies [@prill_rigorousassessmentsystems_2010; @marbach_revealingstrengthsweaknesses_2010; @marbach_wisdomcrowdsrobust_2012]. However, the advent of single-cell omics introduced several new types of analyses (e.g. trajectory inference, RNA velocity, cell-specific network inference) which exploit the higher resolution of single-cell versus bulk omics [@luecken_currentbestpractices_2019]. In addition, the data characteristics of single-cell omics are vastly different from bulk omics, typically having much lower library sizes and a higher dropout rate, but also a high number of profiles [@vallejos_normalizingsinglecellrna_2017]. The low library sizes, in particular, are problematic as ODEs are ill-suited for performing low-molecule simulations [@gillespie_exactstochasticsimulation_1977]. This necessitates the development of new single-cell simulators.
+
+## Comment 2
+> Similarly, the single cell genomics field has used simulations also for dynamics for some time as evaluation at least implicitely. Please discuss advances and differences or similarities to those, eg. to simulations from (Ocone, Bioinf 2015) or (Pratapa, Nat Meth 2020).
+
+
+We expanded upon paragraph §4 and made a more direct comparison to the methods listed in Supplemental Table 1. Paragraph §4: 
+
+
+> To this end, single-cell omics simulators emulate the technical procedures from single-cell omics protocols. Simulators such as Splatter [@zappia_splattersimulationsinglecell_2017], powsimR [@vieth_powsimrpoweranalysis_2017], PROSSTT [@papadopoulos_prossttprobabilisticsimulation_2019] and SymSim [@zhang_simulatingmultiplefaceted_2019]) have already been widely used to compare single-cell methods [@street_slingshotcelllineage_2018; @parra_reconstructingcomplexlineage_2019; @lummertzdarocha_reconstructioncomplexsinglecell_2018; @lin_scclassifysamplesize_2020] and perform independent benchmarks [@duo_systematicperformanceevaluation_2018; @saelens_comparisonsinglecelltrajectory_2019; @soneson_biasrobustnessscalability_2018]. However, by focusing more on simulating the single-cell omics protocol (e.g. RNA capture, amplification, sequencing) and less on the underlying biology (e.g. transcription, splicing, translation), their applicability and reusability is limited towards the specific application for which they were designed (e.g. benchmarking clustering or differential expression methods), and extending these tools to include additional modalities or experimental conditions is challenging.
+
+
+
+
+We did not include the reference to Ocone Bioinf 2015 as the advances proposed by this research were mainly related to performing Network Inference. In terms of generating synthetic data, the simulator used by Ocone et al. offered little advantage over aforementioned bulk simulators. We also did not include a reference to Pratapa et al., as their methodology is borrowed heavily from dyngen itself and offers little advantage over it.
+
+
+
+## Comment 3
+> One of the main aims of any simulation framework should be to capture features of real biological data. I’d be great if the authors could demonstrate the fidelity of the generated data by comparing it to some real datasets, e.g. distribution of mean gene expression and number of zero counts per gene. How does it perform compared to other simulation frameworks? This would help me as well as community to evaluate how realistic the induced gene correlations/dependencies are, and what may be missing.
+
+
+A vignette has been added to the package and supplementary material which uses countsimQC [@soneson_unifiedqualityverification_2018] to explore the characteristics of an dyngen simulation and the reference dataset used by it ([dyngen.dynverse.org/articles/advanced_topics/comparison_reference.html](https://dyngen.dynverse.org/articles/advanced_topics/comparison_reference.html)). The distribution plots in this vignette, while not perfect, nicely demonstrates that the output generated by dyngen mimics the given reference dataset for the evaluated metrics.
+
+
+
+## Comment 4
+> Simulated data for the described key applications of dyngen (network inference, trajectory alignment, and RNA velocity) has already been generated within the respective works of lioness (Fig. S1+S4), cellAlign (Fig. S6), velocyto (Fig. S5), scvelo (Fig. S3), dynamo (Fig. 1), many of which also use Gillespie. What does dyngen add conceptually?
+
+
+We modified paragraphs §5 and §6 to better highlight the scientific contributions dyngen makes:
+
+
+> We introduce dyngen, a method for simulating cellular dynamics at a single-cell, single-transcript resolution (Figure\ \ref{fig:overview}). This problem is tackled in three fully-configurable main steps. First, biological processes are mimicked by translating a gene regulatory network in a set of reactions (regulation, transcription, splicing, translation). Second, individual cells are simulated using Gillespie's stochastic simulation algorithm [@gillespie_exactstochasticsimulation_1977], which is designed to work well in low-molecule simulations. Finally, real reference datasets are used to emulate single-cell omics profiling protocols.
+> 
+> Throughout a simulation, dyngen tracks many layers of information, including the abundance of any molecule in the cell, the progression of the cell along a dynamic process, and the activation strength of individual regulatory interactions. In addition, dyngen can simulate a large variety of dynamic processes (e.g. cyclic, branching, disconnected) as well as a broad range of experimental conditions (e.g. batch effects and time-series, perturbation and single-cell knockdown experiments). For these reasons, dyngen can cater to a wide range of benchmarking applications, including trajectory inference, trajectory alignment, and trajectory differential expression (Table\ \ref{tab:comparison}).
+
+
+
+
+To the best of our knowledge, the works listed above use very different approaches to benchmarking their tool:
+
+
+* LIONESS, network inference method: Uses randomly generated networks & boolean networks to generate synthetic data. The networks used to generate datasets are very synthetic and completely devoid of any biological relevance. By using Gillespie's SSA algorithm instead of boolean networks, we can use dyngen to track many layers of information (e.g. the number of times a biological reaction has been triggered during a given time interval). This allows us to benchmark methods which require this information (e.g. RNA velocity).
+* cellAlign, trajectory alignment: Perturbs real datasets to assess the robustness of cellAlign. When benchmarking a tool, assessing its robustness is almost as important as assessing its accuracy. Robustness analysis can be performed without knowing the gold standard, whereas the gold standard is needed for assessing the accuracy of a tool.
+* velocyto, RNA velocity: Uses ODEs to simulate splicing mechanics. The code for reproducing these datasets couldn't be found. Based on the description, these simulations were limited to simulating only the splicing mechanics under a particular set of conditions, thereby limiting its applicability outside of this particular context.
+* scvelo, RNA velocity: Same as velocyto.
+* dynamo, RNA velocity: Uses Gillespie's SSA to simulate splicing reactions. However, this system is very limited, including only two genes. This application of Gillespie's SSA seems very tailored towards this particular use-case and would require major redesigns to be made applicable elsewhere.
+
+
+It should be noted that from the list above, only LIONESS really compares its accuracy performance with other methods using a quantitative metric. We would thus argue that these cases further highlight the need for broadly applicable synthetic data generators such as dyngen.
+
+## Comment 5
+> The authors evaluate several computational tools, including the afore-mentioned. Even if the authors mention not to aim for a large-scale benchmarking, they still should provide some insights into why some tools perform better than others. Having an interpretable simulation engine in hand, it is unfortunate that it yet lacks any explanation and the reader is left alone with performance statements that are not well-founded. Some intuition would be very desirable. Why does SCENIC outperform the other methods? Why does smoothing improve trajectory alignment? And what causes differences in velocity estimation? Could you, for instance, generate an example where the differences in velocity estimates become more obvious, where one estimation procedure fails to fully capture the known direction?
+
+
+Performing in-depth benchmarks on each of these use-cases can be considered separate studies on their own and is beyond the scope of this work. However, we did reanalyse the experiments and added some interpretation to the respective sections.
+
+
+ * Trajectory alignment: We removed DTW+smoothing (as it was a custom method developed for the sake of this analysis) and added cellAlign to the comparison, as cellAlign also uses smoothing and DTW to get to the same objective, and has been developed specifically with single cell data in mind.
+ * RNA velocity: We removed some parameter settings which are designed to be very similar and thus have no added benefit in the visualisation. We removed the 'difficulty' settings for the different datasets, as the 'easy' and 'medium' datasets were unrealistic; only the 'hard' settings were retained. While there are no large difference in performance between the different methods, we added interpretation on why methods obtain low scores on one metric and high scores on the other.
+ * Cell-specific network inference: We added information on why certain methods significantly outperform others and provide possible solutions to problems, where possible.
+
+
+
+## Minor comment 1
+> Could the authors please discuss runtime and scalability, which obviously can easily become a weakness for such a complex model.
+
+
+A vignette has been added to the package and supplementary material explores the execution time of dyngen for an increasing number of cells and genes ([dyngen.dynverse.org/articles/advanced_topics/scalability_and_runtime.html](https://dyngen.dynverse.org/articles/advanced_topics/scalability_and_runtime.html)). These figures show that the execution time of dyngen scales linearly w.r.t. the number of cells and also linearly w.r.t. the number of genes. 
+
+
+
+## Minor comment 2
+> Please state how many genes have been used in the examples. It seems like the number of genes used in the examples is rather small (< 100). Wouldn’t it be better to use a more realistic number of features (~10,000)?
+
+
+Unfortunately, the examples shown in the package documentation need to be very small to abide by CRAN package submission policies, as the complete testing of the software package (including but not limited to running all examples) can strictly take 10 minutes on CRAN's server using only one thread. 
+
+
+However, the scalability vignette mentioned above also shows the execution time of each of the steps taken by dyngen in simulating a 10'000 by 10'000 dataset, which takes about 20 minutes to complete. 
+
+
+
+## Minor comment 3
+> Congratulations for making the clearly documented package available. Installation and going through the vignette works fine. At several points during the simulation files are downloaded without asking permission. It may be better practice to ask the user for permission, or download into a temporary directory, or read the files directly without downloading, or include in the package etc. 
+
+
+By default, required files are downloaded to a temporary directory. Unfortunately, these files cannot be included inside the package as they are reference datasets which are much larger than what is allowed by CRAN policies.
+
+
+Based on the reviewers suggestion, we modified the installation instructions such that it better reflects that files will be downloaded when using dyngen, and provides instructions on how to configure the system such that it will cache these files in a user-specified directory ([dyngen.dynverse.org/articles/installation.html](https://dyngen.dynverse.org/articles/installation.html)).
+
+
+
+## Minor comment 4
+> Further, it might be very useful to output the simulated data to a standard object, such as Seurat or SingleCellExperiment, or to provide instructions on how to convert it.
+
+
+Thank you for this suggestion. We agree that conversion functions from the typical dyngen output to the typical object types familiar to single-cell omics programmers would be very useful. Therefore, we included such functions in the latest version of dyngen to convert its output to the following formats: anndata, dyno, SingleCellExperiment, Seurat.
+
+
+
+
+[a]containing what?
+[b]todo
+
+# Supplementary Files
+
+
+## Vignette: Comparison to reference dataset
+
+In this vignette, we will take a look at characteristic features of
+dyngen versus the reference dataset it uses. To this end, we’ll be using
+[`countsimQC`](https://www.bioconductor.org/packages/release/bioc/html/countsimQC.html)
+[@soneson_unifiedqualityverification_2018] to calculate key statistics of both datasets
+and create comparative visualisations.
+
+
+### Run dyngen simulation
+
+We use an internal function from the dyngen package to download and
+cache one of the reference datasets.
+
+``` r
 library(tidyverse)
+library(dyngen)
+
+set.seed(1)
+
+data("realcounts", package = "dyngen")
+name_realcounts <- "zenodo_1443566_real_silver_bone-marrow-mesenchyme-erythrocyte-differentiation_mca"
+url_realcounts <- realcounts %>% filter(name == name_realcounts) %>% pull(url)
+realcount <- dyngen:::.download_cacheable_file(url_realcounts, getOption("dyngen_download_cache_dir"), verbose = FALSE)
+```
+
+We run a simple dyngen dataset as follows, where the number of cells and
+genes are determined by the size of the reference dataset.
+
+``` r
+backbone <- backbone_bifurcating_loop()
+
+num_cells <- nrow(realcount)
+num_feats <- ncol(realcount)
+num_tfs <- nrow(backbone$module_info)
+num_tar <- round((num_feats - num_tfs) / 2)
+num_hks <- num_feats - num_tfs - num_tar
+
+config <-
+  initialise_model(
+    backbone = backbone,
+    num_cells = num_cells,
+    num_tfs = num_tfs,
+    num_targets = num_tar,
+    num_hks = num_hks,
+    gold_standard_params = gold_standard_default(),
+    simulation_params = simulation_default(
+      total_time = 1000,
+      experiment_params = simulation_type_wild_type(num_simulations = 100)
+    ),
+    experiment_params = experiment_snapshot(
+      realcount = realcount
+    ),
+    verbose = FALSE
+  )
+```
+
+``` r
+
+# the simulation is being sped up because rendering all vignettes with one core
+
+# for pkgdown can otherwise take a very long time
+set.seed(1)
+
+config <-
+  initialise_model(
+    backbone = backbone,
+    num_cells = num_cells,
+    num_tfs = num_tfs,
+    num_targets = num_tar,
+    num_hks = num_hks,
+    verbose = interactive(),
+    download_cache_dir = tools::R_user_dir("dyngen", "data"),
+    simulation_params = simulation_default(
+      total_time = 1000,
+      census_interval = 2, 
+      ssa_algorithm = ssa_etl(tau = 300/3600),
+      experiment_params = simulation_type_wild_type(num_simulations = 10)
+    ),
+    experiment_params = experiment_snapshot(
+      realcount = realcount
+    )
+  )
+```
+
+``` r
+out <- generate_dataset(config, make_plots = TRUE)
+```
+
+    ## Generating TF network
+    ## Sampling feature network from real network
+    ## Generating kinetics for 3025 features
+    ## Generating formulae
+    ## Generating gold standard mod changes
+    ## Precompiling reactions for gold standard
+    ## Running gold simulations
+    ##   |                                                  | 0 % elapsed=00s     |========                                          | 14% elapsed=00s, remaining~01s  |===============                                   | 29% elapsed=00s, remaining~00s  |======================                            | 43% elapsed=00s, remaining~00s  |=============================                     | 57% elapsed=00s, remaining~00s  |====================================              | 71% elapsed=00s, remaining~00s  |===========================================       | 86% elapsed=00s, remaining~00s  |==================================================| 100% elapsed=01s, remaining~00s
+    ## Precompiling reactions for simulations
+    ## Running 10 simulations
+    ## Mapping simulations to gold standard
+    ## Performing dimred
+    ## Simulating experiment
+    ## Wrapping dataset
+    ## Making plots
+
+``` r
+out$plot
+```
+
+![](comparison_reference_files/figure-gfm/dyngen_generate-1.png)<!-- -->
+
+Both datasets are stored in a list for easy usage by countsimQC.
+
+``` r
+datasets <- list(
+  real = t(as.matrix(realcount)),
+  dyngen = t(as.matrix(out$dataset$counts))
+)
+
+ddsList <- lapply(datasets, function(ds) {
+  DESeq2::DESeqDataSetFromMatrix(
+    countData = round(as.matrix(ds)), 
+    colData = data.frame(sample = seq_len(ncol(ds))), 
+    design = ~1
+  )
+})
 ```
 
 
+### Run countsimQC computations
 
-# Abstract
-<!-- format: max. 70 words -->
-We present dyngen, a novel, multi-modal simulation engine for studying dynamic cellular processes at single-cell resolution. dyngen is more flexible than current single-cell simulation engines, and allows better method development and benchmarking, thereby stimulating development and testing of novel computational methods. We demonstrate its potential for spearheading novel computational methods on three novel applications: aligning cell developmental trajectories, cell-specific regulatory network inference and estimation of RNA velocity.
+Below are some computations countsimQC makes. Normally these are not
+visible to the user, but for the sake of transparency these are included
+in the vignette.
 
-# Main text
-<!-- format: 1500 Words, no headings, max. 2 figures, max. 20 references-->
-Single-cell simulation engines are becoming increasingly important for testing and benchmarking computational methods, a pressing need in the widely expanding field of single-cell biology. Complementary to real biological data, synthetic data provides a valuable alternative where the actual ground truth is completely known and thus can be compared to, in order to make quantitative evaluations of computational methods that aim to reconstruct this ground truth [@zappia_splattersimulationsinglecell_2017]. In addition, simulation engines are more flexible when it comes to stress-testing computational methods, for example by varying the parameters of the simulation, such as the amount of noise, samples, and cells measured, allowing benchmarking of methods over a wide range of possible scenarios. In this way, they can even guide the design of real biological experiments, finding out the best conditions to be used as input for subsequent computational pipelines.
-
-
-Another, more experimental use of simulation engines is their important role in spearheading the development of novel computational methods, possibly even before real data is available. In this way, simulation engines can be used to assess the value of novel experimental protocols or treatments. Simulation engines are also increasingly important when it comes to finding alternatives to animal models, for example for drug testing and precision medicine. In such scenarios, cellular simulations can act as digital twins, offering unlimited experimentation _in silico_ [@bjornsson_digitaltwinspersonalize_2019].
+``` r
+library(countsimQC)
 
 
-Simulating realistic data requires that the underlying biology is recapitulated as best as possible, and in the case of transcriptomics data this typically involves modelling the underlying gene regulatory networks. Simulators of "bulk" microarray or RNA-sequencing profiles simulate biological processes (e.g. transcription, translation) by translating a database of known regulatory interactions into a set of ordinary differential equations (ODE) [@roy_systemgeneratingtranscription_2008; @hache_gengesystematicgeneration_2009; @schaffter_genenetweaversilicobenchmark_2011; @vandenbulcke_syntrengeneratorsynthetic_2006]. These methods have been instrumental in performing benchmarking studies [@prill_rigorousassessmentsystems_2010; @marbach_revealingstrengthsweaknesses_2010; @marbach_wisdomcrowdsrobust_2012]. However, the advent of single-cell omics introduced several new types of analyses (e.g. trajectory inference, RNA velocity, cell-specific network inference) which exploit the higher resolution of single-cell versus bulk omics [@luecken_currentbestpractices_2019]. In addition, the data characteristics of single-cell omics are vastly different from bulk omics, typically having much lower library sizes and a higher dropout rate, but also a high number of profiles [@vallejos_normalizingsinglecellrna_2017]. The low library sizes, in particular, are problematic as ODEs are ill-suited for performing low-molecule simulations [@gillespie_exactstochasticsimulation_1977]. This necessitates the development of new single-cell simulators.
+### Define helper objects
+nDatasets <- length(ddsList)
+colRow <- c(2, 1)
+panelSize <- 4
+thm <- 
+  theme_bw() + 
+  theme(
+    axis.text = element_text(size = 15),
+    axis.title = element_text(size = 14),
+    strip.text = element_text(size = 15)
+  )
+```
+
+Compute key characteristics
+
+``` r
+obj <- countsimQC:::calculateDispersionsddsList(ddsList = ddsList, maxNForDisp = Inf)
+
+sampleCorrDF <- countsimQC:::calculateSampleCorrs(ddsList = obj, maxNForCorr = 500)
+
+featureCorrDF <- countsimQC:::calculateFeatureCorrs(ddsList = obj, maxNForCorr = 500)
+```
+
+Summarize sample characteristics
+
+``` r
+sampleDF <- map2_df(obj, names(obj), function(x, dataset_name) {
+  tibble(
+    dataset = dataset_name,
+    Libsize = colSums(x$dge$counts),
+    Fraczero = colMeans(x$dge$counts == 0),
+    TMM = x$dge$samples$norm.factors,
+    EffLibsize = Libsize * TMM
+  )
+})
+```
+
+Summarize feature characteristics
+
+``` r
+featureDF <- map2_df(obj, names(obj), function(x, dataset_name) {
+  rd <- SummarizedExperiment::rowData(x$dds)
+  tibble(
+    dataset = dataset_name,
+    Tagwise = sqrt(x$dge$tagwise.dispersion),
+    Common = sqrt(x$dge$common.dispersion),
+    Trend = sqrt(x$dge$trended.dispersion),
+    AveLogCPM = x$dge$AveLogCPM,
+    AveLogCPMDisp = x$dge$AveLogCPMDisp, 
+    average_log2_cpm = apply(edgeR::cpm(x$dge, prior.count = 2, log = TRUE), 1, mean), 
+    variance_log2_cpm = apply(edgeR::cpm(x$dge, prior.count = 2, log = TRUE), 1, var),
+    Fraczero = rowMeans(x$dge$counts == 0),
+    dispGeneEst = rd$dispGeneEst,
+    dispFit = rd$dispFit,
+    dispFinal = rd$dispersion,
+    baseMeanDisp = rd$baseMeanDisp,
+    baseMean = rd$baseMean
+  )
+})
+```
+
+Summarize data set characteristics
+
+``` r
+datasetDF <- map2_df(obj, names(obj), function(x, dataset_name) {
+  tibble(
+    dataset = dataset_name,
+    prior_df = paste0("prior.df = ", round(x$dge$prior.df, 2)),
+    nVars = nrow(x$dge$counts),
+    nSamples = ncol(x$dge$counts),
+    AveLogCPMDisp = 0.8 * max(featureDF$AveLogCPMDisp),
+    Tagwise = 0.9 * max(featureDF$Tagwise)
+  )
+})
+```
 
 
-To this end, single-cell omics simulators emulate the technical procedures from single-cell omics protocols. Simulators such as Splatter [@zappia_splattersimulationsinglecell_2017], powsimR [@vieth_powsimrpoweranalysis_2017], PROSSTT [@papadopoulos_prossttprobabilisticsimulation_2019] and SymSim [@zhang_simulatingmultiplefaceted_2019]) have already been widely used to compare single-cell methods [@street_slingshotcelllineage_2018; @parra_reconstructingcomplexlineage_2019; @lummertzdarocha_reconstructioncomplexsinglecell_2018; @lin_scclassifysamplesize_2020] and perform independent benchmarks [@duo_systematicperformanceevaluation_2018; @saelens_comparisonsinglecelltrajectory_2019; @soneson_biasrobustnessscalability_2018]. However, by focusing more on simulating the single-cell omics protocol (e.g. RNA capture, amplification, sequencing) and less on the underlying biology (e.g. transcription, splicing, translation), their applicability and reusability is limited towards the specific application for which they were designed (e.g. benchmarking clustering or differential expression methods), and extending these tools to include additional modalities or experimental conditions is challenging.
+### Data set dimensions
+
+These bar plots show the number of samples (columns) and features (rows)
+in each data set.
+
+Number of samples (columns)
+
+``` r
+ggplot(datasetDF, aes(x = dataset, y = nSamples, fill = dataset)) + 
+  geom_bar(stat = "identity", alpha = 0.5) + 
+  xlab("") + ylab("Number of samples (columns)") + 
+  thm + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
+```
+
+![](comparison_reference_files/figure-gfm/nSamples-1.png)<!-- -->
+
+Number of features (rows)
+
+``` r
+ggplot(datasetDF, aes(x = dataset, y = nVars, fill = dataset)) + 
+  geom_bar(stat = "identity", alpha = 0.5) + 
+  xlab("") + ylab("Number of features (rows)") + 
+  thm + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
+```
+
+![](comparison_reference_files/figure-gfm/nVariables-1.png)<!-- -->
 
 
-We introduce dyngen, a method for simulating cellular dynamics at a single-cell, single-transcript resolution (Figure\ \ref{fig:overview}). This problem is tackled in three fully-configurable main steps. First, biological processes are mimicked by translating a gene regulatory network in a set of reactions (regulation, transcription, splicing, translation). Second, individual cells are simulated using Gillespie's stochastic simulation algorithm [@gillespie_exactstochasticsimulation_1977], which is designed to work well in low-molecule simulations. Finally, (real) reference datasets are used to emulate single-cell omics profiling protocols. 
+### Dispersion/BCV plots
+
+Disperson/BCV plots show the association between the average abundance
+and the dispersion or “biological coefficient of variation”
+(sqrt(dispersion)), as calculated by
+[`edgeR`](https://bioconductor.org/packages/release/bioc/html/edgeR.html)
+[@robinson_edgerbioconductorpackage_2010] and
+[`DESeq2`](http://bioconductor.org/packages/release/bioc/html/DESeq2.html)
+[@love_moderatedestimationfold_2014]. In the `edgeR` plot, the estimate of the
+prior degrees of freedom is indicated.
 
 
-Throughout a simulation, dyngen tracks many layers of information, including the abundance of any molecule in the cell, the progression of the cell along a dynamic process, and the activation strength of individual regulatory interactions. In addition, dyngen can simulate a large variety of dynamic processes (e.g. cyclic, branching, disconnected) as well as a broad range of experimental conditions (e.g. batch effects and time-series, perturbation and single-cell knockdown experiments). For these reasons, dyngen can cater to a wide range of benchmarking applications, including trajectory inference, trajectory alignment, and trajectory differential expression (Table\ \ref{tab:comparison}). 
+#### edgeR
+
+The black dots represent the tagwise dispersion estimates, the red line
+the common dispersion and the blue curve represents the trended
+dispersion estimates. For further information about the dispersion
+estimation in `edgeR`, see Chen et al. [@chen_differentialexpressionanalysis_2014].
+
+``` r
+ggplot(featureDF %>% dplyr::arrange(AveLogCPMDisp), 
+       aes(x = AveLogCPMDisp, y = Tagwise)) + 
+  geom_point(size = 0.25, alpha = 0.5) + 
+  facet_wrap(~dataset, nrow = colRow[2]) + 
+  geom_line(aes(y = Trend), color = "blue", size = 1.5) + 
+  geom_line(aes(y = Common), color = "red", size = 1.5) +
+  geom_text(data = datasetDF, aes(label = prior_df)) + 
+  xlab("Average log CPM") + ylab("Biological coefficient of variation") + 
+  thm
+```
+
+![](comparison_reference_files/figure-gfm/BCVedgeR-1.png)<!-- -->
+
+
+#### DESeq2
+
+The black dots are the gene-wise dispersion estimates, the red curve the
+fitted mean-dispersion relationship and the blue circles represent the
+final dispersion estimates.For further information about the dispersion
+estimation in `DESeq2`, see Love et al. [@love_moderatedestimationfold_2014].
+
+``` r
+ggplot(featureDF %>% dplyr::arrange(baseMeanDisp), 
+       aes(x = baseMeanDisp, y = dispGeneEst)) + 
+  geom_point(size = 0.25, alpha = 0.5) + 
+  facet_wrap(~dataset, nrow = colRow[2]) + scale_x_log10() + scale_y_log10() +  
+  geom_point(aes(y = dispFinal), color = "lightblue", shape = 21) + 
+  geom_line(aes(y = dispFit), color = "red", size = 1.5) + 
+  xlab("Base mean") + ylab("Dispersion") + 
+  thm
+```
+
+![](comparison_reference_files/figure-gfm/dispersionDESeq2-1.png)<!-- -->
+
+
+### Mean-variance plots
+
+This scatter plot shows the relation between the empirical mean and
+variance of the features. The difference between these mean-variance
+plots and the mean-dispersion plots above is that the plots in this
+section do not take the information about the experimental design and
+sample grouping into account, but simply display the mean and variance
+of log2(CPM) estimates across all samples, calculated using the `cpm`
+function from
+[`edgeR`](https://bioconductor.org/packages/release/bioc/html/edgeR.html)
+[@robinson_edgerbioconductorpackage_2010], with a prior count of 2.
+
+``` r
+ggplot(featureDF, aes(x = average_log2_cpm, y = variance_log2_cpm)) + 
+  geom_point(size = 0.75, alpha = 0.5) + 
+  facet_wrap(~dataset, nrow = colRow[2]) + 
+  xlab("Mean of log2(CPM)") + ylab("Variance of log2(CPM)") + 
+  thm
+```
+
+![](comparison_reference_files/figure-gfm/meanVarSepScatter-1.png)<!-- -->
+
+
+### Library sizes
+
+This plot shows a histogram of the total read count per sample, i.e.,
+the column sums of the respective data matrices.
+
+``` r
+ggplot(sampleDF, aes(x = Libsize)) + geom_histogram(bins = 30) + 
+  facet_wrap(~dataset, nrow = colRow[2]) +
+  xlab("Library size") + thm
+```
+
+![](comparison_reference_files/figure-gfm/libsizeSepHist-1.png)<!-- -->
+
+
+### TMM normalization factors
+
+This plot shows a histogram of the TMM normalization factors [@robinson_scalingnormalizationmethod_2010], intended to adjust for differences in RNA
+composition, as calculated by
+[`edgeR`](https://bioconductor.org/packages/release/bioc/html/edgeR.html)
+[@robinson_edgerbioconductorpackage_2010].
+
+``` r
+ggplot(sampleDF, aes(x = TMM)) + geom_histogram(bins = 30) + 
+  facet_wrap(~dataset, nrow = colRow[2]) +
+  xlab("TMM normalization factor") + thm
+```
+
+![](comparison_reference_files/figure-gfm/tmmSepHist-1.png)<!-- -->
+
+
+### Effective library sizes
+
+This plot shows a histogram of the “effective library sizes,” defined as
+the total count per sample multiplied by the corresponding TMM
+normalization factor.
+
+``` r
+ggplot(sampleDF, aes(x = EffLibsize)) + geom_histogram(bins = 30) + 
+  facet_wrap(~dataset, nrow = colRow[2]) +
+  xlab("Effective library size") + thm
+```
+
+![](comparison_reference_files/figure-gfm/effLibsizeSepHist-1.png)<!-- -->
+
+
+### Expression distributions (average log CPM)
+
+This plot shows the distribution of average abundance values for the
+features. The abundances are log CPM values calculated by `edgeR`.
+
+``` r
+ggplot(featureDF, aes(x = AveLogCPM)) + geom_histogram(bins = 30) + 
+  facet_wrap(~dataset, nrow = colRow[2]) +
+  xlab("Average log CPM") + thm
+```
+
+![](comparison_reference_files/figure-gfm/logCPMSepHist-1.png)<!-- -->
+
+
+### Fraction zeros per sample
+
+This plot shows the distribution of the fraction of zeros observed per
+sample (column) in the count matrices.
+
+``` r
+ggplot(sampleDF, aes(x = Fraczero)) + geom_histogram(bins = 30) + 
+  facet_wrap(~dataset, nrow = colRow[2]) +
+  xlab("Fraction zeros per sample") + thm
+```
+
+![](comparison_reference_files/figure-gfm/fraczeroSampleSepHist-1.png)<!-- -->
+
+
+### Fraction zeros per feature
+
+This plot illustrates the distribution of the fraction of zeros observed
+per feature (row) in the count matrices.
+
+``` r
+ggplot(featureDF, aes(x = Fraczero)) + geom_histogram(bins = 30) + 
+  facet_wrap(~dataset, nrow = colRow[2]) +
+  xlab("Fraction zeros per feature") + thm
+```
+
+![](comparison_reference_files/figure-gfm/fraczeroFeatureSepHist-1.png)<!-- -->
+
+
+### Sample-sample correlations
+
+The plot below shows the distribution of Spearman correlation
+coefficients for pairs of samples, calculated from the log(CPM) values
+obtained via the `cpm` function from `edgeR`, with a prior.count of 2.
+
+``` r
+ggplot(sampleCorrDF, aes(x = Correlation)) + geom_histogram(bins = 30) + 
+  facet_wrap(~dataset, nrow = colRow[2]) +
+  xlab("Sample-sample correlation") + thm
+```
+
+![](comparison_reference_files/figure-gfm/sampleCorrSepHist-1.png)<!-- -->
+
+
+### Feature-feature correlations
+
+This plot illustrates the distribution of Spearman correlation
+coefficients for pairs of features, calculated from the log(CPM) values
+obtained via the `cpm` function from `edgeR`, with a prior.count of 2.
+Only non-constant features are considered.
+
+``` r
+ggplot(featureCorrDF, aes(x = Correlation)) + geom_histogram(bins = 30) + 
+  facet_wrap(~dataset, nrow = colRow[2]) +
+  xlab("Feature-feature correlation") + thm
+```
+
+![](comparison_reference_files/figure-gfm/featureCorrSepHist-1.png)<!-- -->
+
+
+### Library size vs fraction zeros
+
+This scatter plot shows the association between the total count (column
+sums) and the fraction of zeros observed per sample.
+
+``` r
+ggplot(sampleDF, aes(x = Libsize, y = Fraczero)) + 
+  geom_point(size = 1, alpha = 0.5) + 
+  facet_wrap(~dataset, nrow = colRow[2]) + 
+  xlab("Library size") + ylab("Fraction zeros") + thm
+```
+
+![](comparison_reference_files/figure-gfm/libsizeFraczeroSepScatter-1.png)<!-- -->
+
+
+### Mean expression vs fraction zeros
+
+This scatter plot shows the association between the average abundance
+and the fraction of zeros observed per feature. The abundance is defined
+as the log(CPM) values as calculated by `edgeR`.
+
+``` r
+ggplot(featureDF, aes(x = AveLogCPM, y = Fraczero)) + 
+  geom_point(size = 0.75, alpha = 0.5) + 
+  facet_wrap(~dataset, nrow = colRow[2]) + 
+  xlab("Average log CPM") + ylab("Fraction zeros") + thm
+```
+
+![](comparison_reference_files/figure-gfm/logCPMFraczeroSepScatter-1.png)<!-- -->
 
 
 
+## Vignette: On scalability and runtime
 
+
+In this vignette, we will take a look at the runtime of dyngen as the
+number of genes and the number of cells sampled is increased. We’ll be
+using the bifurcating cycle backbone which is well known for its
+beautiful 3D butterfly shape!
+
+``` r
+library(dyngen)
+library(tidyverse)
+
+set.seed(1)
+
+save_dir <- "scalability_and_runtime_runs"
+if (!dir.exists(save_dir)) dir.create(save_dir, recursive = TRUE)
+
+backbone <- backbone_bifurcating_cycle()
+```
+
+
+### Initial run
+
+We’ll be running this simulation a few times, with different values for
+`num_cells` and `num_features` to assess the scalability of dyngen. An
+example of a resulting dyngen model is shown here.
+
+``` r
+num_cells <- 100
+num_features <- 100
+num_tfs <- nrow(backbone$module_info)
+num_targets <- round((num_features - num_tfs) / 2)
+num_hks <- num_features - num_targets - num_tfs
+
+out <- 
+  initialise_model(
+    backbone = backbone,
+    num_tfs = num_tfs,
+    num_targets = num_targets,
+    num_hks = num_hks,
+    num_cells = num_cells,
+    gold_standard_params = gold_standard_default(
+      census_interval = 1,
+      tau = 100/3600
+    ),
+    simulation_params = simulation_default(
+      census_interval = 10,
+      ssa_algorithm = ssa_etl(tau = 300/3600),
+      experiment_params = simulation_type_wild_type(
+        num_simulations = num_cells / 10
+      )
+    ),
+    verbose = FALSE
+  ) %>% 
+  generate_dataset(make_plots = TRUE)
+```
+
+``` r
+out$plot
+```
+
+![](scalability_and_runtime_files/figure-gfm/example-1.png)<!-- -->
+
+We tweaked some of the parameters by running this particular backbone
+once with `num_cells = 100` and `num_features = 100` and verifying that
+the new parameters still yield the desired outcome. The parameters we
+tweaked are:
+
+-   On average, 10 cells are sampled per simulation
+    (e.g. `num_simulations = 100` and `num_cells = 1000`). You could
+    increase this ratio to get a better cell count yield from a given
+    set of simulations, but cells from the same simulation that are
+    temporally close will have highly correlated expression profiles.
+-   Increased time steps `tau`. This will make the Gillespie algorithm
+    slightly faster but might result in unexpected artifacts in the
+    simulated data.
+-   `census_interval` increased from 4 to 10. This will cause dyngen to
+    store an expression profile only every 10 time units. Since the
+    total simulation time is xxx, each simulation will result in yyy
+    data points. Note that on average only 10 data points are sampled
+    per simulation.
+
+For more information on parameter tuning, see the vignette ‘Advanced:
+tuning the simulation parameters’.
+
+
+### Timing experiments
+
+The simulations are run once with a large `num_features` and
+`num_cells`, a few times with varying `num_cells` and then once more
+with varying `num_features`. Every run is repeated three times in order
+to get a bit more stable time measurements. Since some of the
+simulations can take over 10 minutes, the timings results of the
+simulations are cached in the ‘scalability\_and\_runtime\_runs’
+folder.\`
+
+``` r
+settings <- bind_rows(
+  tibble(num_cells = 10000, num_features = 10000, rep = 1), #, rep = seq_len(3)),
+  crossing(
+    num_cells = seq(1000, 10000, by = 1000),
+    num_features = 100,
+    rep = seq_len(3)
+  ),
+  crossing(
+    num_cells = 100,
+    num_features = seq(1000, 10000, by = 1000),
+    rep = seq_len(3)
+  )
+) %>% 
+  mutate(filename = paste0(save_dir, "/cells", num_cells, "_feats", num_features, "_rep", rep, ".rds"))
+
+timings <- pmap_dfr(settings, function(num_cells, num_features, rep, filename) {
+  if (!file.exists(filename)) {
+    set.seed(rep)
+    
+    cat("Running num_cells: ", num_cells, ", num_features: ", num_features, ", rep: ", rep, "\n", sep = "")
+    num_tfs <- nrow(backbone$module_info)
+    num_targets <- round((num_features - num_tfs) / 2)
+    num_hks <- num_features - num_targets - num_tfs
+    
+    out <- 
+      initialise_model(
+        backbone = backbone,
+        num_tfs = num_tfs,
+        num_targets = num_targets,
+        num_hks = num_hks,
+        num_cells = num_cells,
+        gold_standard_params = gold_standard_default(
+          census_interval = 1,
+          tau = 100/3600
+        ),
+        simulation_params = simulation_default(
+          census_interval = 10,
+          ssa_algorithm = ssa_etl(tau = 300/3600),
+          experiment_params = simulation_type_wild_type(
+            num_simulations = num_cells / 10
+          )
+        ),
+        verbose = FALSE
+      ) %>% 
+      generate_dataset()
+    
+    tim <- 
+      get_timings(out$model) %>% 
+      mutate(rep, num_cells, num_features)
+    
+    write_rds(tim, filename, compress = "gz")
+  }
   
+  read_rds(filename)
+})
+
+timings_gr <- 
+  timings %>% 
+  group_by(group, task, num_cells, num_features) %>% 
+  summarise(time_elapsed = mean(time_elapsed), .groups = "drop")
+
+timings_sum <-
+  timings %>% 
+  group_by(num_cells, num_features, rep) %>%
+  summarise(time_elapsed = sum(time_elapsed), .groups = "drop")
+```
+
+
+### Simulate a large dataset (10k × 10k)
+
+Below is shown the timings of each of the steps in simulating a dyngen
+dataset containing 10’000 genes and 10’000 features. The total
+simulation time required is 1147 seconds, most of which is spent
+performing the simulations itself.
+
+``` r
+timings0 <- 
+  timings_gr %>% 
+  filter(num_cells == 10000, num_features == 10000) %>% 
+  mutate(name = forcats::fct_rev(forcats::fct_inorder(paste0(group, ": ", task))))
+
+ggplot(timings0) + 
+  geom_bar(aes(x = name, y = time_elapsed, fill = group), stat = "identity") +
+  scale_fill_brewer(palette = "Dark2") + 
+  theme_classic() +
+  theme(legend.position = "none") +
+  coord_flip() + 
+  labs(x = NULL, y = "Time (s)", fill = "dyngen stage")
+```
+
+![](scalability_and_runtime_files/figure-gfm/bblego-1.png)<!-- -->
+
+
+### Increasing the number of cells
+
+By increasing the number of cells from 1000 to 10’000 whilst keeping the
+number of features fixed, we can get an idea of how the simulation time
+scales w.r.t. the number of cells.
+
+``` r
+timings1 <- 
+  timings_gr %>% 
+  filter(num_features == 100) %>% 
+  group_by(num_cells, num_features, group) %>%
+  summarise(time_elapsed = sum(time_elapsed), .groups = "drop")
+
+ggplot(timings1) + 
+  geom_bar(aes(x = forcats::fct_inorder(as.character(num_cells)), y = time_elapsed, fill = forcats::fct_inorder(group)), stat = "identity") +
+  theme_classic() +
+  scale_fill_brewer(palette = "Dark2") +
+  labs(x = "Number of cells", y = "Average time (s)", fill = "dyngen step")
+```
+
+![](scalability_and_runtime_files/figure-gfm/figure1-1.png)<!-- -->
+
+It seems the execution time scales linearly w.r.t. the number of cells.
+This makes sense, because as the number of cells are increased, so do we
+increase the number of simulations made (which is not necessarily
+mandatory). Since the simulations are independent of each other and take
+up the most time, the execution time will scale linearly.
+
+``` r
+ggplot(timings_sum %>% filter(num_features == 100)) + 
+  theme_bw() +
+  geom_point(aes(num_cells, time_elapsed)) +
+  scale_x_continuous(limits = c(0, 10000)) +
+  scale_y_continuous(limits = c(0, 300)) +
+  geom_abline(intercept = 22.097, slope = 0.0252) +
+  labs(x = "Number of cells", y = "Execution time (s)")
+```
+
+![](scalability_and_runtime_files/figure-gfm/plot_timings_cell-1.png)<!-- -->
+
+
+### Increasing the number of features
+
+By increasing the number of features from 1000 to 10’000 whilst keeping
+the number of cells fixed, we can get an idea of how the simulation time
+scales w.r.t. the number of features
+
+``` r
+timings2 <- 
+  timings_gr %>% 
+  filter(num_cells == 100) %>% 
+  group_by(num_cells, num_features, group) %>% 
+  summarise(time_elapsed = sum(time_elapsed), .groups = "drop")
+
+ggplot(timings2) + 
+  geom_bar(aes(x = forcats::fct_inorder(as.character(num_features)), y = time_elapsed, fill = forcats::fct_inorder(group)), stat = "identity") +
+  theme_classic() +
+  scale_fill_brewer(palette = "Dark2") +
+  labs(x = "Number of features", y = "Average time (s)", fill = "dyngen step")
+```
+
+![](scalability_and_runtime_files/figure-gfm/figure2-1.png)<!-- -->
 
+It seems the execution time also scales linearly w.r.t. the number of
+features. As more genes are added to the underlying gene regulatory
+network, the density of the graph doesn’t change, so it makes sense that
+the execution time also scales linearly w.r.t. the number of features.
 
+``` r
+ggplot(timings_sum %>% filter(num_cells == 100)) + 
+  theme_bw() +
+  geom_point(aes(num_features, time_elapsed)) +
+  scale_x_continuous(limits = c(0, 10000)) +
+  scale_y_continuous(limits = c(0, 850)) +
+  geom_abline(intercept = 0.5481, slope = 0.07988) +
+  labs(x = "Number of features", y = "Execution time (s)")
+```
 
-\begin{figure}[t!]
-    \centering
-    \includegraphics[width=\linewidth]{result_files/summary/figure_1_edited.pdf}
-    \caption{
-      \textbf{Showcase of dyngen functionality.}
-      \textbf{A:} Changes in abundance levels are driven strictly by gene regulatory reactions.
-      \textbf{B:} The input Gene Regulatory Network (GRN) is defined such that it models a dynamic process of interest.
-      \textbf{C:} The reactions define how abundance levels of molecules change at any particular time point.
-      \textbf{D:} Firing many reactions can significantly alter the cellular state over time.
-      \textbf{E:} dyngen keeps track of the likelihood of a reaction firing during small intervals of time, called the propensity, as well as the actual number of firings.
-      \textbf{F:} Similarly, dyngen can also keep track of the regulatory activity of every interaction.
-      \textbf{G:} A benchmark of trajectory inference methods has already been performed using the cell state ground-truth.
-      \textbf{H:} The cell state ground-truth enables evaluating trajectory alignment methods \cite{saelens_comparisonsinglecelltrajectory_2019}.
-      \textbf{I:} The reaction propensity ground-truth enables evaluating RNA velocity methods.
-      \textbf{J:} The cellwise regulatory network ground-truth enables evaluating cell-specific gene regulatory network inference methods.
-    }
-    \label{fig:overview}
-\end{figure}
+![](scalability_and_runtime_files/figure-gfm/plot_timings_feats-1.png)<!-- -->
 
 
-<!-- RESULTS -->
-We demonstrate dyngen's broad applicability by evaluating three novel types of computational approaches for which no simulation engines exist yet: cell-specific network inference, trajectory alignment and RNA velocity (Figure\ \ref{fig:applications}). We emphasize that our main aim here is to illustrate the potential of dyngen for these evaluations, rather than performing large-scale benchmarking, which would require assessing many more quantitative and qualitative aspects of each method [@weber_essentialguidelinescomputational_2019].
+### Execution platform
 
-
-  
-
-
-
-\begin{figure}[t!]
-    \centering
-    \includegraphics[width=\linewidth]{result_files/summary/figure_2.pdf}
-    \caption{
-      \textbf{dyngen provides ground-truth data for a variety of applications (left), which can be used to quantitatively evaluate methods (right).}
-      \textbf{A:} Trajectory alignment aligns two trajectories between samples. We use dyngen to evaluate dynamic time warping (DTW) and cellAlign when aligning two linear trajectories with different kinetic parameters.
-      \textbf{B:} RNA velocity calculates for each cell the direction in which the expression of each gene is moving. We evaluated scVelo and velocyto by comparing these vectors with the known velocity vector (velocity correlation) and with the known direction of the cellular trajectory in a dimensionality reduction (velocity arrow cosine).
-      \textbf{C:} Cell-specific network inference (CSNI) predicts the regulatory network of every individual cell. We evaluate each cell-specific regulatory network with typical metrics for network inference: the Area Under the Receiver Operating Characteristics-curve (AUROC) and Area Under the Precision Recall-curve (AUPR). We evaluate three CSNI methods by computing the mean AUROC and AUPR across all cells.
-    }
-    \label{fig:applications}
-\end{figure}
-
-
-
-
-**Trajectory alignment** methods align trajectories from different samples and allow studying the differences between the different trajectories. For example, by comparing the transcriptomic profiles of cells from a diseased patient to a healthy control, it might be possible to detect transcriptomics differences (differential expression) of particular cells along a developmental process, or to detect an early stop of the trajectory of the diseased patient. Currently, trajectory alignment is limited to aligning linear trajectories, though other topologies of trajectory could be aligned as well. Dynamic Time Warping (DTW) [@giorgino_computingvisualizingdynamic_2009] is a method designed for aligning temporal sequences for speech recognition but has since been used to compare gene expression kinetics from many different biological processes [@cacchiarelli_aligningsinglecelldevelopmental_2018; @kanton_organoidsinglecellgenomic_2019; @mcfaline-figueroa_pooledsinglecellgenetic_2019; @alpert_alignmentsinglecelltrajectories_2018]. We evaluate the performance of DTW by simulating two linear trajectories with slightly different simulation kinetics and assessing the accuracy of the alignment by DTW. We compare the performance of DTW against a version of DTW where gene expression is first smoothed, for varying degrees of noise added to the gene expression (Figure\ \ref{fig:traj_align}). We observe that DTW+smoother performs significantly better than the unsmoothed version across all levels of noise. Note that, in this comparison, only linear trajectory alignment is performed. While dyngen can generate non-linear trajectories (e.g. cyclic or branching), constructing a quantitative accuracy metric for non-linear trajectory alignment is not trivial and an avenue for future work.[a]
-
-
-**RNA velocity** methods use the relative ratio between pre-mRNA and mature mRNA reads to predict the rate of increase/decrease of RNA molecule abundance, as this can be used to predict the directionality of single cell differentiation in trajectories [@zeisel_coupledpremrnamrna_2011;@lamanno_rnavelocitysingle_2018]. Already two algorithms are currently available for estimating the RNA velocity vector from spliced and unspliced counts: velocyto [@lamanno_rnavelocitysingle_2018] and scvelo [@bergen_generalizingrnavelocity_2020]. Yet, to date, no quantitative assessment of their accuracy has been performed, mainly due to the difficulty in obtaining real ground-truth data to do so. In contrast, the ground-truth RNA velocity can be easily extracted from a dyngen simulation, as it is possible to store the rate at which mRNA molecules are being transcribed and degraded at any particular point in time. We executed velocyto and scvelo (with 2 different parameter settings, stochastic and dynamical) on 42 datasets with a variety of backbones (including linear, bifurcating, cyclic, disconnected). We evaluated the predictions using two metrics (Figure\ \ref{fig:velocity}), one which directly compares the predicted RNA velocity of each gene with the ground-truth RNA velocity (called the "velocity correlation"), and one which compares the direction of the ground-truth trajectory embedded in a dimensionality reduction with the average RNA velocity of cells in that neighbourhood (called the "velocity arrow cosine"). While both velocyto and scvelo obtained high scores for the velocity arrow cosine metric (overall 25th percentile = 0.606), the velocity correlation is rather low (overall 75th percentile = 0.156). This means that predicting the RNA velocity (i.e. transcription rate minus the decay rate) for any particular gene is challenging, but the combined information is very informative in determining the directionality of cell progression in the trajectory. In terms of velocity correlation, no method performed significantly better than the other, whereas scvelo stochastic performed slightly worse than scvelo dynamical and velocyto in terms of velocity arrow cosine score.
-
-
-**Cell-specific network inference** (CSNI) methods predict not only which transcription factors regulate which target genes, but also aim to identify how active each interaction is in each of the cells, since interactions can be turned off and on depending on the cellular state. While a few pioneering CSNI approaches have already been developed [@aibar_scenicsinglecellregulatory_2017; @kuijjer_estimatingsamplespecificregulatory_2019; @liu_personalizedcharacterizationdiseases_2016], a quantitative assessment of their performance is until now lacking. This is not surprising, as neither real nor in silico datasets of cell-specific or even cell-type-specific interactions exist that are large enough so that it can be used as a ground-truth for evaluating CSNI methods. Extracting the ground-truth dynamic network in dyngen is straightforward though, given that we can calculate how target gene expression would change without the regulator being present. We used this ground-truth to compare the performance of three CSNI methods (Figure\ \ref{fig:scgrn}): LIONESS [@kuijjer_estimatingsamplespecificregulatory_2019], SSN [@liu_personalizedcharacterizationdiseases_2016] and SCENIC [@aibar_scenicsinglecellregulatory_2017]. For each dataset, we computed the mean AUROC and AUPR scores of the individual cells. Comparing the mean AUROC and AUPR showed that pySCENIC significantly outperforms both LIONESS and SSN, and in turn that LIONESS significantly outperforms SSN. The poor performance of SSN is expected, as its methodology for predicting a cell-specific is simply computing the difference in Pearson correlation values applied to the whole dataset and the whole dataset minus one sample. This strategy performs poorly in large datasets where cell correlations are high, as the removal of one cell will not yield large differences in correlation values and will result in mostly noise. Overall, pySCENIC almost always performs better than LIONESS, except for a few datasets where LIONESS does manage to obtain a higher AUROC score. However, by using a different internal network inference (e.g. GENIE3 [@huynh-thu_inferringregulatorynetworks_2010] or pySCENIC's GRNBoost2 [@moerman_grnboost2arboretoefficient_2019]) could significantly increase the performance obtained by LIONESS.
-
-
-
-
-<!-- DISCUSSION -->
-In summary, dyngen's single-cell simulations can be used to evaluate common single-cell omics computational methods such as clustering, batch correction, trajectory inference, and network inference.
-However, the framework is flexible enough to be adaptable to a broad range of applications, including methods that integrate clustering, network inference, and trajectory inference. In this respect, dyngen may promote the development of new tools in the single-cell field similarly as other simulators have done in the past [@schaffter_genenetweaversilicobenchmark_2011; @ewing_combiningtumorgenome_2015]. Additionally, one could anticipate technological developments in single-cell multi-omics. In this way, dyngen allows designing and evaluating the performance and robustness of new types of computational analyses before experimental data becomes available, comparing which experimental protocol is the most cost-effective in producing qualitative and robust results in downstream analysis. One major assumption of dyngen is that cells are assumed to be well-mixed and independent from each other. Subdividing a cell into multiple 2D or 3D subvolumes or allowing cells to exchange molecules, respectively, could pave the way to better study key cellular processes such as cell division, intercellular communication, and migration [@smith_spatialstochasticintracellular_2019].
-
-# Data Availability[b]
-
-# Code Availability
-dyngen is available as an open-source R package on CRAN at [cran.r-project.org/package=dyngen](https://cran.r-project.org/package=dyngen). The analyses performed in this manuscript are available on GitHub at [github.com/dynverse/dyngen_manuscript](https://github.com/dynverse/dyngen_manuscript). 
-
-# Author contributions
-* W.S. and R.C. designed the study.
-* R.C., W.S., and L.D. performed the experiments and analysed the data.
-* R.C. and W.S. implemented the dyngen software package.
-* R.C., W.S., L.D., and Y.S. wrote the manuscript.
-* Y.S. supervised the project.
-
-
-\newpage
-
-# Methods {#sec:dyngen-methods}
-The workflow to generate _in silico_ single-cell data consists of six main steps (Figure\ \ref{fig:explain_methods}).
-
-## Defining the module network {#sec:dyngen-modules}
-
-
-One of the main processes involved in cellular dynamic processes is gene regulation, where regulatory cascades and feedback loops lead to progressive changes in expression and decision making. The exact way a cell chooses a certain path during its differentiation is still an active research field, although certain models have already emerged and been tested _in vivo_. One driver of bifurcation is mutual antagonism, where two genes strongly repress each other [@rekhtman_directinteractionhematopoietic_1999; @xu_regulationbifurcatingcell_2015], forcing one of the two to become inactive [@graf_forcingcellschange_2009]. Such mutual antagonism can be modelled and simulated [@wang_quantifyingwaddingtonlandscape_2011; @ferrell_bistabilitybifurcationswaddington_2012]. Although the two-gene model is simple and elegant, the reality is frequently more complex, with multiple genes (grouped into modules) repressing each other [@yosef_dynamicregulatorynetwork_2013].
-
-
-To start a dyngen simulation, the user needs to define a module network. The module network describes how sets of genes regulate each other and is what mainly determines which dynamic processes occur within the simulated cells. 
-
-
-A module network consists of modules connected together by regulatory interactions, which can be either up- or down-regulating. A module may have basal expression, which means genes in this module will be transcribed without the presence of transcription factor molecules. A module marked as "active during the burn phase" means that this module will be allowed to generate expression of its genes during an initial warm-up phase (See section \ref{sec:dyngen-simcell}). At the end of the dyngen process, cells will not be sampled from the burn phase simulations. Interactions between modules have a strength (which is a positive integer) and an effect (+1 for upregulating, -1 for downregulating).
-
-
-Several examples of module networks are given in Figure\ \ref{fig:example_backbones_onlymodules}.
-A simple chain of modules (where one module upregulates the next) results in a _linear_ process. By having the last module repress the first module, the process becomes _cyclic_. Two modules repressing each other is the basis of a _bifurcating_ process, though several chains of modules have to be attached in order to achieve progression before and after the bifurcation process. Finally, a _converging_ process has a bifurcation occurring during the burn phase, after which any differences in module regulation is removed.
-
-
-Note that these examples represent the bare minimum in terms of the number of modules used. Using longer chains of modules is typically desired. In addition, the fate decisions made in this example of a bifurcation is reversible, meaning cells can be reprogrammed to go down a different differentiation path. If this effect is undesirable, more safeguards need to be put in place to prevent reprogramming from occurring.
-
-## Generating the gene regulatory network {#sec:dyngen-grn}
-The GRN is generated based on the given module network in four main steps (Figure\ \ref{fig:gen_feature_network}).
-
-
-**Step 1, sampling the transcription factors (TF).** The TFs are the main drivers of the molecular changes in the simulation. The user provides a backbone and the number of TFs to generate. Each TF is assigned to a module such that each module has at least $x$ parameters (default $x=1$). A TF inherits the 'burn' and 'basal expression' from the module it belongs to.
-
-
-**Step 2, generating the TF interactions.** Let each TF be regulated according to the interactions in the backbone. These interactions inherit the effect, strength, and independence parameters from the interactions in the backbone. A TF can only be regulated by other TFs or itself.
-
-
-**Step 3, sampling the target subnetwork.**
-A user-defined number of target genes are added to the GRN. Target genes are regulated by a TF or another target gene, but are always downstream of at least one TF. To sample the interactions between target genes, one of the many FANTOM5 \cite{lizio_gatewaysfantom5promoter_2015} GRNs is sampled. The currently existing TFs are mapped to regulators in the FANTOM5 GRN. The targets are drawn from the FANTOM5 GRN weighted by their page rank value, to create an induced GRN. For each target, at most $x$ regulators are sampled from the induced FANTOM5 GRN (default $x=5$). The interactions connecting a target gene and its regulators are added to the GRN.
-
-
-**Step 4, sampling the housekeeping subnetwork.**
-Housekeeping genes are completely separate from any TFs or target genes. A user-defined set of housekeeping genes is also sampled from the FANTOM5 GRN. The interactions of the FANTOM5 GRN are first subsampled such that the maximum in-degree of each gene is $x$ (default $x=5$). A random gene is sampled and a breadth-first-search is performed to sample the desired number of housekeeping genes.
-
-
-
-## Convert gene regulatory network to a set of reactions {#sec:dyngen-reactions}
-
-
-\newcommand{\x}[1]{\text{x}_{#1}}
-\newcommand{\y}[1]{\text{y}_{#1}}
-\newcommand{\z}[1]{\text{z}_{#1}}
-
-
-
-
-\newcommand{\rs}[1]{\text{R}_{#1}}
-\newcommand{\rp}[1]{\text{R}^+_{#1}}
-\newcommand{\rn}[1]{\text{R}^-_{#1}}
-
-
-\newcommand{\xpr}[1]{\text{xpr}_{#1}}
-\newcommand{\xhl}[1]{\text{xhl}_{#1}}
-\newcommand{\ysr}[1]{\text{ysr}_{#1}}
-\newcommand{\yhl}[1]{\text{yhl}_{#1}}
-\newcommand{\ydr}[1]{\text{ydr}_{#1}}
-\newcommand{\zpr}[1]{\text{zpr}_{#1}}
-\newcommand{\zhl}[1]{\text{zhl}_{#1}}
-\newcommand{\zdr}[1]{\text{zdr}_{#1}}
-
-
-\newcommand{\str}[1]{\text{str}_{#1}}
-\newcommand{\hill}[1]{\text{hill}_{#1}}
-\newcommand{\ind}[1]{\text{ind}_{#1}}
-\newcommand{\dis}[1]{\text{dis}_{#1}}
-\newcommand{\buf}[1]{\text{bind}_{#1}}
-\newcommand{\ba}[1]{\text{bas}_{#1}}
-
-
-Simulating a cell's GRN makes use of a stochastic framework which tracks the abundance levels of molecules over time in a discrete quantity. For every gene $G$, the abundance levels of three molecules are tracked, namely of corresponding pre-mRNAs, mature mRNAs and proteins, which are represented by the terms $\x G$, $\y G$ and $\z G$ respectively. The GRN defines how a reaction affects the abundance levels of molecules and how likely it will occur. Gibson and Bruck [@gibson_probabilisticmodelprokaryotic_2000] provide a good introduction to modelling gene regulation with stochastic frameworks, on which many of the concepts below are based.
-
-
-For every gene in the GRN a set of reactions are defined, namely transcription, splicing, translation, and degradation. Each reaction consists of a propensity function -- a formula $f(.)$ to calculate the probability $f(.) \times \text{d}t$ of it occurring during a time interval $\text{d}t$ -- and the effect -- how it will affect the current state if triggered. 
-
-
-The effects of each reaction mimic the respective biological processes (Table\ \ref{tab:reaction_def}, middle). Transcription of gene $G$ results in the creation of a single pre-mRNA molecule $\x G$. Splicing turns one pre-mRNA $\x G$ into a mature mRNA $\x G$. Translation uses a mature mRNA $\y G$ to produce a protein $\z G$. Pre-mRNA, mRNA and protein degradation results in the removal of a $\x G$, $\y G$, and $\z G$ molecule, respectively.
-
-
-The propensity of all reactions except transcription are all linear functions (Table\ \ref{tab:reaction_def}, right) of the abundance level of some molecule multiplied by a per-gene constant (Table\ \ref{tab:reaction_params}). The propensity of transcription of a gene $G$ depends on the abundance levels of its TFs. The per-gene and per-interaction constants are based on the median reported production-rates and half-lives of molecules measured of 5000 mammalian genes [@schwanhausser_globalquantificationmammalian_2011], except that the transcription rate has been amplified by a factor of 10.
-
-
-\newcommand{\proptran}{f}
-\newcommand{\ai}[2]{$S_{#1} = S_{#2b}$}
-\newcommand{\zk}[1]{\frac{y_#1}{k_#1}^{c_#1}}
-\newcommand{\wi}[1]{\nu_#1}
-
-
-The propensity of the transcription of a gene $G$ is inspired by thermodynamic models of gene regulation [@schilstra_biologicgeneexpression_2008], in which the promoter of $G$ can be bound or unbound by a set of $N$ transcription factors $H_i$. Let $\proptran(\z 1, \z 2, \ldots, \z N)$ denote the propensity function of $G$, in function of the abundance levels of the transcription factors. The following subsections explain and define the propensity function when $N=1$, $N=2$, and finally for an arbitrary $N$.
-
-
-
-### Propensity of transcription when $N=1$
-In the simplest case when $N=1$, the promoter can be in one of two states. In state $S_0$, the promoter is not bound by any transcription factors, and in state $S_1$ the promoter is bound by $H_1$. Each state $S_j$ is linked with a relative activation $\alpha_j$, a number between 0 and 1 representing the activity of the promoter at this particular state. The propensity function is thus equal to the expected value of the activity of the promoter multiplied by the pre-mRNA production rate of $G$.
-
-
-\begin{align}
-  f(y_1, y_2, \ldots, y_N) & = \text{xpr} \cdot \sum_{j = 0}^{2^N - 1} \alpha_j \cdot P(S_j) \label{eqn:activ0} \\
-\end{align}
-
-
-For $N=1$, $P(S_1)$ is equal to the Hill equation, where $k_i$ represents the concentration of $H_i$ at half-occupation and $n_i$ represents the Hill coefficient. Typically, $n_i$ is between [1,10]
-
-
-\begin{align}
-  P(S_1) & = \frac{y_1^{n_1}}{k_1^{n_1} + y_1^{n_1}} \\
-             & = \frac{(y_1/k_1)^{n_1}}{1 + (y_1/k_1)^{n_1}}
-\end{align}
-
-
-The Hill equation can be simplified by letting $\nu_i = \left(\frac{y_i}{k_i}\right)^{n_i}$.
-
-
-
-
-\begin{align}
-P(S_1) & = \frac{\nu_1}{1 + \nu_1} \label{eqn:hillsimp}
-\end{align}
-
-
-Since $P(S_0) = 1 - P(S_1)$, the activation function is formulated and simplified as follows.
-
-
-
-
-\begin{align}
-f(y_1) & = \text{xpr} \cdot \left(\alpha_0 \cdot P(S_0) + \alpha_1 \cdot P(S_1)\right) \\
-           & = \text{xpr} \cdot \left(\alpha_0 \cdot \frac{1}{1 + \nu_1} + \alpha_1 \cdot \frac{\nu_1}{1 + \nu_1}\right) \\
-           & = \text{xpr} \cdot \frac{\alpha_0 + \alpha_1 \cdot \nu_1}{1 + \nu_1} \\
-\end{align}
-
-
-
-
-
-### Propensity of transcription when $N=2$
-
-
-When $N=2$, there are four states $S_j$. The relative activations $\alpha_j$ can be defined such that $H_1$ and $H_2$ are independent (additive) or synergistic (multiplicative). In order to define the propensity of transcription $f(.)$, the Hill equation $P(S_j)$ is extended for two transcription factors.
-
-
-Let $w_j$ be the numerator of $P(S_j)$, defined as the product of all transcription factors bound in that state:
-
-
-\begin{align}
-w_0 & = 1 \\
-w_1 & = \nu_1 \\
-w_2 & = \nu_2 \\
-w_3 & = \nu_1 \cdot \nu_2
-\end{align}
-
-
-The denominator of $P(S_j)$ is then equal to the sum of all $w_j$. The probability of state $S_j$ is thus defined as:
-
-
-\begin{align}
-    P(S_j) & = \frac{w_j}{\sum_{j=0}^{j < 2^N} w_j} \\
-               & = \frac{w_j}{1 + \nu_1 + \nu_2 + \nu_1 \cdot \nu_2} \\
-               & = \frac{w_j}{\prod_{i=1}^{i \leq N} (\nu_i + 1)}
-\end{align}
-
-
-Substituting $P(S_j)$ and $w_j$ into $f(.)$ results in the following equation:
-
-
-\begin{align}
-f(y_1, y_2) & = \text{xpr} \cdot \sum_{j = 0}^{2^N - 1} \alpha_j \cdot P(S_j) \\
- & = \text{xpr} \cdot \frac{\sum_{j = 0}^{2^N - 1} \alpha_j \cdot w_j}{\prod_{i=1}^{i \leq N} (\nu_i + 1)} \\
- & = \text{xpr} \cdot \frac{\alpha_0 + \alpha_1 \cdot \nu_1 + \alpha_2 \cdot \nu_2 + \alpha_3 \cdot \nu_1 \cdot \nu_2}{(\nu_1 + 1) \cdot (\nu_2 + 1)} \\
-\end{align}
-
-
-
-
-
-### Propensity of transcription for an arbitrary $N$
-For an arbitrary $N$, there are $2^N$ states $S_j$. The relative activations $\alpha_j$ can be defined such that $H_1$ and $H_2$ are independent (additive) or synergistic (multiplicative). In order to define the propensity of transcription $f(.)$, the Hill equation $P(S_j)$ is extended for $N$ transcription factors.
-
-
-Let $w_j$ be the numerator of $P(S_j)$, defined as the product of all transcription factors bound in that state:
-
-
-\begin{align}
-  w_j & = \prod_{i=1}^{i \leq N} (j \text{ mod } i) = 1 \text{ ? } \nu_i \text{ : } 1
-\end{align}
-
-
-The denominator of $P(S_j)$ is then equal to the sum of all $w_j$. The probability of state $S_j$ is thus defined as:
-
-
-\begin{align}
-P(S_j) & = \frac{w_j}{\sum_{j=0}^{j < 2^N} w_j} \\
-& = \frac{w_j}{\prod_{i=1}^{i \leq N} (\nu_i + 1)}
-\end{align}
-
-
-Substituting $P(S_j)$ into $f(.)$ yields:
-
-
-\begin{align}
-f(y_1, y_2, \ldots, y_N) & = \text{xpr} \cdot \sum_{j = 0}^{2^N - 1} \alpha_j \cdot P(S_j) \\
-& = \text{xpr} \cdot \frac{\sum_{j = 0}^{2^N - 1} \alpha_j \cdot w_j}{\prod_{i=1}^{i \leq N} (\nu_i + 1)} \label{eqn:prop2n}
-\end{align}
-
-
-
-### Propensity of transcription for a large $N$
-For large values of $N$, computing $f(.)$ is practically infeasible as it requires performing $2^N$ summations. In order to greatly simplify $f(.)$, $\alpha_j$ could be defined as 0 when one of the regulators inhibits transcription and 1 otherwise.
-
-
-\begin{equation}
-\alpha_j = \begin{cases}
- 0 & \text{ if } \exists i : j \text{ mod } i = 1 \text{ and } H_i \text{ represses } G \\
- 1 & \text{otherwise}
-\end{cases} \label{eqn:assalpha}
-\end{equation}
-
-
-Substituting equation \ref{eqn:assalpha} into equation \ref{eqn:prop2n} and defining $R = \{1, 2, \ldots, N\}$ and $R^+ = \{i | H_i \text{ activates } G\}$ yields the simplified propensity function:
-
-
-\begin{align}
-f(y_1, y_2, \ldots, y_N) & = \text{xpr} \cdot \frac{\prod_{i \in R^+} (\nu_i + 1)}{\prod_{i \in R} (\nu_i + 1)}
-\end{align}
-
-
-
-### Independence, synergism and basal expression
-The definition of $\alpha_j$ as in equation \ref{eqn:assalpha} presents two main limitations. Firstly, since $\alpha_0 = 1$, it is impossible to tweak the propensity of transcription when no transcription factors are bound. Secondly, it is not possible to tweak the independence and synergism of multiple regulators.
-
-
-Let $\text{ba} \in [0,1]$ denote the basal expression strength $G$ (i.e. how much will $G$ be expressed when no transcription factors are bound), and $\text{sy} \in [0,1]$ denote the synergism of regulators $H_i$ of $G$, the transcription propensity becomes:
-
-
-\begin{align}
-f(y_1, y_2, \ldots, y_N) & = \text{xpr} \cdot \frac{\text{ba} - \text{sy}^{|R^+|} + \prod_{i \in R^+} (\nu_i + \text{sy})}{\prod_{i \in R} (\nu_i + 1)}
-\end{align}
-
-## Simulate single cells {#sec:dyngen-simcell}
-dyngen uses Gillespie's stochastic simulation algorithm (SSA) [@gillespie_exactstochasticsimulation_1977] to simulate dynamic processes. An SSA simulation is an iterative process where at each iteration one reaction is triggered.
-
-
-Each reaction consists of its propensity -- a formula to calculate the probability of the reaction occurring during an infinitesimal time interval -- and the effect -- how it will affect the current state if triggered. Each time a reaction is triggered, the simulation time is incremented by $\tau = \frac{1}{\sum_j prop_j} \ln\left(\frac{1}{r}\right)$, with $r \in U(0, 1)$ and $prop_j$ the propensity value of the $j$th reaction for the current state of the simulation.
-
-
-GillespieSSA2 is an optimised library for performing SSA simulations. The propensity functions are compiled to C++ and SSA approximations can be used which allow triggering many reactions simultaneously at each iteration. The framework also allows storing the abundance levels of molecules only after a specific interval has passed since the previous census. By setting the census interval to 0, the whole simulation's trajectory is retained but many of these time points will contain very similar information. In addition to the abundance levels, also the propensity values and the number of firings of each of the reactions at each of the time steps can be retained, as well as specific sub-calculations of the propensity values, such as the regulator activity level $reg_{G,H}$.
-
-
-
-## Simulate experiment {#sec:dyngen-experiment}
-From the SSA simulation we obtain the abundance levels of all the molecules at every state. We need to replicate technical effects introduced by experimental protocols in order to obtain data that is similar to real data. For this, the cells are sampled from the simulations and molecules are sampled for each of the cells. Gene capture rates and library sizes are empirically derived from real datasets as to match real technical variation.
-
-
-
-### Sample cells
-In this step, $N$ cells are sampled from the simulations. Two approaches are implemented: sampling from an unsynchronised population of single cells (snapshot) or sampling at multiple time points in a synchronised population (time series).
-
-
-**Snapshot** The backbone consists of several states linked together by transition edges with length $L_i$, to which the different states in the different simulations have been mapped (Figure\ \ref{fig:sample_cells}A). From each transition, $N_i = N / \frac{L_i}{\sum L_i}$ cells are sampled uniformly, rounded such that $\sum N_i = N$.
-
-
-**Time series** Assuming that the final time of the simulation is $T$, the interval $[0, T]$ is divided into $k$ equal intervals of width $w$ separated by $k-1$ gaps of width $g$. $N_i = N / k$ cells are sampled uniformly from each interval (Figure\ \ref{fig:sample_cells}B), rounded such that $\sum N_i = N$. By default, $k = 8$ and $g = 0.75$. For usual dyngen simulations, $10 \leq T \leq 20$. For larger values of $T$, $k$ and $g$ should be increased accordingly.
-
-### Sample molecules
-Molecules are sampled from the simulation to replicate how molecules are experimentally sampled. A real dataset is downloaded from a repository of single-cell RNA-seq datasets [@cannoodt_singlecellomicsdatasets_2018]. For each _in silico_ cell $i$, draw its library size $ls_i$ from the distribution of transcript counts per cell in the real dataset. The capture rate $cr_j$ of each _in silico_ molecule type $j$ is drawn from $N(1, 0.05)$. Finally, for each cell $i$, draw $ls_i$ molecules from the multinomial distribution with probabilities $cr_j \times ab_{i,j}$ with $ab_{i,j}$ the molecule abundance level of molecule $j$ in cell $i$.
-
-
-
-## Simulating batch effects {#sec:dyngen-batcheffect}
-Simulating batch effects can be performed in multiple ways. One such way is to perform the first two steps of the creation of a dyngen model (defining the module network and generating the GRN). For each desired batch, create a separate model for which random kinetics are generated and perform all subsequent dyngen steps (convert to reactions, simulate gold standard, simulate single cells, simulate experiment). Since each separate model has different underlying kinetics, the combined output will resemble having batch effects.
-
-## Determining the ground-truth trajectory {#sec:dyngen-groundtruth}
-To construct the ground-truth trajectory, the user needs to provide the ground-truth state network alongside the initial module network (Figure\ \ref{fig:example_backbones}). Each edge in the state network specifies which modules are allowed to change in expression in transitioning from one state to another. For each edge, a simulation is run using the end state of an upstream branch as the initial expression vector, and only allowing the modules as predefined by the attribute to change.
-
-
-As an example, consider the cyclic trajectory shown in Figure\ \ref{fig:example_backbones}. State S0 begins with an expression vector of all zero values. To simulate the transition from S0 to S1, regulation of the genes in modules A, B and C are turned on. After a predefined period of time, the end state of this transition is considered the expression vector of state S1. To simulate the transition from S1 to S2, regulation of the genes in modules D and E are turned on, while the regulation of genes in module C is turned off. During this simulation, the expression of genes in modules A, B, D, and E is thus allowed to change. The end state of the simulation is considered the expression vector of state S2. 
-
-
-For each of the branches in the state network, an expression matrix and the corresponding progression time along that branch are retained. To map a simulated cell to the ground-truth, the correlation between its expression values and the expression matrix of the ground-truth trajectory is calculated, and the cell is mapped to the position in the ground-truth trajectory that has the highest correlation.
-
-
-
-## Determining the cell-specific ground-truth regulatory network {#sec:dyngen-extractgrn}
-Calculating the regulatory effect of a regulator $R$ on a target $T$ (Figure\ \ref{fig:explain_methods}F) requires determining the contribution of $R$ in the propensity function of the transcription of $T$ (section\ \ref{sec:dyngen-reactions}) with respect to other regulators. This information is useful, amongst others, for benchmarking cell-specific network inference methods. 
-
-
-The regulatory effect of $R$ on $T$ at a particular state $S$ is defined as the change in the propensity of transcription when $R$ is set to zero, scaled by the inverse of the pre-mRNA production rate of $T$. More formally:
-
-
-\begin{eqnarray*}
-  \text{regeffect}_G & = \frac{\text{proptrans}_G(S) - \text{proptrans}_G(S[\z T \leftarrow 0])}{\xpr G}
-\end{eqnarray*}
-
-
-Determining the regulatory effect for all interactions and cells in the dataset yields the complete cell-specific ground-truth GRN. The regulatory effect lies between $[-1, 1]$, where -1 represents complete inhibition of $T$ by $R$, 1 represents maximal activation of $T$ by $R$, and 0 represents inactivity of the regulatory interaction between $R$ and $T$.
-
-
-
-## Comparison of cell-specific network inference methods {#sec:dyngen-nicompare}
-42 datasets were generated using the 14 different predefined backbones and three different seeds. For every cell in the dataset, the transcriptomics profile and the corresponding cell-specific ground-truth regulatory network was determined (Section\ \ref{sec:dyngen-extractgrn}). 
-
-
-We selected three cell-specific NI methods: SCENIC [@aibar_scenicsinglecellregulatory_2017], LIONESS [@kuijjer_estimatingsamplespecificregulatory_2015; @kuijjer_estimatingsamplespecificregulatory_2019], and SSN [@liu_personalizedcharacterizationdiseases_2016]. 
-
-
-LIONESS [@kuijjer_estimatingsamplespecificregulatory_2019] runs a NI method multiple times to construct cell-specific GRNs. LIONESS first infers a GRN with all of the samples. A second GRN is inferred with all samples except one particular profile. The cell-specific GRN for that particular profile is defined as the difference between the two GRN matrices. This process is repeated for all profiles, resulting in a cell-specific GRN. By default, LIONESS uses PANDA [@glass_passingmessagesbiological_2013] to infer GRNs, but since dyngen does not produce motif data and motif data is required by PANDA, PANDA is inapplicable in this context. Instead, we used the lionessR [@kuijjer_lionessrsinglesample_2019] implementation of LIONESS, which uses by default the Pearson correlation as a NI method. We marked results from this implementation as "LIONESS + Pearson".
-
-
-SSN [@liu_personalizedcharacterizationdiseases_2016] follows, in essence, the exact same methodology as LIONESS except that it specifically only uses the Pearson correlation. It is worth noting that the LIONESS preprint was released before the publication of SSN. Since no implementation was provided by the authors, we implemented SSN in R using basic R and tidyverse functions [@wickham_welcometidyverse_2019] and marked results from this implementation as "SSN*".
-
-
-SCENIC [@aibar_scenicsinglecellregulatory_2017] consists of four main steps. First, classical network inference is performed with stochastic gradient boosting machines using `arboreto` [@moerman_grnboost2arboretoefficient_2019]. Second, the top 10 regulators of every target gene are selected. Interactions are grouped together in 'modules'; each module contains one regulator and all of its targets. Next, the modules are filtered using motif analysis. Finally, for each module and each cell, an activity score is calculated using AUCell. As a post-processing of this output, all modules and the corresponding activity scores are combined back into a cell-specific GRN consisting of (cell, regulator, target, score) pairs. For this analysis, the Python implementation of SCENIC was used, namely pySCENIC [@vandesande_scalablescenicworkflow_2020]. Since dyngen does not generate motif data, step 3 in this analysis is skipped.
-
-
-The Area Under the Receiver Operating Characteristic-curve (AUROC) and Area Under the Precision-Recall curve (AUPR) metrics are common metrics for evaluating a predicted GRN with a ground-truth GRN [@marbach_generatingrealisticsilico_2009]. To compare a predicted cell-specific GRN with the ground-truth cell-specific GRN, the top 10'000 interactions per cell is retained, and the mean AUROC and AUPR scores are calculated across all cells.
-
-
-We compared the mean AUROC and AUPR scores obtained by the three CSNI methods across all datasets by performing pairwise non-parametric paired Durbin-Conover tests [@conover_multiplecomparisonsprocedures_1979] using `pairwiseComparisons` [@patil_pairwisecomparisonsmultiplepairwise_2019]. Reported p-values are adjusted for multiple testing using Holm correction [@holm_simplesequentiallyrejective_1979].
-
-## Comparison of RNA velocity methods {#sec:dyngen-velcompare}
-
-
-Three datasets were generated for each of the 14 different predefined backbones, resulting in a collection of 42 datasets. Throughout each of the simulation, the propensity of the transcription and mRNA decay is collected, as the RNA velocity of a gene at any point in the simulation is the difference between the transcription propensity and the mRNA decay propensity. 
-
-
-We applied two RNA velocity methods: velocyto [@lamanno_rnavelocitysingle_2018], as implemented in the `velocyto.py` package, and scvelo method [@bergen_generalizingrnavelocity_2020], as implemented in the `scvelo` package. For scvelo, we chose two parameter settings for "mode", namely "stochastic" and "dynamical". For both methods, we used the same normalized data as provided by dyngen, with no extra cell or feature filtering, but otherwise matched the parameters to their respective tutorial vignettes as well as possible.
-
-
-We compared each RNA velocity prediction to the ground-truth using two metrics: the velocity correlation and the velocity arrow cosine. For the velocity correlation, we extracted a ground truth RNA velocity by subtracting for each mRNA molecule the propensity of its production by the propensity of its degradation. If the expression of an mRNA will increase in the future, this value is positive, while it is negative if it is going to decrease. For each gene, we determined its velocity correlation by calculating the Spearman rank correlation between the ground truth velocity with the observed velocity. For the velocity arrow cosine, we determined a set of 100 trajectory waypoints uniformly spread on the trajectory. For each waypoint, we weighted each cell based on a Gaussian kernel on its geodesic distance from the waypoint. These weights were used to calculate a weighted average velocity vector of each waypoint. We then calculated for each waypoint the cosine similarity between this velocity vector and the known direction of the trajectory.
-
-
-We compared the velocity correlation and velocity arrow cosine scores obtained by velocyto and scvelo across all datasets by performing pairwise non-parametric paired Durbin-Conover tests [@conover_multiplecomparisonsprocedures_1979] using `pairwiseComparisons` [@patil_pairwisecomparisonsmultiplepairwise_2019]. Reported p-values are adjusted for multiple testing using Holm correction [@holm_simplesequentiallyrejective_1979].
-
-## Comparison of trajectory alignment {#sec:dyngen-tacompare}[c]
-
-
-Four custom linear backbones of varying sizes were constructed. For each of these backbones, 10 datasets were generated with 10 different seeds, resulting in a total of 40 datasets. Every dataset is generated in three main steps. First, the GRN is generated based on the given backbone. Next, generating the kinetics, gold standard, and cells is performed twice, resulting in two sub-datasets. Finally, the two sub-datasets are combined and cells are sampled from the combined dataset. Since the two sub-datasets were simulated with different kinetic parameters, the combined dataset will contain two trajectories.
-
-
-On each combined dataset we applied two trajectory alignment methods, Dynamic Time Warping (DTW) [@giorgino_computingvisualizingdynamic_2009] and cellAlign [@alpert_alignmentsinglecelltrajectories_2018]. DTW is designed to align temporal sequences by dilating or contracting the sequences to best match each other. cellAlign …[d] .
-
-
-To evaluate a trajectory alignment method on a paired dataset we computed the geodesic distances of each cell from the start of the trajectory, also called the _pseudotime_. For each dataset, the pseudotime values are rescaled between 0 and 1 to allow for easier comparison. A trajectory alignment produces a sequence of index pairs $[(i_0, j_0), (i_1, j_1), \ldots, (i_N, j_N)]$, where $i_0$ and $j_0$ are equal to 0 (the first position in both pseudotime series), $i_N$ and $j_N$ are equal to the respective last positions in the pair of pseudotime series, and $[i_0, i_1, \ldots, i_N]$ and $[j_0, j_1, \ldots, j_N]$ are in ascending order and can contain duplicates values. The 'score'[e] metric is defined as follows, where a score of 0 represents the worst possible ordering and 1 represents the best possible ordering.
-
-
-\begin{equation}
-  \textrm{score} = 1 - \textrm{area\_under\_curve}(pt_1[i_0 .. i_N] + pt_2[j_0 .. j_N], abs(pt_1[i_0 .. i_N] - pt_2[j_0 .. j_N]))
-\end{equation}
-
-
-
-
-\printbibliography
-\newpage
-
-# Supplementary Figures
-\setcounter{page}{1}
-\newrefsection
-\setcounter{table}{0}
-\renewcommand{\thetable}{S\arabic{table}}
-\setcounter{figure}{0}
-\renewcommand{\thefigure}{S\arabic{figure}}
-
-
-
-
-  
-
-
-
-\newcommand{\yes}{\ding{51}}
-\newcommand{\no}{}
-\definecolor{light-gray}{rgb}{.85,.85,.85}
-\newcommand{\grayline}{\arrayrulecolor{light-gray}\cline{3-7}\arrayrulecolor{black}}
-\newcommand{\blackline}{\arrayrulecolor{black}\cline{3-7}}
-\newcommand{\method}[1]{#1}
-
-
-\begin{table}[H]
-    \caption{
-      \textbf{Feature comparison of single-cell synthetic data generators and simulators.} $ ^1$ As showcased by vignette. $^2$ As showcased by Van den Berge et al. \cite{vandenberge_trajectorybaseddifferentialexpression_2020}.
-    } \label{tab:comparison}
-    \small
-    \begin{tabular}{p{.25cm}l|*{5}{>{\centering\arraybackslash}p{1.25cm}|}}
-            \blackline
-            & \method{} & \method{splatter} & \method{powsimR} & \method{PROSSTT} & \method{SymSim} & \method{dyngen} \\
-            \blackline
-            \multicolumn{7}{l}{\textbf{Available modality outputs}} \\
-            \blackline
-            - & mRNA expression & \yes & \yes & \yes & \yes & \yes \\ \grayline
-            - & Pre-mRNA expression & \no & \no & \no & \no & \yes \\ \grayline
-            - & Protein expression & \no & \no & \no & \no & \yes \\ \grayline
-            - & Promotor activity & \no & \no & \no & \yes & \yes \\ \grayline
-            - & Reaction activity & \no & \no & \no & \no & \yes \\
-            \blackline
-            \multicolumn{7}{l}{\textbf{Available ground-truth outputs}} \\
-            \blackline
-            - & True counts & \yes & \no & \no & \yes & \yes \\ \grayline
-            - & Cluster labels & \yes & \yes & \no & \yes & \yes \\ \grayline
-            - & Trajectory & \yes & \no & \yes $ ^1$ & \yes & \yes \\ \grayline
-            - & Batch labels & \yes & \no & \no & \no & \yes $ ^1$\\ \grayline
-            - & Differential expression & \no & \no & \no & \yes & \yes $ ^2$ \\ \grayline
-            - & Knocked down regulators & \no & \no & \no & \no & \yes \\ \grayline
-            - & Regulatory network & \no & \no & \no & \yes & \yes \\ \grayline
-            - & Cell-specific regulatory network & \no & \no & \no & \no & \yes \\
-            \blackline
-            \multicolumn{7}{l}{\textbf{Emulate experimental effects}} \\
-            \blackline
-            - & Single-cell RNA sequencing & \yes & \yes & \yes & \yes & \yes \\ \grayline
-            - & Batch effects & \yes & \no & \no & \no & \yes $ ^1$ \\ \grayline
-            - & Knockdown experiment & \no & \no & \no & \no & \yes \\ \grayline
-            - & Time-series & \no & \no & \no & \no & \yes \\ \grayline
-            - & Snapshot & \no & \no & \no & \no & \yes \\
-            \blackline
-            \multicolumn{7}{l}{\textbf{Evaluation applications}} \\
-            \blackline
-            - & Clustering & \yes & \yes & \no & \yes & \no \\ \grayline
-            - & Trajectory inference & \yes & \no & \yes & \yes & \yes \\ \grayline
-            - & Network inference & \no & \no & \no & \yes & \yes \\ \grayline
-            - & Cell-specific network inference & \no & \no & \no & \no & \yes \\ \grayline
-            - & Differential expression & \yes & \no & \no & \no & \no \\ \grayline
-            - & Trajectory differential expression & \no & \no & \no & \no & \yes $ ^2$ \\ \grayline
-            - & Batch effect correction & \yes & \no & \no & \no & \yes \\ \grayline
-            - & RNA Velocity & \no & \no & \no & \no & \yes \\ \grayline
-            - & Trajectory alignment & \no & \no & \no & \no & \yes \\
-            \blackline
-            %\multicolumn{7}{l}{\textbf{Showcased dataset}} \\
-            %\blackline
-            %- & Number of cells &  &  &  &  & \\ \grayline
-            %- & Number of genes &  &  &  &  & \\ \grayline
-            %- & Execution time & & & & & \\
-            \blackline
-\end{tabular}
-\end{table}
-
-
-
-
-  
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{result_files/usecase_trajectory_alignment/supp_fig.pdf}
-    \caption{
-            \textbf{dyngen allows benchmarking of trajectory alignment methods.} 
- \textbf{A, B}: Two samples containing a linear trajectory, generated by dyngen.
-  \textbf{C, D}: Result of the DTW alignment on the samples in \textbf{A} and \textbf{B}. In \textbf{C}, the individual mappings of the alignment between cells are shown. In \textbf{D}, the accumulated distance matrix between the two trajectories is shown, including the black warping path, corresponding to these cell to cell alignments in \textbf{C}.
-  \textbf{E, F}: Shows the accumulated distance matrices obtained after using DTW on two trajectories where noise (noise level of 0.4) was added to the count matrix. In E the complete count matrices were used to perform the alignment. In F, smoothed pseudocells were used.
-  \textbf{G:} Shows the influence of added noise to the different processing methods. We can see that DTW + smoothing performs best in noisy circumstances.
-    }[f]
-    \label{fig:traj_align}
-\end{figure}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{result_files/usecase_rna_velocity/supp_fig.pdf}
-    \caption{
-            \textbf{dyngen allows benchmarking of RNA velocity methods.} 
-            \textbf{A:} The ground-truth information of a bifurcating dataset: ground-truth trajectory (left), gene expression of a gene B5\_TF1 (middle), and the RNA velocity of B5\_TF1 (right).
-\textbf{B:} The RNA velocity estimates of gene B5\_TF1 by the different methods.
-\textbf{C:} The velocity stream plots produced from the predictions of each method, as generated by scvelo.
-\textbf{D:} The predictions scored by two different metrics, the velocity correlation and the velocity arrow cosine. The velocity correlation is the correlation between the ground-truth velocity (A, right) and the predicted velocity (B). The velocity arrow cosine is the cosine similarity between the direction of segments of the ground-truth trajectory (A, left) and the RNA velocity values calculated at those points (C). 
-    }
-    \label{fig:velocity}
-\end{figure}
-
-
-  
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{result_files/usecase_network_inference/supp_fig.pdf}
-    \caption{
-            \textbf{dyngen allows benchmarking Cell-specific Network Inference (CSNI) methods.} 
-            \textbf{A:} A cell is simulated using the global gene regulatory network (GRN, top left). However, at any particular state in the simulation, only a fraction of the gene regulatory interactions are active.
-            \textbf{B:} CSNI methods were executed to predict the regulatory interactions that are active in each cell specifically. Using the ground-truth cell-specific GRN, the performance of each method was quantified on 42 dyngen datasets. 
-    }
-    \label{fig:scgrn}
-\end{figure}
-
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth]{result_files/explain_methods}
-    \caption{\textbf{The workflow of dyngen consists of six main steps.} 
-    \textbf{A:} The user needs to specify the desired module network or use a predefined module network. The module network is what determines the dynamic behaviour of simulated cells.
-    \textbf{B:} The number of desired transcription factors (which drive the desired dynamic process) are amongst the given modules and adds regulatory interactions according to the module network. Additional target genes (which do not influence the dynamic process) are added by sampling interactions from GRN interaction databases.
-    \textbf{C:} Each gene regulatory interaction in the GRN is converted to a set of biochemical reactions. 
-    \textbf{D:} Along with the module network, the user also needs to specify the backbone structure of expected cell states. The average expression of each edge in the backbone is simulated by activating a restricted set of genes for each edge. 
-    \textbf{E:} Multiple Gillespie SSA simulations are run using the reactions defined in step C.  The counts of each of the molecules at each time step are extracted. Each time step is mapped to a point in the backbone. 
-    \textbf{F:} The molecule levels of multiple simulations are shown over time (left). From each simulation, multiple cells are sampled (from left to middle). Technical noise from profiling is simulated by sampling molecules from the set of molecules inside each cell (from middle to right).
-    }
-    \label{fig:explain_methods}
-\end{figure}
-  
-
-
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.8\textwidth]{result_files/example_backbones_onlymodules}
-    \caption{
-      \textbf{The module network determines the type of dynamic process which simulated cells will undergo.} A module network describes the regulatory interactions between sets of transcription factors which drive the desired dynamic process.
-    }
-    \label{fig:example_backbones_onlymodules}
-\end{figure}
-  
-
-
-
-
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{result_files/gen_feature_network}
-    \caption{
-        \textbf{Generating the feature network from a backbone consists of four main steps.}
-    }
-    \label{fig:gen_feature_network}
-\end{figure}
-  
-
-
-
-\begin{table}[H]
-    \caption{
-      \textbf{Reactions affecting the abundance levels of pre-mRNA $\x G$, mature mRNA $\y G$ and proteins $\z G$ of gene $G$.} Define the set of regulators of $G$ as $\rs{G}$, the set of upregulating regulators of $G$ as $\rp G$, and the set of down-regulating regulators of $G$ as $\rn G$. Parameters used in the propensity formulae are defined in Table \ref{tab:reaction_params}.
-    } \label{tab:reaction_def}
-    \centering
-    \begin{tabular}{|lcc|}
-        \hline
-        Reaction & Effect & Propensity \\ \hline \hline
-        Transcription & $\emptyset \rightarrow \x G$ & $\xpr G \times \frac{\ba G - \ind{G}^{|\rp{G}|} + \prod\limits_{H \in \rp{G}}(\ind G + \buf{G,H})}{\prod\limits_{H \in \rs{G}}(1 + \buf{G,H})}$ \\
-        Splicing & $\x G \rightarrow \y G$ & $\ysr G \times \x G$ \\
-        Translation & $\y G \rightarrow \y G + \z G$ & $\zpr G \times \y G$ \\ \hline\hline
-        Pre-mRNA degradation & $\x G \rightarrow \emptyset$ & $\ydr G \times \x G$ \\
-        Mature mRNA degradation & $\y G \rightarrow \emptyset$ & $\ydr G \times \y G$ \\
-        Protein degradation & $\z G \rightarrow \emptyset$ & $\zdr G \times \z G$ \\ \hline
-    \end{tabular}
-\end{table}
-  
-
-
-
-\begin{table}[H]
-    \caption{
-      \textbf{Default parameters defined for the calculation of reaction propensity functions.}
-    } \label{tab:reaction_params}
-    \centering
-    \begin{tabular}{|lrl|}
-        \hline
-        Parameter & Symbol & Definition \\ \hline \hline
-        Transcription rate & $\xpr{G}$ & $\in U(10, 20)$ \\
-        Splicing rate & $\ysr G$ & $= \ln(2)\ /\ 2$ \\
-        Translation rate & $\zpr{G}$ & $\in U(100, 150)$ \\
-        (Pre-)mRNA half-life & $\yhl{G}$ & $\in U(2.5, 5)$ \\
-        Protein half-life & $\zhl G$ & $\in U(5, 10)$ \\
-        Interaction strength & $\str{G,H}$ & $\in 10^{U(0, 2)}$ * \\
-        Hill coefficient & $\hill{G,H}$ & $\in U(0.5, 2)$ * \\
-        Independence factor & $\ind G$ & $\in U(0, 1)$ * \\ \hline\hline
-        (Pre-)mRNA degradation rate & $\ydr G$ & $= \ln(2)\ /\ \yhl G$ \\
-        Protein degradation rate & $\zdr G$ & $= \ln(2)\ /\ \zhl G$ \\
-        Dissociation constant & $\dis H$ & $= 0.5 \times \frac{\xpr H \times \ysr H \times \zpr H}{(\ydr H + \ysr H) \times \ydr H \times \zdr H}$ \\
-        Binding strength & $\buf{G,H}$ & $= \str{G,H} \times \left(\z H\ /\ \dis H\right) ^ {\hill{G,H}}$ \\
-        Basal expression & $\ba G$ & $= \begin{cases} 1 & \mbox{if } \rp{G} = \emptyset \\ 0.0001 & \mbox{if } \rn{G} = \emptyset \mbox{ and } \rp{G} \neq \emptyset \\ 0.5 & \mbox{otherwise} \end{cases}$ * \\ \hline
-        \multicolumn{3}{l}{*: unless $G$ is a TF, then the value is determined by the backbone.}
-    \end{tabular}
-\end{table}
-  
-
-
-
-
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=.6\linewidth]{result_files/sample_cells.pdf}
-    \caption{
-        \textbf{Two approaches can be used to sample cells from simulations: snapshot and time-series.}
-    }
-    \label{fig:sample_cells}
-\end{figure}
-  
-
-
-
-
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.8\textwidth]{result_files/example_backbones}
-    \caption{\textbf{Examples of the ground-truth state networks which need to be provided alongside the module network.}}
-    \label{fig:example_backbones}
-\end{figure}
-
-
-[a]todo: update
-[b]// todo: upload temporary data to zenodo?
-[c]todo: update this section
-[d]@louise.deconinck@gmail.com could you add a description for cellAlign?
-_Assigned to Louise_
-[e]TODO: rename
-[f]TODO: update text
+These timings were measured using 30 (out of 32) threads using a AMD
+Ryzen 9 5950X clocked at 3.4GHz.

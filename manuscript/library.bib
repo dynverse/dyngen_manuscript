@@ -1710,6 +1710,20 @@
   abstract = {Cell fates are determined by transition-states which occur during complex biological processes such as proliferation and differentiation. The advance in single-cell RNA sequencing (scRNAseq) provides the snapshots of single cell transcriptomes, thus offering an essential opportunity to study such complex biological processes. Here, we introduce a novel algorithm, DensityPath, which visualizes and reconstructs the underlying cell developmental trajectories for large-scale scRNAseq data. DensityPath has three merits. Firstly, by adopting the nonlinear dimension reduction algorithm elastic embedding, DensityPath reveals the intrinsic structures of the data. Secondly, by applying the powerful level set clustering method, DensityPath extracts the separate high density clusters of representative cell states (RCSs) from the single cell multimodal density landscape of gene expression space, enabling it to handle the heterogeneous scRNAseq data elegantly and accurately. Thirdly, DensityPath constructs cell state-transition path by finding the geodesic minimum spanning tree of the RCSs on the surface of the density landscape, making it more computationally efficient and accurate for large-scale dataset. The cell state-transition path constructed by DensityPath has the physical interpretation as the minimum-transition-energy (least-cost) path. We demonstrate that DensityPath is capable of identifying complex cell development trajectories with bifurcating and trifurcating branches on the human preimplantation embryos. We demonstrate that DensityPath is robust and has high accuracy of pseudotime calculation and branch assignment on the real scRNAseq as well as simulated datasets.}
 }
 
+@incollection{chen_differentialexpressionanalysis_2014,
+  title = {Differential {{Expression Analysis}} of {{Complex RNA}}-Seq {{Experiments Using edgeR}}},
+  booktitle = {Statistical {{Analysis}} of {{Next Generation Sequencing Data}}},
+  author = {Chen, Yunshun and Lun, Aaron T. L. and Smyth, Gordon K.},
+  editor = {Datta, Somnath and Nettleton, Dan},
+  date = {2014},
+  pages = {51--74},
+  publisher = {{Springer International Publishing}},
+  location = {{Cham}},
+  doi = {10.1007/978-3-319-07212-8_3},
+  abstract = {This article reviews the statistical theory underlying the edgeR software package for differential expression of RNA-seq data. Negative binomial models are used to capture the quadratic mean-variance relationship that can be observed in RNA-seq data. Conditional likelihood methods are used to avoid bias when estimating the level of variation. Empirical Bayes methods are used to allow gene-specific variation estimates even when the number of replicate samples is very small. Generalized linear models are used to accommodate arbitrarily complex designs. A key feature of the edgeR package is the use of weighted likelihood methods to implement a flexible empirical Bayes approach in the absence of easily tractable sampling distributions. The methodology is implemented in flexible software that is easy to use even for users who are not professional statisticians or bioinformaticians. The software is part of the Bioconductor project.},
+  isbn = {978-3-319-07212-8}
+}
+
 @article{chen_mpathmapsmultibranching_2016,
   title = {Mpath {{Maps Multi}}-{{Branching Single}}-{{Cell Trajectories Revealing Progenitor Cell Progression}} during {{Development}}},
   author = {Chen, Jinmiao and Schlitzer, Andreas and Chakarov, Svetoslav and Ginhoux, Florent and Poidinger, Michael},
@@ -6310,6 +6324,20 @@
   number = {8}
 }
 
+@article{love_moderatedestimationfold_2014,
+  title = {Moderated Estimation of Fold Change and Dispersion for {{RNA}}-Seq Data with {{DESeq2}}},
+  author = {Love, Michael I. and Huber, Wolfgang and Anders, Simon},
+  date = {2014-12-05},
+  journaltitle = {Genome Biology},
+  shortjournal = {Genome Biology},
+  volume = {15},
+  pages = {550},
+  issn = {1474-760X},
+  doi = {10.1186/s13059-014-0550-8},
+  abstract = {In comparative high-throughput sequencing assays, a fundamental task is the analysis of count data, such as read counts per gene in RNA-seq, for evidence of systematic changes across experimental conditions. Small replicate numbers, discreteness, large dynamic range and the presence of outliers require a suitable statistical approach. We present DESeq2, a method for differential analysis of count data, using shrinkage estimation for dispersions and fold changes to improve stability and interpretability of estimates. This enables a more quantitative analysis focused on the strength rather than the mere presence of differential expression. The DESeq2 package is available at http://www.bioconductor.org/packages/release/bioc/html/DESeq2.html.},
+  number = {12}
+}
+
 @article{lowes_bralibasedentatale_2017,
   title = {The {{BRaliBase}} Dent-a Tale of Benchmark Design and Interpretation},
   author = {Löwes, Benedikt and Chauve, Cedric and Ponty, Yann and Giegerich, Robert},
@@ -8824,6 +8852,34 @@
   doi = {10.1038/nbt.3854},
   abstract = {Transcriptional programs control cellular lineage commitment and differentiation during development. Understanding of cell fate has been advanced by studying single-cell RNA-sequencing (RNA-seq) but is limited by the assumptions of current analytic methods regarding the structure of data. We present single-cell topological data analysis (scTDA), an algorithm for topology-based computational analyses to study temporal, unbiased transcriptional regulation. Unlike other methods, scTDA is a nonlinear, model-independent, unsupervised statistical framework that can characterize transient cellular states. We applied scTDA to the analysis of murine embryonic stem cell (mESC) differentiation in vitro in response to inducers of motor neuron differentiation. scTDA resolved asynchrony and continuity in cellular identity over time and identified four transient states (pluripotent, precursor, progenitor, and fully differentiated cells) based on changes in stage-dependent combinations of transcription factors, RNA-binding proteins, and long noncoding RNAs (lncRNAs). scTDA can be applied to study asynchronous cellular responses to either developmental cues or environmental perturbations.},
   number = {6}
+}
+
+@article{robinson_edgerbioconductorpackage_2010,
+  title = {{{edgeR}}: A {{Bioconductor}} Package for Differential Expression Analysis of Digital Gene Expression Data},
+  author = {Robinson, Mark D. and McCarthy, Davis J. and Smyth, Gordon K.},
+  date = {2010-01-01},
+  journaltitle = {Bioinformatics},
+  shortjournal = {Bioinformatics},
+  volume = {26},
+  pages = {139--140},
+  issn = {1367-4803},
+  doi = {10.1093/bioinformatics/btp616},
+  abstract = {Summary: It is expected that emerging digital gene expression (DGE) technologies will overtake microarray technologies in the near future for many functional genomics applications. One of the fundamental data analysis tasks, especially for gene expression studies, involves determining whether there is evidence that counts for a transcript or exon are significantly different across experimental conditions. edgeR is a Bioconductor software package for examining differential expression of replicated count data. An overdispersed Poisson model is used to account for both biological and technical variability. Empirical Bayes methods are used to moderate the degree of overdispersion across transcripts, improving the reliability of inference. The methodology can be used even with the most minimal levels of replication, provided at least one phenotype or experimental condition is replicated. The software may have other applications beyond sequencing data, such as proteome peptide count data.Availability: The package is freely available under the LGPL licence from the Bioconductor web site (http://bioconductor.org).Contact:mrobinson@wehi.edu.au},
+  number = {1}
+}
+
+@article{robinson_scalingnormalizationmethod_2010,
+  title = {A Scaling Normalization Method for Differential Expression Analysis of {{RNA}}-Seq Data},
+  author = {Robinson, Mark D. and Oshlack, Alicia},
+  date = {2010-03-02},
+  journaltitle = {Genome Biology},
+  shortjournal = {Genome Biology},
+  volume = {11},
+  pages = {R25},
+  issn = {1474-760X},
+  doi = {10.1186/gb-2010-11-3-r25},
+  abstract = {The fine detail provided by sequencing-based transcriptome surveys suggests that RNA-seq is likely to become the platform of choice for interrogating steady state RNA. In order to discover biologically important changes in expression, we show that normalization continues to be an essential step in the analysis. We outline a simple and effective method for performing normalization and show dramatically improved results for inferring differential expression in simulated and publicly available data sets.},
+  number = {3}
 }
 
 @article{rodriques_slideseqscalabletechnology_2019,

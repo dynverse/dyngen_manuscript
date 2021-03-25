@@ -4,6 +4,11 @@ library(dyngen.manuscript)
 library(grImport)
 library(patchwork)
 
+# workaround for borked miniconda
+if (Sys.info()[["user"]] == "rcannood") {
+  Sys.setenv("LD_LIBRARY_PATH" = Sys.getenv("LD_LIBRARY_PATH") %>% gsub("[^:]*r-reticulate[^:]*:", "", .))
+}
+
 set.seed(1)
 
 exp <- start_analysis("summary")
@@ -310,12 +315,20 @@ mod_app <-
   )
 out_app <- generate_dataset(
   mod_app,
-  make_plots = TRUE
+  make_plots = TRUE,
+  format = "dyno"
 )
 
 dataset <- out_app$dataset
 dimred <- dyndimred::dimred_mds(dataset$expression, distance_method = "pearson")
-g7d <- dynplot::plot_dimred(dataset, dimred = dimred, size_milestones = 3, size_cells = 1.5) +
+g7d <- dynplot::plot_dimred(
+  dataset,
+  dimred = dimred,
+  size_milestones = 3,
+  size_cells = 1.5,
+  size_transitions = 1,
+  arrow = grid::arrow(type = "closed", length = unit(0.06, "inches"))
+) +
   coord_cartesian() +
   theme_classic() +
   theme(
@@ -329,22 +342,18 @@ g7d <- dynplot::plot_dimred(dataset, dimred = dimred, size_milestones = 3, size_
   labs(title = "Trajectory inference")
 
 exp7a <- start_analysis("usecase_trajectory_alignment")
-g7a <- read_rds(exp7a$result("usecase_separateplots.rds"))$prediction +
+g7a <- read_rds(exp7a$result("usecase_separateplots.rds"))$prediction_small +
   theme_classic() +
   theme(
     legend.position = "none",
     text = element_text(family = "Helvetica"),
-    axis.title = element_text(),
-    axis.title.y = element_blank(),
-    axis.line = element_line(),
-    axis.line.y = element_blank(),
-    axis.ticks = element_line(),
-    axis.ticks.y = element_blank(),
-    axis.text = element_text(),
-    axis.text.y = element_blank()
+    axis.title = element_blank(),
+    axis.line = element_blank(),
+    axis.ticks = element_blank(),
+    axis.text = element_blank()
   ) +
   labs(x = "Simulation time", title = "Trajectory alignment") +
-  coord_cartesian()
+  coord_flip()
 
 exp7b <- start_analysis("usecase_rna_velocity")
 g7b <- read_rds(exp7b$result("usecase_separateplots.rds"))$prediction +
@@ -387,11 +396,6 @@ g <- wrap_plots(
   g7a,
   g7b,
   g7c,
-  # wrap_plots(g0a, g0b, nrow = 1, widths = c(1, 1)), plot_spacer(),
-  # g1, g7d,
-  # g2, g7a,
-  # g3, g7b,
-  # g5, g7c,
   heights = such_great_heights,
   ncol = 2,
   widths = c(7, 3),

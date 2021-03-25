@@ -19,9 +19,12 @@ design_names <-
 # PART A: Illustration of velocity ----------------------------------------
 dataset_id <- "bifurcating_seed3"
 
-dataset <- read_rds(exp$dataset_file(dataset_id))
-model <- read_rds(exp$model_file(dataset_id))
-dyngen::plot_backbone_modulenet(model)
+dataset <- read_rds(exp$dataset_file(dataset_id)) %>% dynwrap::simplify_trajectory()
+dataset$waypoints <- NULL
+dataset <- dataset %>% dynwrap::add_waypoints()
+# model <- read_rds(exp$model_file(dataset_id))
+# dyngen::plot_backbone_modulenet(model)
+
 # # choosing a good rotation from 3D to 2D
 # mil_cols <- dynplot2::define_milestone_colors(milestone_colors = NULL, milestone_ids = dataset$milestone_ids)
 # mil_pct_mat <- dataset$milestone_percentages %>% reshape2::acast(cell_id~milestone_id, value.var = "percentage", fill = 0) %>% .[rownames(dataset$dimred), dataset$milestone_ids]
@@ -46,7 +49,7 @@ dataset <- dataset %>% dynwrap::add_dimred(dimred = dimred)
 plot_trajectory <- {dynplot_dimred(dataset) +
     geom_cell_point(aes(color = milestone_percentages), size = 1) +
     scale_milestones_colour() +
-    geom_trajectory_segments(size = 1, color = "#333333") +
+    geom_trajectory_segments(size = 1, colour = "#333333", arrow = arrow(length = unit(.3, "cm"), type = "closed")) +
     geom_milestone_label(aes(label = gsub("^s", "", label)), color = "black", fill = "#EEEEEE") +
     theme_common(legend.position = "none") +
     ggtitle("Trajectory")} %>%
@@ -55,7 +58,7 @@ plot_trajectory <- {dynplot_dimred(dataset) +
 # Plot 2, expression of a gene that goes up and down
 expression_plot <- {dynplot_dimred(dataset) +
     geom_cell_point(aes(color = select_feature_expression(feature_oi, .data)), size = 1) +
-    geom_trajectory_segments(size = 1, color = "#333333") +
+    geom_trajectory_segments(size = 1, colour = "#333333", arrow = arrow(length = unit(.3, "cm"), type = "closed")) +
     scale_expression_color(breaks = c(0, 1), labels = c("min", "max")) +
     theme_common() +
     ggtitle(paste0("Expression of gene ", feature_oi))}# %>%
@@ -123,7 +126,7 @@ plot_part_C <- pmap(design_velocity_oi, function(dataset_id, method_id, params_i
         size = .8,
         color = "#333333",
         stat = stat_velocity_stream(grid_bandwidth = 1, filter = rlang::quo(mass > max(mass) * 0.07)),
-        arrow = arrow(length = unit(0.3, "cm"), type = "closed")
+        arrow = arrow(length = unit(.2, "cm"), type = "closed")
       ) +
       ggtitle(method_label) +
       theme_common() +
@@ -214,8 +217,8 @@ g_metrics <- map2(names(metric_labels), metric_labels, function(metric, metric_n
       y = metric_name,
       colour = "Method"
     ) +
-    scale_colour_brewer(palette = "Set1") +
-    scale_fill_brewer(palette = "Set1")
+    scale_colour_brewer(palette = "Set2") +
+    scale_fill_brewer(palette = "Set2")
   if (nrow(df_pairwise) > 0) {
     g <- g + ggsignif::geom_signif(
       comparisons = df_pairwise$groups,
@@ -231,7 +234,7 @@ g_metrics <- map2(names(metric_labels), metric_labels, function(metric, metric_n
 })
 names(g_metrics) <- names(metric_labels)
 g_metrics$cor
-g_metrics$mean_cosine <- g_metrics$mean_cosine + scale_y_continuous(breaks = c(0, .25, .5, .75, 1))
+g_metrics$mean_cosine <- g_metrics$mean_cosine + scale_y_continuous(breaks = c(0, .25, .5, .75, 1)) + expand_limits(y = 1.28)
 
 
 # create pairwise plots
@@ -241,7 +244,7 @@ g_pairwise <-
   theme_classic() +
   theme_common(legend.position = "right") +
   labs(x = metric_labels[["cor"]], y = metric_labels[["mean_cosine"]], colour = "Method") +
-  scale_color_brewer(palette = "Set1")
+  scale_color_brewer(palette = "Set2")
 
 
 plot_part_D <- patchwork::wrap_plots(
@@ -251,7 +254,6 @@ plot_part_D <- patchwork::wrap_plots(
   nrow = 1,
   guides = "collect"
 )
-
 
 
 # COMBINE ALL PARTS -------------------------------------------------------
@@ -268,7 +270,7 @@ g <- patchwork::wrap_plots(
   ncol = 1,
   heights = c(1, 1, 1, 1)
 )
-ggsave(exp$result("supp_fig.pdf"), g, height = 12, width = 12, useDingbats = FALSE)
+ggsave(exp$result("supp_fig.pdf"), g, height = 10, width = 10, useDingbats = FALSE)
 # convert for previewing in gdoc
 pdftools::pdf_convert(
   pdf = exp$result("supp_fig.pdf"),

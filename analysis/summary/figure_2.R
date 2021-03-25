@@ -55,7 +55,8 @@ ga2 <- plots_a$prediction +
   labs(title = NULL, subtitle = NULL, tag = NULL)
 
 scores_a <-
-  read_rds(exp_a$result("results.rds"))
+  read_rds(exp_a$result("results.rds")) %>%
+  gather(metric, score, abwap)
 
 plota_data <-
   scores_a %>%
@@ -78,7 +79,7 @@ ga3 <-
   coord_flip() +
   theme_classic() +
   theme_common() +
-  labs(x = NULL, y = "Alignment score") +
+  labs(x = NULL, y = "ABWAP score") +
   scale_fill_brewer(palette = "Pastel2") +
   theme(legend.position = "none")
 

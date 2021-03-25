@@ -7,7 +7,7 @@ exp <- start_analysis("usecase_trajectory_alignment")
 design_smoothing <-
   crossing(
     read_rds(exp$result("design_datasets.rds")),
-    method = forcats::fct_inorder(c("DTW", "cellAlign"))
+    method = c("DTW", "cellAlign")
   )
 
 #' design_smoothing %>% mutate(rn = row_number()) %>% dynutils::extract_row_to_list(1) %>% list2env(.GlobalEnv)
@@ -24,22 +24,16 @@ results <- exp$result("results.rds") %cache% pmap_dfr(
       dataset2 <- dataset %>% filter_cells(model == "right")
 
       out <- method_fun(dataset1, dataset2)
-      pt1_aligned <- out$pt1_aligned
-      pt2_aligned <- out$pt2_aligned
+      pt1 <- out$pt1_aligned
+      pt2 <- out$pt2_aligned
 
-      distance <- mean(abs(pt1_aligned - pt2_aligned))
+      distance <- mean(abs(pt1 - pt2))
 
-      aupt <- pracma::trapz(
-        pt1_aligned + pt2_aligned,
-        abs(pt1_aligned - pt2_aligned)
-      )
-
-      score <- 1 - aupt
+      abwap <- ta_abwap(pt1, pt2)
 
       design_smoothing[rn, ] %>% mutate(
-        distance,
-        aupt,
-        score
+        mean_distance = distance,
+        abwap
       )
     }
   }
@@ -48,16 +42,7 @@ results <- exp$result("results.rds") %cache% pmap_dfr(
 ggstatsplot::ggwithinstats(
   results,
   x = method,
-  y = score,
+  y = abwap,
   type = "np",
   pairwise.display = "all"
 )
-
-z <- ggstatsplot::ggwithinstats(
-  results,
-  x = method,
-  y = distance,
-  type = "np",
-  pairwise.display = "all"
-)
-z$labels$subtitle

@@ -9,7 +9,7 @@ out <- list()
 exp_a <- start_analysis("usecase_trajectory_alignment")
 scores_a <- read_rds(exp_a$result("results.rds"))
 
-out$trajectory_alignment_summary <- scores_a %>% select(-distance, -aupt) %>% rename(dataset_id = id, method_id = method)
+out$trajectory_alignment_summary <- scores_a %>% select(-mean_distance) %>% rename(dataset_id = id, method_id = method)
 
 # RNA velocity
 exp_b <- start_analysis("usecase_rna_velocity")

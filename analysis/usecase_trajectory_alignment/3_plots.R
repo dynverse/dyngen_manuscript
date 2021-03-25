@@ -24,7 +24,6 @@ group_palette <- c(Diseased = "#fd8d3c", Healthy = "#6baed6")
 
 # run methods
 dtw_out <- ta_methods$DTW(dataset1, dataset2)
-# cal_out <- ta_methods$cellAlign(dataset1, dataset2)
 
 
 # PART 1: create explanation plots ----------------------------------------
@@ -132,55 +131,6 @@ prediction_small <- dynplot_dimred(dataset) +
   theme_common()
 
 
-# # once more, for cellalign
-# dfca <- tibble(
-#   i = cal_out$index1*5, # fix smoothing mismatch
-#   j = cal_out$index2*5,
-#   ci = names(res1$pseudotime)[i],
-#   cj = names(res2$pseudotime)[j],
-#   pi = cal_out$pt1_aligned,
-#   pj = cal_out$pt2_aligned,
-#   rn = seq_along(i)
-# ) %>%
-#   filter(rn %% round(n()/15) == 1)
-# dfca2 <- dfca %>%
-#   select(pos = rn, left = ci, right = cj) %>%
-#   gather(group, cell_id, left, right) %>%
-#   mutate(pred_id = paste0("pred_", cell_id))
-#
-# predca_waypoints <- list(
-#   milestone_percentages =
-#     dataset$milestone_percentages %>%
-#     filter(cell_id %in% dfca2$cell_id) %>%
-#     mutate(cell_id = paste0("pred_", cell_id)) %>%
-#     rename(waypoint_id = cell_id)
-# )
-# predca_proj <- dynwrap::project_waypoints(trajectory = dataset, space = dataset$dimred, waypoints = predca_waypoints)
-#
-# predca_df <- data.frame(dfca2, predca_proj[dfca2$pred_id, ]) %>%
-#   as_tibble()
-#
-# predictionca <- dynplot_dimred(dataset) +
-#   geom_path(aes(comp_1, comp_2, group = pos), linetype = "dashed", colour = "darkgray", predca_df) +
-#   geom_cell_point(colour = "black", size = 3) +
-#   geom_cell_point(aes(colour = group), size = 2.5) +
-#   geom_trajectory_segments(size = 2, arrow_size = .2) +
-#   geom_milestone_point(size = 4, colour = "black") +
-#   labs(colour = "Sample") +
-#   scale_colour_manual(values = group_palette) +
-#   theme_common()
-# predictionca
-#
-# predictionca_small <- dynplot_dimred(dataset) +
-#   geom_path(aes(comp_1, comp_2, group = pos), linetype = "dashed", colour = "darkgray", predca_df) +
-#   geom_cell_point(colour = "black", size = 2.5) +
-#   geom_cell_point(aes(colour = group), size = 2) +
-#   geom_trajectory_segments(size = 1, arrow_size = .2, grid::arrow(type = "closed", length = unit(0.06, "inches"))) +
-#   geom_milestone_point(size = 2, colour = "black") +
-#   labs(colour = "Sample") +
-#   scale_colour_manual(values = group_palette) +
-#   theme_common()
-
 
 # save plots for figure 1 and 2
 plots <- lst(
@@ -194,13 +144,25 @@ write_rds(plots, exp$result("usecase_separateplots.rds"), compress = "xz")
 
 
 # PART 2: heatmaps --------------------------------------------------------
-heatmap_paths <- bind_rows(
-  # tibble(pt1 = cal_out$pt1, pt2 = cal_out$pt2, method = "cellAlign"),
-  tibble(pt1 = dtw_out$pt1, pt2 = dtw_out$pt2, method = "Prediction", index1 = dtw_out$index1, index2 = dtw_out$index2),
-  # tibble(pt1 = c(0, 1, 1), pt2 = c(0, 0, 1), index1 = pt1 * 1000, index2 = pt2 * 1000, method = "Worst"),
-  tibble(pt1 = c(0, 1), pt2 = c(0, 1), index1 = pt1 * 1000, index2 = pt2 * 1000, method = "Best possible\nalignment")
-) %>%
-  mutate(method = factor(method, levels = c("Prediction", "Best possible\nalignment", "Worst")))
+
+# best_pt <- tibble(
+#   pt = sort(c(res1$pseudotime, res2$pseudotime)),
+#   in1 = names(pt) %in% names(res1$pseudotime),
+#   in2 = names(pt) %in% names(res2$pseudotime),
+#   index2 = cumsum(in1),
+#   index1 = cumsum(in2)
+# )
+#
+# heatmap_paths <- bind_rows(
+#   # tibble(pt1 = cal_out$pt1, pt2 = cal_out$pt2, method = "cellAlign"),
+#   tibble(pt1 = dtw_out$pt1, pt2 = dtw_out$pt2, method = "Prediction", index1 = dtw_out$index1, index2 = dtw_out$index2),
+#   best_pt %>% select(-pt, -in1, -in2) %>% mutate(method = "Best possible\nalignment")
+#   # tibble(pt1 = c(0, 1, 1), pt2 = c(0, 0, 1), index1 = pt1 * 1000, index2 = pt2 * 1000, method = "Worst"),
+#   # tibble(pt1 = c(0, 1), pt2 = c(0, 1), index1 = pt1 * 1000, index2 = pt2 * 1000, method = "Best possible\nalignment")
+# ) %>%
+#   mutate(method = factor(method, levels = c("Prediction", "Best possible\nalignment", "Worst")))
+
+heatmap_paths <- dtw_out[c("index1", "index2")] %>% as_tibble()
 
 heatmap_raster <-
   reshape2::melt(dtw_out$costMatrix, varnames = c("index1", "index2"), value.name = "distance") %>%
@@ -210,26 +172,10 @@ heatmap_raster <-
     pt2 = res2$pseudotime[index2],
   )
 
-labels <- tribble(
-  ~index1, ~index2, ~text, ~hjust, ~vjust,
-  400, 300, "Best possible\nalignment", 0, .5,
-  # 400, 50, "Worst possible alignment", 0, 0,
-  578-100, 949, "Prediction", 1, .5
-)
-label_arrows <- tribble(
-  ~x0, ~x1, ~y0, ~y1,
-  380, 320, 300, 300,
-  # 380, 320, 50, 10,
-  578-80, 578-20, 949, 949
-)
 dtw_dens <-
   ggplot(mapping = aes(index1, index2)) +
   geom_raster(aes(fill = distance), heatmap_raster, alpha = .9) +
-  geom_path(aes(linetype = method), heatmap_paths) +
-  # geom_path(aes(group = method), heatmap_paths %>% filter(method != "Prediction"), linetype = "dashed") +
-  # geom_text(aes(label = text, hjust = hjust, vjust = vjust), labels, size = 3) +
-  # geom_segment(aes(x = x0, y = y0, xend = x1, yend = y1), label_arrows, arrow = grid::arrow(type = "closed", length = unit(0.06, "inches"))) +
-  scale_linetype_manual(values = c("Best possible\nalignment" = "dashed", "Prediction" = "solid")) +
+  geom_path(data = heatmap_paths) +
   scale_fill_distiller(palette = "RdYlGn", breaks = range(rasterdf$distance), labels = c("min", "max")) +
   scale_x_continuous(expand = c(0, 0), breaks = quantile(linedf$x, c(0, .5, 1)), labels = c("0.0", "0.5", "1.0")) +
   scale_y_continuous(expand = c(0, 0), breaks = quantile(linedf$y, c(0, .5, 1)), labels = c("0.0", "0.5", "1.0")) +
@@ -241,13 +187,12 @@ dtw_dens <-
     panel.background = element_blank(),
     legend.position = "right"
   ) +
-  labs(x = "Pseudotime 2 (pt2)", y = "Pseudotime 1 (pt1)", fill = "Accumulated\ndistance", linetype = "Linetype")
+  labs(x = "Dataset 2 index", y = "Dataset 1 index", fill = "Accumulated\ndistance")
 
 dtw_dens
 
 # PART 3: ABWAP explanation --------------------------------------------
 paths <- bind_rows(
-  # tibble(pt1_aligned = cal_out$pt1_aligned, pt2_aligned = cal_out$pt2_aligned, method = "cellAlign"),
   tibble(pt1_aligned = dtw_out$pt1_aligned, pt2_aligned = dtw_out$pt2_aligned, method = "Prediction"),
   tibble(pt1_aligned = c(0, 1, 1), pt2_aligned = c(0, 0, 1), method = "Worst"),
   tibble(pt1_aligned = c(0, 1), pt2_aligned = c(0, 1), method = "Best")
@@ -279,7 +224,7 @@ g_abwap <-
   ggplot() +
   geom_polygon(aes(pt1_aligned + pt2_aligned, abs(pt1_aligned - pt2_aligned)), fill, colour = NA, fill = "darkgray", alpha = .2) +
   geom_path(aes(pt1_aligned + pt2_aligned, abs(pt1_aligned - pt2_aligned), group = method), paths %>% filter(method != "Prediction"), linetype = "dashed") +
-  geom_path(aes(pt1_aligned + pt2_aligned, abs(pt1_aligned - pt2_aligned), group = method), paths %>% filter(method == "Prediction")) +
+  geom_path(aes(pt1_aligned + pt2_aligned, abs(pt1_aligned - pt2_aligned), group = method), paths %>% filter(method == "Prediction"), linetype = "solid") +
   geom_segment(aes(x = x0, y = y0, xend = x1, yend = y1), arrows, arrow = grid::arrow(type = "closed", length = unit(0.06, "inches"))) +
   geom_text(aes(x, y, label = label, vjust = vjust), text, hjust = 0, size = 3) +
   theme_classic() +
@@ -391,8 +336,8 @@ g <- wrap_plots(
     heights = c(1, 1, 1.5)
   ),
   wrap_plots(
-    g_abwap + labs(tag = "E"),
-    g_metrics$abwap + expand_limits(y = 1.05) + scale_y_continuous(breaks = c(0, .25, .5, .75, 1)) + labs(tag = "F"),
+    g_abwap + labs(tag = "D"),
+    g_metrics$abwap + expand_limits(y = 1.05) + scale_y_continuous(breaks = c(0, .25, .5, .75, 1)) + labs(tag = "E"),
     ncol = 1
   ),
   nrow = 1,

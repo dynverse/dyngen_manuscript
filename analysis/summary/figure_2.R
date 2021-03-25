@@ -81,7 +81,8 @@ ga3 <-
   theme_common() +
   labs(x = NULL, y = "ABWAP score") +
   scale_fill_brewer(palette = "Pastel2") +
-  theme(legend.position = "none")
+  theme(legend.position = "none") +
+  expand_limits(y = c(0, 1))
 
 
 #################

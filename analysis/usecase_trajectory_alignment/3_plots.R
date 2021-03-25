@@ -145,23 +145,6 @@ write_rds(plots, exp$result("usecase_separateplots.rds"), compress = "xz")
 
 # PART 2: heatmaps --------------------------------------------------------
 
-# best_pt <- tibble(
-#   pt = sort(c(res1$pseudotime, res2$pseudotime)),
-#   in1 = names(pt) %in% names(res1$pseudotime),
-#   in2 = names(pt) %in% names(res2$pseudotime),
-#   index2 = cumsum(in1),
-#   index1 = cumsum(in2)
-# )
-#
-# heatmap_paths <- bind_rows(
-#   # tibble(pt1 = cal_out$pt1, pt2 = cal_out$pt2, method = "cellAlign"),
-#   tibble(pt1 = dtw_out$pt1, pt2 = dtw_out$pt2, method = "Prediction", index1 = dtw_out$index1, index2 = dtw_out$index2),
-#   best_pt %>% select(-pt, -in1, -in2) %>% mutate(method = "Best possible\nalignment")
-#   # tibble(pt1 = c(0, 1, 1), pt2 = c(0, 0, 1), index1 = pt1 * 1000, index2 = pt2 * 1000, method = "Worst"),
-#   # tibble(pt1 = c(0, 1), pt2 = c(0, 1), index1 = pt1 * 1000, index2 = pt2 * 1000, method = "Best possible\nalignment")
-# ) %>%
-#   mutate(method = factor(method, levels = c("Prediction", "Best possible\nalignment", "Worst")))
-
 heatmap_paths <- dtw_out[c("index1", "index2")] %>% as_tibble()
 
 heatmap_raster <-
@@ -176,9 +159,9 @@ dtw_dens <-
   ggplot(mapping = aes(index1, index2)) +
   geom_raster(aes(fill = distance), heatmap_raster, alpha = .9) +
   geom_path(data = heatmap_paths) +
-  scale_fill_distiller(palette = "RdYlGn", breaks = range(rasterdf$distance), labels = c("min", "max")) +
-  scale_x_continuous(expand = c(0, 0), breaks = quantile(linedf$x, c(0, .5, 1)), labels = c("0.0", "0.5", "1.0")) +
-  scale_y_continuous(expand = c(0, 0), breaks = quantile(linedf$y, c(0, .5, 1)), labels = c("0.0", "0.5", "1.0")) +
+  scale_fill_distiller(palette = "RdYlGn", breaks = range(heatmap_raster$distance), labels = c("min", "max")) +
+  scale_x_continuous(expand = c(0, 0), breaks = quantile(heatmap_paths$index1, c(0, .5, 1)), labels = c("0.0", "0.5", "1.0")) +
+  scale_y_continuous(expand = c(0, 0), breaks = quantile(heatmap_paths$index2, c(0, .5, 1)), labels = c("0.0", "0.5", "1.0")) +
   theme_classic() +
   theme(
     axis.line = element_blank(),
@@ -297,10 +280,9 @@ g_metrics <- map2(names(metric_labels), metric_labels, function(metric, metric_n
       stat = "identity", width = 0.35, size = 0.45, fill = NA
     ) +
     geom_point(aes(colour = method), size = 1) +
-    # expand_limits(y = c(auroc = .95, aupr = 0.26)[[metric]]) +
+    expand_limits(y = list(abwap = c(0,1))[[metric]]) +
     theme_classic() +
     theme_common(legend.position = "none") +
-    theme(axis.text.x = element_text(angle = 20, hjust = 1)) +
     labs(
       x = NULL,
       y = metric_name,
@@ -322,7 +304,6 @@ g_metrics <- map2(names(metric_labels), metric_labels, function(metric, metric_n
   g
 })
 names(g_metrics) <- names(metric_labels)
-g_metrics$abwap
 
 
 

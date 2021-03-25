@@ -22,8 +22,8 @@ ta_methods <- list(
     )
 
     alignment <- cellAlign::globalAlign(
-      interp1$interpolatedVals,
-      interp2$interpolatedVals,
+      cellAlign::scaleInterpolate(interp1)$scaledData,
+      cellAlign::scaleInterpolate(interp2)$scaledData,
       scores = list(query = interp1$traj, ref = interp2$traj),
       sigCalc = FALSE
     )

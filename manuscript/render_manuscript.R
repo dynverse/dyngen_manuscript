@@ -20,4 +20,5 @@ render("manuscript/render.Rmd")
 system("pdftk manuscript/render.pdf cat 1-16 output manuscript/manuscript.pdf")
 system("pdftk manuscript/render.pdf cat 17-45 output manuscript/supplementary_files.pdf")
 
+# system("latexdiff manuscript/v3/render.tex manuscript/render.tex > manuscript/track_changes.tex")
 # file.remove("manuscript/render.pdf")

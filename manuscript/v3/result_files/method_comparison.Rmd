@@ -1,0 +1,89 @@
+---
+knit: (function(inputFile, encoding) { rmarkdown::render(input = inputFile, encoding = encoding); fn <- basename(tools::file_path_sans_ext(inputFile)); knitr::plot_crop(paste0(fn, '.pdf')); pdftools::pdf_convert(pdf = paste0(fn, '.pdf'), filenames = paste0(fn, '.png'), dpi = 150) } )
+output:
+  pdf_document:
+    keep_tex: no
+    latex_engine: xelatex
+classoption:
+- table
+- a4paper
+header-includes: |
+  \usepackage{fontspec}
+  \usepackage{pifont}
+  \setmainfont [Path = ../fonts/,
+    UprightFont = *-300,
+    ItalicFont = *-300-Italic,
+    BoldFont = *-700,
+    BoldItalicFont = *-700-Italic
+  ]{MuseoSans}
+---
+
+
+```{r setup, include=FALSE}
+# need to have imagemagick and pdfcrop installed
+# under fedora: `sudo dnf install poppler-cpp-devel texlive-pdfcrop`
+knitr::opts_chunk$set(collapse=TRUE, results="hold")
+```
+
+\pagestyle{empty}
+
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{}
+\definecolor{light-gray}{rgb}{.85,.85,.85}
+\newcommand{\grayline}{\arrayrulecolor{light-gray}\cline{3-7}\arrayrulecolor{black}}
+\newcommand{\blackline}{\arrayrulecolor{black}\cline{3-7}}
+\newcommand{\method}[1]{#1}
+
+\begin{table}[htb!]
+    \centering
+    \small
+    \begin{tabular}{p{.25cm}l|*{5}{>{\centering\arraybackslash}p{1.25cm}|}}
+        \blackline
+        & \method{} & \method{splatter} & \method{powsimR} & \method{PROSSTT} & \method{SymSim} & \method{dyngen} \\
+        \blackline
+        \multicolumn{7}{l}{\textbf{Available modality outputs}} \\
+        \blackline
+        - & mRNA expression & \yes & \yes & \yes & \yes & \yes \\ \grayline
+        - & Pre-mRNA expression & \no & \no & \no & \no & \yes \\ \grayline
+        - & Protein expression & \no & \no & \no & \no & \yes \\ \grayline
+        - & Promotor activity & \no & \no & \no & \yes & \yes \\ \grayline
+        - & Reaction activity & \no & \no & \no & \no & \yes \\
+        \blackline
+        \multicolumn{7}{l}{\textbf{Available ground-truth outputs}} \\
+        \blackline
+        - & True counts & \yes & \no & \no & \yes & \yes \\ \grayline
+        - & Cluster labels & \yes & \yes & \no & \yes & \yes \\ \grayline
+        - & Trajectory & \yes & \no & \yes $ ^1$ & \yes & \yes \\ \grayline
+        - & Batch labels & \yes & \no & \no & \no & \yes $ ^1$\\ \grayline
+        - & Differential expression & \no & \no & \no & \yes & \yes $ ^2$ \\ \grayline
+        - & Knocked down regulators & \no & \no & \no & \no & \yes \\ \grayline
+        - & Regulatory network & \no & \no & \no & \yes & \yes \\ \grayline
+        - & Cell-specific regulatory network & \no & \no & \no & \no & \yes \\
+        \blackline
+        \multicolumn{7}{l}{\textbf{Emulate experimental effects}} \\
+        \blackline
+        - & Single-cell RNA sequencing & \yes & \yes & \yes & \yes & \yes \\ \grayline
+        - & Batch effects & \yes & \no & \no & \no & \yes $ ^1$ \\ \grayline
+        - & Knockdown experiment & \no & \no & \no & \no & \yes \\ \grayline
+        - & Time-series & \no & \no & \no & \no & \yes \\
+        - & Snapshot & \no & \no & \no & \no & \yes \\
+        \blackline
+        \multicolumn{7}{l}{\textbf{Evaluation applications}} \\
+        \blackline
+        - & Clustering & \yes & \yes & \no & \yes & \no \\ \grayline
+        - & Trajectory inference & \yes & \no & \yes & \yes & \yes \\ \grayline
+        - & Network inference & \no & \no & \no & \yes & \yes \\ \grayline
+        - & Cell-specific network inference & \no & \no & \no & \no & \yes \\ \grayline
+        - & Differential expression & \yes & \no & \no & \no & \yes $ ^2$ \\ \grayline
+        - & Batch effect correction & \yes & \no & \no & \no & \yes \\ \grayline
+        - & RNA Velocity & \no & \no & \no & \no & \yes \\ \grayline
+        - & Trajectory alignment & \no & \no & \no & \no & \yes \\
+        \blackline
+        %\multicolumn{7}{l}{\textbf{Showcased dataset}} \\
+        %\blackline
+        %- & Number of cells &  &  &  &  & \\ \grayline
+        %- & Number of genes &  &  &  &  & \\ \grayline
+        %- & Execution time & & & & & \\
+        \blackline
+    \end{tabular}
+\end{table}

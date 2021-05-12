@@ -14,7 +14,7 @@ if (Sys.info()[["user"]] == "rcannood") {
     write_lines("manuscript/manuscript.Rmd")
 }
 
-# take the relevant citatiosn and write it to a second file
+# take the relevant citations and write it to a second file
 bib_keys <-
   readr::read_lines("manuscript/manuscript.Rmd") %>%
   paste(collapse = "\n") %>%

@@ -1,110 +1,44 @@
-% Options for packages loaded elsewhere
-\PassOptionsToPackage{unicode}{hyperref}
-\PassOptionsToPackage{hyphens}{url}
-%
-\documentclass[
-  table,
-  10pt,
-  a4paper]{article}
+\documentclass[10pt, a4paper]{article}
 \usepackage{amsmath,amssymb}
 \usepackage{lmodern}
-\usepackage{ifxetex,ifluatex}
-\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
-  \usepackage[T1]{fontenc}
-  \usepackage[utf8]{inputenc}
-  \usepackage{textcomp} % provide euro and other symbols
-\else % if luatex or xetex
-  \usepackage{unicode-math}
-  \defaultfontfeatures{Scale=MatchLowercase}
-  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
-\fi
-% Use upquote if available, for straight quotes in verbatim environments
-\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
-\IfFileExists{microtype.sty}{% use microtype if available
-  \usepackage[]{microtype}
-  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
-}{}
-\makeatletter
-\@ifundefined{KOMAClassName}{% if non-KOMA class
-  \IfFileExists{parskip.sty}{%
-    \usepackage{parskip}
-  }{% else
-    \setlength{\parindent}{0pt}
-    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
-}{% if KOMA class
-  \KOMAoptions{parskip=half}}
-\makeatother
-\usepackage{xcolor}
-\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
-\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{textcomp}
+
+\usepackage{hyperref}
 \hypersetup{
   pdftitle={dyngen: a multi-modal simulator for spearheading new single-cell omics analyses},
-  pdfauthor={Robrecht Cannoodt,1,2,3; Wouter Saelens,1,2,4; Louise Deconinck1,2; Yvan Saeys1,2,},
-  hidelinks,
-  pdfcreator={LaTeX via pandoc}}
-\urlstyle{same} % disable monospaced font for URLs
+  pdfauthor={Robrecht Cannoodt; Wouter Saelens; Louise Deconinck; Yvan Saeys},
+  hidelinks}
 \usepackage[margin=1in]{geometry}
 \usepackage{graphicx}
-\makeatletter
-\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
-\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
-\makeatother
-% Scale images if necessary, so that they will not overflow the page
-% margins by default, and it is still possible to overwrite the defaults
-% using explicit options in \includegraphics[width, height, ...]{}
-\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
-% Set default figure placement to htbp
-\makeatletter
-\def\fps@figure{htbp}
-\makeatother
-\setlength{\emergencystretch}{3em} % prevent overfull lines
-\providecommand{\tightlist}{%
-  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
-\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
-\usepackage{tcolorbox}
-\usepackage{colortbl}
-\usepackage{booktabs}
-\usepackage{tabularx}
-\usepackage{fontspec}
-\usepackage{pifont}
-\usepackage{float}
-\usepackage{caption}
-\captionsetup[table]{position=bottom}
 
-\ifluatex
-  \usepackage{selnolig}  % disable illegal ligatures
-\fi
-\usepackage[sorting=none,url=false,backend=bibtex]{biblatex}
-\addbibresource{library.bib}
 
-\title{dyngen: a multi-modal simulator for spearheading new single-cell
-omics analyses}
-\author{Robrecht Cannoodt\textsuperscript{$\dagger{}$,1,2,3} \and Wouter
-Saelens\textsuperscript{$\dagger{}$,1,2,4} \and Louise
-Deconinck\textsuperscript{1,2} \and Yvan Saeys\textsuperscript{1,2,*}}
+
+\title{dyngen: a multi-modal simulator for spearheading new single-cell omics analyses}
+\author{Robrecht Cannoodt\textsuperscript{$\dagger{}$,1,2,3} \and Wouter Saelens\textsuperscript{$\dagger{}$,1,2,4} \and Louise Deconinck\textsuperscript{1,2} \and Yvan Saeys\textsuperscript{1,2,*}}
 \date{12 May 2021}
 
 \begin{document}
 \maketitle
 
-\textsuperscript{$\dagger{}$}
-These authors contributed equally to this work.
-
 \textsuperscript{1} Data Mining and Modelling for Biomedicine group, VIB
-Center for Inflammation Research, Ghent, Belgium\\
+Center for Inflammation Research, Ghent, Belgium
+
 \textsuperscript{2} Department of Applied Mathematics, Computer Science,
-and Statistics, Ghent University, Ghent, Belgium\\
-\textsuperscript{3} Data Intuitive, Lebbeke, Belgium\\
+and Statistics, Ghent University, Ghent, Belgium
+
+\textsuperscript{3} Data Intuitive, Lebbeke, Belgium
+
 \textsuperscript{4} Institute of Bioengineering, School of Life
 Sciences, École Polytechnique Fédérale de Lausanne (EPFL), Lausanne,
 Switzerland
 
-\textsuperscript{*} Correspondence:
-\href{mailto:yvan.saeys@ugent.be}{Yvan Saeys
-\textless{}\href{mailto:yvan.saeys@ugent.be}{\nolinkurl{yvan.saeys@ugent.be}}\textgreater{}}
+\textsuperscript{$\dagger{}$} These authors contributed equally to this work.
 
-\hypertarget{abstract}{%
-\section{Abstract}\label{abstract}}
+\textsuperscript{*} Correspondence: \texttt{yvan.saeys@ugent.be}
+
+\section{Abstract}\label{abstract}
 
 We present dyngen, a novel, multi-modal simulation engine for studying
 dynamic cellular processes at single-cell resolution. dyngen is more
@@ -115,8 +49,7 @@ spearheading novel computational methods on three novel applications:
 aligning cell developmental trajectories, cell-specific regulatory
 network inference and estimation of RNA velocity.
 
-\hypertarget{introduction}{%
-\section{Introduction}\label{introduction}}
+\section{Introduction}\label{introduction}
 
 Single-cell simulation engines are becoming increasingly important for
 testing and benchmarking computational methods, a pressing need in the
@@ -125,7 +58,7 @@ biological data, synthetic data provides a valuable alternative where
 the actual ground truth is completely known and thus can be compared to,
 in order to make quantitative evaluations of computational methods that
 aim to reconstruct this ground truth
-\autocite{zappia_splattersimulationsinglecell_2017}. In addition,
+\cite{zappia_splattersimulationsinglecell_2017}. In addition,
 simulation engines are more flexible when it comes to stress-testing
 computational methods, for example by varying the parameters of the
 simulation, such as the amount of noise, samples, and cells measured,
@@ -142,7 +75,7 @@ or treatments. Simulation engines are also increasingly important when
 it comes to finding alternatives to animal models, for example for drug
 testing and precision medicine. In such scenarios, cellular simulations
 can act as digital twins, offering unlimited experimentation \emph{in
-silico} \autocite{bjornsson_digitaltwinspersonalize_2019}.
+silico} \cite{bjornsson_digitaltwinspersonalize_2019}.
 
 Simulating realistic data requires that the underlying biology is
 recapitulated as best as possible, and in the case of transcriptomics
@@ -151,32 +84,32 @@ networks. Simulators of ``bulk'' microarray or RNA-sequencing profiles
 simulate biological processes (e.g.~transcription, translation) by
 translating a database of known regulatory interactions into a set of
 ordinary differential equations (ODE)
-\autocite{roy_systemgeneratingtranscription_2008,hache_gengesystematicgeneration_2009,schaffter_genenetweaversilicobenchmark_2011,vandenbulcke_syntrengeneratorsynthetic_2006}.
+\cite{roy_systemgeneratingtranscription_2008,hache_gengesystematicgeneration_2009,schaffter_genenetweaversilicobenchmark_2011,vandenbulcke_syntrengeneratorsynthetic_2006}.
 These methods have been instrumental in performing benchmarking studies
-\autocite{prill_rigorousassessmentsystems_2010,marbach_revealingstrengthsweaknesses_2010,marbach_wisdomcrowdsrobust_2012}.
+\cite{prill_rigorousassessmentsystems_2010,marbach_revealingstrengthsweaknesses_2010,marbach_wisdomcrowdsrobust_2012}.
 However, the advent of single-cell omics introduced several new types of
 analyses (e.g.~trajectory inference, RNA velocity, cell-specific network
 inference) which exploit the higher resolution of single-cell versus
-bulk omics \autocite{luecken_currentbestpractices_2019}. In addition,
+bulk omics \cite{luecken_currentbestpractices_2019}. In addition,
 the data characteristics of single-cell omics are vastly different from
 bulk omics, typically having much lower library sizes and a higher
 dropout rate, but also a high number of profiles
-\autocite{vallejos_normalizingsinglecellrna_2017}. The low library
+\cite{vallejos_normalizingsinglecellrna_2017}. The low library
 sizes, in particular, are problematic as ODEs are ill-suited for
 performing low-molecule simulations
-\autocite{gillespie_exactstochasticsimulation_1977}. This necessitates
+\cite{gillespie_exactstochasticsimulation_1977}. This necessitates
 the development of new single-cell simulators.
 
 To this end, single-cell omics simulators emulate the technical
 procedures from single-cell omics protocols. Simulators such as Splatter
-\autocite{zappia_splattersimulationsinglecell_2017}, powsimR
-\autocite{vieth_powsimrpoweranalysis_2017}, PROSSTT
-\autocite{papadopoulos_prossttprobabilisticsimulation_2019} and SymSim
-\autocite{zhang_simulatingmultiplefaceted_2019}) have already been
+\cite{zappia_splattersimulationsinglecell_2017}, powsimR
+\cite{vieth_powsimrpoweranalysis_2017}, PROSSTT
+\cite{papadopoulos_prossttprobabilisticsimulation_2019} and SymSim
+\cite{zhang_simulatingmultiplefaceted_2019}) have already been
 widely used to compare single-cell methods
-\autocite{street_slingshotcelllineage_2018,parra_reconstructingcomplexlineage_2019,lummertzdarocha_reconstructioncomplexsinglecell_2018,lin_scclassifysamplesize_2020}
+\cite{street_slingshotcelllineage_2018,parra_reconstructingcomplexlineage_2019,lummertzdarocha_reconstructioncomplexsinglecell_2018,lin_scclassifysamplesize_2020}
 and perform independent benchmarks
-\autocite{duo_systematicperformanceevaluation_2018,saelens_comparisonsinglecelltrajectory_2019,soneson_biasrobustnessscalability_2018}.
+\cite{duo_systematicperformanceevaluation_2018,saelens_comparisonsinglecelltrajectory_2019,soneson_biasrobustnessscalability_2018}.
 However, by focusing more on simulating the single-cell omics protocol
 (e.g.~RNA capture, amplification, sequencing) and less on the underlying
 biology (e.g.~transcription, splicing, translation), their applicability
@@ -192,7 +125,7 @@ biological processes are mimicked by translating a gene regulatory
 network into a set of reactions (regulation, transcription, splicing,
 translation). Second, individual cells are simulated using Gillespie's
 stochastic simulation algorithm
-\autocite{gillespie_exactstochasticsimulation_1977}, which is designed
+\cite{gillespie_exactstochasticsimulation_1977}, which is designed
 to work well in low-molecule simulations. Finally, real reference
 datasets are used to emulate single-cell omics profiling protocols.
 
@@ -208,9 +141,9 @@ range of benchmarking applications, including trajectory inference,
 trajectory alignment, and trajectory differential expression
 (Supplementary Table~1).
 
-\begin{figure}[t!]
+\begin{figure}[htbp]
     \centering
-    \includegraphics[width=\linewidth]{result_files/summary/figure_1_edited.pdf}
+    \includegraphics[width=\linewidth]{figure_1.pdf}
     \caption{
       \textbf{Showcase of dyngen functionality.}
       \textbf{A:} Changes in abundance levels are driven strictly by gene regulatory reactions.
@@ -227,8 +160,7 @@ trajectory alignment, and trajectory differential expression
     \label{fig:overview}
 \end{figure}
 
-\hypertarget{results}{%
-\section{Results}\label{results}}
+\section{Results}\label{results}
 
 We demonstrate dyngen's broad applicability by evaluating three novel
 types of computational approaches for which no simulation engines exist
@@ -237,11 +169,11 @@ velocity (Figure~\ref{fig:applications}). We emphasize that our main aim
 here is to illustrate the potential of dyngen for these evaluations,
 rather than performing large-scale benchmarking, which would require
 assessing many more quantitative and qualitative aspects of each method
-\autocite{weber_essentialguidelinescomputational_2019}.
+\cite{weber_essentialguidelinescomputational_2019}.
 
-\begin{figure}[t!]
+\begin{figure}[htbp]
     \centering
-    \includegraphics[width=\linewidth]{result_files/summary/figure_2.pdf}
+    \includegraphics[width=\linewidth]{figure_2.pdf}
     \caption{
       \textbf{dyngen provides ground-truth data for a variety of applications (left), which can be used to quantitatively evaluate methods (right).} Box plots denote the $Q_0$ to $Q_4$ quartile values.
       \textbf{A:} Trajectory alignment aligns two trajectories between samples. We evaluate dynamic time warping (DTW) and cellAlign when aligning two linear trajectories with different kinetic parameters based on the area differences between the worst possible alignment and the predicted alignment (Area Between Worst And Prediction, or ABWAP). 
@@ -261,12 +193,12 @@ process, or to detect an early stop of the trajectory of the diseased
 patient. Currently, trajectory alignment is limited to aligning linear
 trajectories, though other topologies of a trajectory could be aligned
 as well. Dynamic Time Warping (DTW)
-\autocite{giorgino_computingvisualizingdynamic_2009} is a method
+\cite{giorgino_computingvisualizingdynamic_2009} is a method
 designed for aligning temporal sequences for speech recognition but has
 since been used to compare gene expression kinetics from many different
 biological processes
-\autocite{cacchiarelli_aligningsinglecelldevelopmental_2018,kanton_organoidsinglecellgenomic_2019,mcfaline-figueroa_pooledsinglecellgenetic_2019,alpert_alignmentsinglecelltrajectories_2018}.
-cellAlign \autocite{alpert_alignmentsinglecelltrajectories_2018} uses
+\cite{cacchiarelli_aligningsinglecelldevelopmental_2018,kanton_organoidsinglecellgenomic_2019,mcfaline-figueroa_pooledsinglecellgenetic_2019,alpert_alignmentsinglecelltrajectories_2018}.
+cellAlign \cite{alpert_alignmentsinglecelltrajectories_2018} uses
 DTW to perform trajectory alignment, but also includes interpolation and
 scaling of the single cell data as a preprocessing step. We evaluate the
 performance of DTW and cellAlign by simulating 40 datasets, each
@@ -290,11 +222,11 @@ between pre-mRNA and mature mRNA reads to predict the rate of
 increase/decrease of RNA molecule abundance, as this can be used to
 predict the directionality of single cell differentiation in
 trajectories
-\autocite{zeisel_coupledpremrnamrna_2011,lamanno_rnavelocitysingle_2018}.
+\cite{zeisel_coupledpremrnamrna_2011,lamanno_rnavelocitysingle_2018}.
 Already two algorithms are currently available for estimating the RNA
 velocity vector from spliced and unspliced counts: velocyto
-\autocite{lamanno_rnavelocitysingle_2018} and scvelo
-\autocite{bergen_generalizingrnavelocity_2020}. Yet, to date, no
+\cite{lamanno_rnavelocitysingle_2018} and scvelo
+\cite{bergen_generalizingrnavelocity_2020}. Yet, to date, no
 quantitative assessment of their accuracy has been performed, mainly due
 to the difficulty in obtaining real ground-truth data to do so. In
 contrast, the ground-truth RNA velocity can be easily extracted from a
@@ -330,7 +262,7 @@ genes, but also aim to identify how active each interaction is in each
 of the cells, since interactions can be turned off and on depending on
 the cellular state. While a few pioneering CSNI approaches have already
 been developed
-\autocite{aibar_scenicsinglecellregulatory_2017,kuijjer_estimatingsamplespecificregulatory_2019,liu_personalizedcharacterizationdiseases_2016},
+\cite{aibar_scenicsinglecellregulatory_2017,kuijjer_estimatingsamplespecificregulatory_2019,liu_personalizedcharacterizationdiseases_2016},
 a quantitative assessment of their performance is until now lacking.
 This is not surprising, as neither real nor in silico datasets of
 cell-specific or even cell-type-specific interactions exist that are
@@ -340,9 +272,9 @@ straightforward though, given that we can calculate how target gene
 expression would change without the regulator being present. We used
 this ground-truth to compare the performance of three CSNI methods
 (Supplementary Fig.~3): LIONESS
-\autocite{kuijjer_estimatingsamplespecificregulatory_2019}, SSN
-\autocite{liu_personalizedcharacterizationdiseases_2016} and SCENIC
-\autocite{aibar_scenicsinglecellregulatory_2017}. For each dataset, we
+\cite{kuijjer_estimatingsamplespecificregulatory_2019}, SSN
+\cite{liu_personalizedcharacterizationdiseases_2016} and SCENIC
+\cite{aibar_scenicsinglecellregulatory_2017}. For each dataset, we
 computed the mean AUROC and AUPR scores of the individual cells.
 Comparing the mean AUROC and AUPR showed that pySCENIC significantly
 outperforms both LIONESS and SSN, and in turn that LIONESS significantly
@@ -356,12 +288,11 @@ result in mostly noise. Overall, pySCENIC almost always performs better
 than LIONESS, except for a few datasets where LIONESS does manage to
 obtain a higher AUROC score. However, by using a different internal
 network inference (e.g.~GENIE3
-\autocite{huynh-thu_inferringregulatorynetworks_2010} or pySCENIC's
-GRNBoost2 \autocite{moerman_grnboost2arboretoefficient_2019}) could
+\cite{huynh-thu_inferringregulatorynetworks_2010} or pySCENIC's
+GRNBoost2 \cite{moerman_grnboost2arboretoefficient_2019}) could
 significantly increase the performance obtained by LIONESS.
 
-\hypertarget{discussion}{%
-\section{Discussion}\label{discussion}}
+\section{Discussion}\label{discussion}
 
 dyngen's single-cell simulations can be used to evaluate common
 single-cell omics computational methods such as clustering, batch
@@ -371,7 +302,7 @@ applications, including methods that integrate clustering, network
 inference, and trajectory inference. In this respect, dyngen may promote
 the development of new tools in the single-cell field similarly as other
 simulators have done in the past
-\autocite{schaffter_genenetweaversilicobenchmark_2011,ewing_combiningtumorgenome_2015}.
+\cite{schaffter_genenetweaversilicobenchmark_2011,ewing_combiningtumorgenome_2015}.
 Additionally, one could anticipate technological developments in
 single-cell multi-omics. In this way, dyngen allows designing and
 evaluating the performance and robustness of new types of computational
@@ -383,18 +314,16 @@ independent from each other. Subdividing a cell into multiple 2D or 3D
 subvolumes or allowing cells to exchange molecules, respectively, could
 pave the way to better study key cellular processes such as cell
 division, intercellular communication, and migration
-\autocite{smith_spatialstochasticintracellular_2019}.
+\cite{smith_spatialstochasticintracellular_2019}.
 
 \newpage
 
-\hypertarget{sec:dyngen-methods}{%
-\section{Methods}\label{sec:dyngen-methods}}
+\section{Methods}\label{sec:dyngen-methods}
 
 The workflow to generate \emph{in silico} single-cell data consists of
 six main steps (Supplementary Fig~4).
 
-\hypertarget{sec:dyngen-modules}{%
-\subsection{Defining the module network}\label{sec:dyngen-modules}}
+\subsection{Defining the module network}\label{sec:dyngen-modules}
 
 One of the main processes involved in cellular dynamic processes is gene
 regulation, where regulatory cascades and feedback loops lead to
@@ -403,14 +332,14 @@ cell chooses a certain path during its differentiation is still an
 active research field, although certain models have already emerged and
 been tested \emph{in vivo}. One driver of bifurcation is mutual
 antagonism, where two genes strongly repress each other
-\autocite{rekhtman_directinteractionhematopoietic_1999,xu_regulationbifurcatingcell_2015},
+\cite{rekhtman_directinteractionhematopoietic_1999,xu_regulationbifurcatingcell_2015},
 forcing one of the two to become inactive
-\autocite{graf_forcingcellschange_2009}. Such mutual antagonism can be
+\cite{graf_forcingcellschange_2009}. Such mutual antagonism can be
 modelled and simulated
-\autocite{wang_quantifyingwaddingtonlandscape_2011,ferrell_bistabilitybifurcationswaddington_2012}.
+\cite{wang_quantifyingwaddingtonlandscape_2011,ferrell_bistabilitybifurcationswaddington_2012}.
 Although the two-gene model is simple and elegant, the reality is
 frequently more complex, with multiple genes (grouped into modules)
-repressing each other \autocite{yosef_dynamicregulatorynetwork_2013}.
+repressing each other \cite{yosef_dynamicregulatorynetwork_2013}.
 
 To start a dyngen simulation, the user needs to define a module network.
 The module network describes how sets of genes regulate each other and
@@ -423,7 +352,7 @@ have basal expression, which means genes in this module will be
 transcribed without the presence of transcription factor molecules. A
 module marked as ``active during the burn phase'' means that this module
 will be allowed to generate expression of its genes during an initial
-warm-up phase (See section \ref{sec:dyngen-simcell}). At the end of the
+warm-up phase. At the end of the
 dyngen process, cells will not be sampled from the burn phase
 simulations. Interactions between modules have a strength (which is a
 positive integer) and an effect (+1 for upregulating, -1 for
@@ -447,9 +376,7 @@ a different differentiation path. If this effect is undesirable, more
 safeguards need to be put in place to prevent reprogramming from
 occurring.
 
-\hypertarget{sec:dyngen-grn}{%
-\subsection{Generating the gene regulatory
-network}\label{sec:dyngen-grn}}
+\subsection{Generating the gene regulatory network}\label{sec:dyngen-grn}
 
 The GRN is generated based on the given module network in four main
 steps (Supplementary Fig.~6).
@@ -471,7 +398,7 @@ Step 3, sampling the target subnetwork. A user-defined number of target
 genes are added to the GRN. Target genes are regulated by a TF or
 another target gene, but are always downstream of at least one TF. To
 sample the interactions between target genes, one of the many FANTOM5
-\autocite{lizio_gatewaysfantom5promoter_2015} GRNs is sampled. The
+\cite{lizio_gatewaysfantom5promoter_2015} GRNs is sampled. The
 currently existing TFs are mapped to regulators in the FANTOM5 GRN. The
 targets are drawn from the FANTOM5 GRN weighted by their page rank
 value, to create an induced GRN. For each target, at most \(x\)
@@ -487,9 +414,7 @@ maximum in-degree of each gene is \(x\) (default \(x=5\)). A random gene
 is sampled and a breadth-first-search is performed to sample the desired
 number of housekeeping genes.
 
-\hypertarget{sec:dyngen-reactions}{%
-\subsection{Convert gene regulatory network to a set of
-reactions}\label{sec:dyngen-reactions}}
+\subsection{Convert gene regulatory network to a set of reactions}\label{sec:dyngen-reactions}
 
 \newcommand{\x}[1]{\text{x}_{#1}}
 \newcommand{\y}[1]{\text{y}_{#1}}
@@ -522,7 +447,7 @@ namely of corresponding pre-mRNAs, mature mRNAs and proteins, which are
 represented by the terms \(\text{x}_{G}\), \(\text{y}_{G}\) and
 \(\text{z}_{G}\) respectively. The GRN defines how a reaction affects
 the abundance levels of molecules and how likely it will occur. Gibson
-and Bruck \autocite{gibson_probabilisticmodelprokaryotic_2000} provide a
+and Bruck \cite{gibson_probabilisticmodelprokaryotic_2000} provide a
 good introduction to modelling gene regulation with stochastic
 frameworks, on which many of the concepts below are based.
 
@@ -549,7 +474,7 @@ propensity of transcription of a gene \(G\) depends on the abundance
 levels of its TFs. The per-gene and per-interaction constants are based
 on the median reported production-rates and half-lives of molecules
 measured of 5000 mammalian genes
-\autocite{schwanhausser_globalquantificationmammalian_2011}, except that
+\cite{schwanhausser_globalquantificationmammalian_2011}, except that
 the transcription rate has been amplified by a factor of 10.
 
 \newcommand{\proptran}{f}
@@ -559,7 +484,7 @@ the transcription rate has been amplified by a factor of 10.
 
 The propensity of the transcription of a gene \(G\) is inspired by
 thermodynamic models of gene regulation
-\autocite{schilstra_biologicgeneexpression_2008}, in which the promoter
+\cite{schilstra_biologicgeneexpression_2008}, in which the promoter
 of \(G\) can be bound or unbound by a set of \(N\) transcription factors
 \(H_i\). Let \(f(\text{z}_{1}, \text{z}_{2}, \ldots, \text{z}_{N})\)
 denote the propensity function of \(G\), in function of the abundance
@@ -567,9 +492,7 @@ levels of the transcription factors. The following subsections explain
 and define the propensity function when \(N=1\), \(N=2\), and finally
 for an arbitrary \(N\).
 
-\hypertarget{propensity-of-transcription-when-n1}{%
-\subsubsection{\texorpdfstring{Propensity of transcription when
-\(N=1\)}{Propensity of transcription when N=1}}\label{propensity-of-transcription-when-n1}}
+\subsubsection{\texorpdfstring{Propensity of transcription when \(N=1\)}{Propensity of transcription when N=1}}\label{propensity-of-transcription-when-n1}
 
 In the simplest case when \(N=1\), the promoter can be in one of two
 states. In state \(S_0\), the promoter is not bound by any transcription
@@ -610,9 +533,7 @@ f(y_1) & = \text{xpr} \cdot \left(\alpha_0 \cdot P(S_0) + \alpha_1 \cdot P(S_1)\
            & = \text{xpr} \cdot \frac{\alpha_0 + \alpha_1 \cdot \nu_1}{1 + \nu_1} \\
 \end{align}
 
-\hypertarget{propensity-of-transcription-when-n2}{%
-\subsubsection{\texorpdfstring{Propensity of transcription when
-\(N=2\)}{Propensity of transcription when N=2}}\label{propensity-of-transcription-when-n2}}
+\subsubsection{\texorpdfstring{Propensity of transcription when \(N=2\)}{Propensity of transcription when N=2}}\label{propensity-of-transcription-when-n2}
 
 When \(N=2\), there are four states \(S_j\). The relative activations
 \(\alpha_j\) can be defined such that \(H_1\) and \(H_2\) are
@@ -648,10 +569,7 @@ f(y_1, y_2) & = \text{xpr} \cdot \sum_{j = 0}^{2^N - 1} \alpha_j \cdot P(S_j) \\
  & = \text{xpr} \cdot \frac{\alpha_0 + \alpha_1 \cdot \nu_1 + \alpha_2 \cdot \nu_2 + \alpha_3 \cdot \nu_1 \cdot \nu_2}{(\nu_1 + 1) \cdot (\nu_2 + 1)} \\
 \end{align}
 
-\hypertarget{propensity-of-transcription-for-an-arbitrary-n}{%
-\subsubsection{\texorpdfstring{Propensity of transcription for an
-arbitrary
-\(N\)}{Propensity of transcription for an arbitrary N}}\label{propensity-of-transcription-for-an-arbitrary-n}}
+\subsubsection{\texorpdfstring{Propensity of transcription for an arbitrary \(N\)}{Propensity of transcription for an arbitrary N}}\label{propensity-of-transcription-for-an-arbitrary-n}
 
 For an arbitrary \(N\), there are \(2^N\) states \(S_j\). The relative
 activations \(\alpha_j\) can be defined such that \(H_1\) and \(H_2\)
@@ -681,9 +599,7 @@ f(y_1, y_2, \ldots, y_N) & = \text{xpr} \cdot \sum_{j = 0}^{2^N - 1} \alpha_j \c
 & = \text{xpr} \cdot \frac{\sum_{j = 0}^{2^N - 1} \alpha_j \cdot w_j}{\prod_{i=1}^{i \leq N} (\nu_i + 1)} \label{eqn:prop2n}
 \end{align}
 
-\hypertarget{propensity-of-transcription-for-a-large-n}{%
-\subsubsection{\texorpdfstring{Propensity of transcription for a large
-\(N\)}{Propensity of transcription for a large N}}\label{propensity-of-transcription-for-a-large-n}}
+\subsubsection{\texorpdfstring{Propensity of transcription for a large \(N\)}{Propensity of transcription for a large N}}\label{propensity-of-transcription-for-a-large-n}
 
 For large values of \(N\), computing \(f(.)\) is practically infeasible
 as it requires performing \(2^N\) summations. In order to greatly
@@ -706,9 +622,7 @@ propensity function:
 f(y_1, y_2, \ldots, y_N) & = \text{xpr} \cdot \frac{\prod_{i \in R^+} (\nu_i + 1)}{\prod_{i \in R} (\nu_i + 1)}
 \end{align}
 
-\hypertarget{independence-synergism-and-basal-expression}{%
-\subsubsection{Independence, synergism and basal
-expression}\label{independence-synergism-and-basal-expression}}
+\subsubsection{Independence, synergism and basal expression}\label{independence-synergism-and-basal-expression}
 
 The definition of \(\alpha_j\) as in equation \ref{eqn:assalpha}
 presents two main limitations. Firstly, since \(\alpha_0 = 1\), it is
@@ -725,11 +639,10 @@ bound), and \(\text{sy} \in [0,1]\) denote the synergism of regulators
 f(y_1, y_2, \ldots, y_N) & = \text{xpr} \cdot \frac{\text{ba} - \text{sy}^{|R^+|} + \prod_{i \in R^+} (\nu_i + \text{sy})}{\prod_{i \in R} (\nu_i + 1)}
 \end{align}
 
-\hypertarget{sec:dyngen-simcell}{%
-\subsection{Simulate single cells}\label{sec:dyngen-simcell}}
+\subsection{Simulate single cells}\label{dyngen-simcell}
 
 dyngen uses Gillespie's stochastic simulation algorithm (SSA)
-\autocite{gillespie_exactstochasticsimulation_1977} to simulate dynamic
+\cite{gillespie_exactstochasticsimulation_1977} to simulate dynamic
 processes. An SSA simulation is an iterative process where at each
 iteration one reaction is triggered.
 
@@ -753,8 +666,7 @@ similar information. In addition to the abundance levels, also the
 propensity values and the number of firings of each of the reactions at
 each of the time steps can be retained.
 
-\hypertarget{sec:dyngen-experiment}{%
-\subsection{Simulate experiment}\label{sec:dyngen-experiment}}
+\subsection{Simulate experiment}\label{sec:dyngen-experiment}
 
 From the SSA simulation we obtain the abundance levels of all the
 molecules at every state. We need to replicate technical effects
@@ -764,8 +676,7 @@ simulations and molecules are sampled for each of the cells. Gene
 capture rates and library sizes are empirically derived from real
 datasets as to match real technical variation.
 
-\hypertarget{sample-cells}{%
-\subsubsection{Sample cells}\label{sample-cells}}
+\subsubsection{Sample cells}\label{sample-cells}
 
 In this step, \(N\) cells are sampled from the simulations. Two
 approaches are implemented: sampling from an unsynchronised population
@@ -786,13 +697,12 @@ rounded such that \(\sum N_i = N\). By default, \(k = 8\) and
 \(g = 0.75\). For usual dyngen simulations, \(10 \leq T \leq 20\). For
 larger values of \(T\), \(k\) and \(g\) should be increased accordingly.
 
-\hypertarget{sample-molecules}{%
-\subsubsection{Sample molecules}\label{sample-molecules}}
+\subsubsection{Sample molecules}\label{sample-molecules}
 
 Molecules are sampled from the simulation to replicate how molecules are
 experimentally sampled. A real dataset is downloaded from a repository
 of single-cell RNA-seq datasets
-\autocite{cannoodt_singlecellomicsdatasets_2018}. For each \emph{in
+\cite{cannoodt_singlecellomicsdatasets_2018}. For each \emph{in
 silico} cell \(i\), draw its library size \(ls_i\) from the distribution
 of transcript counts per cell in the real dataset. The capture rate
 \(cr_j\) of each \emph{in silico} molecule type \(j\) is drawn from
@@ -801,8 +711,7 @@ from the multinomial distribution with probabilities
 \(cr_j \times ab_{i,j}\) with \(ab_{i,j}\) the molecule abundance level
 of molecule \(j\) in cell \(i\).
 
-\hypertarget{sec:dyngen-batcheffect}{%
-\subsection{Simulating batch effects}\label{sec:dyngen-batcheffect}}
+\subsection{Simulating batch effects}\label{sec:dyngen-batcheffect}
 
 Simulating batch effects can be performed in multiple ways. One such way
 is to perform the first two steps of the creation of a dyngen model
@@ -813,9 +722,7 @@ gold standard, simulate single cells, simulate experiment). Since each
 separate model has different underlying kinetics, the combined output
 will resemble having batch effects.
 
-\hypertarget{sec:dyngen-groundtruth}{%
-\subsection{Determining the ground-truth
-trajectory}\label{sec:dyngen-groundtruth}}
+\subsection{Determining the ground-truth trajectory}\label{sec:dyngen-groundtruth}
 
 To construct the ground-truth trajectory, the user needs to provide the
 ground-truth state network alongside the initial module network
@@ -843,9 +750,7 @@ expression values and the expression matrix of the ground-truth
 trajectory is calculated, and the cell is mapped to the position in the
 ground-truth trajectory that has the highest correlation.
 
-\hypertarget{sec:dyngen-extractgrn}{%
-\subsection{Determining the cell-specific ground-truth regulatory
-network}\label{sec:dyngen-extractgrn}}
+\subsection{Determining the cell-specific ground-truth regulatory network}\label{sec:dyngen-extractgrn}
 
 Calculating the regulatory effect of a regulator \(R\) on a target \(T\)
 (Supplementary Fig.~4F) requires determining the contribution of \(R\)
@@ -870,9 +775,7 @@ inhibition of \(T\) by \(R\), 1 represents maximal activation of \(T\)
 by \(R\), and 0 represents inactivity of the regulatory interaction
 between \(R\) and \(T\).
 
-\hypertarget{sec:dyngen-nicompare}{%
-\subsection{Comparison of cell-specific network inference
-methods}\label{sec:dyngen-nicompare}}
+\subsection{Comparison of cell-specific network inference methods}\label{sec:dyngen-nicompare}
 
 42 datasets were generated using the 14 different predefined backbones
 and three different seeds. For every cell in the dataset, the
@@ -880,37 +783,37 @@ transcriptomics profile and the corresponding cell-specific ground-truth
 regulatory network was determined (Section~\ref{sec:dyngen-extractgrn}).
 
 We selected three cell-specific NI methods: SCENIC
-\autocite{aibar_scenicsinglecellregulatory_2017}, LIONESS
-\autocite{kuijjer_estimatingsamplespecificregulatory_2015,kuijjer_estimatingsamplespecificregulatory_2019},
-and SSN \autocite{liu_personalizedcharacterizationdiseases_2016}.
+\cite{aibar_scenicsinglecellregulatory_2017}, LIONESS
+\cite{kuijjer_estimatingsamplespecificregulatory_2015,kuijjer_estimatingsamplespecificregulatory_2019},
+and SSN \cite{liu_personalizedcharacterizationdiseases_2016}.
 
-LIONESS \autocite{kuijjer_estimatingsamplespecificregulatory_2019} runs
+LIONESS \cite{kuijjer_estimatingsamplespecificregulatory_2019} runs
 a NI method multiple times to construct cell-specific GRNs. LIONESS
 first infers a GRN with all of the samples. A second GRN is inferred
 with all samples except one particular profile. The cell-specific GRN
 for that particular profile is defined as the difference between the two
 GRN matrices. This process is repeated for all profiles, resulting in a
 cell-specific GRN. By default, LIONESS uses PANDA
-\autocite{glass_passingmessagesbiological_2013} to infer GRNs, but since
+\cite{glass_passingmessagesbiological_2013} to infer GRNs, but since
 dyngen does not produce motif data and motif data is required by PANDA,
 PANDA is inapplicable in this context. Instead, we used the lionessR
-\autocite{kuijjer_lionessrsinglesample_2019} implementation of LIONESS,
+\cite{kuijjer_lionessrsinglesample_2019} implementation of LIONESS,
 which uses by default the Pearson correlation as a NI method. We marked
 results from this implementation as ``LIONESS + Pearson''.
 
-SSN \autocite{liu_personalizedcharacterizationdiseases_2016} follows, in
+SSN \cite{liu_personalizedcharacterizationdiseases_2016} follows, in
 essence, the exact same methodology as LIONESS except that it
 specifically only uses the Pearson correlation. It is worth noting that
 the LIONESS preprint was released before the publication of SSN. Since
 no implementation was provided by the authors, we implemented SSN in R
 using basic R and tidyverse functions
-\autocite{wickham_welcometidyverse_2019} and marked results from this
+\cite{wickham_welcometidyverse_2019} and marked results from this
 implementation as "SSN*".
 
-SCENIC \autocite{aibar_scenicsinglecellregulatory_2017} consists of four
+SCENIC \cite{aibar_scenicsinglecellregulatory_2017} consists of four
 main steps. First, classical network inference is performed with
 stochastic gradient boosting machines using \texttt{arboreto}
-\autocite{moerman_grnboost2arboretoefficient_2019}. Second, the top 10
+\cite{moerman_grnboost2arboretoefficient_2019}. Second, the top 10
 regulators of every target gene are selected. Interactions are grouped
 together in `modules'; each module contains one regulator and all of its
 targets. Next, the modules are filtered using motif analysis. Finally,
@@ -919,13 +822,13 @@ AUCell. As a post-processing of this output, all modules and the
 corresponding activity scores are combined back into a cell-specific GRN
 consisting of (cell, regulator, target, score) pairs. For this analysis,
 the Python implementation of SCENIC was used, namely pySCENIC
-\autocite{vandesande_scalablescenicworkflow_2020}. Since dyngen does not
+\cite{vandesande_scalablescenicworkflow_2020}. Since dyngen does not
 generate motif data, step 3 in this analysis is skipped.
 
 The Area Under the Receiver Operating Characteristic-curve (AUROC) and
 Area Under the Precision-Recall curve (AUPR) metrics are common metrics
 for evaluating a predicted GRN with a ground-truth GRN
-\autocite{marbach_generatingrealisticsilico_2009}. To compare a
+\cite{marbach_generatingrealisticsilico_2009}. To compare a
 predicted cell-specific GRN with the ground-truth cell-specific GRN, the
 top 10'000 interactions per cell is retained, and the mean AUROC and
 AUPR scores are calculated across all cells.
@@ -933,17 +836,15 @@ AUPR scores are calculated across all cells.
 We compared the mean AUROC and AUPR scores obtained by the three CSNI
 methods across all datasets by performing pairwise non-parametric paired
 two-sided Durbin-Conover tests
-\autocite{conover_multiplecomparisonsprocedures_1979} using
+\cite{conover_multiplecomparisonsprocedures_1979} using
 \texttt{pairwiseComparisons}
-\autocite{patil_pairwisecomparisonsmultiplepairwise_2019}. Test
+\cite{patil_pairwisecomparisonsmultiplepairwise_2019}. Test
 statistics and p-values for the all pairwise combinations are reported
 in the Source Data file. Reported p-values are adjusted for multiple
 testing using Holm correction
-\autocite{holm_simplesequentiallyrejective_1979}.
+\cite{holm_simplesequentiallyrejective_1979}.
 
-\hypertarget{sec:dyngen-velcompare}{%
-\subsection{Comparison of RNA velocity
-methods}\label{sec:dyngen-velcompare}}
+\subsection{Comparison of RNA velocity methods}\label{sec:dyngen-velcompare}
 
 Three datasets were generated for each of the 14 different predefined
 backbones, resulting in a collection of 42 datasets. Throughout each of
@@ -953,9 +854,9 @@ is the difference between the transcription propensity and the mRNA
 decay propensity.
 
 We applied two RNA velocity methods: velocyto
-\autocite{lamanno_rnavelocitysingle_2018}, as implemented in the
+\cite{lamanno_rnavelocitysingle_2018}, as implemented in the
 \texttt{velocyto.py} package, and scvelo method
-\autocite{bergen_generalizingrnavelocity_2020}, as implemented in the
+\cite{bergen_generalizingrnavelocity_2020}, as implemented in the
 \texttt{scvelo} package. For scvelo, we chose two parameter settings for
 ``mode'', namely ``stochastic'' and ``dynamical''. For both methods, we
 used the same normalized data as provided by dyngen, with no extra cell
@@ -982,17 +883,15 @@ trajectory.
 We compared the velocity correlation and velocity arrow cosine scores
 obtained by velocyto and scvelo across all datasets by performing
 pairwise non-parametric paired two-sided Durbin-Conover tests
-\autocite{conover_multiplecomparisonsprocedures_1979} using
+\cite{conover_multiplecomparisonsprocedures_1979} using
 \texttt{pairwiseComparisons}
-\autocite{patil_pairwisecomparisonsmultiplepairwise_2019}. Test
+\cite{patil_pairwisecomparisonsmultiplepairwise_2019}. Test
 statistics and p-values for the all pairwise combinations are reported
 in the Source Data file. Reported p-values are adjusted for multiple
 testing using Holm correction
-\autocite{holm_simplesequentiallyrejective_1979}.
+\cite{holm_simplesequentiallyrejective_1979}.
 
-\hypertarget{sec:dyngen-tacompare}{%
-\subsection{Comparison of trajectory
-alignment}\label{sec:dyngen-tacompare}}
+ \subsection{Comparison of trajectory alignment}\label{sec:dyngen-tacompare}
 
 Four custom linear backbones of varying sizes were constructed. For each
 of these backbones, 10 datasets were generated with 10 different seeds,
@@ -1006,8 +905,8 @@ combined dataset will contain two trajectories.
 
 On each combined dataset we applied two trajectory alignment methods,
 Dynamic Time Warping (DTW)
-\autocite{giorgino_computingvisualizingdynamic_2009} and cellAlign
-\autocite{alpert_alignmentsinglecelltrajectories_2018}. DTW is designed
+\cite{giorgino_computingvisualizingdynamic_2009} and cellAlign
+\cite{alpert_alignmentsinglecelltrajectories_2018}. DTW is designed
 to align temporal sequences by dilating or contracting the sequences to
 best match each other. cellAlign uses DTW to perform this alignment, but
 first interpolates and rescales the input data in order to better cope
@@ -1034,16 +933,15 @@ Fig.~1D for a visual interpretation of this metric.
 We compared the ABWAP scores obtained by DTW and cellAlign across all
 datasets by performing pairwise non-parametric paired two-sided
 Durbin-Conover tests
-\autocite{conover_multiplecomparisonsprocedures_1979} using
+\cite{conover_multiplecomparisonsprocedures_1979} using
 \texttt{pairwiseComparisons}
-\autocite{patil_pairwisecomparisonsmultiplepairwise_2019}. Test
+\cite{patil_pairwisecomparisonsmultiplepairwise_2019}. Test
 statistics and p-values for the all pairwise combinations are reported
 in the Source Data file. Reported p-values are adjusted for multiple
 testing using Holm correction
-\autocite{holm_simplesequentiallyrejective_1979}.
+\cite{holm_simplesequentiallyrejective_1979}.
 
-\hypertarget{data-availability}{%
-\section{Data Availability}\label{data-availability}}
+\section{Data Availability}\label{data-availability}
 
 Source data for box plots in Figure \ref{fig:applications} and
 Supplementary Figures~1, 2~and~3 are provided with this paper. All code
@@ -1053,8 +951,7 @@ The datasets generated for the different use cases are available on
 Zenodo with record number 4637926 (doi:
 \href{https://doi.org/10.5281/zenodo.4637926}{10.5281/zenodo.4637926}).
 
-\hypertarget{code-availability}{%
-\section{Code Availability}\label{code-availability}}
+\section{Code Availability}\label{code-availability}
 
 Results in this manuscript were generated with R 4.0.3 and dyngen 1.0.0.
 dyngen is available as an open-source software package at
@@ -1089,23 +986,436 @@ tibble 3.0.5, tidygraph 1.2.0, tidyr 1.1.2, tidyselect 1.1.0, tools
 4.0.4, tweenr 1.0.1, utf8 1.1.4, vctrs 0.3.6, viridis 0.5.1, viridisLite
 0.3.0, yaml 2.2.1.
 
-\hypertarget{author-contributions}{%
-\section{Author contributions}\label{author-contributions}}
+\section{Author contributions}\label{author-contributions}
 
 \begin{itemize}
-\tightlist
-\item
-  W.S. and R.C. designed the study.
-\item
-  R.C., W.S., and L.D. performed the experiments and analysed the data.
-\item
-  R.C. and W.S. implemented the dyngen software package.
-\item
-  R.C., W.S., L.D., and Y.S. wrote the manuscript.
-\item
-  Y.S. supervised the project.
+\item W.S. and R.C. designed the study.
+\item R.C., W.S., and L.D. performed the experiments and analysed the data.
+\item R.C. and W.S. implemented the dyngen software package.
+\item R.C., W.S., L.D., and Y.S. wrote the manuscript.
+\item Y.S. supervised the project.
 \end{itemize}
 
-\printbibliography
+
+\begin{thebibliography}{10}
+	
+	\bibitem{aibar_scenicsinglecellregulatory_2017}
+	Sara Aibar, Carmen~Bravo Gonz{\a'a}lez-Blas, Thomas Moerman, V{\^a}n~Anh
+	Huynh-Thu, Hana Imrichova, Gert Hulselmans, Florian Rambow, Jean-Christophe
+	Marine, Pierre Geurts, Jan Aerts, Joost {van den Oord}, Zeynep~Kalender Atak,
+	Jasper Wouters, and Stein Aerts.
+	\newblock {{SCENIC}}: Single-cell regulatory network inference and clustering.
+	\newblock {\em Nature Methods}, 10 2017.
+	
+	\bibitem{alpert_alignmentsinglecelltrajectories_2018}
+	Ayelet Alpert, Lindsay~S. Moore, Tania Dubovik, and Shai~S. Shen-Orr.
+	\newblock Alignment of single-cell trajectories to compare cellular expression
+	dynamics.
+	\newblock {\em Nature Methods}, 15(4):267--270, 4 2018.
+	
+	\bibitem{bergen_generalizingrnavelocity_2020}
+	Volker Bergen, Marius Lange, Stefan Peidli, F.~Alexander Wolf, and Fabian~J.
+	Theis.
+	\newblock Generalizing {{RNA}} velocity to transient cell states through
+	dynamical modeling.
+	\newblock {\em Nature Biotechnology}, 38(12):1408--1414, 12 2020.
+	
+	\bibitem{bjornsson_digitaltwinspersonalize_2019}
+	Bergthor Bj{\"o}rnsson, Carl Borrebaeck, Nils Elander, Thomas Gasslander,
+	Danuta~R. Gawel, Mika Gustafsson, Rebecka J{\"o}rnsten, Eun~Jung Lee, Xinxiu
+	Li, Sandra Lilja, David Mart\'inez-Enguita, Andreas Matussek, Per
+	Sandstr{\"o}m, Samuel Sch{\"a}fer, Margaretha Stenmarker, X.~F. Sun, Oleg
+	Sysoev, Huan Zhang, Mikael Benson, and {on behalf of the Swedish Digital Twin
+		Consortium}.
+	\newblock Digital twins to personalize medicine.
+	\newblock {\em Genome Medicine}, 12(1):4, 12 2019.
+	
+	\bibitem{cacchiarelli_aligningsinglecelldevelopmental_2018}
+	Davide Cacchiarelli, Xiaojie Qiu, Sanjay Srivatsan, Anna Manfredi, Michael
+	Ziller, Eliah Overbey, Antonio Grimaldi, Jonna Grimsby, Prapti Pokharel,
+	Kenneth~J. Livak, Shuqiang Li, Alexander Meissner, Tarjei~S. Mikkelsen,
+	John~L. Rinn, and Cole Trapnell.
+	\newblock Aligning {{Single}}-{{Cell Developmental}} and {{Reprogramming
+			Trajectories Identifies Molecular Determinants}} of {{Myogenic Reprogramming
+			Outcome}}.
+	\newblock {\em Cell Systems}, 7(3):258--268.e3, 9 2018.
+	
+	\bibitem{cannoodt_singlecellomicsdatasets_2018}
+	Robrecht Cannoodt, Wouter Saelens, Helena Todorov, and Yvan Saeys.
+	\newblock Single-cell -omics datasets containing a trajectory.
+	\newblock {\em Zenodo}, 10 2018.
+	
+	\bibitem{conover_multiplecomparisonsprocedures_1979}
+	William~Jay Conover and Ronald~L Iman.
+	\newblock On multiple-comparisons procedures.
+	\newblock Technical report, {Technical report, Los Alamos Scientific
+		Laboratory}, 1979.
+	
+	\bibitem{duo_systematicperformanceevaluation_2018}
+	Angelo Du{\a`o}, Mark~D. Robinson, and Charlotte Soneson.
+	\newblock A systematic performance evaluation of clustering methods for
+	single-cell {{RNA}}-seq data.
+	\newblock {\em F1000Research}, 7:1141, 2018.
+	
+	\bibitem{ewing_combiningtumorgenome_2015}
+	Adam~D. Ewing, Kathleen~E. Houlahan, Yin Hu, Kyle Ellrott, Cristian Caloian,
+	Takafumi~N. Yamaguchi, J.~Christopher Bare, Christine P'ng, Daryl Waggott,
+	Veronica~Y. Sabelnykova, {ICGC-TCGA DREAM Somatic Mutation Calling Challenge
+		Participants}, Liu Xi, Ninad Dewal, Yu~Fan, Wenyi Wang, David Wheeler,
+	Andreas Wilm, Grace~Hui Ting, Chenhao Li, Denis Bertrand, Niranjan Nagarajan,
+	Qing-Rong Chen, Chih-Hao Hsu, Ying Hu, Chunhua Yan, Warren Kibbe, Daoud
+	Meerzaman, Kristian Cibulskis, Mara Rosenberg, Louis Bergelson, Adam Kiezun,
+	Amie Radenbaugh, Anne-Sophie Sertier, Anthony Ferrari, Laurie Tonton, Kunal
+	Bhutani, Nancy~F. Hansen, Difei Wang, Lei Song, Zhongwu Lai, Yang Liao, Wei
+	Shi, Jos{\a'e} Carbonell-Caballero, Joaqu\'in Dopazo, Cheryl C.~K. Lau,
+	Justin Guinney, Michael~R. Kellen, Thea~C. Norman, David Haussler, Stephen~H.
+	Friend, Gustavo Stolovitzky, Adam~A. Margolin, Joshua~M. Stuart, and Paul~C.
+	Boutros.
+	\newblock Combining tumor genome simulation with crowdsourcing to benchmark
+	somatic single-nucleotide-variant detection.
+	\newblock {\em Nature Methods}, 12(7):623--630, 7 2015.
+	
+	\bibitem{ferrell_bistabilitybifurcationswaddington_2012}
+	James~E Ferrell.
+	\newblock Bistability, {{Bifurcations}}, and {{Waddington}}'s {{Epigenetic
+			Landscape}}.
+	\newblock {\em Current Biology}, 22(11):R458--R466, 6 2012.
+	
+	\bibitem{gibson_probabilisticmodelprokaryotic_2000}
+	Michael~A. Gibson and Jehoshua Bruck.
+	\newblock A probabilistic model of a prokaryotic gene and its regulation.
+	\newblock {\em Computational Methods in Molecular Biology: From Genotype to
+		Phenotype, MIT press, Cambridge}, 2000.
+	
+	\bibitem{gillespie_exactstochasticsimulation_1977}
+	Daniel~T. Gillespie.
+	\newblock Exact stochastic simulation of coupled chemical reactions.
+	\newblock {\em The Journal of Physical Chemistry}, 81(25):2340--2361, 12 1977.
+	
+	\bibitem{giorgino_computingvisualizingdynamic_2009}
+	Toni Giorgino.
+	\newblock Computing and {{Visualizing Dynamic Time Warping Alignments}} in
+	{{R}}: {{The}} dtw {{Package}}.
+	\newblock {\em Journal of Statistical Software}, (7), 9 2009.
+	
+	\bibitem{glass_passingmessagesbiological_2013}
+	Kimberly Glass, Curtis Huttenhower, John Quackenbush, and Guo-Cheng Yuan.
+	\newblock Passing {{Messages}} between {{Biological Networks}} to {{Refine
+			Predicted Interactions}}.
+	\newblock {\em PLOS ONE}, 8(5):e64832, 5 2013.
+	
+	\bibitem{graf_forcingcellschange_2009}
+	Thomas Graf and Tariq Enver.
+	\newblock Forcing {{Cells}} to {{Change Lineages}}.
+	\newblock {\em Nature}, 462(7273):587, 12 2009.
+	
+	\bibitem{hache_gengesystematicgeneration_2009}
+	Hendrik Hache, Christoph Wierling, Hans Lehrach, and Ralf Herwig.
+	\newblock {{GeNGe}}: Systematic generation of gene regulatory networks.
+	\newblock {\em Bioinformatics}, 25(9):1205--1207, 5 2009.
+	
+	\bibitem{holm_simplesequentiallyrejective_1979}
+	Sture Holm.
+	\newblock A simple sequentially rejective multiple test procedure.
+	\newblock {\em Scandinavian journal of statistics}, pages 65--70, 1979.
+	
+	\bibitem{huynh-thu_inferringregulatorynetworks_2010}
+	V{\^a}n~Anh Huynh-Thu, Irrthum Alexandre, Wehenkel Louis, Geurts Pierre,
+	Alexandre Irrthum, Louis Wehenkel, and Pierre Geurts.
+	\newblock Inferring {{Regulatory Networks}} from {{Expression Data Using
+			Tree}}-{{Based Methods}}.
+	\newblock {\em PLoS ONE}, 5(9):e12776, 1 2010.
+	
+	\bibitem{kanton_organoidsinglecellgenomic_2019}
+	Sabina Kanton, Michael~James Boyle, Zhisong He, Malgorzata Santel, Anne
+	Weigert, F{\a'a}tima Sanch\'is-Calleja, Patricia Guijarro, Leila Sidow,
+	Jonas~Simon Fleck, Dingding Han, Zhengzong Qian, Michael Heide, Wieland~B.
+	Huttner, Philipp Khaitovich, Svante P{\"a}{{\"a}}bo, Barbara Treutlein, and
+	J.~Gray Camp.
+	\newblock Organoid single-cell genomic atlas uncovers human-specific features
+	of brain development.
+	\newblock {\em Nature}, 574(7778):418--422, 10 2019.
+	
+	\bibitem{kuijjer_lionessrsinglesample_2019}
+	Marieke~L. Kuijjer, Ping-Han Hsieh, John Quackenbush, and Kimberly Glass.
+	\newblock {{lionessR}}: Single sample network inference in {{R}}.
+	\newblock {\em BMC Cancer}, 19(1):1003, 10 2019.
+	
+	\bibitem{kuijjer_estimatingsamplespecificregulatory_2015}
+	Marieke~Lydia Kuijjer, Matthew Tung, GuoCheng Yuan, John Quackenbush, and
+	Kimberly Glass.
+	\newblock Estimating sample-specific regulatory networks.
+	\newblock pages 1--19, 2015.
+	
+	\bibitem{kuijjer_estimatingsamplespecificregulatory_2019}
+	Marieke~Lydia Kuijjer, Matthew~George Tung, GuoCheng Yuan, John Quackenbush,
+	and Kimberly Glass.
+	\newblock Estimating {{Sample}}-{{Specific Regulatory Networks}}.
+	\newblock {\em iScience}, 14:226--240, 3 2019.
+	
+	\bibitem{lamanno_rnavelocitysingle_2018}
+	Gioele {La Manno}, Ruslan Soldatov, Amit Zeisel, Emelie Braun, Hannah
+	Hochgerner, Viktor Petukhov, Katja Lidschreiber, Maria~E Kastriti, Peter
+	L{\"o}nnerberg, Alessandro Furlan, Jean Fan, Lars~E Borm, Zehua Liu, David
+	{van Bruggen}, Jimin Guo, Xiaoling He, Roger Barker, Erik Sundstr{\"o}m,
+	Gon{\c c}alo Castelo-Branco, Patrick Cramer, Igor Adameyko, Sten Linnarsson,
+	and Peter~V Kharchenko.
+	\newblock {{RNA Velocity}} of {{Single Cells}}.
+	\newblock {\em Nature}, 560(7719):494--498, 8 2018.
+	
+	\bibitem{lin_scclassifysamplesize_2020}
+	Yingxin Lin, Yue Cao, Hani~Jieun Kim, Agus Salim, Terence~P Speed, David~M Lin,
+	Pengyi Yang, and Jean Yee~Hwa Yang.
+	\newblock {{scClassify}}: Sample size estimation and multiscale classification
+	of cells using single and multiple reference.
+	\newblock {\em Molecular Systems Biology}, 16(6):e9389, 6 2020.
+	
+	\bibitem{liu_personalizedcharacterizationdiseases_2016}
+	Xiaoping Liu, Yuetong Wang, Hongbin Ji, Kazuyuki Aihara, and Luonan Chen.
+	\newblock Personalized characterization of diseases using sample-specific
+	networks.
+	\newblock {\em Nucleic Acids Research}, 44(22):e164--e164, 2016.
+	
+	\bibitem{lizio_gatewaysfantom5promoter_2015}
+	Marina Lizio, Jayson Harshbarger, Hisashi Shimoji, Jessica Severin, Takeya
+	Kasukawa, Serkan Sahin, Imad Abugessaisa, Shiro Fukuda, Fumi Hori, Sachi
+	Ishikawa-Kato, Christopher~J. Mungall, Erik Arner, J.~Kenneth Baillie,
+	Nicolas Bertin, Hidemasa Bono, Michiel {de Hoon}, Alexander~D. Diehl,
+	Emmanuel Dimont, Tom~C. Freeman, Kaori Fujieda, Winston Hide, Rajaram
+	Kaliyaperumal, Toshiaki Katayama, Timo Lassmann, Terrence~F. Meehan, Koro
+	Nishikata, Hiromasa Ono, Michael Rehli, Albin Sandelin, Erik~A. Schultes,
+	Peter~AC {`t Hoen}, Zuotian Tatum, Mark Thompson, Tetsuro Toyoda, Derek~W.
+	Wright, Carsten~O. Daub, Masayoshi Itoh, Piero Carninci, Yoshihide
+	Hayashizaki, Alistair~RR Forrest, Hideya Kawaji, and {the FANTOM consortium}.
+	\newblock Gateways to the {{FANTOM5}} promoter level mammalian expression
+	atlas.
+	\newblock {\em Genome Biology}, 16(1):22, 1 2015.
+	
+	\bibitem{luecken_currentbestpractices_2019}
+	Malte~D Luecken and Fabian~J Theis.
+	\newblock Current best practices in single-cell {{RNA}}-seq analysis: A
+	tutorial.
+	\newblock {\em Molecular Systems Biology}, 15(6):e8746, 6 2019.
+	
+	\bibitem{lummertzdarocha_reconstructioncomplexsinglecell_2018}
+	Edroaldo {Lummertz da Rocha}, R.~Grant Rowe, Vanessa Lundin, Mohan Malleshaiah,
+	Deepak~Kumar Jha, Carlos~R. Rambo, Hu~Li, Trista~E. North, James~J. Collins,
+	and George~Q. Daley.
+	\newblock Reconstruction of complex single-cell trajectories using
+	{{CellRouter}}.
+	\newblock {\em Nature Communications}, 9(1):892, 3 2018.
+	
+	\bibitem{marbach_wisdomcrowdsrobust_2012}
+	Daniel Marbach, James~C Costello, Robert K{\"u}ffner, Nicole M~Nicci Vega,
+	Robert~J Prill, Diogo~M Camacho, Kyle~R Allison, Manolis Kellis, James~J
+	Collins, Gustavo Stolovitzky, {DREAM5 Consortium}, Manolis Kellis, James~J
+	Collins, and Gustavo Stolovitzky.
+	\newblock Wisdom of {{Crowds}} for {{Robust Gene Network Inference}}.
+	\newblock {\em Nature methods}, 9(8):796--804, 7 2012.
+	
+	\bibitem{marbach_revealingstrengthsweaknesses_2010}
+	Daniel Marbach, Robert~J Prill, Thomas Schaffter, Claudio Mattiussi, Dario
+	Floreano, and Gustavo Stolovitzky.
+	\newblock Revealing strengths and weaknesses of methods for gene network
+	inference.
+	\newblock {\em Proceedings of the National Academy of Sciences},
+	107(14):6286--6291, 4 2010.
+	
+	\bibitem{marbach_generatingrealisticsilico_2009}
+	Daniel Marbach, Thomas Schaffter, Claudio Mattiussi, and Dario Floreano.
+	\newblock Generating {{Realistic In Silico Gene Networks}} for {{Performance
+			Assessment}} of {{Reverse Engineering Methods}}.
+	\newblock {\em Journal of Computational Biology}, 16(2):229--239, 2 2009.
+	
+	\bibitem{mcfaline-figueroa_pooledsinglecellgenetic_2019}
+	Jos{\a'e}~L. McFaline-Figueroa, Andrew~J. Hill, Xiaojie Qiu, Dana Jackson, Jay
+	Shendure, and Cole Trapnell.
+	\newblock A pooled single-cell genetic screen identifies regulatory checkpoints
+	in the continuum of the epithelial-to-mesenchymal transition.
+	\newblock {\em Nature Genetics}, 51(9):1389--1398, 9 2019.
+	
+	\bibitem{moerman_grnboost2arboretoefficient_2019}
+	Thomas Moerman, Sara {Aibar Santos}, Carmen {Bravo Gonz{\a'a}lez-Blas}, Jaak
+	Simm, Yves Moreau, Jan Aerts, and Stein Aerts.
+	\newblock {{GRNBoost2}} and {{Arboreto}}: Efficient and scalable inference of
+	gene regulatory networks.
+	\newblock {\em Bioinformatics}, 35(12):2159--2161, 6 2019.
+	
+	\bibitem{papadopoulos_prossttprobabilisticsimulation_2019}
+	Nikolaos Papadopoulos, Parra~R. Gonzalo, and Johannes S{\"o}ding.
+	\newblock {{PROSSTT}}: Probabilistic simulation of single-cell {{RNA}}-seq data
+	for complex differentiation processes.
+	\newblock {\em Bioinformatics (Oxford, England)}, 35(18):3517--3519, 9 2019.
+	
+	\bibitem{parra_reconstructingcomplexlineage_2019}
+	R.~Gonzalo Parra, Nikolaos Papadopoulos, Laura Ahumada-Arranz, Jakob~El
+	Kholtei, Noah Mottelson, Yehor Horokhovsky, Barbara Treutlein, and Johannes
+	Soeding.
+	\newblock Reconstructing complex lineage trees from {{scRNA}}-seq data using
+	{{MERLoT}}.
+	\newblock {\em Nucleic Acids Research}, 47(17):8961--8974, 9 2019.
+	
+	\bibitem{patil_pairwisecomparisonsmultiplepairwise_2019}
+	Indrajeet Patil.
+	\newblock {\em {{pairwiseComparisons}}: {{Multiple}} Pairwise Comparison
+		Tests}, 2019.
+	
+	\bibitem{prill_rigorousassessmentsystems_2010}
+	Robert~J Prill, Marbach Daniel, Saez-Rodriguez Julio, Sorger~Peter K.,
+	Alexopoulos~Leonidas G., Xue Xiaowei, Clarke~Neil D., Altan-Bonnet Gregoire,
+	Stolovitzky Gustavo, Daniel Marbach, Julio Saez-Rodriguez, Peter~K Sorger,
+	Leonidas~G Alexopoulos, Xiaowei Xue, Neil~D Clarke, Gregoire Altan-Bonnet,
+	Gustavo Stolovitzky, Marbach Daniel, Saez-Rodriguez Julio, Sorger~Peter K.,
+	Alexopoulos~Leonidas G., Xue Xiaowei, Clarke~Neil D., Altan-Bonnet Gregoire,
+	and Stolovitzky Gustavo.
+	\newblock Towards a {{Rigorous Assessment}} of {{Systems Biology Models}}:
+	{{The DREAM3 Challenges}}.
+	\newblock {\em PLoS ONE}, 5(2):e9202, 1 2010.
+	
+	\bibitem{rekhtman_directinteractionhematopoietic_1999}
+	N.~Rekhtman, F.~Radparvar, T.~Evans, and A.~I. Skoultchi.
+	\newblock Direct interaction of hematopoietic transcription factors {{PU}}.1
+	and {{GATA}}-1: Functional antagonism in erythroid cells.
+	\newblock {\em Genes \& Development}, 13(11):1398--1411, 6 1999.
+	
+	\bibitem{roy_systemgeneratingtranscription_2008}
+	Sushmita Roy, Margaret Werner-Washburne, and Terran Lane.
+	\newblock A system for generating transcription regulatory networks with
+	combinatorial control of transcription.
+	\newblock {\em Bioinformatics}, 24(10):1318--1320, 5 2008.
+	
+	\bibitem{saelens_comparisonsinglecelltrajectory_2019}
+	Wouter Saelens, Robrecht Cannoodt, Helena Todorov, and Yvan Saeys.
+	\newblock A comparison of single-cell trajectory inference methods.
+	\newblock {\em Nature Biotechnology}, 37(5), 2019.
+	
+	\bibitem{schaffter_genenetweaversilicobenchmark_2011}
+	Thomas Schaffter, Daniel Marbach, and Dario Floreano.
+	\newblock {{GeneNetWeaver}}: In silico benchmark generation and performance
+	profiling of network inference methods.
+	\newblock {\em Bioinformatics}, 27(16):2263--2270, 8 2011.
+	
+	\bibitem{schilstra_biologicgeneexpression_2008}
+	Maria~J. Schilstra and Chrystopher~L. Nehaniv.
+	\newblock Bio-{{Logic}}: {{Gene Expression}} and the {{Laws}} of
+	{{Combinatorial Logic}}.
+	\newblock {\em Artificial Life}, 14(1):121--133, 1 2008.
+	
+	\bibitem{schwanhausser_globalquantificationmammalian_2011}
+	Bj{\"o}rn Schwanh{\"a}usser, Dorothea Busse, Na~Li, Gunnar Dittmar, Johannes
+	Schuchhardt, Jana Wolf, Wei Chen, and Matthias Selbach.
+	\newblock Global quantification of mammalian gene expression control.
+	\newblock {\em Nature}, 473(7347):337--342, 5 2011.
+	
+	\bibitem{smith_spatialstochasticintracellular_2019}
+	Stephen Smith and Ramon Grima.
+	\newblock Spatial {{Stochastic Intracellular Kinetics}}: {{A Review}} of
+	{{Modelling Approaches}}.
+	\newblock {\em Bulletin of Mathematical Biology}, 81(8):2960--3009, 8 2019.
+	
+	\bibitem{soneson_biasrobustnessscalability_2018}
+	Charlotte Soneson and Mark~D. Robinson.
+	\newblock Bias, robustness and scalability in single-cell differential
+	expression analysis.
+	\newblock {\em Nature Methods}, 15(4):255--261, 4 2018.
+	
+	\bibitem{street_slingshotcelllineage_2018}
+	Kelly Street, Davide Risso, Russell~B Fletcher, Diya Das, John Ngai, Nir Yosef,
+	Elizabeth Purdom, and Sandrine Dudoit.
+	\newblock Slingshot: {{Cell Lineage}} and {{Pseudotime Inference}} for
+	{{Single}}-{{Cell Transcriptomics}}.
+	\newblock {\em BMC Genomics}, 19(1):477, 6 2018.
+	
+	\bibitem{vallejos_normalizingsinglecellrna_2017}
+	Catalina~A. Vallejos, Davide Risso, Antonio Scialdone, Sandrine Dudoit, and
+	John~C. Marioni.
+	\newblock Normalizing single-cell {{RNA}} sequencing data: Challenges and
+	opportunities.
+	\newblock {\em Nature Methods}, 14(6):565--571, 6 2017.
+	
+	\bibitem{vandesande_scalablescenicworkflow_2020}
+	Bram {Van de Sande}, Christopher Flerin, Kristofer Davie, Maxime {De
+		Waegeneer}, Gert Hulselmans, Sara Aibar, Ruth Seurinck, Wouter Saelens,
+	Robrecht Cannoodt, Quentin Rouchon, Toni Verbeiren, Dries {De Maeyer}, Joke
+	Reumers, Yvan Saeys, and Stein Aerts.
+	\newblock A scalable {{SCENIC}} workflow for single-cell gene regulatory
+	network analysis.
+	\newblock {\em Nature Protocols}, 15(7):2247--2276, 7 2020.
+	
+	\bibitem{vandenbulcke_syntrengeneratorsynthetic_2006}
+	Tim {Van den Bulcke}, Koenraad {Van Leemput}, Bart Naudts, Piet {van Remortel},
+	Hongwu Ma, Alain Verschoren, Bart {De Moor}, and Kathleen Marchal.
+	\newblock {{SynTReN}}: A generator of synthetic gene expression data for design
+	and analysis of structure learning algorithms.
+	\newblock {\em BMC Bioinformatics}, 7(1):43, 1 2006.
+	
+	\bibitem{vieth_powsimrpoweranalysis_2017}
+	Beate Vieth, Christoph Ziegenhain, Swati Parekh, Wolfgang Enard, and Ines
+	Hellmann.
+	\newblock {{powsimR}}: Power analysis for bulk and single cell {{RNA}}-seq
+	experiments.
+	\newblock {\em Bioinformatics}, 33(21):3486--3488, 11 2017.
+	
+	\bibitem{wang_quantifyingwaddingtonlandscape_2011}
+	Jin Wang, Kun Zhang, Li~Xu, and Erkang Wang.
+	\newblock Quantifying the {{Waddington Landscape}} and {{Biological Paths}} for
+	{{Development}} and {{Differentiation}}.
+	\newblock {\em Proceedings of the National Academy of Sciences},
+	108(20):8257--8262, 5 2011.
+	
+	\bibitem{weber_essentialguidelinescomputational_2019}
+	Lukas~M. Weber, Wouter Saelens, Robrecht Cannoodt, Charlotte Soneson, Alexander
+	Hapfelmeier, Paul~P. Gardner, Anne-Laure Boulesteix, Yvan Saeys, and Mark~D.
+	Robinson.
+	\newblock Essential guidelines for computational method benchmarking.
+	\newblock {\em Genome Biology}, 20(1):125, 6 2019.
+	
+	\bibitem{wickham_welcometidyverse_2019}
+	Hadley Wickham, Mara Averick, Jennifer Bryan, Winston Chang, Lucy McGowan,
+	Romain Fran{\c c}ois, Garrett Grolemund, Alex Hayes, Lionel Henry, Jim
+	Hester, Max Kuhn, Thomas Pedersen, Evan Miller, Stephan Bache, Kirill
+	M{\"u}ller, Jeroen Ooms, David Robinson, Dana Seidel, Vitalie Spinu, Kohske
+	Takahashi, Davis Vaughan, Claus Wilke, Kara Woo, and Hiroaki Yutani.
+	\newblock Welcome to the {{Tidyverse}}.
+	\newblock 11 2019.
+	
+	\bibitem{xu_regulationbifurcatingcell_2015}
+	Heping Xu, Virendra~K Chaudhri, Zhiguo Wu, Konstantinos Biliouris, Krista
+	Dienger-Stambaugh, Yrina Rochman, and Harinder Singh.
+	\newblock Regulation of bifurcating {{B}} cell trajectories by mutual
+	antagonism between transcription factors {{IRF4}} and {{IRF8}}.
+	\newblock {\em Nat. Immunol.}, 16(12):1274--1281, 12 2015.
+	
+	\bibitem{yosef_dynamicregulatorynetwork_2013}
+	Nir Yosef, Alex~K Shalek, Jellert~T Gaublomme, Hulin Jin, Youjin Lee, Amit
+	Awasthi, Chuan Wu, Katarzyna Karwacz, Sheng Xiao, Marsela Jorgolli, David
+	Gennert, Rahul Satija, Arvind Shakya, Diana~Y Lu, John~J Trombetta, Meenu~R
+	Pillai, Peter~J Ratcliffe, Mathew~L Coleman, Mark Bix, Dean Tantin, Hongkun
+	Park, Vijay~K Kuchroo, and Aviv Regev.
+	\newblock Dynamic regulatory network controlling
+	\{\vphantom\}{{TH17}}\vphantom\{\} cell differentiation.
+	\newblock {\em Nature}, 496(7446):461--468, 2013.
+	
+	\bibitem{zappia_splattersimulationsinglecell_2017}
+	Luke Zappia, Belinda Phipson, and Alicia Oshlack.
+	\newblock Splatter: {{Simulation}} of {{Single}}-{{Cell RNA Sequencing Data}}.
+	\newblock {\em Genome Biology}, 18:174, 9 2017.
+	
+	\bibitem{zeisel_coupledpremrnamrna_2011}
+	Amit Zeisel, Wolfgang~J K{\"o}stler, Natali Molotski, Jonathan~M Tsai, Rita
+	Krauthgamer, Jasmine Jacob-Hirsch, Gideon Rechavi, Yoav Soen, Steffen Jung,
+	Yosef Yarden, and Eytan Domany.
+	\newblock Coupled pre-{{mRNA}} and {{mRNA}} dynamics unveil operational
+	strategies underlying transcriptional responses to stimuli.
+	\newblock {\em Molecular Systems Biology}, 7(1):529, 1 2011.
+	
+	\bibitem{zhang_simulatingmultiplefaceted_2019}
+	Xiuwei Zhang, Chenling Xu, and Nir Yosef.
+	\newblock Simulating multiple faceted variability in single cell {{RNA}}
+	sequencing.
+	\newblock {\em Nature Communications}, 10(1):1--16, 6 2019.
+	
+\end{thebibliography}
+
 
 \end{document}

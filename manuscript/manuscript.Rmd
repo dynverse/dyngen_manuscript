@@ -42,12 +42,6 @@ header-includes: |
   \usepackage{float}
   \usepackage{caption}
   \captionsetup[table]{position=bottom}
-  \setmainfont [Path = fonts/,
-    UprightFont = *-300,
-    ItalicFont = *-300-Italic,
-    BoldFont = *-700,
-    BoldItalicFont = *-700-Italic
-  ]{MuseoSans}
 
 
 bibliography: library.bib
@@ -443,9 +437,9 @@ Calculating the regulatory effect of a regulator $R$ on a target $T$ (Supplement
 The regulatory effect of $R$ on $T$ at a particular state $S$ is defined as the change in the propensity of transcription when $R$ is set to zero, scaled by the inverse of the pre-mRNA production rate of $T$. More formally:
 
 
-\begin{eqnarray*}
+\begin{eqnarray}
   \text{regeffect}_G & = \frac{\text{proptrans}_G(S) - \text{proptrans}_G(S[\z T \leftarrow 0])}{\xpr G}
-\end{eqnarray*}
+\end{eqnarray}
 
 
 Determining the regulatory effect for all interactions and cells in the dataset yields the complete cell-specific ground-truth GRN. The regulatory effect lies between $[-1, 1]$, where -1 represents complete inhibition of $T$ by $R$, 1 represents maximal activation of $T$ by $R$, and 0 represents inactivity of the regulatory interaction between $R$ and $T$.

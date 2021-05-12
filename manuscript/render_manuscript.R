@@ -35,12 +35,6 @@ knitcitations::write.bibtex(bib[bib_keys], file = "manuscript/knitcitations.bib"
 # render the manuscript
 render("manuscript/manuscript.Rmd")
 
-bib_replace <- paste(c("\\addbibresource{\\jobname.bib}", "\\begin{filecontents}{\\jobname.bib}", readr::read_lines("manuscript/knitcitations.bib"), "\\end{filecontents}"), collapse = "\n")
-
-read_lines("manuscript/manuscript.tex") %>%
-  gsub("\\addbibresource{library.bib}", bib_replace, ., fixed = TRUE) %>%
-  write_lines("manuscript/manuscript.tex")
-
 render("manuscript/supplementary_files.Rmd")
 
 # system("latexdiff manuscript/v3/render.tex manuscript/render.tex > manuscript/track_changes.tex")

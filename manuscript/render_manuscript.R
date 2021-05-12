@@ -16,7 +16,7 @@ if (Sys.info()[["user"]] == "rcannood") {
 
 # take the relevant citatiosn and write it to a second file
 bib_keys <-
-  readr::read_lines(drive$local_path) %>%
+  readr::read_lines("manuscript/manuscript.Rmd") %>%
   paste(collapse = "\n") %>%
   str_extract_all("\\[@[^\\]]*\\]") %>%
   first() %>%

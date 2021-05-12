@@ -187,6 +187,8 @@ pairwise <-
   ungroup() %>%
   mutate(label = gsub("\\[Holm-corrected\\]", "", label))
 
+write_rds(pairwise, exp$result("statistics.rds"), compress = "gz")
+
 # create metric plots
 g_metrics <- map2(names(metric_labels), metric_labels, function(metric, metric_name) {
   data <- results %>% filter(metric == !!metric)

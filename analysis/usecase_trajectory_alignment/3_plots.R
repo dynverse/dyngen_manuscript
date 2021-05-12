@@ -257,6 +257,8 @@ pairwise <-
   ungroup() %>%
   mutate(label = gsub("\\[Holm-corrected\\]", "", label))
 
+write_rds(pairwise, exp$result("statistics.rds"), compress = "gz")
+
 metric_labels <- c(abwap = "ABWAP score")
 
 # create metric plots

@@ -49,6 +49,8 @@ pairwise <-
   ungroup() %>%
   mutate(label = gsub("\\[Holm-corrected\\]", "", label))
 
+write_rds(pairwise, exp$result("statistics.rds"), compress = "gz")
+
 # create metric plots
 g_metrics <- map2(c("auroc", "aupr"), c("mean AUROC", "mean AUPR"), function(metric, metric_name) {
   data <- results %>% filter(metric == !!metric)

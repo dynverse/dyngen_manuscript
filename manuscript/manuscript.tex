@@ -1,0 +1,1953 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+  table,
+  10pt,
+  a4paper]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{lmodern}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={dyngen: a multi-modal simulator for spearheading new single-cell omics analyses},
+  pdfauthor={Robrecht Cannoodt,1,2,3; Wouter Saelens,1,2; Louise Deconinck1,2; Yvan Saeys1,2,},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\usepackage{tcolorbox}
+\usepackage{colortbl}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{fontspec}
+\usepackage{pifont}
+\usepackage{float}
+\usepackage{caption}
+\captionsetup[table]{position=bottom}
+\setmainfont [Path = fonts/,
+  UprightFont = *-300,
+  ItalicFont = *-300-Italic,
+  BoldFont = *-700,
+  BoldItalicFont = *-700-Italic
+]{MuseoSans}
+
+\ifluatex
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\usepackage[sorting=none,url=false,backend=bibtex]{biblatex}
+
+\usepackage{filecontents}
+
+\bibliography{\jobname} 
+
+\title{dyngen: a multi-modal simulator for spearheading new single-cell
+omics analyses}
+\author{Robrecht Cannoodt\textsuperscript{$\dagger{}$,1,2,3} \and Wouter
+Saelens\textsuperscript{$\dagger{}$,1,2} \and Louise
+Deconinck\textsuperscript{1,2} \and Yvan Saeys\textsuperscript{1,2,*}}
+\date{12 May 2021}
+
+\begin{document}
+\maketitle
+
+\textsuperscript{$\dagger{}$}
+These authors contributed equally to this work.
+
+\textsuperscript{1} Data Mining and Modelling for Biomedicine group, VIB
+Center for Inflammation Research, Ghent, Belgium\\
+\textsuperscript{2} Department of Applied Mathematics, Computer Science,
+and Statistics, Ghent University, Ghent, Belgium\\
+\textsuperscript{3} Data Intuitive, Lebbeke, Belgium
+
+\textsuperscript{*} Correspondence:
+\href{mailto:yvan.saeys@ugent.be}{Yvan Saeys
+\textless{}\href{mailto:yvan.saeys@ugent.be}{\nolinkurl{yvan.saeys@ugent.be}}\textgreater{}}
+
+\hypertarget{abstract}{%
+\section{Abstract}\label{abstract}}
+
+We present dyngen, a novel, multi-modal simulation engine for studying
+dynamic cellular processes at single-cell resolution. dyngen is more
+flexible than current single-cell simulation engines, and allows better
+method development and benchmarking, thereby stimulating development and
+testing of novel computational methods. We demonstrate its potential for
+spearheading novel computational methods on three novel applications:
+aligning cell developmental trajectories, cell-specific regulatory
+network inference and estimation of RNA velocity.
+
+\hypertarget{introduction}{%
+\section{Introduction}\label{introduction}}
+
+Single-cell simulation engines are becoming increasingly important for
+testing and benchmarking computational methods, a pressing need in the
+widely expanding field of single-cell biology. Complementary to real
+biological data, synthetic data provides a valuable alternative where
+the actual ground truth is completely known and thus can be compared to,
+in order to make quantitative evaluations of computational methods that
+aim to reconstruct this ground truth
+\autocite{zappia_splattersimulationsinglecell_2017}. In addition,
+simulation engines are more flexible when it comes to stress-testing
+computational methods, for example by varying the parameters of the
+simulation, such as the amount of noise, samples, and cells measured,
+allowing benchmarking of methods over a wide range of possible
+scenarios. In this way, they can even guide the design of real
+biological experiments, finding out the best conditions to be used as
+input for subsequent computational pipelines.
+
+Another, more experimental use of simulation engines is their important
+role in spearheading the development of novel computational methods,
+possibly even before real data is available. In this way, simulation
+engines can be used to assess the value of novel experimental protocols
+or treatments. Simulation engines are also increasingly important when
+it comes to finding alternatives to animal models, for example for drug
+testing and precision medicine. In such scenarios, cellular simulations
+can act as digital twins, offering unlimited experimentation \emph{in
+silico} \autocite{bjornsson_digitaltwinspersonalize_2019}.
+
+Simulating realistic data requires that the underlying biology is
+recapitulated as best as possible, and in the case of transcriptomics
+data this typically involves modelling the underlying gene regulatory
+networks. Simulators of ``bulk'' microarray or RNA-sequencing profiles
+simulate biological processes (e.g.~transcription, translation) by
+translating a database of known regulatory interactions into a set of
+ordinary differential equations (ODE)
+\autocite{roy_systemgeneratingtranscription_2008,hache_gengesystematicgeneration_2009,schaffter_genenetweaversilicobenchmark_2011,vandenbulcke_syntrengeneratorsynthetic_2006}.
+These methods have been instrumental in performing benchmarking studies
+\autocite{prill_rigorousassessmentsystems_2010,marbach_revealingstrengthsweaknesses_2010,marbach_wisdomcrowdsrobust_2012}.
+However, the advent of single-cell omics introduced several new types of
+analyses (e.g.~trajectory inference, RNA velocity, cell-specific network
+inference) which exploit the higher resolution of single-cell versus
+bulk omics \autocite{luecken_currentbestpractices_2019}. In addition,
+the data characteristics of single-cell omics are vastly different from
+bulk omics, typically having much lower library sizes and a higher
+dropout rate, but also a high number of profiles
+\autocite{vallejos_normalizingsinglecellrna_2017}. The low library
+sizes, in particular, are problematic as ODEs are ill-suited for
+performing low-molecule simulations
+\autocite{gillespie_exactstochasticsimulation_1977}. This necessitates
+the development of new single-cell simulators.
+
+To this end, single-cell omics simulators emulate the technical
+procedures from single-cell omics protocols. Simulators such as Splatter
+\autocite{zappia_splattersimulationsinglecell_2017}, powsimR
+\autocite{vieth_powsimrpoweranalysis_2017}, PROSSTT
+\autocite{papadopoulos_prossttprobabilisticsimulation_2019} and SymSim
+\autocite{zhang_simulatingmultiplefaceted_2019}) have already been
+widely used to compare single-cell methods
+\autocite{street_slingshotcelllineage_2018,parra_reconstructingcomplexlineage_2019,lummertzdarocha_reconstructioncomplexsinglecell_2018,lin_scclassifysamplesize_2020}
+and perform independent benchmarks
+\autocite{duo_systematicperformanceevaluation_2018,saelens_comparisonsinglecelltrajectory_2019,soneson_biasrobustnessscalability_2018}.
+However, by focusing more on simulating the single-cell omics protocol
+(e.g.~RNA capture, amplification, sequencing) and less on the underlying
+biology (e.g.~transcription, splicing, translation), their applicability
+and reusability is limited towards the specific application for which
+they were designed (e.g.~benchmarking clustering or differential
+expression methods), and extending these tools to include additional
+modalities or experimental conditions is challenging.
+
+We introduce dyngen, a method for simulating cellular dynamics at a
+single-cell, single-transcript resolution (Figure~\ref{fig:overview}).
+This problem is tackled in three fully-configurable main steps. First,
+biological processes are mimicked by translating a gene regulatory
+network into a set of reactions (regulation, transcription, splicing,
+translation). Second, individual cells are simulated using Gillespie's
+stochastic simulation algorithm
+\autocite{gillespie_exactstochasticsimulation_1977}, which is designed
+to work well in low-molecule simulations. Finally, real reference
+datasets are used to emulate single-cell omics profiling protocols.
+
+Throughout a simulation, dyngen tracks many layers of information,
+including the abundance of any molecule in the cell, the progression of
+the cell along a dynamic process, and the activation strength of
+individual regulatory interactions. In addition, dyngen can simulate a
+large variety of dynamic processes (e.g.~cyclic, branching,
+disconnected) as well as a broad range of experimental conditions
+(e.g.~batch effects and time-series, perturbation and single-cell
+knockdown experiments). For these reasons, dyngen can cater to a wide
+range of benchmarking applications, including trajectory inference,
+trajectory alignment, and trajectory differential expression
+(Supplementary Table~1).
+
+\begin{figure}[t!]
+    \centering
+    \includegraphics[width=\linewidth]{result_files/summary/figure_1_edited.pdf}
+    \caption{
+      \textbf{Showcase of dyngen functionality.}
+      \textbf{A:} Changes in abundance levels are driven strictly by gene regulatory reactions.
+      \textbf{B:} The input Gene Regulatory Network (GRN) is defined such that it models a dynamic process of interest.
+      \textbf{C:} The reactions define how abundance levels of molecules change at any particular time point.
+      \textbf{D:} Firing many reactions can significantly alter the cellular state over time.
+      \textbf{E:} dyngen keeps track of the likelihood of a reaction firing during small intervals of time, called the propensity, as well as the actual number of firings.
+      \textbf{F:} Similarly, dyngen can also keep track of the regulatory activity of every interaction.
+      \textbf{G:} A benchmark of trajectory inference methods has already been performed using the cell state ground-truth \cite{saelens_comparisonsinglecelltrajectory_2019}.
+      \textbf{H:} The cell state ground-truth enables evaluating trajectory alignment methods.
+      \textbf{I:} The reaction propensity ground-truth enables evaluating RNA velocity methods.
+      \textbf{J:} The cellwise regulatory network ground-truth enables evaluating cell-specific gene regulatory network inference methods.
+    }
+    \label{fig:overview}
+\end{figure}
+
+\hypertarget{results}{%
+\section{Results}\label{results}}
+
+We demonstrate dyngen's broad applicability by evaluating three novel
+types of computational approaches for which no simulation engines exist
+yet: cell-specific network inference, trajectory alignment and RNA
+velocity (Figure~\ref{fig:applications}). We emphasize that our main aim
+here is to illustrate the potential of dyngen for these evaluations,
+rather than performing large-scale benchmarking, which would require
+assessing many more quantitative and qualitative aspects of each method
+\autocite{weber_essentialguidelinescomputational_2019}.
+
+\begin{figure}[t!]
+    \centering
+    \includegraphics[width=\linewidth]{result_files/summary/figure_2.pdf}
+    \caption{
+      \textbf{dyngen provides ground-truth data for a variety of applications (left), which can be used to quantitatively evaluate methods (right).} Box plots denote the $Q_0$ to $Q_4$ quartile values.
+      \textbf{A:} Trajectory alignment aligns two trajectories between samples. We evaluate dynamic time warping (DTW) and cellAlign when aligning two linear trajectories with different kinetic parameters based on the area differences between the worst possible alignment and the predicted alignment (Area Between Worst And Prediction, or ABWAP). 
+      \textbf{B:} RNA velocity calculates for each cell the direction in which the expression of each gene is moving. We evaluated scVelo and velocyto by comparing these vectors with the known velocity vector (velocity correlation) and with the known direction of the cellular trajectory in a dimensionality reduction (velocity arrow cosine).
+      \textbf{C:} Cell-specific network inference (CSNI) predicts the regulatory network of every individual cell. We evaluate each cell-specific regulatory network with typical metrics for network inference: the Area Under the Receiver Operating Characteristics-curve (AUROC) and Area Under the Precision Recall-curve (AUPR). We evaluate three CSNI methods by computing the mean AUROC and AUPR across all cells.
+    }
+    \label{fig:applications}
+\end{figure}
+
+Use-case ``trajectory alignment''. Trajectory alignment methods align
+trajectories from different samples and allow studying the differences
+between the different trajectories. For example, by comparing the
+transcriptomic profiles of cells from a diseased patient to a healthy
+control, it might be possible to detect transcriptomics differences
+(differential expression) of particular cells along a developmental
+process, or to detect an early stop of the trajectory of the diseased
+patient. Currently, trajectory alignment is limited to aligning linear
+trajectories, though other topologies of a trajectory could be aligned
+as well. Dynamic Time Warping (DTW)
+\autocite{giorgino_computingvisualizingdynamic_2009} is a method
+designed for aligning temporal sequences for speech recognition but has
+since been used to compare gene expression kinetics from many different
+biological processes
+\autocite{cacchiarelli_aligningsinglecelldevelopmental_2018,kanton_organoidsinglecellgenomic_2019,mcfaline-figueroa_pooledsinglecellgenetic_2019,alpert_alignmentsinglecelltrajectories_2018}.
+cellAlign \autocite{alpert_alignmentsinglecelltrajectories_2018} uses
+DTW to perform trajectory alignment, but also includes interpolation and
+scaling of the single cell data as a preprocessing step. We evaluate the
+performance of DTW and cellAlign by simulating 40 datasets, each
+containing two linear trajectories generated with the same gene
+regulatory network but with slightly different simulation kinetics. We
+assess the accuracy of the obtained alignments by comparing the
+generated alignment path with the worst possible alignment that could be
+performed (Supplementary Fig. ~1D), named the Area Between Worst And
+Prediction (ABWAP) score. Overall, cellAlign performs significantly
+better than DTW (Supplementary Fig.~1), which is likely due to the
+interpolation and scaling steps provided by cellAlign, reducing noise in
+the data and improving the comparability of the trajectories. Note that,
+in this comparison, only linear trajectory alignment is performed. While
+dyngen can generate non-linear trajectories (e.g.~cyclic or branching),
+both aligning non-linear trajectories and constructing a quantitative
+accuracy metric for non-linear trajectory alignment is not trivial and
+an avenue for future work.
+
+Use-case ``RNA velocity''. RNA velocity methods use the relative ratio
+between pre-mRNA and mature mRNA reads to predict the rate of
+increase/decrease of RNA molecule abundance, as this can be used to
+predict the directionality of single cell differentiation in
+trajectories
+\autocite{zeisel_coupledpremrnamrna_2011,lamanno_rnavelocitysingle_2018}.
+Already two algorithms are currently available for estimating the RNA
+velocity vector from spliced and unspliced counts: velocyto
+\autocite{lamanno_rnavelocitysingle_2018} and scvelo
+\autocite{bergen_generalizingrnavelocity_2020}. Yet, to date, no
+quantitative assessment of their accuracy has been performed, mainly due
+to the difficulty in obtaining real ground-truth data to do so. In
+contrast, the ground-truth RNA velocity can be easily extracted from a
+dyngen simulation, as it is possible to store the rate at which mRNA
+molecules are being transcribed and degraded at any particular point in
+time. We executed velocyto and scvelo (with 2 different parameter
+settings, stochastic and dynamical) on 42 datasets with a variety of
+backbones (including linear, bifurcating, cyclic, disconnected). We
+evaluated the predictions using two metrics (Supplementary Fig.~2), one
+which directly compares the predicted RNA velocity of each gene with the
+ground-truth RNA velocity (called the ``velocity correlation''), and one
+which compares the direction of the ground-truth trajectory embedded in
+a dimensionality reduction with the average RNA velocity of cells in
+that neighbourhood (called the ``velocity arrow cosine''). While both
+velocyto and scvelo obtained high scores for the velocity arrow cosine
+metric (overall 25th percentile = 0.606), the velocity correlation is
+rather low (overall 75th percentile = 0.156). This means that predicting
+the RNA velocity (i.e.~transcription rate minus the decay rate) for
+particular individual genes can be challenging, but the combined
+information is very informative in determining the directionality of
+cell progression in the trajectory. In terms of velocity correlation, no
+method performed significantly better than the other, whereas ``scvelo
+stochastic'' performed slightly worse than ``scvelo dynamical'' and
+velocyto in terms of velocity arrow cosine score. Note that, given that
+some genes are more informative in determining the overall
+directionality of cell progression, performing a feature selection
+before computing the embedded dimensionality reduction might result in
+significantly improved velocity arrow cosine scores.
+
+Use-case ``Cell-specific network inference'' (CSNI). CSNI methods
+predict not only which transcription factors regulate which target
+genes, but also aim to identify how active each interaction is in each
+of the cells, since interactions can be turned off and on depending on
+the cellular state. While a few pioneering CSNI approaches have already
+been developed
+\autocite{aibar_scenicsinglecellregulatory_2017,kuijjer_estimatingsamplespecificregulatory_2019,liu_personalizedcharacterizationdiseases_2016},
+a quantitative assessment of their performance is until now lacking.
+This is not surprising, as neither real nor in silico datasets of
+cell-specific or even cell-type-specific interactions exist that are
+large enough so that it can be used as a ground-truth for evaluating
+CSNI methods. Extracting the ground-truth dynamic network in dyngen is
+straightforward though, given that we can calculate how target gene
+expression would change without the regulator being present. We used
+this ground-truth to compare the performance of three CSNI methods
+(Supplementary Fig.~3): LIONESS
+\autocite{kuijjer_estimatingsamplespecificregulatory_2019}, SSN
+\autocite{liu_personalizedcharacterizationdiseases_2016} and SCENIC
+\autocite{aibar_scenicsinglecellregulatory_2017}. For each dataset, we
+computed the mean AUROC and AUPR scores of the individual cells.
+Comparing the mean AUROC and AUPR showed that pySCENIC significantly
+outperforms both LIONESS and SSN, and in turn that LIONESS significantly
+outperforms SSN. The poor performance of SSN is expected, as its
+methodology for predicting a cell-specific is simply computing the
+difference in Pearson correlation values applied to the whole dataset
+and the whole dataset minus one sample. This strategy performs poorly in
+large datasets where cell correlations are high, as the removal of one
+cell will not yield large differences in correlation values and will
+result in mostly noise. Overall, pySCENIC almost always performs better
+than LIONESS, except for a few datasets where LIONESS does manage to
+obtain a higher AUROC score. However, by using a different internal
+network inference (e.g.~GENIE3
+\autocite{huynh-thu_inferringregulatorynetworks_2010} or pySCENIC's
+GRNBoost2 \autocite{moerman_grnboost2arboretoefficient_2019}) could
+significantly increase the performance obtained by LIONESS.
+
+\hypertarget{discussion}{%
+\section{Discussion}\label{discussion}}
+
+dyngen's single-cell simulations can be used to evaluate common
+single-cell omics computational methods such as clustering, batch
+correction, trajectory inference, and network inference. However, the
+framework is flexible enough to be adaptable to a broad range of
+applications, including methods that integrate clustering, network
+inference, and trajectory inference. In this respect, dyngen may promote
+the development of new tools in the single-cell field similarly as other
+simulators have done in the past
+\autocite{schaffter_genenetweaversilicobenchmark_2011,ewing_combiningtumorgenome_2015}.
+Additionally, one could anticipate technological developments in
+single-cell multi-omics. In this way, dyngen allows designing and
+evaluating the performance and robustness of new types of computational
+analyses before experimental data becomes available, comparing which
+experimental protocol is the most cost-effective in producing
+qualitative and robust results in downstream analysis. One major
+assumption of dyngen is that cells are assumed to be well-mixed and
+independent from each other. Subdividing a cell into multiple 2D or 3D
+subvolumes or allowing cells to exchange molecules, respectively, could
+pave the way to better study key cellular processes such as cell
+division, intercellular communication, and migration
+\autocite{smith_spatialstochasticintracellular_2019}.
+
+\newpage
+
+\hypertarget{sec:dyngen-methods}{%
+\section{Methods}\label{sec:dyngen-methods}}
+
+The workflow to generate \emph{in silico} single-cell data consists of
+six main steps (Supplementary Fig~4).
+
+\hypertarget{sec:dyngen-modules}{%
+\subsection{Defining the module network}\label{sec:dyngen-modules}}
+
+One of the main processes involved in cellular dynamic processes is gene
+regulation, where regulatory cascades and feedback loops lead to
+progressive changes in expression and decision making. The exact way a
+cell chooses a certain path during its differentiation is still an
+active research field, although certain models have already emerged and
+been tested \emph{in vivo}. One driver of bifurcation is mutual
+antagonism, where two genes strongly repress each other
+\autocite{rekhtman_directinteractionhematopoietic_1999,xu_regulationbifurcatingcell_2015},
+forcing one of the two to become inactive
+\autocite{graf_forcingcellschange_2009}. Such mutual antagonism can be
+modelled and simulated
+\autocite{wang_quantifyingwaddingtonlandscape_2011,ferrell_bistabilitybifurcationswaddington_2012}.
+Although the two-gene model is simple and elegant, the reality is
+frequently more complex, with multiple genes (grouped into modules)
+repressing each other \autocite{yosef_dynamicregulatorynetwork_2013}.
+
+To start a dyngen simulation, the user needs to define a module network.
+The module network describes how sets of genes regulate each other and
+is what mainly determines which dynamic processes occur within the
+simulated cells.
+
+A module network consists of modules connected together by regulatory
+interactions, which can be either up- or down-regulating. A module may
+have basal expression, which means genes in this module will be
+transcribed without the presence of transcription factor molecules. A
+module marked as ``active during the burn phase'' means that this module
+will be allowed to generate expression of its genes during an initial
+warm-up phase (See section \ref{sec:dyngen-simcell}). At the end of the
+dyngen process, cells will not be sampled from the burn phase
+simulations. Interactions between modules have a strength (which is a
+positive integer) and an effect (+1 for upregulating, -1 for
+downregulating).
+
+Several examples of module networks are given in Supplementary Fig.~5. A
+simple chain of modules (where one module upregulates the next) results
+in a \emph{linear} process. By having the last module repress the first
+module, the process becomes \emph{cyclic}. Two modules repressing each
+other is the basis of a \emph{bifurcating} process, though several
+chains of modules have to be attached in order to achieve progression
+before and after the bifurcation process. Finally, a \emph{converging}
+process has a bifurcation occurring during the burn phase, after which
+any differences in module regulation is removed.
+
+Note that these examples represent the bare minimum in terms of the
+number of modules used. Using longer chains of modules is typically
+desired. In addition, the fate decisions made in this example of a
+bifurcation is reversible, meaning cells can be reprogrammed to go down
+a different differentiation path. If this effect is undesirable, more
+safeguards need to be put in place to prevent reprogramming from
+occurring.
+
+\hypertarget{sec:dyngen-grn}{%
+\subsection{Generating the gene regulatory
+network}\label{sec:dyngen-grn}}
+
+The GRN is generated based on the given module network in four main
+steps (Supplementary Fig.~6).
+
+Step 1, sampling the transcription factors (TF). The TFs are the main
+drivers of the molecular changes in the simulation. The user provides a
+backbone and the number of TFs to generate. Each TF is assigned to a
+module such that each module has at least \(x\) parameters (default
+\(x=1\)). A TF inherits the `burn' and `basal expression' from the
+module it belongs to.
+
+Step 2, generating the TF interactions. Let each TF be regulated
+according to the interactions in the backbone. These interactions
+inherit the effect, strength, and independence parameters from the
+interactions in the backbone. A TF can only be regulated by other TFs or
+itself.
+
+Step 3, sampling the target subnetwork. A user-defined number of target
+genes are added to the GRN. Target genes are regulated by a TF or
+another target gene, but are always downstream of at least one TF. To
+sample the interactions between target genes, one of the many FANTOM5
+\autocite{lizio_gatewaysfantom5promoter_2015} GRNs is sampled. The currently
+existing TFs are mapped to regulators in the FANTOM5 GRN. The targets
+are drawn from the FANTOM5 GRN weighted by their page rank value, to
+create an induced GRN. For each target, at most \(x\) regulators are
+sampled from the induced FANTOM5 GRN (default \(x=5\)). The interactions
+connecting a target gene and its regulators are added to the GRN.
+
+Step 4, sampling the housekeeping subnetwork. Housekeeping genes are
+completely separate from any TFs or target genes. A user-defined set of
+housekeeping genes is also sampled from the FANTOM5 GRN. The
+interactions of the FANTOM5 GRN are first subsampled such that the
+maximum in-degree of each gene is \(x\) (default \(x=5\)). A random gene
+is sampled and a breadth-first-search is performed to sample the desired
+number of housekeeping genes.
+
+\hypertarget{sec:dyngen-reactions}{%
+\subsection{Convert gene regulatory network to a set of
+reactions}\label{sec:dyngen-reactions}}
+
+\newcommand{\x}[1]{\text{x}_{#1}}
+\newcommand{\y}[1]{\text{y}_{#1}}
+\newcommand{\z}[1]{\text{z}_{#1}}
+
+\newcommand{\rs}[1]{\text{R}_{#1}}
+\newcommand{\rp}[1]{\text{R}^+_{#1}}
+\newcommand{\rn}[1]{\text{R}^-_{#1}}
+
+\newcommand{\xpr}[1]{\text{xpr}_{#1}}
+\newcommand{\xhl}[1]{\text{xhl}_{#1}}
+\newcommand{\ysr}[1]{\text{ysr}_{#1}}
+\newcommand{\yhl}[1]{\text{yhl}_{#1}}
+\newcommand{\ydr}[1]{\text{ydr}_{#1}}
+\newcommand{\zpr}[1]{\text{zpr}_{#1}}
+\newcommand{\zhl}[1]{\text{zhl}_{#1}}
+\newcommand{\zdr}[1]{\text{zdr}_{#1}}
+
+\newcommand{\str}[1]{\text{str}_{#1}}
+\newcommand{\hill}[1]{\text{hill}_{#1}}
+\newcommand{\ind}[1]{\text{ind}_{#1}}
+\newcommand{\dis}[1]{\text{dis}_{#1}}
+\newcommand{\buf}[1]{\text{bind}_{#1}}
+\newcommand{\ba}[1]{\text{bas}_{#1}}
+
+Simulating a cell's GRN makes use of a stochastic framework which tracks
+the abundance levels of molecules over time in a discrete quantity. For
+every gene \(G\), the abundance levels of three molecules are tracked,
+namely of corresponding pre-mRNAs, mature mRNAs and proteins, which are
+represented by the terms \(\text{x}_{G}\), \(\text{y}_{G}\) and
+\(\text{z}_{G}\) respectively. The GRN defines how a reaction affects
+the abundance levels of molecules and how likely it will occur. Gibson
+and Bruck \autocite{gibson_probabilisticmodelprokaryotic_2000} provide a
+good introduction to modelling gene regulation with stochastic
+frameworks, on which many of the concepts below are based.
+
+For every gene in the GRN a set of reactions are defined, namely
+transcription, splicing, translation, and degradation. Each reaction
+consists of a propensity function -- a formula \(f(.)\) to calculate the
+probability \(f(.) \times \text{d}t\) of it occurring during a time
+interval \(\text{d}t\) -- and the effect -- how it will affect the
+current state if triggered.
+
+The effects of each reaction mimic the respective biological processes
+(Supplementary Table~2, middle). Transcription of gene \(G\) results in
+the creation of a single pre-mRNA molecule \(\text{x}_{G}\). Splicing
+turns one pre-mRNA \(\text{x}_{G}\) into a mature mRNA \(\text{x}_{G}\).
+Translation uses a mature mRNA \(\text{y}_{G}\) to produce a protein
+\(\text{z}_{G}\). Pre-mRNA, mRNA and protein degradation results in the
+removal of a \(\text{x}_{G}\), \(\text{y}_{G}\), and \(\text{z}_{G}\)
+molecule, respectively.
+
+The propensity of all reactions except transcription are all linear
+functions (Supplementary Table~2, right) of the abundance level of some
+molecule multiplied by a per-gene constant (Supplementary Table~3). The
+propensity of transcription of a gene \(G\) depends on the abundance
+levels of its TFs. The per-gene and per-interaction constants are based
+on the median reported production-rates and half-lives of molecules
+measured of 5000 mammalian genes
+\autocite{schwanhausser_globalquantificationmammalian_2011}, except that
+the transcription rate has been amplified by a factor of 10.
+
+\newcommand{\proptran}{f}
+\newcommand{\ai}[2]{$S_{#1} = S_{#2b}$}
+\newcommand{\zk}[1]{\frac{y_#1}{k_#1}^{c_#1}}
+\newcommand{\wi}[1]{\nu_#1}
+
+The propensity of the transcription of a gene \(G\) is inspired by
+thermodynamic models of gene regulation
+\autocite{schilstra_biologicgeneexpression_2008}, in which the promoter
+of \(G\) can be bound or unbound by a set of \(N\) transcription factors
+\(H_i\). Let \(f(\text{z}_{1}, \text{z}_{2}, \ldots, \text{z}_{N})\)
+denote the propensity function of \(G\), in function of the abundance
+levels of the transcription factors. The following subsections explain
+and define the propensity function when \(N=1\), \(N=2\), and finally
+for an arbitrary \(N\).
+
+\hypertarget{propensity-of-transcription-when-n1}{%
+\subsubsection{\texorpdfstring{Propensity of transcription when
+\(N=1\)}{Propensity of transcription when N=1}}\label{propensity-of-transcription-when-n1}}
+
+In the simplest case when \(N=1\), the promoter can be in one of two
+states. In state \(S_0\), the promoter is not bound by any transcription
+factors, and in state \(S_1\) the promoter is bound by \(H_1\). Each
+state \(S_j\) is linked with a relative activation \(\alpha_j\), a
+number between 0 and 1 representing the activity of the promoter at this
+particular state. The propensity function is thus equal to the expected
+value of the activity of the promoter multiplied by the pre-mRNA
+production rate of \(G\).
+
+\begin{align}
+  f(y_1, y_2, \ldots, y_N) & = \text{xpr} \cdot \sum_{j = 0}^{2^N - 1} \alpha_j \cdot P(S_j) \label{eqn:activ0} 
+\end{align}
+
+For \(N=1\), \(P(S_1)\) is equal to the Hill equation, where \(k_i\)
+represents the concentration of \(H_i\) at half-occupation and \(n_i\)
+represents the Hill coefficient. Typically, \(n_i\) is between
+{[}1,10{]}
+
+\begin{align}
+  P(S_1) & = \frac{y_1^{n_1}}{k_1^{n_1} + y_1^{n_1}} \\
+             & = \frac{(y_1/k_1)^{n_1}}{1 + (y_1/k_1)^{n_1}}
+\end{align}
+
+The Hill equation can be simplified by letting
+\(\nu_i = \left(\frac{y_i}{k_i}\right)^{n_i}\).
+
+\begin{align}
+P(S_1) & = \frac{\nu_1}{1 + \nu_1} \label{eqn:hillsimp}
+\end{align}
+
+Since \(P(S_0) = 1 - P(S_1)\), the activation function is formulated and
+simplified as follows.
+
+\begin{align}
+f(y_1) & = \text{xpr} \cdot \left(\alpha_0 \cdot P(S_0) + \alpha_1 \cdot P(S_1)\right) \\
+           & = \text{xpr} \cdot \left(\alpha_0 \cdot \frac{1}{1 + \nu_1} + \alpha_1 \cdot \frac{\nu_1}{1 + \nu_1}\right) \\
+           & = \text{xpr} \cdot \frac{\alpha_0 + \alpha_1 \cdot \nu_1}{1 + \nu_1} \\
+\end{align}
+
+\hypertarget{propensity-of-transcription-when-n2}{%
+\subsubsection{\texorpdfstring{Propensity of transcription when
+\(N=2\)}{Propensity of transcription when N=2}}\label{propensity-of-transcription-when-n2}}
+
+When \(N=2\), there are four states \(S_j\). The relative activations
+\(\alpha_j\) can be defined such that \(H_1\) and \(H_2\) are
+independent (additive) or synergistic (multiplicative). In order to
+define the propensity of transcription \(f(.)\), the Hill equation
+\(P(S_j)\) is extended for two transcription factors.
+
+Let \(w_j\) be the numerator of \(P(S_j)\), defined as the product of
+all transcription factors bound in that state:
+
+\begin{align}
+w_0 & = 1 \\
+w_1 & = \nu_1 \\
+w_2 & = \nu_2 \\
+w_3 & = \nu_1 \cdot \nu_2
+\end{align}
+
+The denominator of \(P(S_j)\) is then equal to the sum of all \(w_j\).
+The probability of state \(S_j\) is thus defined as:
+
+\begin{align}
+    P(S_j) & = \frac{w_j}{\sum_{j=0}^{j < 2^N} w_j} \\
+               & = \frac{w_j}{1 + \nu_1 + \nu_2 + \nu_1 \cdot \nu_2} \\
+               & = \frac{w_j}{\prod_{i=1}^{i \leq N} (\nu_i + 1)}
+\end{align}
+
+Substituting \(P(S_j)\) and \(w_j\) into \(f(.)\) results in the
+following equation:
+
+\begin{align}
+f(y_1, y_2) & = \text{xpr} \cdot \sum_{j = 0}^{2^N - 1} \alpha_j \cdot P(S_j) \\
+ & = \text{xpr} \cdot \frac{\sum_{j = 0}^{2^N - 1} \alpha_j \cdot w_j}{\prod_{i=1}^{i \leq N} (\nu_i + 1)} \\
+ & = \text{xpr} \cdot \frac{\alpha_0 + \alpha_1 \cdot \nu_1 + \alpha_2 \cdot \nu_2 + \alpha_3 \cdot \nu_1 \cdot \nu_2}{(\nu_1 + 1) \cdot (\nu_2 + 1)} \\
+\end{align}
+
+\hypertarget{propensity-of-transcription-for-an-arbitrary-n}{%
+\subsubsection{\texorpdfstring{Propensity of transcription for an
+arbitrary
+\(N\)}{Propensity of transcription for an arbitrary N}}\label{propensity-of-transcription-for-an-arbitrary-n}}
+
+For an arbitrary \(N\), there are \(2^N\) states \(S_j\). The relative
+activations \(\alpha_j\) can be defined such that \(H_1\) and \(H_2\)
+are independent (additive) or synergistic (multiplicative). In order to
+define the propensity of transcription \(f(.)\), the Hill equation
+\(P(S_j)\) is extended for \(N\) transcription factors.
+
+Let \(w_j\) be the numerator of \(P(S_j)\), defined as the product of
+all transcription factors bound in that state:
+
+\begin{align}
+  w_j & = \prod_{i=1}^{i \leq N} (j \text{ mod } i) = 1 \text{ ? } \nu_i \text{ : } 1
+\end{align}
+
+The denominator of \(P(S_j)\) is then equal to the sum of all \(w_j\).
+The probability of state \(S_j\) is thus defined as:
+
+\begin{align}
+P(S_j) & = \frac{w_j}{\sum_{j=0}^{j < 2^N} w_j} \\
+& = \frac{w_j}{\prod_{i=1}^{i \leq N} (\nu_i + 1)}
+\end{align}
+
+Substituting \(P(S_j)\) into \(f(.)\) yields:
+
+\begin{align}
+f(y_1, y_2, \ldots, y_N) & = \text{xpr} \cdot \sum_{j = 0}^{2^N - 1} \alpha_j \cdot P(S_j) \\
+& = \text{xpr} \cdot \frac{\sum_{j = 0}^{2^N - 1} \alpha_j \cdot w_j}{\prod_{i=1}^{i \leq N} (\nu_i + 1)} \label{eqn:prop2n}
+\end{align}
+
+\hypertarget{propensity-of-transcription-for-a-large-n}{%
+\subsubsection{\texorpdfstring{Propensity of transcription for a large
+\(N\)}{Propensity of transcription for a large N}}\label{propensity-of-transcription-for-a-large-n}}
+
+For large values of \(N\), computing \(f(.)\) is practically infeasible
+as it requires performing \(2^N\) summations. In order to greatly
+simplify \(f(.)\), \(\alpha_j\) could be defined as 0 when one of the
+regulators inhibits transcription and 1 otherwise.
+
+\begin{equation}
+\alpha_j = \begin{cases}
+ 0 & \text{ if } \exists i : j \text{ mod } i = 1 \text{ and } H_i \text{ represses } G \\
+ 1 & \text{otherwise}
+\end{cases} \label{eqn:assalpha}
+\end{equation}
+
+Substituting equation \ref{eqn:assalpha} into equation \ref{eqn:prop2n}
+and defining \(R = \{1, 2, \ldots, N\}\) and
+\(R^+ = \{i | H_i \text{ activates } G\}\) yields the simplified
+propensity function:
+
+\begin{align}
+f(y_1, y_2, \ldots, y_N) & = \text{xpr} \cdot \frac{\prod_{i \in R^+} (\nu_i + 1)}{\prod_{i \in R} (\nu_i + 1)}
+\end{align}
+
+\hypertarget{independence-synergism-and-basal-expression}{%
+\subsubsection{Independence, synergism and basal
+expression}\label{independence-synergism-and-basal-expression}}
+
+The definition of \(\alpha_j\) as in equation \ref{eqn:assalpha}
+presents two main limitations. Firstly, since \(\alpha_0 = 1\), it is
+impossible to tweak the propensity of transcription when no
+transcription factors are bound. Secondly, it is not possible to tweak
+the independence and synergism of multiple regulators.
+
+Let \(\text{ba} \in [0,1]\) denote the basal expression strength \(G\)
+(i.e.~how much will \(G\) be expressed when no transcription factors are
+bound), and \(\text{sy} \in [0,1]\) denote the synergism of regulators
+\(H_i\) of \(G\), the transcription propensity becomes:
+
+\begin{align}
+f(y_1, y_2, \ldots, y_N) & = \text{xpr} \cdot \frac{\text{ba} - \text{sy}^{|R^+|} + \prod_{i \in R^+} (\nu_i + \text{sy})}{\prod_{i \in R} (\nu_i + 1)}
+\end{align}
+
+\hypertarget{sec:dyngen-simcell}{%
+\subsection{Simulate single cells}\label{sec:dyngen-simcell}}
+
+dyngen uses Gillespie's stochastic simulation algorithm (SSA)
+\autocite{gillespie_exactstochasticsimulation_1977} to simulate dynamic
+processes. An SSA simulation is an iterative process where at each
+iteration one reaction is triggered.
+
+Each reaction consists of its propensity -- a formula to calculate the
+probability of the reaction occurring during an infinitesimal time
+interval -- and the effect -- how it will affect the current state if
+triggered. Each time a reaction is triggered, the simulation time is
+incremented by
+\(\tau = \frac{1}{\sum_j \textrm{prop}_j} \ln\left(\frac{1}{r}\right)\),
+with \(r \in U(0, 1)\) and \(\textrm{prop}_j\) the propensity value of
+the \(j\)th reaction for the current state of the simulation.
+
+GillespieSSA2 is an optimised library for performing SSA simulations.
+The propensity functions are compiled to C++ and SSA approximations can
+be used which allow triggering many reactions simultaneously at each
+iteration. The framework also allows storing the abundance levels of
+molecules only after a specific interval has passed since the previous
+census. By setting the census interval to 0, the whole simulation's
+trajectory is retained but many of these time points will contain very
+similar information. In addition to the abundance levels, also the
+propensity values and the number of firings of each of the reactions at
+each of the time steps can be retained.
+
+\hypertarget{sec:dyngen-experiment}{%
+\subsection{Simulate experiment}\label{sec:dyngen-experiment}}
+
+From the SSA simulation we obtain the abundance levels of all the
+molecules at every state. We need to replicate technical effects
+introduced by experimental protocols in order to obtain data that is
+similar to real data. For this, the cells are sampled from the
+simulations and molecules are sampled for each of the cells. Gene
+capture rates and library sizes are empirically derived from real
+datasets as to match real technical variation.
+
+\hypertarget{sample-cells}{%
+\subsubsection{Sample cells}\label{sample-cells}}
+
+In this step, \(N\) cells are sampled from the simulations. Two
+approaches are implemented: sampling from an unsynchronised population
+of single cells (snapshot) or sampling at multiple time points in a
+synchronised population (time series).
+
+\textbf{Snapshot} The backbone consists of several states linked
+together by transition edges with length \(L_i\), to which the different
+states in the different simulations have been mapped (Supplementary
+Fig.~7A). From each transition, \(N_i = N / \frac{L_i}{\sum L_i}\) cells
+are sampled uniformly, rounded such that \(\sum N_i = N\).
+
+\textbf{Time series} Assuming that the final time of the simulation is
+\(T\), the interval \([0, T]\) is divided into \(k\) equal intervals of
+width \(w\) separated by \(k-1\) gaps of width \(g\). \(N_i = N / k\)
+cells are sampled uniformly from each interval (Supplementary Fig.~7B),
+rounded such that \(\sum N_i = N\). By default, \(k = 8\) and
+\(g = 0.75\). For usual dyngen simulations, \(10 \leq T \leq 20\). For
+larger values of \(T\), \(k\) and \(g\) should be increased accordingly.
+
+\hypertarget{sample-molecules}{%
+\subsubsection{Sample molecules}\label{sample-molecules}}
+
+Molecules are sampled from the simulation to replicate how molecules are
+experimentally sampled. A real dataset is downloaded from a repository
+of single-cell RNA-seq datasets
+\autocite{cannoodt_singlecellomicsdatasets_2018}. For each \emph{in
+silico} cell \(i\), draw its library size \(ls_i\) from the distribution
+of transcript counts per cell in the real dataset. The capture rate
+\(cr_j\) of each \emph{in silico} molecule type \(j\) is drawn from
+\(N(1, 0.05)\). Finally, for each cell \(i\), draw \(ls_i\) molecules
+from the multinomial distribution with probabilities
+\(cr_j \times ab_{i,j}\) with \(ab_{i,j}\) the molecule abundance level
+of molecule \(j\) in cell \(i\).
+
+\hypertarget{sec:dyngen-batcheffect}{%
+\subsection{Simulating batch effects}\label{sec:dyngen-batcheffect}}
+
+Simulating batch effects can be performed in multiple ways. One such way
+is to perform the first two steps of the creation of a dyngen model
+(defining the module network and generating the GRN). For each desired
+batch, create a separate model for which random kinetics are generated
+and perform all subsequent dyngen steps (convert to reactions, simulate
+gold standard, simulate single cells, simulate experiment). Since each
+separate model has different underlying kinetics, the combined output
+will resemble having batch effects.
+
+\hypertarget{sec:dyngen-groundtruth}{%
+\subsection{Determining the ground-truth
+trajectory}\label{sec:dyngen-groundtruth}}
+
+To construct the ground-truth trajectory, the user needs to provide the
+ground-truth state network alongside the initial module network
+(Supplementary Fig.~8). Each edge in the state network specifies which
+modules are allowed to change in expression in transitioning from one
+state to another. For each edge, a simulation is run using the end state
+of an upstream branch as the initial expression vector, and only
+allowing the modules as predefined by the attribute to change.
+
+As an example, consider the cyclic trajectory shown in Supplementary
+Fig.~8. State S0 begins with an expression vector of all zero values. To
+simulate the transition from S0 to S1, regulation of the genes in
+modules A, B and C are turned on. After a predefined period of time, the
+end state of this transition is considered the expression vector of
+state S1. To simulate the transition from S1 to S2, regulation of the
+genes in modules D and E are turned on, while the regulation of genes in
+module C is turned off. During this simulation, the expression of genes
+in modules A, B, D, and E is thus allowed to change. The end state of
+the simulation is considered the expression vector of state S2.
+
+For each of the branches in the state network, an expression matrix and
+the corresponding progression time along that branch are retained. To
+map a simulated cell to the ground-truth, the correlation between its
+expression values and the expression matrix of the ground-truth
+trajectory is calculated, and the cell is mapped to the position in the
+ground-truth trajectory that has the highest correlation.
+
+\hypertarget{sec:dyngen-extractgrn}{%
+\subsection{Determining the cell-specific ground-truth regulatory
+network}\label{sec:dyngen-extractgrn}}
+
+Calculating the regulatory effect of a regulator \(R\) on a target \(T\)
+(Supplementary Fig.~4F) requires determining the contribution of \(R\)
+in the propensity function of the transcription of \(T\)
+(section~\ref{sec:dyngen-reactions}) with respect to other regulators.
+This information is useful, amongst others, for benchmarking
+cell-specific network inference methods.
+
+The regulatory effect of \(R\) on \(T\) at a particular state \(S\) is
+defined as the change in the propensity of transcription when \(R\) is
+set to zero, scaled by the inverse of the pre-mRNA production rate of
+\(T\). More formally:
+
+\begin{eqnarray*}
+  \text{regeffect}_G & = \frac{\text{proptrans}_G(S) - \text{proptrans}_G(S[\text{z}_{T} \leftarrow 0])}{\text{xpr}_{G}}
+\end{eqnarray*}
+
+Determining the regulatory effect for all interactions and cells in the
+dataset yields the complete cell-specific ground-truth GRN. The
+regulatory effect lies between \([-1, 1]\), where -1 represents complete
+inhibition of \(T\) by \(R\), 1 represents maximal activation of \(T\)
+by \(R\), and 0 represents inactivity of the regulatory interaction
+between \(R\) and \(T\).
+
+\hypertarget{sec:dyngen-nicompare}{%
+\subsection{Comparison of cell-specific network inference
+methods}\label{sec:dyngen-nicompare}}
+
+42 datasets were generated using the 14 different predefined backbones
+and three different seeds. For every cell in the dataset, the
+transcriptomics profile and the corresponding cell-specific ground-truth
+regulatory network was determined (Section~\ref{sec:dyngen-extractgrn}).
+
+We selected three cell-specific NI methods: SCENIC
+\autocite{aibar_scenicsinglecellregulatory_2017}, LIONESS
+\autocite{kuijjer_estimatingsamplespecificregulatory_2015,kuijjer_estimatingsamplespecificregulatory_2019},
+and SSN \autocite{liu_personalizedcharacterizationdiseases_2016}.
+
+LIONESS \autocite{kuijjer_estimatingsamplespecificregulatory_2019} runs
+a NI method multiple times to construct cell-specific GRNs. LIONESS
+first infers a GRN with all of the samples. A second GRN is inferred
+with all samples except one particular profile. The cell-specific GRN
+for that particular profile is defined as the difference between the two
+GRN matrices. This process is repeated for all profiles, resulting in a
+cell-specific GRN. By default, LIONESS uses PANDA
+\autocite{glass_passingmessagesbiological_2013} to infer GRNs, but since
+dyngen does not produce motif data and motif data is required by PANDA,
+PANDA is inapplicable in this context. Instead, we used the lionessR
+\autocite{kuijjer_lionessrsinglesample_2019} implementation of LIONESS,
+which uses by default the Pearson correlation as a NI method. We marked
+results from this implementation as ``LIONESS + Pearson''.
+
+SSN \autocite{liu_personalizedcharacterizationdiseases_2016} follows, in
+essence, the exact same methodology as LIONESS except that it
+specifically only uses the Pearson correlation. It is worth noting that
+the LIONESS preprint was released before the publication of SSN. Since
+no implementation was provided by the authors, we implemented SSN in R
+using basic R and tidyverse functions
+\autocite{wickham_welcometidyverse_2019} and marked results from this
+implementation as "SSN*".
+
+SCENIC \autocite{aibar_scenicsinglecellregulatory_2017} consists of four
+main steps. First, classical network inference is performed with
+stochastic gradient boosting machines using \texttt{arboreto}
+\autocite{moerman_grnboost2arboretoefficient_2019}. Second, the top 10
+regulators of every target gene are selected. Interactions are grouped
+together in `modules'; each module contains one regulator and all of its
+targets. Next, the modules are filtered using motif analysis. Finally,
+for each module and each cell, an activity score is calculated using
+AUCell. As a post-processing of this output, all modules and the
+corresponding activity scores are combined back into a cell-specific GRN
+consisting of (cell, regulator, target, score) pairs. For this analysis,
+the Python implementation of SCENIC was used, namely pySCENIC
+\autocite{vandesande_scalablescenicworkflow_2020}. Since dyngen does not
+generate motif data, step 3 in this analysis is skipped.
+
+The Area Under the Receiver Operating Characteristic-curve (AUROC) and
+Area Under the Precision-Recall curve (AUPR) metrics are common metrics
+for evaluating a predicted GRN with a ground-truth GRN
+\autocite{marbach_generatingrealisticsilico_2009}. To compare a
+predicted cell-specific GRN with the ground-truth cell-specific GRN, the
+top 10'000 interactions per cell is retained, and the mean AUROC and
+AUPR scores are calculated across all cells.
+
+We compared the mean AUROC and AUPR scores obtained by the three CSNI
+methods across all datasets by performing pairwise non-parametric paired
+two-sided Durbin-Conover tests
+\autocite{conover_multiplecomparisonsprocedures_1979} using
+\texttt{pairwiseComparisons}
+\autocite{patil_pairwisecomparisonsmultiplepairwise_2019}. Test
+statistics and p-values for the all pairwise combinations are reported
+in the Source Data file. Reported p-values are adjusted for multiple
+testing using Holm correction
+\autocite{holm_simplesequentiallyrejective_1979}.
+
+\hypertarget{sec:dyngen-velcompare}{%
+\subsection{Comparison of RNA velocity
+methods}\label{sec:dyngen-velcompare}}
+
+Three datasets were generated for each of the 14 different predefined
+backbones, resulting in a collection of 42 datasets. Throughout each of
+the simulation, the propensity of the transcription and mRNA decay is
+collected, as the RNA velocity of a gene at any point in the simulation
+is the difference between the transcription propensity and the mRNA
+decay propensity.
+
+We applied two RNA velocity methods: velocyto
+\autocite{lamanno_rnavelocitysingle_2018}, as implemented in the
+\texttt{velocyto.py} package, and scvelo method
+\autocite{bergen_generalizingrnavelocity_2020}, as implemented in the
+\texttt{scvelo} package. For scvelo, we chose two parameter settings for
+``mode'', namely ``stochastic'' and ``dynamical''. For both methods, we
+used the same normalized data as provided by dyngen, with no extra cell
+or feature filtering, but otherwise matched the parameters to their
+respective tutorial vignettes as well as possible.
+
+We compared each RNA velocity prediction to the ground-truth using two
+metrics: the velocity correlation and the velocity arrow cosine. For the
+velocity correlation, we extracted a ground truth RNA velocity by
+subtracting for each mRNA molecule the propensity of its production by
+the propensity of its degradation. If the expression of an mRNA will
+increase in the future, this value is positive, while it is negative if
+it is going to decrease. For each gene, we determined its velocity
+correlation by calculating the Spearman rank correlation between the
+ground truth velocity with the observed velocity. For the velocity arrow
+cosine, we determined a set of 100 trajectory waypoints uniformly spread
+on the trajectory. For each waypoint, we weighted each cell based on a
+Gaussian kernel on its geodesic distance from the waypoint. These
+weights were used to calculate a weighted average velocity vector of
+each waypoint. We then calculated for each waypoint the cosine
+similarity between this velocity vector and the known direction of the
+trajectory.
+
+We compared the velocity correlation and velocity arrow cosine scores
+obtained by velocyto and scvelo across all datasets by performing
+pairwise non-parametric paired two-sided Durbin-Conover tests
+\autocite{conover_multiplecomparisonsprocedures_1979} using
+\texttt{pairwiseComparisons}
+\autocite{patil_pairwisecomparisonsmultiplepairwise_2019}. Test
+statistics and p-values for the all pairwise combinations are reported
+in the Source Data file. Reported p-values are adjusted for multiple
+testing using Holm correction
+\autocite{holm_simplesequentiallyrejective_1979}.
+
+\hypertarget{sec:dyngen-tacompare}{%
+\subsection{Comparison of trajectory
+alignment}\label{sec:dyngen-tacompare}}
+
+Four custom linear backbones of varying sizes were constructed. For each
+of these backbones, 10 datasets were generated with 10 different seeds,
+resulting in a total of 40 datasets. Every dataset is generated in three
+main steps. First, the GRN is generated based on the given backbone.
+Next, generating the kinetics, gold standard, and cells is performed
+twice, resulting in two sub-datasets. Finally, the two sub-datasets are
+combined and cells are sampled from the combined dataset. Since the two
+sub-datasets were simulated with different kinetic parameters, the
+combined dataset will contain two trajectories.
+
+On each combined dataset we applied two trajectory alignment methods,
+Dynamic Time Warping (DTW)
+\autocite{giorgino_computingvisualizingdynamic_2009} and cellAlign
+\autocite{alpert_alignmentsinglecelltrajectories_2018}. DTW is designed
+to align temporal sequences by dilating or contracting the sequences to
+best match each other. cellAlign uses DTW to perform this alignment, but
+first interpolates and rescales the input data in order to better cope
+with single-cell omics data.
+
+To evaluate a trajectory alignment method on a combined dataset we
+computed the geodesic distances of each cell from the start of the
+trajectory, also called the \emph{pseudotime}. For each dataset, the
+pseudotime values are rescaled between 0 and 1 to allow for easier
+comparison. A trajectory alignment produces a sequence of index pairs
+\([(i_0, j_0), (i_1, j_1), \ldots, (i_N, j_N)]\), where \(i_0\) and
+\(j_0\) are equal to 0 (the first position in both pseudotime series),
+\(i_N\) and \(j_N\) are equal to the respective last positions in the
+pair of pseudotime series, and \([i_0, i_1, \ldots, i_N]\) and
+\([j_0, j_1, \ldots, j_N]\) are in ascending order and can contain
+duplicates values. The ABWAP metric is defined as follows, where
+\(pt_1\) and \(pt_2\) are the unit pseudotime vectors. See Supplementary
+Fig.~1D for a visual interpretation of this metric.
+
+\begin{equation}
+  \textrm{ABWAP} = 1 - \textrm{area\_under\_curve}(pt_1[i_0 .. i_N] + pt_2[j_0 .. j_N], abs(pt_1[i_0 .. i_N] - pt_2[j_0 .. j_N]))
+\end{equation}
+
+We compared the ABWAP scores obtained by DTW and cellAlign across all
+datasets by performing pairwise non-parametric paired two-sided
+Durbin-Conover tests
+\autocite{conover_multiplecomparisonsprocedures_1979} using
+\texttt{pairwiseComparisons}
+\autocite{patil_pairwisecomparisonsmultiplepairwise_2019}. Test
+statistics and p-values for the all pairwise combinations are reported
+in the Source Data file. Reported p-values are adjusted for multiple
+testing using Holm correction
+\autocite{holm_simplesequentiallyrejective_1979}.
+
+\hypertarget{data-availability}{%
+\section{Data Availability}\label{data-availability}}
+
+Source data for box plots in Figure \ref{fig:applications} and
+Supplementary Figures~1, 2~and~3 are provided with this paper. All code
+and data required to reproduce the analysis are available on GitHub at
+\href{https://github.com/dynverse/dyngen_manuscript}{github.com/dynverse/dyngen\_manuscript}.
+The datasets generated for the different use cases are available on
+Zenodo with record number 4637926 (doi:
+\href{https://doi.org/10.5281/zenodo.4637926}{10.5281/zenodo.4637926}).
+
+\hypertarget{code-availability}{%
+\section{Code Availability}\label{code-availability}}
+
+Results in this manuscript were generated with R 4.0.3 and dyngen 1.0.0.
+dyngen is available as an open-source software package at
+\href{https://cran.r-project.org/package=dyngen}{cran.r-project.org/package=dyngen}
+and also on Zenodo with record number 4751443 (doi:
+\href{https://doi.org/10.5281/zenodo.4751443}{10.5281/zenodo.4751443}).
+The analyses performed in this manuscript are available on GitHub at
+\href{https://github.com/dynverse/dyngen_manuscript}{github.com/dynverse/dyngen\_manuscript}.
+
+The version numbers of downstream dependencies of dyngen and
+dyngen\_manuscript used in this study are: anndata 0.7.5.1, assertthat
+0.2.1, babelwhale 1.0.1, bit 4.0.4, bit64 4.0.5, carrier 0.1.0,
+cellAlign 0.1.0, codetools 0.2-18, colorspace 2.0-0, compiler 4.0.4,
+crayon 1.4.1.9000, data.table 1.13.4, DBI 1.1.1, debugme 1.1.0, desc
+1.2.0, digest 0.6.27, dplyr 1.0.5, dtw 1.22-3, dynparam 1.0.1, dynutils
+1.0.6, dynwrap 1.2.2, ellipsis 0.3.1, fansi 0.4.2, farver 2.1.0, future
+1.20.1, future.apply 1.7.0, generics 0.1.0, ggforce 0.3.2, ggplot2
+3.3.3, ggraph 2.0.4, ggrepel 0.9.0, GillespieSSA2 0.2.7, globals 0.14.0,
+glue 1.4.2, graphlayouts 0.7.1, grid 4.0.4, gridExtra 2.3, gtable 0.3.0,
+gtools 3.8.2, hdf5r 1.3.3, hms 1.0.0, igraph 1.2.6, irlba 2.3.3,
+jsonlite 1.7.2, lattice 0.20-41, lifecycle 1.0.0, lisi 1.0, listenv
+0.8.0, lmds 0.1.0, magrittr 2.0.1, MASS 7.3-53, Matrix 1.3-2,
+matrixStats 0.57.0, munsell 0.5.0, parallel 4.0.4, parallelly 1.21.0,
+patchwork 1.1.1, pbapply 1.4-3, pheatmap 1.0.12, pillar 1.5.1, pkgconfig
+2.0.3, plyr 1.8.6, polyclip 1.10-0, pracma 2.2.9, processx 3.4.5, proxy
+0.4-24, proxyC 0.1.5, ps 1.6.0, purrr 0.3.4, R6 2.5.0, RANN 2.6.1,
+rappdirs 0.3.3, RColorBrewer 1.1-2, Rcpp 1.0.6, RcppParallel 5.0.2,
+RcppXPtrUtils 0.1.1, readr 1.4.0, remotes 2.2.0, reshape2 1.4.4,
+reticulate 1.18-9007, rlang 0.4.10, rprojroot 2.0.2, scales 1.1.1,
+sctransform 0.3.2, scvelo 0.1.0.9000, stringi 1.5.3, stringr 1.4.0,
+tibble 3.0.5, tidygraph 1.2.0, tidyr 1.1.2, tidyselect 1.1.0, tools
+4.0.4, tweenr 1.0.1, utf8 1.1.4, vctrs 0.3.6, viridis 0.5.1, viridisLite
+0.3.0, yaml 2.2.1.
+
+\hypertarget{author-contributions}{%
+\section{Author contributions}\label{author-contributions}}
+
+\begin{itemize}
+\tightlist
+\item
+  W.S. and R.C. designed the study.
+\item
+  R.C., W.S., and L.D. performed the experiments and analysed the data.
+\item
+  R.C. and W.S. implemented the dyngen software package.
+\item
+  R.C., W.S., L.D., and Y.S. wrote the manuscript.
+\item
+  Y.S. supervised the project.
+\end{itemize}
+
+\printbibliography
+
+
+\begin{filecontents}{\jobname.bib}
+@Article{aibar_scenicsinglecellregulatory_2017,
+	title = {{{SCENIC}}: Single-Cell Regulatory Network Inference and Clustering},
+	author = {Sara Aibar and Carmen Bravo Gonz{\a'a}lez-Blas and Thomas Moerman and V{\^a}n Anh Huynh-Thu and Hana Imrichova and Gert Hulselmans and Florian Rambow and Jean-Christophe Marine and Pierre Geurts and Jan Aerts and Joost {van den Oord} and Zeynep Kalender Atak and Jasper Wouters and Stein Aerts},
+	year = {2017},
+	month = {oct},
+	issn = {1548-7091},
+	doi = {10.1038/nmeth.4463},
+	journal = {Nature Methods},
+}
+
+@Article{alpert_alignmentsinglecelltrajectories_2018,
+	title = {Alignment of Single-Cell Trajectories to Compare Cellular Expression Dynamics},
+	author = {Ayelet Alpert and Lindsay S. Moore and Tania Dubovik and Shai S. Shen-Orr},
+	year = {2018},
+	month = {apr},
+	volume = {15},
+	pages = {267--270},
+	issn = {1548-7105},
+	doi = {10.1038/nmeth.4628},
+	abstract = {cellAlign enables quantitative comparisons of expression dynamics within and between single-cell trajectories based on single-cell RNA-seq or mass cytometry data.},
+	copyright = {2018 Nature Publishing Group, a division of Macmillan Publishers Limited. All Rights Reserved.},
+	file = {/home/rcannood/Zotero/storage/QB7FH2T9/nmeth.html},
+	journal = {Nature Methods},
+	language = {en},
+	number = {4},
+}
+
+@Article{bergen_generalizingrnavelocity_2020,
+	title = {Generalizing {{RNA}} Velocity to Transient Cell States through Dynamical Modeling},
+	author = {Volker Bergen and Marius Lange and Stefan Peidli and F. Alexander Wolf and Fabian J. Theis},
+	year = {2020},
+	month = {dec},
+	volume = {38},
+	pages = {1408--1414},
+	issn = {1546-1696},
+	doi = {10.1038/s41587-020-0591-3},
+	abstract = {RNA velocity has opened up new ways of studying cellular differentiation in single-cell RNA-sequencing data. It describes the rate of gene expression change for an individual gene at a given time point based on the ratio of its spliced and unspliced messenger RNA (mRNA). However, errors in velocity estimates arise if the central assumptions of a common splicing rate and the observation of the full splicing dynamics with steady-state mRNA levels are violated. Here we present scVelo, a method that overcomes these limitations by solving the full transcriptional dynamics of splicing kinetics using a likelihood-based dynamical model. This generalizes RNA velocity to systems with transient cell states, which are common in development and in response to perturbations. We apply scVelo to disentangling subpopulation kinetics in neurogenesis and pancreatic endocrinogenesis. We infer gene-specific rates of transcription, splicing and degradation, recover each cell's position in the underlying differentiation processes and detect putative driver genes. scVelo will facilitate the study of lineage decisions and gene regulation.},
+	journal = {Nature Biotechnology},
+	number = {12},
+}
+
+@Article{bjornsson_digitaltwinspersonalize_2019,
+	title = {Digital Twins to Personalize Medicine},
+	author = {Bergthor Bj{\"o}rnsson and Carl Borrebaeck and Nils Elander and Thomas Gasslander and Danuta R. Gawel and Mika Gustafsson and Rebecka J{\"o}rnsten and Eun Jung Lee and Xinxiu Li and Sandra Lilja and David Mart\'inez-Enguita and Andreas Matussek and Per Sandstr{\"o}m and Samuel Sch{\"a}fer and Margaretha Stenmarker and X. F. Sun and Oleg Sysoev and Huan Zhang and Mikael Benson and {on behalf of the Swedish Digital Twin Consortium}},
+	year = {2019},
+	month = {dec},
+	volume = {12},
+	pages = {4},
+	issn = {1756-994X},
+	doi = {10.1186/s13073-019-0701-3},
+	abstract = {Personalized medicine requires the integration and processing of vast amounts of data. Here, we propose a solution to this challenge that is based on constructing Digital Twins. These are high-resolution models of individual patients that are computationally treated with thousands of drugs to find the drug that is optimal for the patient.},
+	journal = {Genome Medicine},
+	number = {1},
+}
+
+@Article{cacchiarelli_aligningsinglecelldevelopmental_2018,
+	title = {Aligning {{Single}}-{{Cell Developmental}} and {{Reprogramming Trajectories Identifies Molecular Determinants}} of {{Myogenic Reprogramming Outcome}}},
+	author = {Davide Cacchiarelli and Xiaojie Qiu and Sanjay Srivatsan and Anna Manfredi and Michael Ziller and Eliah Overbey and Antonio Grimaldi and Jonna Grimsby and Prapti Pokharel and Kenneth J. Livak and Shuqiang Li and Alexander Meissner and Tarjei S. Mikkelsen and John L. Rinn and Cole Trapnell},
+	year = {2018},
+	month = {sep},
+	volume = {7},
+	pages = {258-268.e3},
+	issn = {2405-4712},
+	doi = {10.1016/j.cels.2018.07.006},
+	abstract = {{$<$}h2{$>$}Summary{$<$}/h2{$><$}p{$>$}Cellular reprogramming through manipulation of defined factors holds great promise for large-scale production of cell types needed for use in therapy and for revealing principles of gene regulation. However, most reprogramming systems are inefficient, converting only a fraction of cells to the desired state. Here, we analyze MYOD-mediated reprogramming of human fibroblasts to myotubes, a well-characterized model system for direct conversion by defined factors, at pseudotemporal resolution using single-cell RNA-seq. To expose barriers to efficient conversion, we introduce a novel analytic technique, trajectory alignment, which enables quantitative comparison of gene expression kinetics across two biological processes. Reprogrammed cells navigate a trajectory with branch points that correspond to two alternative decision points, with cells that select incorrect branches terminating at aberrant or incomplete reprogramming outcomes. Analysis of these branch points revealed insulin and BMP signaling as crucial molecular determinants of reprogramming. Single-cell trajectory alignment enables rigorous quantitative comparisons between biological trajectories found in diverse processes in development, reprogramming, and other contexts.{$<$}/p{$>$}},
+	file = {/home/rcannood/Zotero/storage/YQH8GP2I/Cacchiarelli et al. - 2018 - Aligning Single-Cell Developmental and Reprogrammi.pdf;/home/rcannood/Zotero/storage/Q5MUK95E/S2405-4712(18)30314-4.html},
+	journal = {Cell Systems},
+	language = {English},
+	number = {3},
+	pmid = {30195438},
+}
+
+@Article{cannoodt_singlecellomicsdatasets_2018,
+	title = {Single-Cell -Omics Datasets Containing a Trajectory},
+	author = {Robrecht Cannoodt and Wouter Saelens and Helena Todorov and Yvan Saeys},
+	year = {2018},
+	month = {oct},
+	doi = {10.5281/zenodo.1211532},
+	journal = {Zenodo},
+}
+
+@TechReport{conover_multiplecomparisonsprocedures_1979,
+	title = {On Multiple-Comparisons Procedures},
+	author = {William Jay Conover and Ronald L Iman},
+	year = {1979},
+	institution = {{Technical report, Los Alamos Scientific Laboratory}},
+}
+
+@Article{duo_systematicperformanceevaluation_2018,
+	title = {A Systematic Performance Evaluation of Clustering Methods for Single-Cell {{RNA}}-Seq Data},
+	author = {Angelo Du{\a`o} and Mark D. Robinson and Charlotte Soneson},
+	year = {2018},
+	volume = {7},
+	pages = {1141},
+	issn = {2046-1402},
+	doi = {10.12688/f1000research.15666.2},
+	abstract = {Subpopulation identification, usually via some form of unsupervised clustering, is a fundamental step in the analysis of many single-cell RNA-seq data sets. This has motivated the development and application of a broad range of clustering methods, based on various underlying algorithms. Here, we provide a systematic and extensible performance evaluation of 14 clustering algorithms implemented in R, including both methods developed explicitly for scRNA-seq data and more general-purpose methods. The methods were evaluated using nine publicly available scRNA-seq data sets as well as three simulations with varying degree of cluster separability. The same feature selection approaches were used for all methods, allowing us to focus on the investigation of the performance of the clustering algorithms themselves. We evaluated the ability of recovering known subpopulations, the stability and the run time and scalability of the methods. Additionally, we investigated whether the performance could be improved by generating consensus partitions from multiple individual clustering methods. We found substantial differences in the performance, run time and stability between the methods, with SC3 and Seurat showing the most favorable results. Additionally, we found that consensus clustering typically did not improve the performance compared to the best of the combined methods, but that several of the top-performing methods already perform some type of consensus clustering. All the code used for the evaluation is available on GitHub ( https://github.com/markrobinsonuzh/scRNAseq\_clustering\_comparison). In addition, an R package providing access to data and clustering results, thereby facilitating inclusion of new methods and data sets, is available from Bioconductor ( https://bioconductor.org/packages/DuoClustering2018).},
+	file = {/home/rcannood/Zotero/storage/ASWVFH87/Duò et al. - 2018 - A systematic performance evaluation of clustering .pdf},
+	journal = {F1000Research},
+	keywords = {Algorithms,Benchmarking,Cluster Analysis,Clustering,Clustering methods,Gene Expression Profiling,Humans,RNA-seq,RNA; Small Cytoplasmic,Sequence Analysis; RNA,Single-Cell Analysis,Single-cell RNA-seq,Software},
+	language = {eng},
+	pmcid = {PMC6134335},
+	pmid = {30271584},
+}
+
+@Article{ewing_combiningtumorgenome_2015,
+	title = {Combining Tumor Genome Simulation with Crowdsourcing to Benchmark Somatic Single-Nucleotide-Variant Detection},
+	author = {Adam D. Ewing and Kathleen E. Houlahan and Yin Hu and Kyle Ellrott and Cristian Caloian and Takafumi N. Yamaguchi and J. Christopher Bare and Christine P'ng and Daryl Waggott and Veronica Y. Sabelnykova and {ICGC-TCGA DREAM Somatic Mutation Calling Challenge Participants} and Liu Xi and Ninad Dewal and Yu Fan and Wenyi Wang and David Wheeler and Andreas Wilm and Grace Hui Ting and Chenhao Li and Denis Bertrand and Niranjan Nagarajan and Qing-Rong Chen and Chih-Hao Hsu and Ying Hu and Chunhua Yan and Warren Kibbe and Daoud Meerzaman and Kristian Cibulskis and Mara Rosenberg and Louis Bergelson and Adam Kiezun and Amie Radenbaugh and Anne-Sophie Sertier and Anthony Ferrari and Laurie Tonton and Kunal Bhutani and Nancy F. Hansen and Difei Wang and Lei Song and Zhongwu Lai and Yang Liao and Wei Shi and Jos{\a'e} Carbonell-Caballero and Joaqu\'in Dopazo and Cheryl C. K. Lau and Justin Guinney and Michael R. Kellen and Thea C. Norman and David Haussler and Stephen H. Friend and Gustavo Stolovitzky and Adam A. Margolin and Joshua M. Stuart and Paul C. Boutros},
+	year = {2015},
+	month = {jul},
+	volume = {12},
+	pages = {623--630},
+	issn = {1548-7105},
+	doi = {10.1038/nmeth.3407},
+	abstract = {The detection of somatic mutations from cancer genome sequences is key to understanding the genetic basis of disease progression, patient survival and response to therapy. Benchmarking is needed for tool assessment and improvement but is complicated by a lack of gold standards, by extensive resource requirements and by difficulties in sharing personal genomic information. To resolve these issues, we launched the ICGC-TCGA DREAM Somatic Mutation Calling Challenge, a crowdsourced benchmark of somatic mutation detection algorithms. Here we report the BAMSurgeon tool for simulating cancer genomes and the results of 248 analyses of three in silico tumors created with it. Different algorithms exhibit characteristic error profiles, and, intriguingly, false positives show a trinucleotide profile very similar to one found in human tumors. Although the three simulated tumors differ in sequence contamination (deviation from normal cell sequence) and in subclonality, an ensemble of pipelines outperforms the best individual pipeline in all cases. BAMSurgeon is available at https://github.com/adamewing/bamsurgeon/.},
+	copyright = {2015 Nature Publishing Group},
+	file = {/home/rcannood/Zotero/storage/NBPKWHK3/Ewing et al. - 2015 - Combining tumor genome simulation with crowdsourci.pdf;/home/rcannood/Zotero/storage/TDZU2TL9/nmeth.html},
+	journal = {Nature Methods},
+	language = {en},
+	number = {7},
+}
+
+@Article{ferrell_bistabilitybifurcationswaddington_2012,
+	title = {Bistability, {{Bifurcations}}, and {{Waddington}}'s {{Epigenetic Landscape}}},
+	author = {James E Ferrell},
+	year = {2012},
+	month = {jun},
+	volume = {22},
+	pages = {R458--R466},
+	issn = {0960-9822},
+	doi = {10.1016/j.cub.2012.03.045},
+	abstract = {Waddington's epigenetic landscape is probably the most famous and most powerful metaphor in developmental biology. Cells, represented by balls, roll downhill through a landscape of bifurcating valleys. Each new valley represents a possible cell fate and the ridges between the valleys maintain the cell fate once it has been chosen. Here I examine models of two important developmental processes \$\textbackslash backslash\$textemdash\{\} cell-fate induction and lateral inhibition \$\textbackslash backslash\$textemdash\{\} and ask whether the landscapes for these models at least qualitatively resemble Waddington's picture. For cell-fate induction, the answer is no. The commitment of a cell to a new fate corresponds to the disappearance of a valley from the landscape, not the splitting of one valley into two, and it occurs through a type of bifurcation \$\textbackslash backslash\$textemdash\{\} a saddle-node bifurcation \$\textbackslash backslash\$textemdash\{\} that possesses an intrinsic irreversibility that is missing from Waddington's picture. Lateral inhibition, a symmetrical cell\$\textbackslash backslash\$textendash\{\}cell competition process, corresponds better to Waddington's picture, with one valley reversibly splitting into two through a pitchfork bifurcation. I propose an alternative epigenetic landscape that has numerous valleys and ridges right from the start, with the process of cell-fate commitment corresponding to the irreversible disappearance of some of these valleys and ridges, via cell-fate induction, complemented by the creation of new valleys and ridges through processes like cell\$\textbackslash backslash\$textendash\{\}cell competition.},
+	file = {/home/rcannood/Zotero/storage/GK4TJ5BV/Ferrell - 2012 - Bistability, Bifurcations, and Waddington's Epigen.pdf;/home/rcannood/Zotero/storage/HUSMJA22/Ferrell - 2012 - Bistability, Bifurcations, and Waddington's Epigen.pdf;/home/rcannood/Zotero/storage/8VLPBTG2/S0960-9822(12)00332-6.html;/home/rcannood/Zotero/storage/XBTP42Y6/S0960982212003326.html},
+	journal = {Current Biology},
+	number = {11},
+}
+
+@Article{gibson_probabilisticmodelprokaryotic_2000,
+	title = {A Probabilistic Model of a Prokaryotic Gene and Its Regulation},
+	author = {Michael A. Gibson and Jehoshua Bruck},
+	year = {2000},
+	journal = {Computational Methods in Molecular Biology: From Genotype to Phenotype, MIT press, Cambridge},
+}
+
+@Article{gillespie_exactstochasticsimulation_1977,
+	title = {Exact Stochastic Simulation of Coupled Chemical Reactions},
+	author = {Daniel T. Gillespie},
+	year = {1977},
+	month = {dec},
+	volume = {81},
+	pages = {2340--2361},
+	issn = {0022-3654},
+	doi = {10.1021/j100540a008},
+	file = {/home/rcannood/Zotero/storage/ELV9AQRF/j100540a008.html},
+	journal = {The Journal of Physical Chemistry},
+	number = {25},
+}
+
+@Article{giorgino_computingvisualizingdynamic_2009,
+	title = {Computing and {{Visualizing Dynamic Time Warping Alignments}} in {{R}}: {{The}} Dtw {{Package}}},
+	author = {Toni Giorgino},
+	year = {2009},
+	month = {sep},
+	doi = {10.18637/jss.v031.i07},
+	abstract = {Dynamic time warping is a popular technique for comparing time series, providing both a distance measure that is insensitive to local compression and stretches and the warping which optimally deforms one of the two input series onto the other. A variety of algorithms and constraints have been discussed in the literature. The dtw package provides an unification of them; it allows R users to compute time series alignments mixing freely a variety of continuity constraints, restriction windows, endpoints, local distance definitions, and so on. The package also provides functions for visualizing alignments and constraints using several classic diagram types.},
+	journal = {Journal of Statistical Software},
+	number = {7},
+}
+
+@Article{glass_passingmessagesbiological_2013,
+	title = {Passing {{Messages}} between {{Biological Networks}} to {{Refine Predicted Interactions}}},
+	author = {Kimberly Glass and Curtis Huttenhower and John Quackenbush and Guo-Cheng Yuan},
+	year = {2013},
+	month = {may},
+	volume = {8},
+	pages = {e64832},
+	doi = {10.1371/journal.pone.0064832},
+	abstract = {Regulatory network reconstruction is a fundamental problem in computational biology. There are significant limitations to such reconstruction using individual datasets, and increasingly people attempt to construct networks using multiple, independent datasets obtained from complementary sources, but methods for this integration are lacking. We developed PANDA (Passing Attributes between Networks for Data Assimilation), a message-passing model using multiple sources of information to predict regulatory relationships, and used it to integrate protein-protein interaction, gene expression, and sequence motif data to reconstruct genome-wide, condition-specific regulatory networks in yeast as a model. The resulting networks were not only more accurate than those produced using individual data sets and other existing methods, but they also captured information regarding specific biological mechanisms and pathways that were missed using other methodologies. PANDA is scalable to higher eukaryotes, applicable to specific tissue or cell type data and conceptually generalizable to include a variety of regulatory, interaction, expression, and other genome-scale data. An implementation of the PANDA algorithm is available at www.sourceforge.net/projects/panda-net.},
+	journal = {PLOS ONE},
+	number = {5},
+}
+
+@Article{graf_forcingcellschange_2009,
+	title = {Forcing {{Cells}} to {{Change Lineages}}},
+	author = {Thomas Graf and Tariq Enver},
+	year = {2009},
+	month = {dec},
+	volume = {462},
+	pages = {587},
+	issn = {1476-4687},
+	doi = {10.1038/nature08533},
+	abstract = {\$\textbackslash textless\$p\$\textbackslash textgreater\$Though it is important for the success of multicellular organisms that their many different cell types remain stable once specified, advances in the production of induced pluripotent stem (iPS) cells from somatic cells by exposure to a transcription factor cocktail emphasize the potential of almost any cell to be reprogrammed. This raises the question of whether interconversion between cell types occurs physiologically or in the context of disease. Thomas Graf and Tariq Enver use examples from the blood cell system to illustrate the principles of transcription factor transdifferentiation, which they conclude is a process fundamentally similar to differentiation and different from iPS reprogramming. They postulate that conversions of one cell type to another can occur as a normal developmental process, and speculate on the prospects of forced lineage reprogramming in regenerative medicine.\$\textbackslash textless\$/p\$\textbackslash textgreater\$},
+	journal = {Nature},
+	number = {7273},
+}
+
+@Article{hache_gengesystematicgeneration_2009,
+	title = {{{GeNGe}}: Systematic Generation of Gene Regulatory Networks},
+	shorttitle = {{{GeNGe}}},
+	author = {Hendrik Hache and Christoph Wierling and Hans Lehrach and Ralf Herwig},
+	year = {2009},
+	month = {may},
+	volume = {25},
+	pages = {1205--1207},
+	issn = {1367-4803},
+	doi = {10.1093/bioinformatics/btp115},
+	abstract = {Summary: The analysis of gene regulatory networks (GRNs) is a central goal of bioinformatics highly accelerated by the advent of new experimental techniques, such as RNA interference. A battery of reverse engineering methods has been developed in recent years to reconstruct the underlying GRNs from these and other experimental data. However, the performance of the individual methods is poorly understood and validation of algorithmic performances is still missing to a large extent. To enable such systematic validation, we have developed the web application GeNGe (GEne Network GEnerator), a controlled framework for the automatic generation of GRNs. The theoretical model for a GRN is a non-linear differential equation system. Networks can be user-defined or constructed in a modular way with the option to introduce global and local network perturbations. Resulting data can be used, e.g. as benchmark data for evaluating GRN reconstruction methods or for predicting effects of perturbations as theoretical counterparts of biological experiments.Availability: Available online at http://genge.molgen.mpg.deContact:hache@molgen.mpg.deSupplementary information:Supplementary data are available at Bioinformatics online.},
+	journal = {Bioinformatics},
+	number = {9},
+}
+
+@Article{holm_simplesequentiallyrejective_1979,
+	title = {A Simple Sequentially Rejective Multiple Test Procedure},
+	author = {Sture Holm},
+	year = {1979},
+	pages = {65--70},
+	journal = {Scandinavian journal of statistics},
+}
+
+@Article{huynh-thu_inferringregulatorynetworks_2010,
+	title = {Inferring {{Regulatory Networks}} from {{Expression Data Using Tree}}-{{Based Methods}}},
+	author = {V{\^a}n Anh Huynh-Thu and Irrthum Alexandre and Wehenkel Louis and Geurts Pierre and Alexandre Irrthum and Louis Wehenkel and Pierre Geurts},
+	year = {2010},
+	month = {jan},
+	volume = {5},
+	pages = {e12776},
+	issn = {1932-6203},
+	doi = {10.1371/journal.pone.0012776},
+	abstract = {One of the pressing open problems of computational systems biology is the elucidation of the topology of genetic regulatory networks (GRNs) using high throughput genomic data, in particular microarray gene expression data. The Dialogue for Reverse Engineering Assessments and Methods (DREAM) challenge aims to evaluate the success of GRN inference algorithms on benchmarks of simulated data. In this article, we present GENIE3, a new algorithm for the inference of GRNs that was best performer in the DREAM4 In Silico Multifactorial challenge. GENIE3 decomposes the prediction of a regulatory network between p genes into p different regression problems. In each of the regression problems, the expression pattern of one of the genes (target gene) is predicted from the expression patterns of all the other genes (input genes), using tree-based ensemble methods Random Forests or Extra-Trees. The importance of an input gene in the prediction of the target gene expression pattern is taken as an indication of a putative regulatory link. Putative regulatory links are then aggregated over all genes to provide a ranking of interactions from which the whole network is reconstructed. In addition to performing well on the DREAM4 In Silico Multifactorial challenge simulated data, we show that GENIE3 compares favorably with existing algorithms to decipher the genetic regulatory network of Escherichia coli. It doesn't make any assumption about the nature of gene regulation, can deal with combinatorial and non-linear interactions, produces directed GRNs, and is fast and scalable. In conclusion, we propose a new algorithm for GRN inference that performs well on both synthetic and real gene expression data. The algorithm, based on feature selection with tree-based ensemble methods, is simple and generic, making it adaptable to other types of genomic data and interactions.},
+	file = {/home/rcannood/Zotero/storage/3I6PLCQL/Huynh-Thu et al. - 2010 - Inferring Regulatory Networks from Expression Data Using Tree-Based Methods.pdf},
+	journal = {PLoS ONE},
+	keywords = {Algorithms,Computational Biology,Computational Biology: methods,Escherichia coli,Escherichia coli: genetics,Gene Expression Regulation,Gene Regulatory Networks,Oligonucleotide Array Sequence Analysis},
+	number = {9},
+	pmid = {20927193},
+}
+
+@Article{kanton_organoidsinglecellgenomic_2019,
+	title = {Organoid Single-Cell Genomic Atlas Uncovers Human-Specific Features of Brain Development},
+	author = {Sabina Kanton and Michael James Boyle and Zhisong He and Malgorzata Santel and Anne Weigert and F{\a'a}tima Sanch\'is-Calleja and Patricia Guijarro and Leila Sidow and Jonas Simon Fleck and Dingding Han and Zhengzong Qian and Michael Heide and Wieland B. Huttner and Philipp Khaitovich and Svante P{\"a}{{\"a}}bo and Barbara Treutlein and J. Gray Camp},
+	year = {2019},
+	month = {oct},
+	volume = {574},
+	pages = {418--422},
+	issn = {1476-4687},
+	doi = {10.1038/s41586-019-1654-9},
+	abstract = {Species comparisons using single-cell transcriptomics and accessible chromatin profiling in stem cell-derived cerebral organoids are used to map dynamic gene-regulatory changes that are unique to humans.},
+	copyright = {2019 The Author(s), under exclusive licence to Springer Nature Limited},
+	file = {/home/rcannood/Zotero/storage/AVPYT7HY/s41586-019-1654-9.html},
+	journal = {Nature},
+	language = {en},
+	number = {7778},
+}
+
+@Article{kuijjer_estimatingsamplespecificregulatory_2015,
+	title = {Estimating Sample-Specific Regulatory Networks},
+	author = {Marieke Lydia Kuijjer and Matthew Tung and GuoCheng Yuan and John Quackenbush and Kimberly Glass},
+	year = {2015},
+	pages = {1--19},
+	abstract = {Biological systems are driven by intricate interactions among the complex array of molecules that comprise the cell. Many methods have been developed to reconstruct network models that attempt to capture those interactions. These methods often draw on large numbers of measured expression samples to tease out subtle signals and infer connections between genes (or gene products). The result is an aggregate network model representing a single estimate for edge likelihoods. While informative, aggregate models fail to capture the heterogeneity that is often represented in a population. Here we propose a method to reverse engineer sample-specific networks from aggregate network models. We demonstrate the accuracy and applicability of our approach in several datasets, including simulated data, microarray expression data from synchronized yeast cells, and RNA-seq data collected from human subjects. We show that these sample-specific networks can be used to study the evolution of network topology across time and to characterize shifts in gene regulation that may not be apparent in the expression data. We believe the ability to generate sample-specific networks will revolutionize the field of network biology and has the potential to usher in an era of precision network medicine.},
+	file = {/home/rcannood/Zotero/storage/YECTK66M/Kuijjer et al. - 2015 - Estimating sample-specific regulatory networks.pdf},
+}
+
+@Article{kuijjer_estimatingsamplespecificregulatory_2019,
+	title = {Estimating {{Sample}}-{{Specific Regulatory Networks}}},
+	author = {Marieke Lydia Kuijjer and Matthew George Tung and GuoCheng Yuan and John Quackenbush and Kimberly Glass},
+	year = {2019},
+	month = {mar},
+	volume = {14},
+	pages = {226--240},
+	issn = {2589-0042},
+	doi = {10.1016/j.isci.2019.03.021},
+	abstract = {Biological systems are driven by intricate interactions among molecules. Many methods have been developed that draw on large numbers of expression samples to infer connections between genes (or their products). The result is an aggregate network representing a single estimate for the likelihood of each interaction, or ``edge,'' in the network. Although informative, aggregate models fail to capture population heterogeneity. Here we propose a method to reverse engineer sample-specific networks from aggregate networks. We demonstrate our approach in several contexts, including simulated, yeast microarray, and human lymphoblastoid cell line RNA sequencing data. We use these sample-specific networks to study changes in network topology across time and to characterize shifts in gene regulation that were not apparent in the expression data. We believe that generating sample-specific networks will greatly facilitate the application of network methods to large, complex, and heterogeneous multi-omic datasets, supporting the emerging field of precision network medicine.,                                        \textbullet{}               We developed LIONESS to extract single-sample networks from aggregate models                                         \textbullet{}               We tested LIONESS using in silico, yeast, and human expression data                                         \textbullet{}               LIONESS-estimated networks are reproducible, accurate, and biologically meaningful                                         \textbullet{}               Single-sample network analysis highlights important biological processes                                 , Biological Sciences; Bioinformatics; Complex Systems},
+	file = {/home/rcannood/Zotero/storage/ITHUQ7NH/Kuijjer et al. - 2019 - Estimating Sample-Specific Regulatory Networks.pdf},
+	journal = {iScience},
+	pmcid = {PMC6463816},
+	pmid = {30981959},
+}
+
+@Article{kuijjer_lionessrsinglesample_2019,
+	title = {{{lionessR}}: Single Sample Network Inference in {{R}}},
+	shorttitle = {{{lionessR}}},
+	author = {Marieke L. Kuijjer and Ping-Han Hsieh and John Quackenbush and Kimberly Glass},
+	year = {2019},
+	month = {oct},
+	volume = {19},
+	pages = {1003},
+	issn = {1471-2407},
+	doi = {10.1186/s12885-019-6235-7},
+	abstract = {In biomedical research, network inference algorithms are typically used to infer complex association patterns between biological entities, such as between genes or proteins, using data from a population. This resulting aggregate network, in essence, averages over the networks of those individuals in the population. LIONESS (Linear Interpolation to Obtain Network Estimates for Single Samples) is a method that can be used together with a network inference algorithm to extract networks for individual samples in a population. The method's key characteristic is that, by modeling networks for individual samples in a data set, it can capture network heterogeneity in a population. LIONESS was originally made available as a function within the PANDA (Passing Attributes between Networks for Data Assimilation) regulatory network reconstruction framework. However, the LIONESS algorithm is generalizable and can be used to model single sample networks based on a wide range of network inference algorithms.},
+	file = {/home/rcannood/Zotero/storage/RS448RZF/Kuijjer et al. - 2019 - lionessR single sample network inference in R.pdf;/home/rcannood/Zotero/storage/9STH6ZYN/s12885-019-6235-7.html},
+	journal = {BMC Cancer},
+	number = {1},
+}
+
+@Article{lamanno_rnavelocitysingle_2018,
+	title = {{{RNA Velocity}} of {{Single Cells}}},
+	author = {Gioele {La Manno} and Ruslan Soldatov and Amit Zeisel and Emelie Braun and Hannah Hochgerner and Viktor Petukhov and Katja Lidschreiber and Maria E Kastriti and Peter L{\"o}nnerberg and Alessandro Furlan and Jean Fan and Lars E Borm and Zehua Liu and David {van Bruggen} and Jimin Guo and Xiaoling He and Roger Barker and Erik Sundstr{\"o}m and Gon{\c c}alo Castelo-Branco and Patrick Cramer and Igor Adameyko and Sten Linnarsson and Peter V Kharchenko},
+	year = {2018},
+	month = {aug},
+	volume = {560},
+	pages = {494--498},
+	issn = {1476-4687},
+	doi = {10.1038/s41586-018-0414-6},
+	abstract = {RNA velocity, estimated in single cells by comparison of spliced and unspliced mRNA, is a good indicator of transcriptome dynamics and will provide a useful tool for analysis of developmental lineage.},
+	journal = {Nature},
+	number = {7719},
+}
+
+@Article{lin_scclassifysamplesize_2020,
+	title = {{{scClassify}}: Sample Size Estimation and Multiscale Classification of Cells Using Single and Multiple Reference},
+	author = {Yingxin Lin and Yue Cao and Hani Jieun Kim and Agus Salim and Terence P Speed and David M Lin and Pengyi Yang and Jean Yee Hwa Yang},
+	year = {2020},
+	month = {jun},
+	volume = {16},
+	pages = {e9389},
+	publisher = {{John Wiley \& Sons, Ltd}},
+	issn = {1744-4292},
+	doi = {10.15252/msb.20199389},
+	abstract = {Abstract Automated cell type identification is a key computational challenge in single-cell RNA-sequencing (scRNA-seq) data. To capitalise on the large collection of well-annotated scRNA-seq datasets, we developed scClassify, a multiscale classification framework based on ensemble learning and cell type hierarchies constructed from single or multiple annotated datasets as references. scClassify enables the estimation of sample size required for accurate classification of cell types in a cell type hierarchy and allows joint classification of cells when multiple references are available. We show that scClassify consistently performs better than other supervised cell type classification methods across 114 pairs of reference and testing data, representing a diverse combination of sizes, technologies and levels of complexity, and further demonstrate the unique components of scClassify through simulations and compendia of experimental datasets. Finally, we demonstrate the scalability of scClassify on large single-cell atlases and highlight a novel application of identifying subpopulations of cells from the Tabula Muris data that were unidentified in the original publication. Together, scClassify represents state-of-the-art methodology in automated cell type identification from scRNA-seq data.},
+	journal = {Molecular Systems Biology},
+	keywords = {cell type hierarchy,cell type identification,multiscale classification,sample size estimation,single-cell},
+	number = {6},
+}
+
+@Article{liu_personalizedcharacterizationdiseases_2016,
+	title = {Personalized Characterization of Diseases Using Sample-Specific Networks},
+	author = {Xiaoping Liu and Yuetong Wang and Hongbin Ji and Kazuyuki Aihara and Luonan Chen},
+	year = {2016},
+	volume = {44},
+	pages = {e164--e164},
+	issn = {0305-1048},
+	doi = {10.1093/nar/gkw772},
+	abstract = {A complex disease generally results not from malfunction of individual molecules but from dysfunction of the relevant system or network, which dynamically changes with time and conditions. Thus, estimating a condition-specific network from a single sample is crucial to elucidating the molecular mechanisms of complex diseases at the system level. However, there is currently no effective way to construct such an individual-specific network by expression profiling of a single sample because of the requirement of multiple samples for computing correlations. We developed here with a statistical method, i.e. a sample-specific network (SSN) method, which allows us to construct individual-specific networks based on molecular expressions of a single sample. Using this method, we can characterize various human diseases at a network level. In particular, such SSNs can lead to the identification of individual-specific disease modules as well as driver genes, even without gene sequencing information. Extensive analysis by using the Cancer Genome Atlas data not only demonstrated the effectiveness of the method, but also found new individual-specific driver genes and network patterns for various types of cancer. Biological experiments on drug resistance further validated one important advantage of our method over the traditional methods, i.e. we can even identify such drug resistance genes that actually have no clear differential expression between samples with and without the resistance, due to the additional network information.},
+	file = {/home/rcannood/Zotero/storage/6MSYIL7R/Liu et al. - 2016 - Personalized characterization of diseases using sample-specific networks.pdf},
+	journal = {Nucleic Acids Research},
+	keywords = {cancer,drug resistance,genes,steroid-sensitive nephrotic syndrome},
+	number = {22},
+	pmid = {27596597},
+}
+
+@Article{luecken_currentbestpractices_2019,
+	title = {Current Best Practices in Single-Cell {{RNA}}-Seq Analysis: A Tutorial},
+	shorttitle = {Current Best Practices in Single-Cell {{RNA}}-Seq Analysis},
+	author = {Malte D Luecken and Fabian J Theis},
+	year = {2019},
+	month = {jun},
+	volume = {15},
+	pages = {e8746},
+	issn = {1744-4292},
+	doi = {10.15252/msb.20188746},
+	abstract = {Abstract Single-cell RNA-seq has enabled gene expression to be studied at an unprecedented resolution. The promise of this technology is attracting a growing user base for single-cell analysis methods. As more analysis tools are becoming available, it is becoming increasingly difficult to navigate this landscape and produce an up-to-date workflow to analyse one's data. Here, we detail the steps of a typical single-cell RNA-seq analysis, including pre-processing (quality control, normalization, data correction, feature selection, and dimensionality reduction) and cell- and gene-level downstream analysis. We formulate current best-practice recommendations for these steps based on independent comparison studies. We have integrated these best-practice recommendations into a workflow, which we apply to a public dataset to further illustrate how these steps work in practice. Our documented case study can be found at https://www.github.com/theislab/single-cell-tutorial. This review will serve as a workflow tutorial for new entrants into the field, and help established users update their analysis pipelines.},
+	file = {/home/rcannood/Zotero/storage/MY4TZUJT/Luecken and Theis - 2019 - Current best practices in single-cell RNA-seq anal.pdf;/home/rcannood/Zotero/storage/7PFR3DKU/msb.html},
+	journal = {Molecular Systems Biology},
+	keywords = {analysis pipeline development,computational biology,data analysis tutorial,single-cell RNA-seq},
+	number = {6},
+}
+
+@Article{lummertzdarocha_reconstructioncomplexsinglecell_2018,
+	title = {Reconstruction of Complex Single-Cell Trajectories Using {{CellRouter}}},
+	author = {Edroaldo {Lummertz da Rocha} and R. Grant Rowe and Vanessa Lundin and Mohan Malleshaiah and Deepak Kumar Jha and Carlos R. Rambo and Hu Li and Trista E. North and James J. Collins and George Q. Daley},
+	year = {2018},
+	month = {mar},
+	volume = {9},
+	pages = {892},
+	issn = {2041-1723},
+	doi = {10.1038/s41467-018-03214-y},
+	abstract = {A better understanding of the cell-fate transitions that occur in complex cellular ecosystems in normal development and disease could inform cell engineering efforts and lead to improved therapies. However, a major challenge is to simultaneously identify new cell states, and their transitions, to elucidate the gene expression dynamics governing cell-type diversification. Here, we present CellRouter, a multifaceted single-cell analysis platform that identifies complex cell-state transition trajectories by using flow networks to explore the subpopulation structure of multi-dimensional, single-cell omics data. We demonstrate its versatility by applying CellRouter to single-cell RNA sequencing data sets to reconstruct cell-state transition trajectories during hematopoietic stem and progenitor cell (HSPC) differentiation to the erythroid, myeloid and lymphoid lineages, as well as during re-specification of cell identity by cellular reprogramming of monocytes and B-cells to HSPCs. CellRouter opens previously undescribed paths for in-depth characterization of complex cellular ecosystems and establishment of enhanced cell engineering approaches.},
+	journal = {Nature Communications},
+	number = {1},
+}
+
+@Article{marbach_generatingrealisticsilico_2009,
+	title = {Generating {{Realistic In Silico Gene Networks}} for {{Performance Assessment}} of {{Reverse Engineering Methods}}},
+	author = {Daniel Marbach and Thomas Schaffter and Claudio Mattiussi and Dario Floreano},
+	year = {2009},
+	month = {feb},
+	volume = {16},
+	pages = {229--239},
+	issn = {1557-8666},
+	doi = {10.1089/cmb.2008.09TT},
+	abstract = {Reverse engineering methods are typically first tested on simulated data from in silico networks, for systematic and efficient performance assessment, before an application to real biological networks. In this paper, we present a method for generating biologically plausible in silico networks, which allow realistic performance assessment of network inference algorithms. Instead of using random graph models, which are known to only partly capture the structural properties of biological networks, we generate network structures by extracting modules from known biological interaction networks. Using the yeast transcriptional regulatory network as a test case, we show that extracted modules have a biologically plausible connectivity because they preserve functional and structural properties of the original network. Our method was selected to generate the {"}gold standard{"} networks for the gene network reverse engineering challenge of the third DREAM conference (Dialogue on Reverse Engineering Assessment and Methods 2008, Cambridge, MA).},
+	file = {/home/rcannood/Zotero/storage/NXLVA76Q/Marbach et al. - 2009 - Generating Realistic In Silico Gene Networks for Performance Assessment of Reverse Engineering Methods.pdf},
+	journal = {Journal of Computational Biology},
+	keywords = {Algorithms,Computational Biology,Computational Biology: methods,Computer Simulation,DRE,Gene Expression Profiling,Gene Expression Profiling: methods,gene regulatory networks,Gene Regulatory Networks,Genetic,Models,reverse engineering,Saccharomyces cerevisiae,Saccharomyces cerevisiae: genetics,Saccharomyces cerevisiae: metabolism,Software},
+	number = {2},
+	pmid = {19183003},
+}
+
+@Article{marbach_revealingstrengthsweaknesses_2010,
+	title = {Revealing Strengths and Weaknesses of Methods for Gene Network Inference},
+	author = {Daniel Marbach and Robert J Prill and Thomas Schaffter and Claudio Mattiussi and Dario Floreano and Gustavo Stolovitzky},
+	year = {2010},
+	month = {apr},
+	volume = {107},
+	pages = {6286--6291},
+	issn = {1091-6490},
+	doi = {10.1073/pnas.0913357107},
+	abstract = {Numerous methods have been developed for inferring gene regulatory networks from expression data, however, both their absolute and comparative performance remain poorly understood. In this paper, we introduce a framework for critical performance assessment of methods for gene network inference. We present an in silico benchmark suite that we provided as a blinded, community-wide challenge within the context of the DREAM (Dialogue on Reverse Engineering Assessment and Methods) project. We assess the performance of 29 gene-network-inference methods, which have been applied independently by participating teams. Performance profiling reveals that current inference methods are affected, to various degrees, by different types of systematic prediction errors. In particular, all but the best-performing method failed to accurately infer multiple regulatory inputs (combinatorial regulation) of genes. The results of this community-wide experiment show that reliable network inference from gene expression data remains an unsolved problem, and they indicate potential ways of network reconstruction improvements.},
+	file = {/home/rcannood/Zotero/storage/784SY83Y/Marbach et al. - 2010 - Revealing strengths and weaknesses of methods for gene network inference.pdf},
+	journal = {Proceedings of the National Academy of Sciences},
+	keywords = {Biometry,community experiment,Computational Biology,Computational Biology: methods,DREAM challenge,Gene Expression Profiling,Gene Regulatory Networks,performance assessment,reverse engineering,transcriptional regulatory networks},
+	number = {14},
+	pmid = {20308593},
+}
+
+@Article{marbach_wisdomcrowdsrobust_2012,
+	title = {Wisdom of {{Crowds}} for {{Robust Gene Network Inference}}},
+	author = {Daniel Marbach and James C Costello and Robert K{\"u}ffner and Nicole M Nicci Vega and Robert J Prill and Diogo M Camacho and Kyle R Allison and Manolis Kellis and James J Collins and Gustavo Stolovitzky and {DREAM5 Consortium} and Manolis Kellis and James J Collins and Gustavo Stolovitzky},
+	year = {2012},
+	month = {jul},
+	volume = {9},
+	pages = {796--804},
+	issn = {1548-7091},
+	doi = {10.1038/nmeth.2016},
+	abstract = {Reconstructing gene regulatory networks from high-throughput data is a long-standing problem. Through the DREAM project (Dialogue on Reverse Engineering Assessment and Methods), we performed a comprehensive blind assessment of over thirty network inference methods on Escherichia coli, Staphylococcus aureus, Saccharomyces cerevisiae, and in silico microarray data. We characterize performance, data requirements, and inherent biases of different inference approaches offering guidelines for both algorithm application and development. We observe that no single inference method performs optimally across all datasets. In contrast, integration of predictions from multiple inference methods shows robust and high performance across diverse datasets. Thereby, we construct high-confidence networks for E. coli and S. aureus, each comprising \$\textbackslash backslash\$textasciitilde\{\}1700 transcriptional interactions at an estimated precision of 50\%. We experimentally test 53 novel interactions in E. coli, of which 23 were supported (43\%). Our results establish community-based methods as a powerful and robust tool for the inference of transcriptional gene regulatory networks.},
+	file = {/home/rcannood/Zotero/storage/AQRNS57R/Marbach et al. - 2012 - Wisdom of crowds for robust gene network inference.pdf;/home/rcannood/Zotero/storage/KGJVQ9WL/Marbach et al. - 2012 - Wisdom of crowds for robust gene network inference.pdf},
+	journal = {Nature methods},
+	keywords = {Algorithms,Bacterial,Bacterial: genetics,Computational Biology,Escherichia coli,Escherichia coli: genetics,Gene Expression Regulation,Gene Regulatory Networks,Genetic,Genetic: genetics,Oligonucleotide Array Sequence Analysis,Saccharomyces cerevisiae,Saccharomyces cerevisiae: genetics,Software,Staphylococcus aureus,Staphylococcus aureus: genetics,Transcription},
+	number = {8},
+	pmid = {22796662},
+}
+
+@Article{mcfaline-figueroa_pooledsinglecellgenetic_2019,
+	title = {A Pooled Single-Cell Genetic Screen Identifies Regulatory Checkpoints in the Continuum of the Epithelial-to-Mesenchymal Transition},
+	author = {Jos{\a'e} L. McFaline-Figueroa and Andrew J. Hill and Xiaojie Qiu and Dana Jackson and Jay Shendure and Cole Trapnell},
+	year = {2019},
+	month = {sep},
+	volume = {51},
+	pages = {1389--1398},
+	issn = {1546-1718},
+	doi = {10.1038/s41588-019-0489-5},
+	abstract = {Transcriptional profiling of 61,052 cells undergoing epithelial-to-mesenchymal transition (EMT) shows continuous waves of gene regulation, not discrete stages. A CRISPR screen orders EMT regulators along EMT progression.},
+	copyright = {2019 The Author(s), under exclusive licence to Springer Nature America, Inc.},
+	file = {/home/rcannood/Zotero/storage/RAQRP6UC/s41588-019-0489-5.html},
+	journal = {Nature Genetics},
+	language = {en},
+	number = {9},
+}
+
+@Article{moerman_grnboost2arboretoefficient_2019,
+	title = {{{GRNBoost2}} and {{Arboreto}}: Efficient and Scalable Inference of Gene Regulatory Networks},
+	author = {Thomas Moerman and Sara {Aibar Santos} and Carmen {Bravo Gonz{\a'a}lez-Blas} and Jaak Simm and Yves Moreau and Jan Aerts and Stein Aerts},
+	year = {2019},
+	month = {jun},
+	volume = {35},
+	pages = {2159--2161},
+	issn = {1367-4803},
+	doi = {10.1093/bioinformatics/bty916},
+	abstract = {Inferring a Gene Regulatory Network (GRN) from gene expression data is a computationally expensive task, exacerbated by increasing data sizes due to advances in high-throughput gene profiling technology, such as single-cell RNA-seq. To equip researchers with a toolset to infer GRNs from large expression datasets, we propose GRNBoost2 and the Arboreto framework. GRNBoost2 is an efficient algorithm for regulatory network inference using gradient boosting, based on the GENIE3 architecture. Arboreto is a computational framework that scales up GRN inference algorithms complying with this architecture. Arboreto includes both GRNBoost2 and an improved implementation of GENIE3, as a user-friendly open source Python package.Arboreto is available under the 3-Clause BSD license at http://arboreto.readthedocs.io.Supplementary data are available at Bioinformatics online.},
+	journal = {Bioinformatics},
+	number = {12},
+}
+
+@Article{papadopoulos_prossttprobabilisticsimulation_2019,
+	title = {{{PROSSTT}}: Probabilistic Simulation of Single-Cell {{RNA}}-Seq Data for Complex Differentiation Processes},
+	shorttitle = {{{PROSSTT}}},
+	author = {Nikolaos Papadopoulos and Parra R. Gonzalo and Johannes S{\"o}ding},
+	year = {2019},
+	month = {sep},
+	volume = {35},
+	pages = {3517--3519},
+	issn = {1367-4811},
+	doi = {10.1093/bioinformatics/btz078},
+	abstract = {SUMMARY: Cellular lineage trees can be derived from single-cell RNA sequencing snapshots of differentiating cells. Currently, only datasets with simple topologies are available. To test and further develop tools for lineage tree reconstruction, we need test datasets with known complex topologies. PROSSTT can simulate scRNA-seq datasets for differentiation processes with lineage trees of any desired complexity, noise level, noise model and size. PROSSTT also provides scripts to quantify the quality of predicted lineage trees. AVAILABILITY AND IMPLEMENTATION: https://github.com/soedinglab/prosstt. SUPPLEMENTARY INFORMATION: Supplementary data are available at Bioinformatics online.},
+	file = {/home/rcannood/Zotero/storage/UERERPJX/Papadopoulos et al. - 2019 - PROSSTT probabilistic simulation of single-cell R.pdf},
+	journal = {Bioinformatics (Oxford, England)},
+	keywords = {Cell Differentiation,Gene Expression Profiling,RNA-Seq,Single-Cell Analysis,Software},
+	language = {eng},
+	number = {18},
+	pmcid = {PMC6748774},
+	pmid = {30715210},
+}
+
+@Article{parra_reconstructingcomplexlineage_2019,
+	title = {Reconstructing Complex Lineage Trees from {{scRNA}}-Seq Data Using {{MERLoT}}},
+	author = {R. Gonzalo Parra and Nikolaos Papadopoulos and Laura Ahumada-Arranz and Jakob El Kholtei and Noah Mottelson and Yehor Horokhovsky and Barbara Treutlein and Johannes Soeding},
+	year = {2019},
+	month = {sep},
+	volume = {47},
+	pages = {8961--8974},
+	issn = {1362-4962},
+	doi = {10.1093/nar/gkz706},
+	abstract = {Advances in single-cell transcriptomics techniques are revolutionizing studies of cellular differentiation and heterogeneity. It has become possible to track the trajectory of thousands of genes across the cellular lineage trees that represent the temporal emergence of cell types during dynamic processes. However, reconstruction of cellular lineage trees with more than a few cell fates has proved challenging. We present MERLoT (https://github.com/soedinglab/merlot), a flexible and user-friendly tool to reconstruct complex lineage trees from single-cell transcriptomics data. It can impute temporal gene expression profiles along the reconstructed tree. We show MERLoT's capabilities on various real cases and hundreds of simulated datasets.},
+	file = {/home/rcannood/Zotero/storage/86VN2MRY/Parra et al. - 2019 - Reconstructing complex lineage trees from scRNA-se.pdf},
+	journal = {Nucleic Acids Research},
+	keywords = {Algorithms,Animals,Cell Differentiation,Cell Lineage,Cluster Analysis,Gene Expression Profiling,Hematopoietic Stem Cells,Humans,Mice,Mouse Embryonic Stem Cells,Sequence Analysis; RNA,Single-Cell Analysis,Software,Time Factors,Transcriptome},
+	language = {eng},
+	number = {17},
+	pmcid = {PMC6755101},
+	pmid = {31428793},
+}
+
+@Manual{patil_pairwisecomparisonsmultiplepairwise_2019,
+	title = {{{pairwiseComparisons}}: {{Multiple}} Pairwise Comparison Tests},
+	author = {Indrajeet Patil},
+	year = {2019},
+	type = {Manual},
+}
+
+@Article{prill_rigorousassessmentsystems_2010,
+	title = {Towards a {{Rigorous Assessment}} of {{Systems Biology Models}}: {{The DREAM3 Challenges}}},
+	author = {Robert J Prill and Marbach Daniel and Saez-Rodriguez Julio and Sorger Peter K. and Alexopoulos Leonidas G. and Xue Xiaowei and Clarke Neil D. and Altan-Bonnet Gregoire and Stolovitzky Gustavo and Daniel Marbach and Julio Saez-Rodriguez and Peter K Sorger and Leonidas G Alexopoulos and Xiaowei Xue and Neil D Clarke and Gregoire Altan-Bonnet and Gustavo Stolovitzky and Marbach Daniel and Saez-Rodriguez Julio and Sorger Peter K. and Alexopoulos Leonidas G. and Xue Xiaowei and Clarke Neil D. and Altan-Bonnet Gregoire and Stolovitzky Gustavo},
+	year = {2010},
+	month = {jan},
+	volume = {5},
+	pages = {e9202},
+	issn = {1932-6203},
+	doi = {10.1371/journal.pone.0009202},
+	abstract = {BACKGROUND: Systems biology has embraced computational modeling in response to the quantitative nature and increasing scale of contemporary data sets. The onslaught of data is accelerating as molecular profiling technology evolves. The Dialogue for Reverse Engineering Assessments and Methods (DREAM) is a community effort to catalyze discussion about the design, application, and assessment of systems biology models through annual reverse-engineering challenges. METHODOLOGY AND PRINCIPAL FINDINGS: We describe our assessments of the four challenges associated with the third DREAM conference which came to be known as the DREAM3 challenges: signaling cascade identification, signaling response prediction, gene expression prediction, and the DREAM3 in silico network challenge. The challenges, based on anonymized data sets, tested participants in network inference and prediction of measurements. Forty teams submitted 413 predicted networks and measurement test sets. Overall, a handful of best-performer teams were identified, while a majority of teams made predictions that were equivalent to random. Counterintuitively, combining the predictions of multiple teams (including the weaker teams) can in some cases improve predictive power beyond that of any single method. CONCLUSIONS: DREAM provides valuable feedback to practitioners of systems biology modeling. Lessons learned from the predictions of the community provide much-needed context for interpreting claims of efficacy of algorithms described in the scientific literature.},
+	file = {/home/rcannood/Zotero/storage/Q5E22H2F/Prill et al. - 2010 - Towards a Rigorous Assessment of Systems Biology Models The DREAM3 Challenges.pdf},
+	journal = {PLoS ONE},
+	keywords = {Algorithms,Animals,Biological,Cluster Analysis,Computational Biology,Computational Biology: methods,Gene Expression Profiling,Gene Expression Profiling: methods,Gene Regulatory Networks,Humans,Models,Protein Interaction Mapping,Protein Interaction Mapping: methods,Reproducibility of Results,Signal Transduction,Software,Systems Biology,Systems Biology: methods},
+	number = {2},
+	pmid = {20186320},
+}
+
+@Article{rekhtman_directinteractionhematopoietic_1999,
+	title = {Direct Interaction of Hematopoietic Transcription Factors {{PU}}.1 and {{GATA}}-1: Functional Antagonism in Erythroid Cells},
+	shorttitle = {Direct Interaction of Hematopoietic Transcription Factors {{PU}}.1 and {{GATA}}-1},
+	author = {N. Rekhtman and F. Radparvar and T. Evans and A. I. Skoultchi},
+	year = {1999},
+	month = {jun},
+	volume = {13},
+	pages = {1398--1411},
+	issn = {0890-9369},
+	doi = {10.1101/gad.13.11.1398},
+	abstract = {Malignant transformation usually inhibits terminal cell differentiation but the precise mechanisms involved are not understood. PU.1 is a hematopoietic-specific Ets family transcription factor that is required for development of some lymphoid and myeloid lineages. PU.1 can also act as an oncoprotein as activation of its expression in erythroid precursors by proviral insertion or transgenesis causes erythroleukemias in mice. Restoration of terminal differentiation in the mouse erythroleukemia (MEL) cells requires a decline in the level of PU.1, indicating that PU.1 can block erythroid differentiation. Here we investigate the mechanism by which PU.1 interferes with erythroid differentiation. We find that PU.1 interacts directly with GATA-1, a zinc finger transcription factor required for erythroid differentiation. Interaction between PU.1 and GATA-1 requires intact DNA-binding domains in both proteins. PU.1 represses GATA-1-mediated transcriptional activation. Both the DNA binding and transactivation domains of PU.1 are required for repression and both domains are also needed to block terminal differentiation in MEL cells. We also show that ectopic expression of PU.1 in Xenopus embryos is sufficient to block erythropoiesis during normal development. Furthermore, introduction of exogenous GATA-1 in both MEL cells and Xenopus embryos and explants relieves the block to erythroid differentiation imposed by PU.1. Our results indicate that the stoichiometry of directly interacting but opposing transcription factors may be a crucial determinant governing processes of normal differentiation and malignant transformation.},
+	file = {/home/rcannood/Zotero/storage/77DJ34BY/Rekhtman et al. - 1999 - Direct interaction of hematopoietic transcription .pdf},
+	journal = {Genes \& Development},
+	keywords = {3T3 Cells,Animals,Binding Sites,Cell Differentiation,DNA-Binding Proteins,Erythroid Precursor Cells,Erythroid-Specific DNA-Binding Factors,GATA1 Transcription Factor,HeLa Cells,Hematopoiesis,Humans,Mice,Proto-Oncogene Proteins,Recombinant Fusion Proteins,Trans-Activators,Transcription Factors,Transcription; Genetic,Transcriptional Activation,Xenopus laevis,Zinc Fingers},
+	language = {eng},
+	number = {11},
+	pmcid = {PMC316770},
+	pmid = {10364157},
+}
+
+@Article{roy_systemgeneratingtranscription_2008,
+	title = {A System for Generating Transcription Regulatory Networks with Combinatorial Control of Transcription},
+	author = {Sushmita Roy and Margaret Werner-Washburne and Terran Lane},
+	year = {2008},
+	month = {may},
+	volume = {24},
+	pages = {1318--1320},
+	issn = {1367-4803},
+	doi = {10.1093/bioinformatics/btn126},
+	abstract = {Summary: We have developed a new software system, REgulatory Network generator with COmbinatorial control (RENCO), for automatic generation of differential equations describing pre-transcriptional combinatorics in artificial regulatory networks. RENCO has the following benefits: (a) it explicitly models protein\textendash protein interactions among transcription factors, (b) it captures combinatorial control of transcription factors on target genes and (c) it produces output in Systems Biology Markup Language (SBML) format, which allows these equations to be directly imported into existing simulators. Explicit modeling of the protein interactions allows RENCO to incorporate greater mechanistic detail of the transcription machinery compared to existing models and can provide a better assessment of algorithms for regulatory network inference.Availability: RENCO is a C++ command line program, available at http://sourceforge.net/projects/renco/Contact:terran@cs.unm.eduSupplementary information: Supplementary data are available at Bioinformatics online.},
+	journal = {Bioinformatics},
+	number = {10},
+}
+
+@Article{saelens_comparisonsinglecelltrajectory_2019,
+	title = {A Comparison of Single-Cell Trajectory Inference Methods},
+	author = {Wouter Saelens and Robrecht Cannoodt and Helena Todorov and Yvan Saeys},
+	year = {2019},
+	volume = {37},
+	issn = {15461696},
+	doi = {10.1038/s41587-019-0071-9},
+	abstract = {Trajectory inference approaches analyze genome-wide omics data from thousands of single cells and computationally infer the order of these cells along developmental trajectories. Although more than 70 trajectory inference tools have already been developed, it is challenging to compare their performance because the input they require and output models they produce vary substantially. Here, we benchmark 45 of these methods on 110 real and 229 synthetic datasets for cellular ordering, topology, scalability and usability. Our results highlight the complementarity of existing tools, and that the choice of method should depend mostly on the dataset dimensions and trajectory topology. Based on these results, we develop a set of guidelines to help users select the best method for their dataset. Our freely available data and evaluation pipeline ( https://benchmark.dynverse.org ) will aid in the development of improved tools designed to analyze increasingly large and complex single-cell datasets.},
+	file = {/home/rcannood/Zotero/storage/JKZCFAVA/Saelens et al. - 2019 - A comparison of single-cell trajectory inference methods.pdf;/home/rcannood/Zotero/storage/T9HMNIDB/Saelens2019.pdf},
+	journal = {Nature Biotechnology},
+	number = {May},
+}
+
+@Article{schaffter_genenetweaversilicobenchmark_2011,
+	title = {{{GeneNetWeaver}}: In Silico Benchmark Generation and Performance Profiling of Network Inference Methods.},
+	shorttitle = {\{\vphantom\}{{GeneNetWeaver}}\vphantom\{\}},
+	author = {Thomas Schaffter and Daniel Marbach and Dario Floreano},
+	year = {2011},
+	month = {aug},
+	volume = {27},
+	pages = {2263--2270},
+	issn = {1367-4811},
+	doi = {10.1093/bioinformatics/btr373},
+	abstract = {MOTIVATION: Over the last decade, numerous methods have been developed for inference of regulatory networks from gene expression data. However, accurate and systematic evaluation of these methods is hampered by the difficulty of constructing adequate benchmarks and the lack of tools for a differentiated analysis of network predictions on such benchmarks. RESULTS: Here, we describe a novel and comprehensive method for in silico benchmark generation and performance profiling of network inference methods available to the community as an open-source software called GeneNetWeaver (GNW). In addition to the generation of detailed dynamical models of gene regulatory networks to be used as benchmarks, GNW provides a network motif analysis that reveals systematic prediction errors, thereby indicating potential ways of improving inference methods. The accuracy of network inference methods is evaluated using standard metrics such as precision-recall and receiver operating characteristic curves. We show how GNW can be used to assess the performance and identify the strengths and weaknesses of six inference methods. Furthermore, we used GNW to provide the international Dialogue for Reverse Engineering Assessments and Methods (DREAM) competition with three network inference challenges (DREAM3, DREAM4 and DREAM5). AVAILABILITY: GNW is available at http://gnw.sourceforge.net along with its Java source code, user manual and supporting data. SUPPLEMENTARY INFORMATION: Supplementary data are available at Bioinformatics online. CONTACT: dario.floreano@epfl.ch.},
+	file = {/home/rcannood/Zotero/storage/P5JMJUBN/Schaffter, Marbach, Floreano - 2011 - GeneNetWeaver in silico benchmark generation and performance profiling of network inference method.pdf},
+	journal = {Bioinformatics},
+	keywords = {Benchmarking,Escherichia coli,Escherichia coli: genetics,Gene Expression,Gene Regulatory Networks,Genetic,Models,Software},
+	number = {16},
+	pmid = {21697125},
+}
+
+@Article{schilstra_biologicgeneexpression_2008,
+	title = {Bio-{{Logic}}: {{Gene Expression}} and the {{Laws}} of {{Combinatorial Logic}}},
+	shorttitle = {Bio-{{Logic}}},
+	author = {Maria J. Schilstra and Chrystopher L. Nehaniv},
+	year = {2008},
+	month = {jan},
+	volume = {14},
+	pages = {121--133},
+	issn = {1064-5462},
+	doi = {10.1162/artl.2008.14.1.121},
+	abstract = {Abstract At the heart of the development of fertilized eggs into fully formed organisms and the adaptation of cells to changed conditions are genetic regulatory networks (GRNs). In higher multicellular organisms, signal selection and multiplexing are performed at the cis-regulatory domains of genes, where combinations of transcription factors (TFs) regulate the rates at which the genes are transcribed into mRNA. To be able to act as activators or repressors of gene transcription, TFs must first bind to target sequences on the regulatory domains. Two TFs that act in concert may bind entirely independently of each other, but more often binding of the first one will alter the affinity of the other for its binding site. This article presents a systematic investigation into the effect of TF binding dependences on the predicted regulatory function of this bio-logic. Four extreme scenarios, commonly used to classify enzyme activation and inhibition patterns, for the binding of two TFs were explored: independent (the TFs bind without affecting each other's affinities), competitive (the TFs compete for the same binding site), ordered (the TFs bind in a compulsory order), and joint binding (the TFs either bind as a preformed complex, or binding of one is virtually impossible in the absence of the other). The conclusions are: (1) the laws of combinatorial logic hold only for systems with independently binding TFs; (2) systems formed according to the other scenarios can mimic the functions of their Boolean logical counterparts, but cannot be combined or decomposed in the same way; and (3) the continuously scaled output of systems consisting of competitively binding activators and repressors can be controlled more robustly than that of single TF or (quasi-)logical multi-TF systems.},
+	file = {/home/rcannood/Zotero/storage/C7UWQGI3/Schilstra and Nehaniv - 2008 - Bio-Logic Gene Expression and the Laws of Combina.pdf;/home/rcannood/Zotero/storage/KXDLUMAG/artl.2008.14.1.html},
+	journal = {Artificial Life},
+	number = {1},
+}
+
+@Article{schwanhausser_globalquantificationmammalian_2011,
+	title = {Global Quantification of Mammalian Gene Expression Control},
+	author = {Bj{\"o}rn Schwanh{\"a}usser and Dorothea Busse and Na Li and Gunnar Dittmar and Johannes Schuchhardt and Jana Wolf and Wei Chen and Matthias Selbach},
+	year = {2011},
+	month = {may},
+	volume = {473},
+	pages = {337--342},
+	issn = {1476-4687},
+	doi = {10.1038/nature10098},
+	abstract = {Gene expression is a multistep process that involves the transcription, translation and turnover of messenger RNAs and proteins. Although it is one of the most fundamental processes of life, the entire cascade has never been quantified on a genome-wide scale. Here we simultaneously measured absolute mRNA and protein abundance and turnover by parallel metabolic pulse labelling for more than 5,000 genes in mammalian cells. Whereas mRNA and protein levels correlated better than previously thought, corresponding half-lives showed no correlation. Using a quantitative model we have obtained the first genome-scale prediction of synthesis rates of mRNAs and proteins. We find that the cellular abundance of proteins is predominantly controlled at the level of translation. Genes with similar combinations of mRNA and protein stability shared functional properties, indicating that half-lives evolved under energetic and dynamic constraints. Quantitative information about all stages of gene expression provides a rich resource and helps to provide a greater understanding of the underlying design principles.},
+	journal = {Nature},
+	number = {7347},
+}
+
+@Article{smith_spatialstochasticintracellular_2019,
+	title = {Spatial {{Stochastic Intracellular Kinetics}}: {{A Review}} of {{Modelling Approaches}}},
+	author = {Stephen Smith and Ramon Grima},
+	year = {2019},
+	month = {aug},
+	volume = {81},
+	pages = {2960--3009},
+	issn = {1522-9602},
+	doi = {10.1007/s11538-018-0443-1},
+	abstract = {Models of chemical kinetics that incorporate both stochasticity and diffusion are an increasingly common tool for studying biology. The variety of competing models is vast, but two stand out by virtue of their popularity: the reaction\textendash diffusion master equation and Brownian dynamics. In this review, we critically address a number of open questions surrounding these models: How can they be justified physically? How do they relate to each other? How do they fit into the wider landscape of chemical models, ranging from the rate equations to molecular dynamics? This review assumes no prior knowledge of modelling chemical kinetics and should be accessible to a wide range of readers.},
+	journal = {Bulletin of Mathematical Biology},
+	number = {8},
+}
+
+@Article{soneson_biasrobustnessscalability_2018,
+	title = {Bias, Robustness and Scalability in Single-Cell Differential Expression Analysis},
+	author = {Charlotte Soneson and Mark D. Robinson},
+	year = {2018},
+	month = {apr},
+	volume = {15},
+	pages = {255--261},
+	issn = {1548-7105},
+	doi = {10.1038/nmeth.4612},
+	abstract = {Many methods have been used to determine differential gene expression from single-cell RNA (scRNA)-seq data. We evaluated 36 approaches using experimental and synthetic data and found considerable differences in the number and characteristics of the genes that are called differentially expressed. Prefiltering of lowly expressed genes has important effects, particularly for some of the methods developed for bulk RNA-seq data analysis. However, we found that bulk RNA-seq analysis methods do not generally perform worse than those developed specifically for scRNA-seq. We also present conquer, a repository of consistently processed, analysis-ready public scRNA-seq data sets that is aimed at simplifying method evaluation and reanalysis of published results. Each data set provides abundance estimates for both genes and transcripts, as well as quality control and exploratory analysis reports.},
+	journal = {Nature Methods},
+	keywords = {Computational Biology,Gene Expression Profiling,Gene Expression Regulation,High-Throughput Nucleotide Sequencing,RNA,Sequence Analysis; RNA,Single-Cell Analysis,Software},
+	language = {eng},
+	number = {4},
+	pmid = {29481549},
+}
+
+@Article{street_slingshotcelllineage_2018,
+	title = {Slingshot: {{Cell Lineage}} and {{Pseudotime Inference}} for {{Single}}-{{Cell Transcriptomics}}},
+	shorttitle = {Slingshot},
+	author = {Kelly Street and Davide Risso and Russell B Fletcher and Diya Das and John Ngai and Nir Yosef and Elizabeth Purdom and Sandrine Dudoit},
+	year = {2018},
+	month = {jun},
+	volume = {19},
+	pages = {477},
+	issn = {1471-2164},
+	doi = {10.1186/s12864-018-4772-0},
+	abstract = {Single-cell transcriptomics allows researchers to investigate complex communities of heterogeneous cells. It can be applied to stem cells and their descendants in order to chart the progression from multipotent progenitors to fully differentiated cells. While a variety of statistical and computational methods have been proposed for inferring cell lineages, the problem of accurately characterizing multiple branching lineages remains difficult to solve.},
+	journal = {BMC Genomics},
+	number = {1},
+}
+
+@Article{vallejos_normalizingsinglecellrna_2017,
+	title = {Normalizing Single-Cell {{RNA}} Sequencing Data: Challenges and Opportunities},
+	shorttitle = {Normalizing Single-Cell {{RNA}} Sequencing Data},
+	author = {Catalina A. Vallejos and Davide Risso and Antonio Scialdone and Sandrine Dudoit and John C. Marioni},
+	year = {2017},
+	month = {jun},
+	volume = {14},
+	pages = {565--571},
+	publisher = {{Nature Publishing Group}},
+	issn = {1548-7105},
+	doi = {10.1038/nmeth.4292},
+	abstract = {This Perspective examines single-cell RNA-seq data challenges and the need for normalization methods designed specifically for single-cell data in order to remove technical biases.},
+	copyright = {2017 Nature Publishing Group, a division of Macmillan Publishers Limited. All Rights Reserved.},
+	journal = {Nature Methods},
+	language = {en},
+	number = {6},
+}
+
+@Article{vandenbulcke_syntrengeneratorsynthetic_2006,
+	title = {{{SynTReN}}: A Generator of Synthetic Gene Expression Data for Design and Analysis of Structure Learning Algorithms},
+	shorttitle = {{{SynTReN}}},
+	author = {Tim {Van den Bulcke} and Koenraad {Van Leemput} and Bart Naudts and Piet {van Remortel} and Hongwu Ma and Alain Verschoren and Bart {De Moor} and Kathleen Marchal},
+	year = {2006},
+	month = {jan},
+	volume = {7},
+	pages = {43},
+	issn = {1471-2105},
+	doi = {10.1186/1471-2105-7-43},
+	abstract = {The development of algorithms to infer the structure of gene regulatory networks based on expression data is an important subject in bioinformatics research. Validation of these algorithms requires benchmark data sets for which the underlying network is known. Since experimental data sets of the appropriate size and design are usually not available, there is a clear need to generate well-characterized synthetic data sets that allow thorough testing of learning algorithms in a fast and reproducible manner.},
+	journal = {BMC Bioinformatics},
+	language = {en},
+	number = {1},
+}
+
+@Article{vandesande_scalablescenicworkflow_2020,
+	title = {A Scalable {{SCENIC}} Workflow for Single-Cell Gene Regulatory Network Analysis},
+	author = {Bram {Van de Sande} and Christopher Flerin and Kristofer Davie and Maxime {De Waegeneer} and Gert Hulselmans and Sara Aibar and Ruth Seurinck and Wouter Saelens and Robrecht Cannoodt and Quentin Rouchon and Toni Verbeiren and Dries {De Maeyer} and Joke Reumers and Yvan Saeys and Stein Aerts},
+	year = {2020},
+	month = {jul},
+	volume = {15},
+	pages = {2247--2276},
+	issn = {1750-2799},
+	doi = {10.1038/s41596-020-0336-2},
+	abstract = {This protocol explains how to perform a fast SCENIC analysis alongside standard best practices steps on single-cell RNA-sequencing data using software containers and Nextflow pipelines. SCENIC reconstructs regulons (i.e., transcription factors and their target genes) assesses the activity of these discovered regulons in individual cells and uses these cellular activity patterns to find meaningful clusters of cells. Here we present an improved version of SCENIC with several advances. SCENIC has been refactored and reimplemented in Python (pySCENIC), resulting in a tenfold increase in speed, and has been packaged into containers for ease of use. It is now also possible to use epigenomic track databases, as well as motifs, to refine regulons. In this protocol, we explain the different steps of SCENIC: the workflow starts from the count matrix depicting the gene abundances for all cells and consists of three stages. First, coexpression modules are inferred using a regression per-target approach (GRNBoost2). Next, the indirect targets are pruned from these modules using cis-regulatory motif discovery (cisTarget). Lastly, the activity of these regulons is quantified via an enrichment score for the regulon's target genes (AUCell). Nonlinear projection methods can be used to display visual groupings of cells based on the cellular activity patterns of these regulons. The results can be exported as a loom file and visualized in the SCope web application. This protocol is illustrated on two use cases: a peripheral blood mononuclear cell data set and a panel of single-cell RNA-sequencing cancer experiments. For a data set of 10,000 genes and 50,000 cells, the pipeline runs in {$<$}2 h.},
+	journal = {Nature Protocols},
+	number = {7},
+}
+
+@Article{vieth_powsimrpoweranalysis_2017,
+	title = {{{powsimR}}: Power Analysis for Bulk and Single Cell {{RNA}}-Seq Experiments},
+	shorttitle = {{{powsimR}}},
+	author = {Beate Vieth and Christoph Ziegenhain and Swati Parekh and Wolfgang Enard and Ines Hellmann},
+	year = {2017},
+	month = {nov},
+	volume = {33},
+	pages = {3486--3488},
+	issn = {1367-4803},
+	doi = {10.1093/bioinformatics/btx435},
+	abstract = {AbstractSummary.  Power analysis is essential to optimize the design of RNA-seq experiments and to assess and compare the power to detect differentially express},
+	file = {/home/rcannood/Zotero/storage/MFRF86MZ/Vieth et al. - 2017 - powsimR power analysis for bulk and single cell R.pdf;/home/rcannood/Zotero/storage/HSCUJRI8/3952669.html},
+	journal = {Bioinformatics},
+	language = {en},
+	number = {21},
+}
+
+@Article{wang_quantifyingwaddingtonlandscape_2011,
+	title = {Quantifying the {{Waddington Landscape}} and {{Biological Paths}} for {{Development}} and {{Differentiation}}},
+	author = {Jin Wang and Kun Zhang and Li Xu and Erkang Wang},
+	year = {2011},
+	month = {may},
+	volume = {108},
+	pages = {8257--8262},
+	issn = {0027-8424, 1091-6490},
+	doi = {10.1073/pnas.1017017108},
+	abstract = {We developed a theoretical framework to prove the existence and quantify the Waddington landscape as well as chreode-biological paths for development and differentiation. The cells can have states with the higher probability ones giving the different cell types. Different cell types correspond to different basins of attractions of the probability landscape. We study how the cells develop from undifferentiated cells to differentiated cells from landscape perspectives. We quantified the Waddington landscape through construction of underlying probability landscape for cell development. We show the developmental process proceeds as moving from undifferentiated to the differentiated basins of attractions. The barrier height of the basins of attractions correlates with the escape time that determines the stability of cell types. We show that the developmental process can be quantitatively described and uncovered by the biological paths on the quantified Waddington landscape from undifferentiated to the differentiated cells. We found the dynamics of the developmental process is controlled by a combination of the gradient and curl force on the landscape. The biological paths often do not follow the steepest descent path on the landscape. The landscape framework also quantifies the possibility of reverse differentiation process such as cell reprogramming from differentiated cells back to the original stem cell. We show that the biological path of reverse differentiation is irreversible and different from the one for differentiation process. We found that the developmental process described by the underlying landscape and the associated biological paths is relatively stable and robust against the influences of environmental perturbations.},
+	journal = {Proceedings of the National Academy of Sciences},
+	number = {20},
+	pmid = {21536909},
+}
+
+@Article{weber_essentialguidelinescomputational_2019,
+	title = {Essential Guidelines for Computational Method Benchmarking},
+	author = {Lukas M. Weber and Wouter Saelens and Robrecht Cannoodt and Charlotte Soneson and Alexander Hapfelmeier and Paul P. Gardner and Anne-Laure Boulesteix and Yvan Saeys and Mark D. Robinson},
+	year = {2019},
+	month = {jun},
+	volume = {20},
+	pages = {125},
+	issn = {1474-760X},
+	doi = {10.1186/s13059-019-1738-8},
+	abstract = {In computational biology and other sciences, researchers are frequently faced with a choice between several computational methods for performing data analyses. Benchmarking studies aim to rigorously compare the performance of different methods using well-characterized benchmark datasets, to determine the strengths of each method or to provide recommendations regarding suitable choices of methods for an analysis. However, benchmarking studies must be carefully designed and implemented to provide accurate, unbiased, and informative results. Here, we summarize key practical guidelines and recommendations for performing high-quality benchmarking analyses, based on our experiences in computational biology.},
+	file = {/home/rcannood/Zotero/storage/83LMG2SG/Weber et al. - 2019 - Essential guidelines for computational method benc.pdf;/home/rcannood/Zotero/storage/GL7G9MIR/s13059-019-1738-8.html},
+	journal = {Genome Biology},
+	number = {1},
+}
+
+@Article{wickham_welcometidyverse_2019,
+	title = {Welcome to the {{Tidyverse}}},
+	author = {Hadley Wickham and Mara Averick and Jennifer Bryan and Winston Chang and Lucy McGowan and Romain Fran{\c c}ois and Garrett Grolemund and Alex Hayes and Lionel Henry and Jim Hester and Max Kuhn and Thomas Pedersen and Evan Miller and Stephan Bache and Kirill M{\"u}ller and Jeroen Ooms and David Robinson and Dana Seidel and Vitalie Spinu and Kohske Takahashi and Davis Vaughan and Claus Wilke and Kara Woo and Hiroaki Yutani},
+	year = {2019},
+	month = {nov},
+	doi = {10.21105/joss.01686},
+	abstract = {Wickham et al., (2019). Welcome to the Tidyverse. Journal of Open Source Software, 4(43), 1686, https://doi.org/10.21105/joss.01686},
+	file = {/home/rcannood/Zotero/storage/TVYSNC4J/Wickham et al. - 2019 - Welcome to the Tidyverse.pdf;/home/rcannood/Zotero/storage/EAQ2VYF8/joss.html},
+	language = {en},
+}
+
+@Article{xu_regulationbifurcatingcell_2015,
+	title = {Regulation of Bifurcating {{B}} Cell Trajectories by Mutual Antagonism between Transcription Factors {{IRF4}} and {{IRF8}}},
+	author = {Heping Xu and Virendra K Chaudhri and Zhiguo Wu and Konstantinos Biliouris and Krista Dienger-Stambaugh and Yrina Rochman and Harinder Singh},
+	year = {2015},
+	month = {dec},
+	volume = {16},
+	pages = {1274--1281},
+	abstract = {Upon recognition of antigen, B cells undertake a bifurcated response in which some cells rapidly differentiate into plasmablasts while others undergo affinity maturation in germinal centers (GCs). Here we identified a double-negative feedback loop between the transcription factors IRF4 and IRF8 that regulated the initial developmental bifurcation of activated B cells as well as the GC response. IRF8 dampened signaling via the B cell antigen receptor (BCR), facilitated antigen-specific interaction with helper T cells, and promoted antibody affinity maturation while antagonizing IRF4-driven differentiation of plasmablasts. Genomic analysis revealed concentration-dependent actions of IRF4 and IRF8 in regulating distinct gene-expression programs. Stochastic modeling suggested that the double-negative feedback was sufficient to initiate bifurcation of the B cell developmental trajectories.},
+	journal = {Nat. Immunol.},
+	number = {12},
+}
+
+@Article{yosef_dynamicregulatorynetwork_2013,
+	title = {Dynamic Regulatory Network Controlling \{\vphantom\}{{TH17}}\vphantom\{\} Cell Differentiation},
+	author = {Nir Yosef and Alex K Shalek and Jellert T Gaublomme and Hulin Jin and Youjin Lee and Amit Awasthi and Chuan Wu and Katarzyna Karwacz and Sheng Xiao and Marsela Jorgolli and David Gennert and Rahul Satija and Arvind Shakya and Diana Y Lu and John J Trombetta and Meenu R Pillai and Peter J Ratcliffe and Mathew L Coleman and Mark Bix and Dean Tantin and Hongkun Park and Vijay K Kuchroo and Aviv Regev},
+	year = {2013},
+	volume = {496},
+	pages = {461--468},
+	abstract = {Despite their importance, the molecular circuits that control the differentiation of naive T cells remain largely unknown. Recent studies that reconstructed regulatory networks in mammalian cells have focused on short-term responses and relied on perturbation-based approaches that cannot be readily applied to primary T cells. Here we combine transcriptional profiling at high temporal resolution, novel computational algorithms, and innovative nanowire-based perturbation tools to systematically derive and experimentally validate a model of the dynamic regulatory network that controls the differentiation of mouse TH17 cells, a proinflammatory T-cell subset that has been implicated in the pathogenesis of multiple autoimmune diseases. The TH17 transcriptional network consists of two self-reinforcing, but mutually antagonistic, modules, with 12 novel regulators, the coupled action of which may be essential for maintaining the balance between TH17 and other CD4(+) T-cell subsets. Our study identifies and validates 39 regulatory factors, embeds them within a comprehensive temporal network and reveals its organizational principles; it also highlights novel drug targets for controlling TH17 cell differentiation.},
+	journal = {Nature},
+	number = {7446},
+}
+
+@Article{zappia_splattersimulationsinglecell_2017,
+	title = {Splatter: {{Simulation}} of {{Single}}-{{Cell RNA Sequencing Data}}},
+	shorttitle = {Splatter},
+	author = {Luke Zappia and Belinda Phipson and Alicia Oshlack},
+	year = {2017},
+	month = {sep},
+	volume = {18},
+	pages = {174},
+	issn = {1474-760X},
+	doi = {10.1186/s13059-017-1305-0},
+	abstract = {As single-cell RNA sequencing (scRNA-seq) technologies have rapidly developed, so have analysis methods. Many methods have been tested, developed, and validated using simulated datasets. Unfortunately, current simulations are often poorly documented, their similarity to real data is not demonstrated, or reproducible code is not available. Here, we present the Splatter Bioconductor package for simple, reproducible, and well-documented simulation of scRNA-seq data. Splatter provides an interface to multiple simulation methods including Splat, our own simulation, based on a gamma-Poisson distribution. Splat can simulate single populations of cells, populations with multiple cell types, or differentiation paths.},
+	journal = {Genome Biology},
+	keywords = {RNA-seq,Simulation,Single-cell,Software},
+}
+
+@Article{zeisel_coupledpremrnamrna_2011,
+	title = {Coupled Pre-{{mRNA}} and {{mRNA}} Dynamics Unveil Operational Strategies Underlying Transcriptional Responses to Stimuli},
+	author = {Amit Zeisel and Wolfgang J K{\"o}stler and Natali Molotski and Jonathan M Tsai and Rita Krauthgamer and Jasmine Jacob-Hirsch and Gideon Rechavi and Yoav Soen and Steffen Jung and Yosef Yarden and Eytan Domany},
+	year = {2011},
+	month = {jan},
+	volume = {7},
+	pages = {529},
+	issn = {1744-4292},
+	doi = {10.1038/msb.2011.62},
+	abstract = {Transcriptional responses to extracellular stimuli involve tuning the rates of transcript production and degradation. Here, we show that the time-dependent profiles of these rates can be inferred from simultaneous measurements of precursor mRNA (pre-mRNA) and mature mRNA profiles. Transcriptome-wide measurements demonstrate that genes with similar mRNA profiles often exhibit marked differences in the amplitude and onset of their production rate. The latter is characterized by a large dynamic range, with a group of genes exhibiting an unexpectedly strong transient production overshoot, thereby accelerating their induction and, when combined with time-dependent degradation, shaping transient responses with precise timing and amplitude.},
+	file = {/home/rcannood/Zotero/storage/QRQW86Y9/Zeisel et al. - 2011 - Coupled pre-mRNA and mRNA dynamics unveil operatio.pdf;/home/rcannood/Zotero/storage/R8ZG26IL/msb.2011.html},
+	journal = {Molecular Systems Biology},
+	keywords = {half-life,operational strategy,pre-mRNA,transcriptional response},
+	number = {1},
+}
+
+@Article{zhang_simulatingmultiplefaceted_2019,
+	title = {Simulating Multiple Faceted Variability in Single Cell {{RNA}} Sequencing},
+	author = {Xiuwei Zhang and Chenling Xu and Nir Yosef},
+	year = {2019},
+	month = {jun},
+	volume = {10},
+	pages = {1--16},
+	issn = {2041-1723},
+	doi = {10.1038/s41467-019-10500-w},
+	abstract = {Simulated single cell RNA sequencing data is useful for method development and comparison. Here, the authors developed SymSim, a simulator that explicitly models the main factors of variation in single cell data.},
+	copyright = {2019 The Author(s)},
+	file = {/home/rcannood/Zotero/storage/YLQYCW6E/Zhang et al. - 2019 - Simulating multiple faceted variability in single .pdf;/home/rcannood/Zotero/storage/EXJ96Y59/s41467-019-10500-w.html},
+	journal = {Nature Communications},
+	language = {en},
+	number = {1},
+}
+\end{filecontents}
+
+\end{document}

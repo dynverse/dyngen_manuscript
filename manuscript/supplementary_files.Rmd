@@ -1,4 +1,297 @@
+---
+output:
+  pdf_document:
+    keep_tex: no
+    latex_engine: xelatex
+    citation_package: biblatex
+biblatexoptions: sorting=none,url=false
+classoption:
+- table
+- 10pt
+- a4paper
+header-includes: |
+  \usepackage{tcolorbox}
+  \usepackage{colortbl}
+  \usepackage{booktabs}
+  \usepackage{tabularx}
+  \usepackage{fontspec}
+  \usepackage{pifont}
+  \usepackage{float}
+  \usepackage{caption}
+  \captionsetup[table]{position=bottom}
+  \setmainfont [Path = fonts/,
+    UprightFont = *-300,
+    ItalicFont = *-300-Italic,
+    BoldFont = *-700,
+    BoldItalicFont = *-700-Italic
+  ]{MuseoSans}
+
+bibliography: library.bib
+---
+
+```{r setup, include=FALSE}
+ # for lua files regarding author information, see https://stackoverflow.com/a/52919256
+knitr::opts_chunk$set(collapse=TRUE, results="hold")
+library(tidyverse)
+```
+
+\newcommand{\x}[1]{\text{x}_{#1}}
+\newcommand{\y}[1]{\text{y}_{#1}}
+\newcommand{\z}[1]{\text{z}_{#1}}
+
+
+\newcommand{\rs}[1]{\text{R}_{#1}}
+\newcommand{\rp}[1]{\text{R}^+_{#1}}
+\newcommand{\rn}[1]{\text{R}^-_{#1}}
+
+\newcommand{\xpr}[1]{\text{xpr}_{#1}}
+\newcommand{\xhl}[1]{\text{xhl}_{#1}}
+\newcommand{\ysr}[1]{\text{ysr}_{#1}}
+\newcommand{\yhl}[1]{\text{yhl}_{#1}}
+\newcommand{\ydr}[1]{\text{ydr}_{#1}}
+\newcommand{\zpr}[1]{\text{zpr}_{#1}}
+\newcommand{\zhl}[1]{\text{zhl}_{#1}}
+\newcommand{\zdr}[1]{\text{zdr}_{#1}}
+
+\newcommand{\str}[1]{\text{str}_{#1}}
+\newcommand{\hill}[1]{\text{hill}_{#1}}
+\newcommand{\ind}[1]{\text{ind}_{#1}}
+\newcommand{\dis}[1]{\text{dis}_{#1}}
+\newcommand{\buf}[1]{\text{bind}_{#1}}
+\newcommand{\ba}[1]{\text{bas}_{#1}}
+
+
+\newcommand{\proptran}{f}
+\newcommand{\ai}[2]{$S_{#1} = S_{#2b}$}
+\newcommand{\zk}[1]{\frac{y_#1}{k_#1}^{c_#1}}
+\newcommand{\wi}[1]{\nu_#1}
+
+
+
+# Supplementary Figures
+\renewcommand{\figurename}{Supplemental Figure}
+\renewcommand{\tablename}{Supplemental Table}
+
+
+
+
+
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{}
+\definecolor{light-gray}{rgb}{.85,.85,.85}
+\newcommand{\grayline}{\arrayrulecolor{light-gray}\cline{3-7}\arrayrulecolor{black}}
+\newcommand{\blackline}{\arrayrulecolor{black}\cline{3-7}}
+\newcommand{\method}[1]{#1}
+
+\begin{table}[H]
+    \caption{
+      \textbf{Feature comparison of single-cell synthetic data generators and simulators.} $ ^1$ As showcased by vignette. $^2$ As showcased by Van den Berge et al. \cite{vandenberge_trajectorybaseddifferentialexpression_2020}.
+    } \label{tab:comparison}
+    \small
+    \begin{tabular}{p{.25cm}l|*{5}{>{\centering\arraybackslash}p{1.25cm}|}}
+        \blackline
+        & \method{} & \method{splatter} & \method{powsimR} & \method{PROSSTT} & \method{SymSim} & \method{dyngen} \\
+        \blackline
+        \multicolumn{7}{l}{\textbf{Available modality outputs}} \\
+        \blackline
+        - & mRNA expression & \yes & \yes & \yes & \yes & \yes \\ \grayline
+        - & Pre-mRNA expression & \no & \no & \no & \no & \yes \\ \grayline
+        - & Protein expression & \no & \no & \no & \no & \yes \\ \grayline
+        - & Promotor activity & \no & \no & \no & \yes & \yes \\ \grayline
+        - & Reaction activity & \no & \no & \no & \no & \yes \\
+        \blackline
+        \multicolumn{7}{l}{\textbf{Available ground-truth outputs}} \\
+        \blackline
+        - & True counts & \yes & \no & \no & \yes & \yes \\ \grayline
+        - & Cluster labels & \yes & \yes & \no & \yes & \yes \\ \grayline
+        - & Trajectory & \yes & \no & \yes $ ^1$ & \yes & \yes \\ \grayline
+        - & Batch labels & \yes & \no & \no & \no & \yes $ ^1$\\ \grayline
+        - & Differential expression & \no & \no & \no & \yes & \yes $ ^2$ \\ \grayline
+        - & Knocked down regulators & \no & \no & \no & \no & \yes \\ \grayline
+        - & Regulatory network & \no & \no & \no & \yes & \yes \\ \grayline
+        - & Cell-specific regulatory network & \no & \no & \no & \no & \yes \\
+        \blackline
+        \multicolumn{7}{l}{\textbf{Emulate experimental effects}} \\
+        \blackline
+        - & Single-cell RNA sequencing & \yes & \yes & \yes & \yes & \yes \\ \grayline
+        - & Batch effects & \yes & \no & \no & \no & \yes $ ^1$ \\ \grayline
+        - & Knockdown experiment & \no & \no & \no & \no & \yes \\ \grayline
+        - & Time-series & \no & \no & \no & \no & \yes \\ \grayline
+        - & Snapshot & \no & \no & \no & \no & \yes \\
+        \blackline
+        \multicolumn{7}{l}{\textbf{Evaluation applications}} \\
+        \blackline
+        - & Clustering & \yes & \yes & \no & \yes & \no \\ \grayline
+        - & Trajectory inference & \yes & \no & \yes & \yes & \yes \\ \grayline
+        - & Network inference & \no & \no & \no & \yes & \yes \\ \grayline
+        - & Cell-specific network inference & \no & \no & \no & \no & \yes \\ \grayline
+        - & Differential expression & \yes & \no & \no & \no & \no \\ \grayline
+        - & Trajectory differential expression & \no & \no & \no & \no & \yes $ ^2$ \\ \grayline
+        - & Batch effect correction & \yes & \no & \no & \no & \yes \\ \grayline
+        - & RNA Velocity & \no & \no & \no & \no & \yes \\ \grayline
+        - & Trajectory alignment & \no & \no & \no & \no & \yes \\
+        \blackline
+        %\multicolumn{7}{l}{\textbf{Showcased dataset}} \\
+        %\blackline
+        %- & Number of cells &  &  &  &  & \\ \grayline
+        %- & Number of genes &  &  &  &  & \\ \grayline
+        %- & Execution time & & & & & \\
+        \blackline
+\end{tabular}
+\end{table}
+
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{result_files/usecase_trajectory_alignment/supp_fig.pdf}
+    \caption{
+        \textbf{dyngen allows benchmarking of trajectory alignment methods.} 
+ \textbf{A}: An example linear dataset in need of trajectory alignment. Dashed lines represent the gold-standard alignment between the two trajectories according to the respective pseudotimes.
+  \textbf{B}: Result of the DTW alignment on the two trajectories. 
+  \textbf{C}: DTW calculates an accumulated distance matrix. In this matrix, a warping path (shown in black), following a valley in the matrix from the bottom left to the top right corner is found. This shows how the trajectories best match each other.
+  \textbf{D}: Illustration of the Area Between Worst and Prediction (ABWAP) metric. The warping path from subfigure C is mapped to the respective pseudotimes from both trajectories. The ABWAP score is equal to the area between the prediction and the worst possible prediction. 
+  \textbf{E:} An evaluation of DTW versus cellAlign on 40 different linear trajectories, in which cellAlign significantly outperforms DTW. Box plot denotes the $Q_0$ to $Q_4$ quartile values. Significance of differences between methods was tested with a non-parametric paired two-sided Durbin-Conover test. Test statistics and p-values for all combinations are reported in the Source Data file.
+    }
+    \label{fig:traj_align}
+\end{figure}
+
+
+
+
+
+
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{result_files/usecase_rna_velocity/supp_fig.pdf}
+    \caption{
+        \textbf{dyngen allows benchmarking of RNA velocity methods.} 
+        \textbf{A:} The ground-truth information of a bifurcating dataset: ground-truth trajectory (left), gene expression of a gene B5\_TF1 (middle), and the RNA velocity of B5\_TF1 (right).
+\textbf{B:} The RNA velocity estimates of gene B5\_TF1 by the different methods.
+\textbf{C:} The velocity stream plots produced from the predictions of each method, as generated by scvelo.
+\textbf{D:} The predictions scored by two different metrics, the velocity correlation and the velocity arrow cosine. The velocity correlation is the correlation between the ground-truth velocity (A, right) and the predicted velocity (B). The velocity arrow cosine is the cosine similarity between the direction of segments of the ground-truth trajectory (A, left) and the RNA velocity values calculated at those points (C). Box plots denote the $Q_0$ to $Q_4$ quartile values. Significance of differences between methods was tested with pairwise non-parametric paired two-sided Durbin-Conover tests, Holm corrected for multiple testing. Test statistics and p-values for all combinations are reported in the Source Data file.
+    }
+    \label{fig:velocity}
+\end{figure}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{result_files/usecase_network_inference/supp_fig.pdf}
+    \caption{
+        \textbf{dyngen allows benchmarking Cell-specific Network Inference (CSNI) methods.} 
+        \textbf{A:} A cell is simulated using the global gene regulatory network (GRN, top left). However, at any particular state in the simulation, only a fraction of the gene regulatory interactions are active.
+        \textbf{B:} CSNI methods were executed to predict the regulatory interactions that are active in each cell specifically. Using the ground-truth cell-specific GRN, the performance of each method was quantified on 42 dyngen datasets. Box plots denote the $Q_0$ to $Q_4$ quartile values. Significance of differences between methods was tested with pairwise non-parametric paired two-sided Durbin-Conover tests, Holm corrected for multiple testing. Test statistics and p-values for all combinations are reported in the Source Data file.
+    }
+    \label{fig:scgrn}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{result_files/explain_methods}
+    \caption{\textbf{The workflow of dyngen consists of six main steps.} 
+    \textbf{A:} The user needs to specify the desired module network or use a predefined module network. The module network is what determines the dynamic behaviour of simulated cells.
+    \textbf{B:} The number of desired transcription factors (which drive the desired dynamic process) are amongst the given modules and adds regulatory interactions according to the module network. Additional target genes (which do not influence the dynamic process) are added by sampling interactions from GRN interaction databases.
+    \textbf{C:} Each gene regulatory interaction in the GRN is converted to a set of biochemical reactions. 
+    \textbf{D:} Along with the module network, the user also needs to specify the backbone structure of expected cell states. The average expression of each edge in the backbone is simulated by activating a restricted set of genes for each edge. 
+    \textbf{E:} Multiple Gillespie SSA simulations are run using the reactions defined in step C.  The counts of each of the molecules at each time step are extracted. Each time step is mapped to a point in the backbone. 
+    \textbf{F:} The molecule levels of multiple simulations are shown over time (left). From each simulation, multiple cells are sampled (from left to middle). Technical noise from profiling is simulated by sampling molecules from the set of molecules inside each cell (from middle to right).
+    }
+    \label{fig:explain_methods}
+\end{figure}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{result_files/example_backbones_onlymodules}
+    \caption{
+      \textbf{The module network determines the type of dynamic process which simulated cells will undergo.} A module network describes the regulatory interactions between sets of transcription factors which drive the desired dynamic process.
+    }
+    \label{fig:example_backbones_onlymodules}
+\end{figure}
+
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{result_files/gen_feature_network}
+    \caption{
+        \textbf{Generating the feature network from a backbone consists of four main steps.}
+    }
+    \label{fig:gen_feature_network}
+\end{figure}
+
+
+\begin{table}[H]
+    \caption{
+      \textbf{Reactions affecting the abundance levels of pre-mRNA $\x G$, mature mRNA $\y G$ and proteins $\z G$ of gene $G$.} Define the set of regulators of $G$ as $\rs{G}$, the set of upregulating regulators of $G$ as $\rp G$, and the set of down-regulating regulators of $G$ as $\rn G$. Parameters used in the propensity formulae are defined in Supplementary Table \ref{tab:reaction_params}.
+    } \label{tab:reaction_def}
+    \centering
+    \begin{tabular}{|lcc|}
+        \hline
+        Reaction & Effect & Propensity \\ \hline \hline
+        Transcription & $\emptyset \rightarrow \x G$ & $\xpr G \times \frac{\ba G - \ind{G}^{|\rp{G}|} + \prod\limits_{H \in \rp{G}}(\ind G + \buf{G,H})}{\prod\limits_{H \in \rs{G}}(1 + \buf{G,H})}$ \\
+        Splicing & $\x G \rightarrow \y G$ & $\ysr G \times \x G$ \\
+        Translation & $\y G \rightarrow \y G + \z G$ & $\zpr G \times \y G$ \\ \hline\hline
+        Pre-mRNA degradation & $\x G \rightarrow \emptyset$ & $\ydr G \times \x G$ \\
+        Mature mRNA degradation & $\y G \rightarrow \emptyset$ & $\ydr G \times \y G$ \\
+        Protein degradation & $\z G \rightarrow \emptyset$ & $\zdr G \times \z G$ \\ \hline
+    \end{tabular}
+\end{table}
+
+
+\begin{table}[H]
+    \caption{
+      \textbf{Default parameters defined for the calculation of reaction propensity functions.}
+    } \label{tab:reaction_params}
+    \centering
+    \begin{tabular}{|lrl|}
+        \hline
+        Parameter & Symbol & Definition \\ \hline \hline
+        Transcription rate & $\xpr{G}$ & $\in U(10, 20)$ \\
+        Splicing rate & $\ysr G$ & $= \ln(2)\ /\ 2$ \\
+        Translation rate & $\zpr{G}$ & $\in U(100, 150)$ \\
+        (Pre-)mRNA half-life & $\yhl{G}$ & $\in U(2.5, 5)$ \\
+        Protein half-life & $\zhl G$ & $\in U(5, 10)$ \\
+        Interaction strength & $\str{G,H}$ & $\in 10^{U(0, 2)}$ * \\
+        Hill coefficient & $\hill{G,H}$ & $\in U(0.5, 2)$ * \\
+        Independence factor & $\ind G$ & $\in U(0, 1)$ * \\ \hline\hline
+        (Pre-)mRNA degradation rate & $\ydr G$ & $= \ln(2)\ /\ \yhl G$ \\
+        Protein degradation rate & $\zdr G$ & $= \ln(2)\ /\ \zhl G$ \\
+        Dissociation constant & $\dis H$ & $= 0.5 \times \frac{\xpr H \times \ysr H \times \zpr H}{(\ydr H + \ysr H) \times \ydr H \times \zdr H}$ \\
+        Binding strength & $\buf{G,H}$ & $= \str{G,H} \times \left(\z H\ /\ \dis H\right) ^ {\hill{G,H}}$ \\
+        Basal expression & $\ba G$ & $= \begin{cases} 1 & \mbox{if } \rp{G} = \emptyset \\ 0.0001 & \mbox{if } \rn{G} = \emptyset \mbox{ and } \rp{G} \neq \emptyset \\ 0.5 & \mbox{otherwise} \end{cases}$ * \\ \hline
+        \multicolumn{3}{l}{*: unless $G$ is a TF, then the value is determined by the backbone.}
+    \end{tabular}
+\end{table}
+
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=.6\linewidth]{result_files/sample_cells.pdf}
+    \caption{
+        \textbf{Two approaches can be used to sample cells from simulations: snapshot and time-series.}
+    }
+    \label{fig:sample_cells}
+\end{figure}
+
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{result_files/example_backbones}
+    \caption{\textbf{Examples of the ground-truth state networks which need to be provided alongside the module network.}}
+    \label{fig:example_backbones}
+\end{figure}
+
+
+
+
 # Supplementary Files
+
 
 ## Vignette: Comparison to reference dataset
 
@@ -7,6 +300,7 @@ dyngen versus the reference dataset it uses. To this end, we’ll be using
 [`countsimQC`](https://www.bioconductor.org/packages/release/bioc/html/countsimQC.html)
 [@soneson_unifiedqualityverification_2018] to calculate key statistics of both datasets
 and create comparative visualisations.
+
 
 ### Run dyngen simulation
 
@@ -57,7 +351,9 @@ config <-
 ```
 
 ``` r
+
 # the simulation is being sped up because rendering all vignettes with one core
+
 # for pkgdown can otherwise take a very long time
 set.seed(1)
 
@@ -125,6 +421,7 @@ ddsList <- lapply(datasets, function(ds) {
 })
 ```
 
+
 ### Run countsimQC computations
 
 Below are some computations countsimQC makes. Normally these are not
@@ -133,6 +430,7 @@ in the vignette.
 
 ``` r
 library(countsimQC)
+
 
 ### Define helper objects
 nDatasets <- length(ddsList)
@@ -210,6 +508,7 @@ datasetDF <- map2_df(obj, names(obj), function(x, dataset_name) {
 })
 ```
 
+
 ### Data set dimensions
 
 These bar plots show the number of samples (columns) and features (rows)
@@ -237,6 +536,7 @@ ggplot(datasetDF, aes(x = dataset, y = nVars, fill = dataset)) +
 
 ![](comparison_reference_files/figure-gfm/nVariables-1.png)<!-- -->
 
+
 ### Dispersion/BCV plots
 
 Disperson/BCV plots show the association between the average abundance
@@ -247,6 +547,7 @@ and the dispersion or “biological coefficient of variation”
 [`DESeq2`](http://bioconductor.org/packages/release/bioc/html/DESeq2.html)
 [@love_moderatedestimationfold_2014]. In the `edgeR` plot, the estimate of the
 prior degrees of freedom is indicated.
+
 
 #### edgeR
 
@@ -269,6 +570,7 @@ ggplot(featureDF %>% dplyr::arrange(AveLogCPMDisp),
 
 ![](comparison_reference_files/figure-gfm/BCVedgeR-1.png)<!-- -->
 
+
 #### DESeq2
 
 The black dots are the gene-wise dispersion estimates, the red curve the
@@ -288,6 +590,7 @@ ggplot(featureDF %>% dplyr::arrange(baseMeanDisp),
 ```
 
 ![](comparison_reference_files/figure-gfm/dispersionDESeq2-1.png)<!-- -->
+
 
 ### Mean-variance plots
 
@@ -311,6 +614,7 @@ ggplot(featureDF, aes(x = average_log2_cpm, y = variance_log2_cpm)) +
 
 ![](comparison_reference_files/figure-gfm/meanVarSepScatter-1.png)<!-- -->
 
+
 ### Library sizes
 
 This plot shows a histogram of the total read count per sample, i.e.,
@@ -323,6 +627,7 @@ ggplot(sampleDF, aes(x = Libsize)) + geom_histogram(bins = 30) +
 ```
 
 ![](comparison_reference_files/figure-gfm/libsizeSepHist-1.png)<!-- -->
+
 
 ### TMM normalization factors
 
@@ -339,6 +644,7 @@ ggplot(sampleDF, aes(x = TMM)) + geom_histogram(bins = 30) +
 
 ![](comparison_reference_files/figure-gfm/tmmSepHist-1.png)<!-- -->
 
+
 ### Effective library sizes
 
 This plot shows a histogram of the “effective library sizes,” defined as
@@ -353,6 +659,7 @@ ggplot(sampleDF, aes(x = EffLibsize)) + geom_histogram(bins = 30) +
 
 ![](comparison_reference_files/figure-gfm/effLibsizeSepHist-1.png)<!-- -->
 
+
 ### Expression distributions (average log CPM)
 
 This plot shows the distribution of average abundance values for the
@@ -365,6 +672,7 @@ ggplot(featureDF, aes(x = AveLogCPM)) + geom_histogram(bins = 30) +
 ```
 
 ![](comparison_reference_files/figure-gfm/logCPMSepHist-1.png)<!-- -->
+
 
 ### Fraction zeros per sample
 
@@ -379,6 +687,7 @@ ggplot(sampleDF, aes(x = Fraczero)) + geom_histogram(bins = 30) +
 
 ![](comparison_reference_files/figure-gfm/fraczeroSampleSepHist-1.png)<!-- -->
 
+
 ### Fraction zeros per feature
 
 This plot illustrates the distribution of the fraction of zeros observed
@@ -391,6 +700,7 @@ ggplot(featureDF, aes(x = Fraczero)) + geom_histogram(bins = 30) +
 ```
 
 ![](comparison_reference_files/figure-gfm/fraczeroFeatureSepHist-1.png)<!-- -->
+
 
 ### Sample-sample correlations
 
@@ -405,6 +715,7 @@ ggplot(sampleCorrDF, aes(x = Correlation)) + geom_histogram(bins = 30) +
 ```
 
 ![](comparison_reference_files/figure-gfm/sampleCorrSepHist-1.png)<!-- -->
+
 
 ### Feature-feature correlations
 
@@ -421,6 +732,7 @@ ggplot(featureCorrDF, aes(x = Correlation)) + geom_histogram(bins = 30) +
 
 ![](comparison_reference_files/figure-gfm/featureCorrSepHist-1.png)<!-- -->
 
+
 ### Library size vs fraction zeros
 
 This scatter plot shows the association between the total count (column
@@ -434,6 +746,7 @@ ggplot(sampleDF, aes(x = Libsize, y = Fraczero)) +
 ```
 
 ![](comparison_reference_files/figure-gfm/libsizeFraczeroSepScatter-1.png)<!-- -->
+
 
 ### Mean expression vs fraction zeros
 
@@ -449,6 +762,7 @@ ggplot(featureDF, aes(x = AveLogCPM, y = Fraczero)) +
 ```
 
 ![](comparison_reference_files/figure-gfm/logCPMFraczeroSepScatter-1.png)<!-- -->
+
 
 
 ## Vignette: On scalability and runtime
@@ -470,6 +784,7 @@ if (!dir.exists(save_dir)) dir.create(save_dir, recursive = TRUE)
 
 backbone <- backbone_bifurcating_cycle()
 ```
+
 
 ### Initial run
 
@@ -534,6 +849,7 @@ tweaked are:
 
 For more information on parameter tuning, see the vignette ‘Advanced:
 tuning the simulation parameters’.
+
 
 ### Timing experiments
 
@@ -613,6 +929,7 @@ timings_sum <-
   summarise(time_elapsed = sum(time_elapsed), .groups = "drop")
 ```
 
+
 ### Simulate a large dataset (10k × 10k)
 
 Below is shown the timings of each of the steps in simulating a dyngen
@@ -636,6 +953,7 @@ ggplot(timings0) +
 ```
 
 ![](scalability_and_runtime_files/figure-gfm/bblego-1.png)<!-- -->
+
 
 ### Increasing the number of cells
 
@@ -677,6 +995,7 @@ ggplot(timings_sum %>% filter(num_features == 100)) +
 
 ![](scalability_and_runtime_files/figure-gfm/plot_timings_cell-1.png)<!-- -->
 
+
 ### Increasing the number of features
 
 By increasing the number of features from 1000 to 10’000 whilst keeping
@@ -716,7 +1035,11 @@ ggplot(timings_sum %>% filter(num_cells == 100)) +
 
 ![](scalability_and_runtime_files/figure-gfm/plot_timings_feats-1.png)<!-- -->
 
+
 ### Execution platform
 
 These timings were measured using 30 (out of 32) threads using a AMD
 Ryzen 9 5950X clocked at 3.4GHz.
+
+
+

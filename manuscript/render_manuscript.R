@@ -5,20 +5,38 @@ library(textreadr)
 
 if (Sys.info()[["user"]] == "rcannood") {
   # httr::set_config(httr::config(http_version = 0)) # avoid http2 framing layer bug
-  drive <- drive_download(as_id("1gU6--vq988dQS3qYQRlIqC1QO96A4XM81s54K6YJKIk"), type = "text", overwrite = TRUE, path = tempfile())
+  drive <- drive_download(as_id("1aJTm23fUmUH4ad7Hl3eHoNFfK4Ltqj4LwLfP6pwmfi4"), type = "text", overwrite = TRUE, path = tempfile())
 
   # read docx
-  c(readr::read_lines(drive$local_path), readr::read_lines("manuscript/vignettes.Rmd")) %>%
+  readr::read_lines(drive$local_path) %>%
     str_replace_all("([^ ])(\\[@[^\\]]*\\])", "\\1 \\2") %>% # add spaces before citations
     str_replace_all("^#", "\n#") %>%
-    write_lines("manuscript/render.Rmd")
+    write_lines("manuscript/manuscript.Rmd")
 }
 
-# render the manuscript
-render("manuscript/render.Rmd")
+# take the relevant citatiosn and write it to a second file
+bib_keys <-
+  readr::read_lines(drive$local_path) %>%
+  paste(collapse = "\n") %>%
+  str_extract_all("\\[@[^\\]]*\\]") %>%
+  first() %>%
+  gsub("^\\[@", "", .) %>%
+  gsub("\\]$", "", .) %>%
+  str_split("; *") %>%
+  unlist() %>%
+  gsub("@", "", .) %>%
+  unique
 
-system("pdftk manuscript/render.pdf cat 1-16 output manuscript/manuscript.pdf")
-system("pdftk manuscript/render.pdf cat 17-45 output manuscript/supplementary_files.pdf")
+knitcitations::cite_options(check.entries = FALSE)
+bib <- knitcitations::read.bibtex("manuscript/library.bib")
+knitcitations::write.bibtex(bib[bib_keys], file = "manuscript/knitcitations.bib")
+
+# render the manuscript
+render("manuscript/manuscript.Rmd")
+
+
+
+render("manuscript/supplementary_files.Rmd")
 
 # system("latexdiff manuscript/v3/render.tex manuscript/render.tex > manuscript/track_changes.tex")
 # file.remove("manuscript/render.pdf")

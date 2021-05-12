@@ -26,3 +26,6 @@ derived
 analysis/data
 temporary_files
 temp
+knitcitations.bib
+*blx.bib
+manuscript.bib

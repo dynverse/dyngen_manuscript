@@ -27,7 +27,7 @@ output:
     pandoc_args:
       - '--lua-filter=lua/scholarly-metadata.lua'
       - '--lua-filter=lua/author-info-blocks.lua'
-biblatexoptions: sorting=none,url=false,backend=bibtex
+biblatexoptions: sorting=none,url=false
 classoption:
 - table
 - 10pt
@@ -517,3 +517,7 @@ The version numbers of downstream dependencies of dyngen and dyngen_manuscript u
 * R.C. and W.S. implemented the dyngen software package.
 * R.C., W.S., L.D., and Y.S. wrote the manuscript.
 * Y.S. supervised the project.
+
+# Acknowledgements
+This project has been made possible in part by grant number 2020-218899 from the Chan Zuckerberg
+Initiative DAF, an advised fund of Silicon Valley Community Foundation.

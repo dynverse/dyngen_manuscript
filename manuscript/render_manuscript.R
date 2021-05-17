@@ -14,22 +14,22 @@ if (Sys.info()[["user"]] == "rcannood") {
     write_lines("manuscript/manuscript.Rmd")
 }
 
-# take the relevant citations and write it to a second file
-bib_keys <-
-  readr::read_lines("manuscript/manuscript.Rmd") %>%
-  paste(collapse = "\n") %>%
-  str_extract_all("\\[@[^\\]]*\\]") %>%
-  first() %>%
-  gsub("^\\[@", "", .) %>%
-  gsub("\\]$", "", .) %>%
-  str_split("; *") %>%
-  unlist() %>%
-  gsub("@", "", .) %>%
-  unique
-
-knitcitations::cite_options(check.entries = FALSE)
-bib <- knitcitations::read.bibtex("manuscript/library.bib")
-knitcitations::write.bibtex(bib[bib_keys], file = "manuscript/knitcitations.bib")
+# # take the relevant citations and write it to a second file
+# bib_keys <-
+#   readr::read_lines("manuscript/manuscript.Rmd") %>%
+#   paste(collapse = "\n") %>%
+#   str_extract_all("\\[@[^\\]]*\\]") %>%
+#   first() %>%
+#   gsub("^\\[@", "", .) %>%
+#   gsub("\\]$", "", .) %>%
+#   str_split("; *") %>%
+#   unlist() %>%
+#   gsub("@", "", .) %>%
+#   unique
+#
+# knitcitations::cite_options(check.entries = FALSE)
+# bib <- knitcitations::read.bibtex("manuscript/library.bib")
+# knitcitations::write.bibtex(bib[bib_keys], file = "manuscript/knitcitations.bib")
 
 
 # render the manuscript

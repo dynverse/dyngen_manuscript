@@ -314,9 +314,14 @@ library(dyngen)
 set.seed(1)
 
 data("realcounts", package = "dyngen")
-name_realcounts <- "zenodo_1443566_real_silver_bone-marrow-mesenchyme-erythrocyte-differentiation_mca"
+name_realcounts <- paste0(
+  "zenodo_1443566_real_silver_", 
+  "bone-marrow-mesenchyme-erythrocyte-differentiation_mca"
+)
 url_realcounts <- realcounts %>% filter(name == name_realcounts) %>% pull(url)
-realcount <- dyngen:::.download_cacheable_file(url_realcounts, getOption("dyngen_download_cache_dir"), verbose = FALSE)
+cache_dir <- getOption("dyngen_download_cache_dir")
+realcount <- 
+  dyngen:::.download_cacheable_file(url_realcounts, cache_dir, verbose = FALSE)
 ```
 
 We run a simple dyngen dataset as follows, where the number of cells and
@@ -875,13 +880,15 @@ settings <- bind_rows(
     rep = seq_len(3)
   )
 ) %>% 
-  mutate(filename = paste0(save_dir, "/cells", num_cells, "_feats", num_features, "_rep", rep, ".rds"))
+  mutate(filename = paste0(save_dir, "/cells", num_cells, "_feats", num_features, 
+    "_rep", rep, ".rds"))
 
 timings <- pmap_dfr(settings, function(num_cells, num_features, rep, filename) {
   if (!file.exists(filename)) {
     set.seed(rep)
     
-    cat("Running num_cells: ", num_cells, ", num_features: ", num_features, ", rep: ", rep, "\n", sep = "")
+    cat("Running num_cells: ", num_cells, ", num_features: ", num_features, 
+      ", rep: ", rep, "\n", sep = "")
     num_tfs <- nrow(backbone$module_info)
     num_targets <- round((num_features - num_tfs) / 2)
     num_hks <- num_features - num_targets - num_tfs
@@ -969,7 +976,11 @@ timings1 <-
   summarise(time_elapsed = sum(time_elapsed), .groups = "drop")
 
 ggplot(timings1) + 
-  geom_bar(aes(x = forcats::fct_inorder(as.character(num_cells)), y = time_elapsed, fill = forcats::fct_inorder(group)), stat = "identity") +
+  geom_bar(aes(
+    x = forcats::fct_inorder(as.character(num_cells)), 
+    y = time_elapsed,
+    fill = forcats::fct_inorder(group)),
+    stat = "identity") +
   theme_classic() +
   scale_fill_brewer(palette = "Dark2") +
   labs(x = "Number of cells", y = "Average time (s)", fill = "dyngen step")
@@ -1010,7 +1021,11 @@ timings2 <-
   summarise(time_elapsed = sum(time_elapsed), .groups = "drop")
 
 ggplot(timings2) + 
-  geom_bar(aes(x = forcats::fct_inorder(as.character(num_features)), y = time_elapsed, fill = forcats::fct_inorder(group)), stat = "identity") +
+  geom_bar(aes(
+    x = forcats::fct_inorder(as.character(num_features)), 
+    y = time_elapsed, 
+    fill = forcats::fct_inorder(group)),
+    stat = "identity") +
   theme_classic() +
   scale_fill_brewer(palette = "Dark2") +
   labs(x = "Number of features", y = "Average time (s)", fill = "dyngen step")

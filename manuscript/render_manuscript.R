@@ -35,7 +35,7 @@ if (Sys.info()[["user"]] == "rcannood") {
 # render the manuscript
 render("manuscript/manuscript.Rmd")
 
-render("manuscript/supplementary_files.Rmd")
+# render("manuscript/supplementary_files.Rmd")
 
 # system("latexdiff manuscript/v3/render.tex manuscript/render.tex > manuscript/track_changes.tex")
 # file.remove("manuscript/render.pdf")

@@ -1,5 +1,5 @@
 ---
-title: "dyngen: a multi-modal simulator for spearheading new single-cell omics analyses"
+title: "dyngen is a multi-modal simulator for spearheading future single-cell omics analyses"
 author:
 - name: Robrecht Cannoodt
   institute: [dambi, twist, di]
@@ -21,6 +21,7 @@ institute:
 date: "`r format(Sys.time(), '%d %B %Y')`"
 output:
   pdf_document:
+    number_sections: true
     keep_tex: yes
     latex_engine: xelatex
     citation_package: biblatex
@@ -58,17 +59,17 @@ library(tidyverse)
 
 # Abstract
 <!-- format: max. 70 words -->
-We present dyngen, a novel, multi-modal simulation engine for studying dynamic cellular processes at single-cell resolution. dyngen is more flexible than current single-cell simulation engines, and allows better method development and benchmarking, thereby stimulating development and testing of novel computational methods. We demonstrate its potential for spearheading novel computational methods on three novel applications: aligning cell developmental trajectories, cell-specific regulatory network inference and estimation of RNA velocity.
+We present dyngen, a multi-modal simulation engine for studying dynamic cellular processes at single-cell resolution. dyngen is more flexible than current single-cell simulation engines, and allows better method development and benchmarking, thereby stimulating development and testing of computational methods. We demonstrate its potential for spearheading computational methods on three applications: aligning cell developmental trajectories, cell-specific regulatory network inference and estimation of RNA velocity.
 
 # Introduction
 <!-- format: 1500 Words, no headings, max. 2 figures, max. 20 references-->
 Single-cell simulation engines are becoming increasingly important for testing and benchmarking computational methods, a pressing need in the widely expanding field of single-cell biology. Complementary to real biological data, synthetic data provides a valuable alternative where the actual ground truth is completely known and thus can be compared to, in order to make quantitative evaluations of computational methods that aim to reconstruct this ground truth [@zappia_splattersimulationsinglecell_2017]. In addition, simulation engines are more flexible when it comes to stress-testing computational methods, for example by varying the parameters of the simulation, such as the amount of noise, samples, and cells measured, allowing benchmarking of methods over a wide range of possible scenarios. In this way, they can even guide the design of real biological experiments, finding out the best conditions to be used as input for subsequent computational pipelines.
 
 
-Another, more experimental use of simulation engines is their important role in spearheading the development of novel computational methods, possibly even before real data is available. In this way, simulation engines can be used to assess the value of novel experimental protocols or treatments. Simulation engines are also increasingly important when it comes to finding alternatives to animal models, for example for drug testing and precision medicine. In such scenarios, cellular simulations can act as digital twins, offering unlimited experimentation _in silico_ [@bjornsson_digitaltwinspersonalize_2019].
+Another, more experimental use of simulation engines is their important role in spearheading the development of computational methods, possibly even before real data is available. In this way, simulation engines can be used to assess the value of novel experimental protocols or treatments. Simulation engines are also increasingly important when it comes to finding alternatives to animal models, for example for drug testing and precision medicine. In such scenarios, cellular simulations can act as digital twins, offering unlimited experimentation _in silico_ [@bjornsson_digitaltwinspersonalize_2019].
 
 
-Simulating realistic data requires that the underlying biology is recapitulated as best as possible, and in the case of transcriptomics data this typically involves modelling the underlying gene regulatory networks. Simulators of "bulk" microarray or RNA-sequencing profiles simulate biological processes (e.g. transcription, translation) by translating a database of known regulatory interactions into a set of ordinary differential equations (ODE) [@roy_systemgeneratingtranscription_2008; @hache_gengesystematicgeneration_2009; @schaffter_genenetweaversilicobenchmark_2011; @vandenbulcke_syntrengeneratorsynthetic_2006]. These methods have been instrumental in performing benchmarking studies [@prill_rigorousassessmentsystems_2010; @marbach_revealingstrengthsweaknesses_2010; @marbach_wisdomcrowdsrobust_2012]. However, the advent of single-cell omics introduced several new types of analyses (e.g. trajectory inference, RNA velocity, cell-specific network inference) which exploit the higher resolution of single-cell versus bulk omics [@luecken_currentbestpractices_2019]. In addition, the data characteristics of single-cell omics are vastly different from bulk omics, typically having much lower library sizes and a higher dropout rate, but also a high number of profiles [@vallejos_normalizingsinglecellrna_2017]. The low library sizes, in particular, are problematic as ODEs are ill-suited for performing low-molecule simulations [@gillespie_exactstochasticsimulation_1977]. This necessitates the development of new single-cell simulators.
+Simulating realistic data requires that the underlying biology is recapitulated as best as possible, and in the case of transcriptomics data this typically involves modelling the underlying gene regulatory networks. Simulators of "bulk" microarray or RNA-sequencing profiles simulate biological processes (e.g. transcription, translation) by translating a database of known regulatory interactions into a set of ordinary differential equations (ODE) [@roy_systemgeneratingtranscription_2008; @hache_gengesystematicgeneration_2009; @schaffter_genenetweaversilicobenchmark_2011; @vandenbulcke_syntrengeneratorsynthetic_2006]. These methods have been instrumental in performing benchmarking studies [@prill_rigorousassessmentsystems_2010; @marbach_revealingstrengthsweaknesses_2010; @marbach_wisdomcrowdsrobust_2012]. However, the advent of single-cell omics introduced several new types of analyses (e.g. trajectory inference, RNA velocity, cell-specific network inference) which exploit the higher resolution of single-cell versus bulk omics [@luecken_currentbestpractices_2019]. In addition, the data characteristics of single-cell omics are vastly different from bulk omics, typically having much lower library sizes and a higher dropout rate, but also a high number of profiles [@vallejos_normalizingsinglecellrna_2017]. The low library sizes, in particular, are problematic as ODEs are ill-suited for performing low-molecule simulations [@gillespie_exactstochasticsimulation_1977]. This necessitates the development of single-cell simulators.
 
 
 To this end, single-cell omics simulators emulate the technical procedures from single-cell omics protocols. Simulators such as Splatter [@zappia_splattersimulationsinglecell_2017], powsimR [@vieth_powsimrpoweranalysis_2017], PROSSTT [@papadopoulos_prossttprobabilisticsimulation_2019] and SymSim [@zhang_simulatingmultiplefaceted_2019]) have already been widely used to compare single-cell methods [@street_slingshotcelllineage_2018; @parra_reconstructingcomplexlineage_2019; @lummertzdarocha_reconstructioncomplexsinglecell_2018; @lin_scclassifysamplesize_2020] and perform independent benchmarks [@duo_systematicperformanceevaluation_2018; @saelens_comparisonsinglecelltrajectory_2019; @soneson_biasrobustnessscalability_2018]. However, by focusing more on simulating the single-cell omics protocol (e.g. RNA capture, amplification, sequencing) and less on the underlying biology (e.g. transcription, splicing, translation), their applicability and reusability is limited towards the specific application for which they were designed (e.g. benchmarking clustering or differential expression methods), and extending these tools to include additional modalities or experimental conditions is challenging.
@@ -140,7 +141,7 @@ Use-case "Cell-specific network inference" (CSNI). CSNI methods predict not only
 
 # Discussion
 dyngen's single-cell simulations can be used to evaluate common single-cell omics computational methods such as clustering, batch correction, trajectory inference, and network inference.
-However, the framework is flexible enough to be adaptable to a broad range of applications, including methods that integrate clustering, network inference, and trajectory inference. In this respect, dyngen may promote the development of new tools in the single-cell field similarly as other simulators have done in the past [@schaffter_genenetweaversilicobenchmark_2011; @ewing_combiningtumorgenome_2015]. Additionally, one could anticipate technological developments in single-cell multi-omics. In this way, dyngen allows designing and evaluating the performance and robustness of new types of computational analyses before experimental data becomes available, comparing which experimental protocol is the most cost-effective in producing qualitative and robust results in downstream analysis. One major assumption of dyngen is that cells are assumed to be well-mixed and independent from each other. Subdividing a cell into multiple 2D or 3D subvolumes or allowing cells to exchange molecules, respectively, could pave the way to better study key cellular processes such as cell division, intercellular communication, and migration [@smith_spatialstochasticintracellular_2019].
+However, the framework is flexible enough to be adaptable to a broad range of applications, including methods that integrate clustering, network inference, and trajectory inference. In this respect, dyngen may promote the development of tools in the single-cell field similarly as other simulators have done in the past [@schaffter_genenetweaversilicobenchmark_2011; @ewing_combiningtumorgenome_2015]. Additionally, one could anticipate technological developments in single-cell multi-omics. In this way, dyngen allows designing and evaluating the performance and robustness of new types of computational analyses before experimental data becomes available, comparing which experimental protocol is the most cost-effective in producing qualitative and robust results in downstream analysis. One major assumption of dyngen is that cells are assumed to be well-mixed and independent from each other. Subdividing a cell into multiple 2D or 3D subvolumes or allowing cells to exchange molecules, respectively, could pave the way to better study key cellular processes such as cell division, intercellular communication, and migration [@smith_spatialstochasticintracellular_2019].
 
 
 
@@ -159,7 +160,7 @@ One of the main processes involved in cellular dynamic processes is gene regulat
 To start a dyngen simulation, the user needs to define a module network. The module network describes how sets of genes regulate each other and is what mainly determines which dynamic processes occur within the simulated cells. 
 
 
-A module network consists of modules connected together by regulatory interactions, which can be either up- or down-regulating. A module may have basal expression, which means genes in this module will be transcribed without the presence of transcription factor molecules. A module marked as "active during the burn phase" means that this module will be allowed to generate expression of its genes during an initial warm-up phase (See section \ref{sec:dyngen-simcell}). At the end of the dyngen process, cells will not be sampled from the burn phase simulations. Interactions between modules have a strength (which is a positive integer) and an effect (+1 for upregulating, -1 for downregulating).
+A module network consists of modules connected together by regulatory interactions, which can be either up- or down-regulating. A module may have basal expression, which means genes in this module will be transcribed without the presence of transcription factor molecules. A module marked as "active during the burn phase" means that this module will be allowed to generate expression of its genes during an initial warm-up phase. At the end of the dyngen process, cells will not be sampled from the burn phase simulations. Interactions between modules have a strength (which is a positive integer) and an effect (+1 for upregulating, -1 for downregulating).
 
 
 Several examples of module networks are given in Supplementary Fig.\ 5.
@@ -398,7 +399,7 @@ GillespieSSA2 is an optimised library for performing SSA simulations. The propen
 
 
 ## Simulate experiment {#sec:dyngen-experiment}
-From the SSA simulation we obtain the abundance levels of all the molecules at every state. We need to replicate technical effects introduced by experimental protocols in order to obtain data that is similar to real data. For this, the cells are sampled from the simulations and molecules are sampled for each of the cells. Gene capture rates and library sizes are empirically derived from real datasets as to match real technical variation.
+From the SSA simulation we obtain the abundance levels of all the molecules at every state. We need to replicate technical effects introduced by experimental protocols in order to obtain data that is similar to real data. For this, the cells are sampled from the simulations and molecules are sampled for each of the cells. Gene capture rates and library sizes are empirically derived from real datasets to match real technical variation.
 
 
 
@@ -414,7 +415,8 @@ In this step, $N$ cells are sampled from the simulations. Two approaches are imp
 ### Sample molecules
 Molecules are sampled from the simulation to replicate how molecules are experimentally sampled. A real dataset is downloaded from a repository of single-cell RNA-seq datasets [@cannoodt_singlecellomicsdatasets_2018]. For each _in silico_ cell $i$, draw its library size $ls_i$ from the distribution of transcript counts per cell in the real dataset. The capture rate $cr_j$ of each _in silico_ molecule type $j$ is drawn from $N(1, 0.05)$. Finally, for each cell $i$, draw $ls_i$ molecules from the multinomial distribution with probabilities $cr_j \times ab_{i,j}$ with $ab_{i,j}$ the molecule abundance level of molecule $j$ in cell $i$.
 
-
+### Comparison between a dyngen and a reference dataset
+Comparison between a dyngen dataset and the reference dataset it used in terms of characteristic single-cell omics features showed that dyngen produces datasets with highly similar data characteristics (Supplementary Note 1). Supplementary Note 1 was generated using countsimQC [@soneson_unifiedqualityverification_2018]. . 
 
 ## Simulating batch effects {#sec:dyngen-batcheffect}
 Simulating batch effects can be performed in multiple ways. One such way is to perform the first two steps of the creation of a dyngen model (defining the module network and generating the GRN). For each desired batch, create a separate model for which random kinetics are generated and perform all subsequent dyngen steps (convert to reactions, simulate gold standard, simulate single cells, simulate experiment). Since each separate model has different underlying kinetics, the combined output will resemble having batch effects.
@@ -431,7 +433,7 @@ For each of the branches in the state network, an expression matrix and the corr
 
 
 ## Determining the cell-specific ground-truth regulatory network {#sec:dyngen-extractgrn}
-Calculating the regulatory effect of a regulator $R$ on a target $T$ (Supplementary Fig.\ 4F) requires determining the contribution of $R$ in the propensity function of the transcription of $T$ (section\ \ref{sec:dyngen-reactions}) with respect to other regulators. This information is useful, amongst others, for benchmarking cell-specific network inference methods. 
+Calculating the regulatory effect of a regulator $R$ on a target $T$ (Supplementary Fig.\ 4F) requires determining the contribution of $R$ in the propensity function of the transcription of $T$ with respect to other regulators. This information is useful, amongst others, for benchmarking cell-specific network inference methods. 
 
 
 The regulatory effect of $R$ on $T$ at a particular state $S$ is defined as the change in the propensity of transcription when $R$ is set to zero, scaled by the inverse of the pre-mRNA production rate of $T$. More formally:
@@ -447,7 +449,7 @@ Determining the regulatory effect for all interactions and cells in the dataset 
 
 
 ## Comparison of cell-specific network inference methods {#sec:dyngen-nicompare}
-42 datasets were generated using the 14 different predefined backbones and three different seeds. For every cell in the dataset, the transcriptomics profile and the corresponding cell-specific ground-truth regulatory network was determined (Section\ \ref{sec:dyngen-extractgrn}). 
+42 datasets were generated using the 14 different predefined backbones and three different seeds. For every cell in the dataset, the transcriptomics profile and the corresponding cell-specific ground-truth regulatory network was determined. 
 
 
 We selected three cell-specific NI methods: SCENIC [@aibar_scenicsinglecellregulatory_2017], LIONESS [@kuijjer_estimatingsamplespecificregulatory_2015; @kuijjer_estimatingsamplespecificregulatory_2019], and SSN [@liu_personalizedcharacterizationdiseases_2016]. 
@@ -502,6 +504,11 @@ We compared the ABWAP scores obtained by DTW and cellAlign across all datasets b
 
 
 
+## Comparison of scalability and runtime
+Simulating a bifurcating cycle dataset with 10'000 genes and 10'000 required in total 1147 seconds (Supplementary Note 2). Fixing the number of genes and varying the number of cells showed that the execution time of dyngen scales linearly w.r.t. the number of cells (Supplementary Note 2). Fixing the number of cells and varying the number of genes also showed that the execution time of dyngen scales linearly w.r.t. the number of genes (Supplementary Note 2). These timings were measured using 30 (out of 32) threads using a AMD Ryzen 9 5950X clocked at 3.4GHz.
+
+
+
 # Data Availability
 Source data for box plots in Figure \ref{fig:applications} and Supplementary Figures\ 1, 2\ and\ 3 are provided with this paper. All code and data required to reproduce the analysis are available on GitHub at [github.com/dynverse/dyngen_manuscript](https://github.com/dynverse/dyngen_manuscript). The datasets generated for the different use cases are available on Zenodo with record number 4637926 (doi: [10.5281/zenodo.4637926](https://doi.org/10.5281/zenodo.4637926)).
 
@@ -511,6 +518,9 @@ Results in this manuscript were generated with R 4.0.3 and dyngen 1.0.0. dyngen 
 
 The version numbers of downstream dependencies of dyngen and dyngen_manuscript used in this study are: anndata 0.7.5.1, assertthat 0.2.1, babelwhale 1.0.1, bit 4.0.4, bit64 4.0.5, carrier 0.1.0, cellAlign 0.1.0, codetools 0.2-18, colorspace 2.0-0, compiler 4.0.4, crayon 1.4.1.9000, data.table 1.13.4, DBI 1.1.1, debugme 1.1.0, desc 1.2.0, digest 0.6.27, dplyr 1.0.5, dtw 1.22-3, dynparam 1.0.1, dynutils 1.0.6, dynwrap 1.2.2, ellipsis 0.3.1, fansi 0.4.2, farver 2.1.0, future 1.20.1, future.apply 1.7.0, generics 0.1.0, ggforce 0.3.2, ggplot2 3.3.3, ggraph 2.0.4, ggrepel 0.9.0, GillespieSSA2 0.2.7, globals 0.14.0, glue 1.4.2, graphlayouts 0.7.1, grid 4.0.4, gridExtra 2.3, gtable 0.3.0, gtools 3.8.2, hdf5r 1.3.3, hms 1.0.0, igraph 1.2.6, irlba 2.3.3, jsonlite 1.7.2, lattice 0.20-41, lifecycle 1.0.0, lisi 1.0, listenv 0.8.0, lmds 0.1.0, magrittr 2.0.1, MASS 7.3-53, Matrix 1.3-2, matrixStats 0.57.0, munsell 0.5.0, parallel 4.0.4, parallelly 1.21.0, patchwork 1.1.1, pbapply 1.4-3, pheatmap 1.0.12, pillar 1.5.1, pkgconfig 2.0.3, plyr 1.8.6, polyclip 1.10-0, pracma 2.2.9, processx 3.4.5, proxy 0.4-24, proxyC 0.1.5, ps 1.6.0, purrr 0.3.4, R6 2.5.0, RANN 2.6.1, rappdirs 0.3.3, RColorBrewer 1.1-2, Rcpp 1.0.6, RcppParallel 5.0.2, RcppXPtrUtils 0.1.1, readr 1.4.0, remotes 2.2.0, reshape2 1.4.4, reticulate 1.18-9007, rlang 0.4.10, rprojroot 2.0.2, scales 1.1.1, sctransform 0.3.2, scvelo 0.1.0.9000, stringi 1.5.3, stringr 1.4.0, tibble 3.0.5, tidygraph 1.2.0, tidyr 1.1.2, tidyselect 1.1.0, tools 4.0.4, tweenr 1.0.1, utf8 1.1.4, vctrs 0.3.6, viridis 0.5.1, viridisLite 0.3.0, yaml 2.2.1.
 
+# Acknowledgements
+This project has been made possible in part by grant number 2020-218899 from the Chan Zuckerberg Initiative DAF, an advised fund of Silicon Valley Community Foundation. This research received funding from the Flemish Government under the “Onderzoeksprogramma Artificiële Intelligentie (AI) Vlaanderen” program.
+
 # Author contributions
 * W.S. and R.C. designed the study.
 * R.C., W.S., and L.D. performed the experiments and analysed the data.
@@ -518,6 +528,5 @@ The version numbers of downstream dependencies of dyngen and dyngen_manuscript u
 * R.C., W.S., L.D., and Y.S. wrote the manuscript.
 * Y.S. supervised the project.
 
-# Acknowledgements
-This project has been made possible in part by grant number 2020-218899 from the Chan Zuckerberg
-Initiative DAF, an advised fund of Silicon Valley Community Foundation.
+# Competing interests
+The authors declare no competing interests.

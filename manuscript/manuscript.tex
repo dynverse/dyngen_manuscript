@@ -38,7 +38,7 @@
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
 \hypersetup{
-  pdftitle={dyngen: a multi-modal simulator for spearheading new single-cell omics analyses},
+  pdftitle={dyngen is a multi-modal simulator for spearheading future single-cell omics analyses},
   pdfauthor={Robrecht Cannoodt,1,2,3; Wouter Saelens,1,2,4; Louise Deconinck1,2; Yvan Saeys1,2,},
   hidelinks,
   pdfcreator={LaTeX via pandoc}}
@@ -60,7 +60,7 @@
 \setlength{\emergencystretch}{3em} % prevent overfull lines
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
-\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\setcounter{secnumdepth}{5}
 \usepackage{tcolorbox}
 \usepackage{colortbl}
 \usepackage{booktabs}
@@ -77,12 +77,12 @@
 \usepackage[sorting=none,url=false]{biblatex}
 \addbibresource{library.bib}
 
-\title{dyngen: a multi-modal simulator for spearheading new single-cell
-omics analyses}
+\title{dyngen is a multi-modal simulator for spearheading future
+single-cell omics analyses}
 \author{Robrecht Cannoodt\textsuperscript{$\dagger{}$,1,2,3} \and Wouter
 Saelens\textsuperscript{$\dagger{}$,1,2,4} \and Louise
 Deconinck\textsuperscript{1,2} \and Yvan Saeys\textsuperscript{1,2,*}}
-\date{17 May 2021}
+\date{20 May 2021}
 
 \begin{document}
 \maketitle
@@ -106,14 +106,14 @@ Switzerland
 \hypertarget{abstract}{%
 \section{Abstract}\label{abstract}}
 
-We present dyngen, a novel, multi-modal simulation engine for studying
-dynamic cellular processes at single-cell resolution. dyngen is more
-flexible than current single-cell simulation engines, and allows better
-method development and benchmarking, thereby stimulating development and
-testing of novel computational methods. We demonstrate its potential for
-spearheading novel computational methods on three novel applications:
-aligning cell developmental trajectories, cell-specific regulatory
-network inference and estimation of RNA velocity.
+We present dyngen, a multi-modal simulation engine for studying dynamic
+cellular processes at single-cell resolution. dyngen is more flexible
+than current single-cell simulation engines, and allows better method
+development and benchmarking, thereby stimulating development and
+testing of computational methods. We demonstrate its potential for
+spearheading computational methods on three applications: aligning cell
+developmental trajectories, cell-specific regulatory network inference
+and estimation of RNA velocity.
 
 \hypertarget{introduction}{%
 \section{Introduction}\label{introduction}}
@@ -135,11 +135,11 @@ biological experiments, finding out the best conditions to be used as
 input for subsequent computational pipelines.
 
 Another, more experimental use of simulation engines is their important
-role in spearheading the development of novel computational methods,
-possibly even before real data is available. In this way, simulation
-engines can be used to assess the value of novel experimental protocols
-or treatments. Simulation engines are also increasingly important when
-it comes to finding alternatives to animal models, for example for drug
+role in spearheading the development of computational methods, possibly
+even before real data is available. In this way, simulation engines can
+be used to assess the value of novel experimental protocols or
+treatments. Simulation engines are also increasingly important when it
+comes to finding alternatives to animal models, for example for drug
 testing and precision medicine. In such scenarios, cellular simulations
 can act as digital twins, offering unlimited experimentation \emph{in
 silico} \autocite{bjornsson_digitaltwinspersonalize_2019}.
@@ -165,7 +165,7 @@ dropout rate, but also a high number of profiles
 sizes, in particular, are problematic as ODEs are ill-suited for
 performing low-molecule simulations
 \autocite{gillespie_exactstochasticsimulation_1977}. This necessitates
-the development of new single-cell simulators.
+the development of single-cell simulators.
 
 To this end, single-cell omics simulators emulate the technical
 procedures from single-cell omics protocols. Simulators such as Splatter
@@ -369,7 +369,7 @@ correction, trajectory inference, and network inference. However, the
 framework is flexible enough to be adaptable to a broad range of
 applications, including methods that integrate clustering, network
 inference, and trajectory inference. In this respect, dyngen may promote
-the development of new tools in the single-cell field similarly as other
+the development of tools in the single-cell field similarly as other
 simulators have done in the past
 \autocite{schaffter_genenetweaversilicobenchmark_2011,ewing_combiningtumorgenome_2015}.
 Additionally, one could anticipate technological developments in
@@ -423,11 +423,10 @@ have basal expression, which means genes in this module will be
 transcribed without the presence of transcription factor molecules. A
 module marked as ``active during the burn phase'' means that this module
 will be allowed to generate expression of its genes during an initial
-warm-up phase (See section \ref{sec:dyngen-simcell}). At the end of the
-dyngen process, cells will not be sampled from the burn phase
-simulations. Interactions between modules have a strength (which is a
-positive integer) and an effect (+1 for upregulating, -1 for
-downregulating).
+warm-up phase. At the end of the dyngen process, cells will not be
+sampled from the burn phase simulations. Interactions between modules
+have a strength (which is a positive integer) and an effect (+1 for
+upregulating, -1 for downregulating).
 
 Several examples of module networks are given in Supplementary Fig.~5. A
 simple chain of modules (where one module upregulates the next) results
@@ -762,7 +761,7 @@ introduced by experimental protocols in order to obtain data that is
 similar to real data. For this, the cells are sampled from the
 simulations and molecules are sampled for each of the cells. Gene
 capture rates and library sizes are empirically derived from real
-datasets as to match real technical variation.
+datasets to match real technical variation.
 
 \hypertarget{sample-cells}{%
 \subsubsection{Sample cells}\label{sample-cells}}
@@ -800,6 +799,16 @@ of transcript counts per cell in the real dataset. The capture rate
 from the multinomial distribution with probabilities
 \(cr_j \times ab_{i,j}\) with \(ab_{i,j}\) the molecule abundance level
 of molecule \(j\) in cell \(i\).
+
+\hypertarget{comparison-between-a-dyngen-and-a-reference-dataset}{%
+\subsubsection{Comparison between a dyngen and a reference
+dataset}\label{comparison-between-a-dyngen-and-a-reference-dataset}}
+
+Comparison between a dyngen dataset and the reference dataset it used in
+terms of characteristic single-cell omics features showed that dyngen
+produces datasets with highly similar data characteristics
+(Supplementary Note 1). Supplementary Note 1 was generated using
+countsimQC \autocite{soneson_unifiedqualityverification_2018}. .
 
 \hypertarget{sec:dyngen-batcheffect}{%
 \subsection{Simulating batch effects}\label{sec:dyngen-batcheffect}}
@@ -849,10 +858,9 @@ network}\label{sec:dyngen-extractgrn}}
 
 Calculating the regulatory effect of a regulator \(R\) on a target \(T\)
 (Supplementary Fig.~4F) requires determining the contribution of \(R\)
-in the propensity function of the transcription of \(T\)
-(section~\ref{sec:dyngen-reactions}) with respect to other regulators.
-This information is useful, amongst others, for benchmarking
-cell-specific network inference methods.
+in the propensity function of the transcription of \(T\) with respect to
+other regulators. This information is useful, amongst others, for
+benchmarking cell-specific network inference methods.
 
 The regulatory effect of \(R\) on \(T\) at a particular state \(S\) is
 defined as the change in the propensity of transcription when \(R\) is
@@ -877,7 +885,7 @@ methods}\label{sec:dyngen-nicompare}}
 42 datasets were generated using the 14 different predefined backbones
 and three different seeds. For every cell in the dataset, the
 transcriptomics profile and the corresponding cell-specific ground-truth
-regulatory network was determined (Section~\ref{sec:dyngen-extractgrn}).
+regulatory network was determined.
 
 We selected three cell-specific NI methods: SCENIC
 \autocite{aibar_scenicsinglecellregulatory_2017}, LIONESS
@@ -1042,6 +1050,20 @@ in the Source Data file. Reported p-values are adjusted for multiple
 testing using Holm correction
 \autocite{holm_simplesequentiallyrejective_1979}.
 
+\hypertarget{comparison-of-scalability-and-runtime}{%
+\subsection{Comparison of scalability and
+runtime}\label{comparison-of-scalability-and-runtime}}
+
+Simulating a bifurcating cycle dataset with 10'000 genes and 10'000
+required in total 1147 seconds (Supplementary Note 2). Fixing the number
+of genes and varying the number of cells showed that the execution time
+of dyngen scales linearly w.r.t. the number of cells (Supplementary Note
+2). Fixing the number of cells and varying the number of genes also
+showed that the execution time of dyngen scales linearly w.r.t. the
+number of genes (Supplementary Note 2). These timings were measured
+using 30 (out of 32) threads using a AMD Ryzen 9 5950X clocked at
+3.4GHz.
+
 \hypertarget{data-availability}{%
 \section{Data Availability}\label{data-availability}}
 
@@ -1089,6 +1111,15 @@ tibble 3.0.5, tidygraph 1.2.0, tidyr 1.1.2, tidyselect 1.1.0, tools
 4.0.4, tweenr 1.0.1, utf8 1.1.4, vctrs 0.3.6, viridis 0.5.1, viridisLite
 0.3.0, yaml 2.2.1.
 
+\hypertarget{acknowledgements}{%
+\section{Acknowledgements}\label{acknowledgements}}
+
+This project has been made possible in part by grant number 2020-218899
+from the Chan Zuckerberg Initiative DAF, an advised fund of Silicon
+Valley Community Foundation. This research received funding from the
+Flemish Government under the ``Onderzoeksprogramma Artificiële
+Intelligentie (AI) Vlaanderen'' program.
+
 \hypertarget{author-contributions}{%
 \section{Author contributions}\label{author-contributions}}
 
@@ -1106,12 +1137,10 @@ tibble 3.0.5, tidygraph 1.2.0, tidyr 1.1.2, tidyselect 1.1.0, tools
   Y.S. supervised the project.
 \end{itemize}
 
-\hypertarget{acknowledgements}{%
-\section{Acknowledgements}\label{acknowledgements}}
+\hypertarget{competing-interests}{%
+\section{Competing interests}\label{competing-interests}}
 
-This project has been made possible in part by grant number 2020-218899
-from the Chan Zuckerberg Initiative DAF, an advised fund of Silicon
-Valley Community Foundation.
+The authors declare no competing interests.
 
 \printbibliography
 

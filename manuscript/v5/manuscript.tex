@@ -8,7 +8,7 @@
 
 \usepackage{hyperref}
 \hypersetup{
-  pdftitle={dyngen is a multi-modal simulator for spearheading future single-cell omics analyses},
+  pdftitle={Spearheading future omics analyses using dyngen, a multi-modal simulator of single cells},
   pdfauthor={Robrecht Cannoodt; Wouter Saelens; Louise Deconinck; Yvan Saeys},
   hidelinks}
 \usepackage[margin=1in]{geometry}
@@ -16,7 +16,7 @@
 \usepackage[numbers]{natbib}
 
 
-\title{dyngen is a multi-modal simulator for spearheading future single-cell omics analyses}
+\title{Spearheading future omics analyses using dyngen, a multi-modal simulator of single cells}
 \author{Robrecht Cannoodt\textsuperscript{$\dagger{}$,1,2,3} \and Wouter Saelens\textsuperscript{$\dagger{}$,1,2,4} \and Louise Deconinck\textsuperscript{1,2} \and Yvan Saeys\textsuperscript{1,2,*}}
 \date{20 May 2021}
 
@@ -40,7 +40,7 @@ Switzerland
 \textsuperscript{*} Correspondence: \texttt{yvan.saeys@ugent.be}
 
 \hypertarget{abstract}{%
-	\section{Abstract}\label{abstract}}
+	\section*{Abstract}\label{abstract}}
 
 We present dyngen, a multi-modal simulation engine for studying dynamic
 cellular processes at single-cell resolution. dyngen is more flexible
@@ -52,7 +52,7 @@ developmental trajectories, cell-specific regulatory network inference
 and estimation of RNA velocity.
 
 \hypertarget{introduction}{%
-	\section{Introduction}\label{introduction}}
+	\section*{Introduction}\label{introduction}}
 
 Single-cell simulation engines are becoming increasingly important for
 testing and benchmarking computational methods, a pressing need in the
@@ -164,7 +164,7 @@ trajectory alignment, and trajectory differential expression
 \end{figure}
 
 \hypertarget{results}{%
-	\section{Results}\label{results}}
+	\section*{Results}\label{results}}
 
 We demonstrate dyngen's broad applicability by evaluating three novel
 types of computational approaches for which no simulation engines exist
@@ -297,7 +297,7 @@ GRNBoost2 \cite{moerman_grnboost2arboretoefficient_2019}) could
 significantly increase the performance obtained by LIONESS.
 
 \hypertarget{discussion}{%
-	\section{Discussion}\label{discussion}}
+	\section*{Discussion}\label{discussion}}
 
 dyngen's single-cell simulations can be used to evaluate common
 single-cell omics computational methods such as clustering, batch
@@ -324,13 +324,13 @@ division, intercellular communication, and migration
 \newpage
 
 \hypertarget{sec:dyngen-methods}{%
-	\section{Methods}\label{sec:dyngen-methods}}
+	\section*{Methods}\label{sec:dyngen-methods}}
 
 The workflow to generate \emph{in silico} single-cell data consists of
 six main steps (Supplementary Fig~4).
 
 \hypertarget{sec:dyngen-modules}{%
-	\subsection{Defining the module network}\label{sec:dyngen-modules}}
+	\subsection*{Defining the module network}\label{sec:dyngen-modules}}
 
 One of the main processes involved in cellular dynamic processes is gene
 regulation, where regulatory cascades and feedback loops lead to
@@ -383,7 +383,7 @@ safeguards need to be put in place to prevent reprogramming from
 occurring.
 
 \hypertarget{sec:dyngen-grn}{%
-	\subsection{Generating the gene regulatory
+	\subsection*{Generating the gene regulatory
 		network}\label{sec:dyngen-grn}}
 
 The GRN is generated based on the given module network in four main
@@ -423,7 +423,7 @@ is sampled and a breadth-first-search is performed to sample the desired
 number of housekeeping genes.
 
 \hypertarget{sec:dyngen-reactions}{%
-	\subsection{Convert gene regulatory network to a set of
+	\subsection*{Convert gene regulatory network to a set of
 		reactions}\label{sec:dyngen-reactions}}
 
 \newcommand{\x}[1]{\text{x}_{#1}}
@@ -503,7 +503,7 @@ and define the propensity function when \(N=1\), \(N=2\), and finally
 for an arbitrary \(N\).
 
 \hypertarget{propensity-of-transcription-when-n1}{%
-	\subsubsection{\texorpdfstring{Propensity of transcription when
+	\subsubsection*{\texorpdfstring{Propensity of transcription when
 			\(N=1\)}{Propensity of transcription when N=1}}\label{propensity-of-transcription-when-n1}}
 
 In the simplest case when \(N=1\), the promoter can be in one of two
@@ -546,7 +546,7 @@ simplified as follows.
 \end{align}
 
 \hypertarget{propensity-of-transcription-when-n2}{%
-	\subsubsection{\texorpdfstring{Propensity of transcription when
+	\subsubsection*{\texorpdfstring{Propensity of transcription when
 			\(N=2\)}{Propensity of transcription when N=2}}\label{propensity-of-transcription-when-n2}}
 
 When \(N=2\), there are four states \(S_j\). The relative activations
@@ -584,7 +584,7 @@ following equation:
 \end{align}
 
 \hypertarget{propensity-of-transcription-for-an-arbitrary-n}{%
-	\subsubsection{\texorpdfstring{Propensity of transcription for an
+	\subsubsection*{\texorpdfstring{Propensity of transcription for an
 			arbitrary
 			\(N\)}{Propensity of transcription for an arbitrary N}}\label{propensity-of-transcription-for-an-arbitrary-n}}
 
@@ -617,7 +617,7 @@ Substituting \(P(S_j)\) into \(f(.)\) yields:
 \end{align}
 
 \hypertarget{propensity-of-transcription-for-a-large-n}{%
-	\subsubsection{\texorpdfstring{Propensity of transcription for a large
+	\subsubsection*{\texorpdfstring{Propensity of transcription for a large
 			\(N\)}{Propensity of transcription for a large N}}\label{propensity-of-transcription-for-a-large-n}}
 
 For large values of \(N\), computing \(f(.)\) is practically infeasible
@@ -642,7 +642,7 @@ propensity function:
 \end{align}
 
 \hypertarget{independence-synergism-and-basal-expression}{%
-	\subsubsection{Independence, synergism and basal
+	\subsubsection*{Independence, synergism and basal
 		expression}\label{independence-synergism-and-basal-expression}}
 
 The definition of \(\alpha_j\) as in equation \ref{eqn:assalpha}
@@ -661,7 +661,7 @@ bound), and \(\text{sy} \in [0,1]\) denote the synergism of regulators
 \end{align}
 
 \hypertarget{sec:dyngen-simcell}{%
-	\subsection{Simulate single cells}\label{sec:dyngen-simcell}}
+	\subsection*{Simulate single cells}\label{sec:dyngen-simcell}}
 
 dyngen uses Gillespie's stochastic simulation algorithm (SSA)
 \cite{gillespie_exactstochasticsimulation_1977} to simulate dynamic
@@ -689,7 +689,7 @@ propensity values and the number of firings of each of the reactions at
 each of the time steps can be retained.
 
 \hypertarget{sec:dyngen-experiment}{%
-	\subsection{Simulate experiment}\label{sec:dyngen-experiment}}
+	\subsection*{Simulate experiment}\label{sec:dyngen-experiment}}
 
 From the SSA simulation we obtain the abundance levels of all the
 molecules at every state. We need to replicate technical effects
@@ -700,7 +700,7 @@ capture rates and library sizes are empirically derived from real
 datasets to match real technical variation.
 
 \hypertarget{sample-cells}{%
-	\subsubsection{Sample cells}\label{sample-cells}}
+	\subsubsection*{Sample cells}\label{sample-cells}}
 
 In this step, \(N\) cells are sampled from the simulations. Two
 approaches are implemented: sampling from an unsynchronised population
@@ -722,7 +722,7 @@ rounded such that \(\sum N_i = N\). By default, \(k = 8\) and
 larger values of \(T\), \(k\) and \(g\) should be increased accordingly.
 
 \hypertarget{sample-molecules}{%
-	\subsubsection{Sample molecules}\label{sample-molecules}}
+	\subsubsection*{Sample molecules}\label{sample-molecules}}
 
 Molecules are sampled from the simulation to replicate how molecules are
 experimentally sampled. A real dataset is downloaded from a repository
@@ -737,7 +737,7 @@ from the multinomial distribution with probabilities
 of molecule \(j\) in cell \(i\).
 
 \hypertarget{comparison-between-a-dyngen-and-a-reference-dataset}{%
-	\subsubsection{Comparison between a dyngen and a reference
+	\subsubsection*{Comparison between a dyngen and a reference
 		dataset}\label{comparison-between-a-dyngen-and-a-reference-dataset}}
 
 Comparison between a dyngen dataset and the reference dataset it used in
@@ -747,7 +747,7 @@ produces datasets with highly similar data characteristics
 countsimQC \cite{soneson_unifiedqualityverification_2018}. .
 
 \hypertarget{sec:dyngen-batcheffect}{%
-	\subsection{Simulating batch effects}\label{sec:dyngen-batcheffect}}
+	\subsection*{Simulating batch effects}\label{sec:dyngen-batcheffect}}
 
 Simulating batch effects can be performed in multiple ways. One such way
 is to perform the first two steps of the creation of a dyngen model
@@ -759,7 +759,7 @@ separate model has different underlying kinetics, the combined output
 will resemble having batch effects.
 
 \hypertarget{sec:dyngen-groundtruth}{%
-	\subsection{Determining the ground-truth
+	\subsection*{Determining the ground-truth
 		trajectory}\label{sec:dyngen-groundtruth}}
 
 To construct the ground-truth trajectory, the user needs to provide the
@@ -789,7 +789,7 @@ trajectory is calculated, and the cell is mapped to the position in the
 ground-truth trajectory that has the highest correlation.
 
 \hypertarget{sec:dyngen-extractgrn}{%
-	\subsection{Determining the cell-specific ground-truth regulatory
+	\subsection*{Determining the cell-specific ground-truth regulatory
 		network}\label{sec:dyngen-extractgrn}}
 
 Calculating the regulatory effect of a regulator \(R\) on a target \(T\)
@@ -815,7 +815,7 @@ by \(R\), and 0 represents inactivity of the regulatory interaction
 between \(R\) and \(T\).
 
 \hypertarget{sec:dyngen-nicompare}{%
-	\subsection{Comparison of cell-specific network inference
+	\subsection*{Comparison of cell-specific network inference
 		methods}\label{sec:dyngen-nicompare}}
 
 42 datasets were generated using the 14 different predefined backbones
@@ -886,7 +886,7 @@ testing using Holm correction
 \cite{holm_simplesequentiallyrejective_1979}.
 
 \hypertarget{sec:dyngen-velcompare}{%
-	\subsection{Comparison of RNA velocity
+	\subsection*{Comparison of RNA velocity
 		methods}\label{sec:dyngen-velcompare}}
 
 Three datasets were generated for each of the 14 different predefined
@@ -935,7 +935,7 @@ testing using Holm correction
 \cite{holm_simplesequentiallyrejective_1979}.
 
 \hypertarget{sec:dyngen-tacompare}{%
-	\subsection{Comparison of trajectory
+	\subsection*{Comparison of trajectory
 		alignment}\label{sec:dyngen-tacompare}}
 
 Four custom linear backbones of varying sizes were constructed. For each
@@ -987,7 +987,7 @@ testing using Holm correction
 \cite{holm_simplesequentiallyrejective_1979}.
 
 \hypertarget{comparison-of-scalability-and-runtime}{%
-	\subsection{Comparison of scalability and
+	\subsection*{Comparison of scalability and
 		runtime}\label{comparison-of-scalability-and-runtime}}
 
 Simulating a bifurcating cycle dataset with 10'000 genes and 10'000
@@ -1001,7 +1001,7 @@ using 30 (out of 32) threads using a AMD Ryzen 9 5950X clocked at
 3.4GHz.
 
 \hypertarget{data-availability}{%
-	\section{Data Availability}\label{data-availability}}
+	\section*{Data Availability}\label{data-availability}}
 
 Source data for box plots in Figure \ref{fig:applications} and
 Supplementary Figures~1, 2~and~3 are provided with this paper. All code
@@ -1012,7 +1012,7 @@ Zenodo with record number 4637926 (doi:
 \href{https://doi.org/10.5281/zenodo.4637926}{10.5281/zenodo.4637926}).
 
 \hypertarget{code-availability}{%
-	\section{Code Availability}\label{code-availability}}
+	\section*{Code Availability}\label{code-availability}}
 
 Results in this manuscript were generated with R 4.0.3 and dyngen 1.0.0.
 dyngen is available as an open-source software package at
@@ -1048,7 +1048,7 @@ tibble 3.0.5, tidygraph 1.2.0, tidyr 1.1.2, tidyselect 1.1.0, tools
 0.3.0, yaml 2.2.1.
 
 \hypertarget{acknowledgements}{%
-	\section{Acknowledgements}\label{acknowledgements}}
+	\section*{Acknowledgements}\label{acknowledgements}}
 
 This project has been made possible in part by grant number 2020-218899
 from the Chan Zuckerberg Initiative DAF, an advised fund of Silicon
@@ -1057,7 +1057,7 @@ Flemish Government under the ``Onderzoeksprogramma Artificiële
 Intelligentie (AI) Vlaanderen'' program.
 
 \hypertarget{author-contributions}{%
-	\section{Author contributions}\label{author-contributions}}
+	\section*{Author contributions}\label{author-contributions}}
 
 \begin{itemize}
 	\item
@@ -1073,7 +1073,7 @@ Intelligentie (AI) Vlaanderen'' program.
 \end{itemize}
 
 \hypertarget{competing-interests}{%
-	\section{Competing interests}\label{competing-interests}}
+	\section*{Competing interests}\label{competing-interests}}
 
 The authors declare no competing interests.
 
